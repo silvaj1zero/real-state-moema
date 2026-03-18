@@ -183,6 +183,28 @@ export function useTransitionLead() {
         throw new Error(`Failed to update lead stage: ${updateError.message}`)
       }
 
+      // 3. Auto-create marketing plan when entering exclusividade (Story 4.8 AC1)
+      if (input.to_etapa === 'representacao') {
+        const { data: existingPlan } = await supabase
+          .from('marketing_plans')
+          .select('id')
+          .eq('lead_id', input.lead_id)
+          .maybeSingle()
+
+        if (!existingPlan) {
+          await supabase.from('marketing_plans').insert({
+            lead_id: input.lead_id,
+            consultant_id: input.consultant_id,
+          })
+
+          window.dispatchEvent(
+            new CustomEvent('toast', {
+              detail: { message: 'Plano de Marketing criado automaticamente!', type: 'success' },
+            }),
+          )
+        }
+      }
+
       return transition as FunnelTransition
     },
 
@@ -192,6 +214,10 @@ export function useTransitionLead() {
       queryClient.invalidateQueries({ queryKey: ['leads', 'funnel'] })
       queryClient.invalidateQueries({
         queryKey: funnelKeys.transitions(input.lead_id),
+      })
+      // Invalidate marketing plan query (auto-created on exclusividade)
+      queryClient.invalidateQueries({
+        queryKey: ['marketing_plan', input.lead_id],
       })
     },
   })

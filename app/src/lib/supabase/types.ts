@@ -275,6 +275,137 @@ export interface ComparavelNoRaio {
   distancia_m: number
 }
 
+// =============================================================================
+// Epic 4 — Parcerias Ganha/Ganha & Escala
+// =============================================================================
+
+// Enums (match migration 004_epic4_partnerships.sql)
+
+export type StatusReferral =
+  | 'enviada'
+  | 'aceita'
+  | 'recusada'
+  | 'em_andamento'
+  | 'convertida'
+  | 'comissao_paga'
+  | 'expirada'
+
+export type DirecaoReferral = 'enviado' | 'recebido'
+
+// Interfaces
+
+export interface Referral {
+  id: string
+  consultant_id: string
+  direcao: DirecaoReferral
+  parceiro_nome: string
+  parceiro_franquia: string | null
+  parceiro_telefone_encrypted: string | null // BYTEA in DB, text for now
+  parceiro_email: string | null
+  parceiro_regiao: string | null
+  cliente_perfil: string | null
+  tipologia_desejada: string | null
+  faixa_preco_min: number | null
+  faixa_preco_max: number | null
+  regiao_desejada: string | null
+  prazo_validade: string | null
+  status: StatusReferral
+  lead_id: string | null
+  notas: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type StatusSafari = 'planejado' | 'confirmado' | 'realizado' | 'cancelado'
+export type StatusRsvp = 'convidado' | 'confirmado' | 'recusado' | 'pendente'
+
+export interface SafariEvent {
+  id: string
+  consultant_id: string
+  lead_id: string | null
+  edificio_id: string | null
+  titulo: string
+  descricao: string | null
+  data_hora: string
+  endereco: string | null
+  vagas: number
+  status: StatusSafari
+  feedback: string | null
+  propostas_recebidas: number
+  created_at: string
+  updated_at: string
+}
+
+export interface SafariEventRsvp {
+  id: string
+  safari_event_id: string
+  nome_convidado: string
+  franquia: string | null
+  telefone: string | null
+  status: StatusRsvp
+  notas: string | null
+  created_at: string
+}
+
+export type StatusPagamento = 'pendente' | 'recebido' | 'pago_informante' | 'pago_parceiro' | 'completo'
+export type TipoSplit = 'padrao' | 'referral' | 'informante' | 'clausula_relacionamento'
+
+export interface Comissao {
+  id: string
+  consultant_id: string
+  lead_id: string | null
+  valor_imovel: number
+  percentual_comissao: number
+  valor_bruto: number
+  split_consultora: number | null
+  split_franquia: number | null
+  split_informante: number | null
+  split_referral: number | null
+  tipo_split: TipoSplit
+  percentual_clausula: number
+  informante_id: string | null
+  referral_id: string | null
+  status_pagamento: StatusPagamento
+  data_recebimento: string | null
+  data_pagamento_informante: string | null
+  data_pagamento_referral: string | null
+  notas: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface MarketingPlan {
+  id: string
+  lead_id: string
+  consultant_id: string
+  publicar_zap: boolean
+  publicar_zap_data: string | null
+  publicar_zap_url: string | null
+  publicar_olx: boolean
+  publicar_olx_data: string | null
+  publicar_olx_url: string | null
+  publicar_vivareal: boolean
+  publicar_vivareal_data: string | null
+  postar_instagram: boolean
+  postar_instagram_data: string | null
+  postar_facebook: boolean
+  postar_facebook_data: string | null
+  fotos_profissionais: boolean
+  fotos_profissionais_data: string | null
+  tour_virtual: boolean
+  tour_virtual_url: string | null
+  placa_fisica: boolean
+  safari_planejado: boolean
+  safari_event_id: string | null
+  notas: string | null
+  created_at: string
+  updated_at: string
+}
+
+// =============================================================================
+// Epic 3 (continued)
+// =============================================================================
+
 export interface ScrapedListing {
   id: string
   portal: PortalScraping

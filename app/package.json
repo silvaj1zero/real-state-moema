@@ -27,6 +27,7 @@
     "mapbox-gl": "^3.20.0",
     "next": "16.1.7",
     "next-pwa": "^5.6.0",
+    "papaparse": "^5.5.3",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-map-gl": "^8.1.0",
@@ -36,6 +37,7 @@
     "workbox-precaching": "^7.4.0",
     "workbox-routing": "^7.4.0",
     "workbox-strategies": "^7.4.0",
+    "xlsx": "^0.18.5",
     "zustand": "^5.0.12"
   },
   "devDependencies": {
@@ -44,6 +46,7 @@
     "@testing-library/react": "^16.3.2",
     "@types/mapbox-gl": "^3.4.1",
     "@types/node": "^20",
+    "@types/papaparse": "^5.5.2",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^6.0.1",
