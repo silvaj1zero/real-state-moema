@@ -79,7 +79,7 @@ export function MapView() {
     }
   }, [showMoveConfirm, setEpicenter])
 
-  const handleRegisterSuccess = useCallback((_id: string, _lat: number, _lng: number) => {
+  const handleRegisterSuccess = useCallback(() => {
     invalidate()
     // Toast notification will be added
   }, [invalidate])
@@ -116,12 +116,12 @@ export function MapView() {
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
         onTouchStart={(e) => {
-          const touch = e.originalEvent
-          if (touch) {
+          const touch = e.originalEvent as TouchEvent | undefined
+          if (touch?.touches?.[0]) {
             longPressTimer.current = setTimeout(() => {
               const point = mapRef.current?.unproject([
-                (touch as any).touches?.[0]?.clientX ?? 0,
-                (touch as any).touches?.[0]?.clientY ?? 0,
+                touch.touches[0].clientX,
+                touch.touches[0].clientY,
               ])
               if (point) setShowMoveConfirm({ lat: point.lat, lng: point.lng })
             }, 600)

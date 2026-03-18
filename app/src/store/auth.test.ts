@@ -13,7 +13,7 @@ describe('useAuthStore', () => {
   })
 
   it('should set user and stop loading', () => {
-    const mockUser = { id: 'test-uuid', email: 'luciana@remax.com' } as any
+    const mockUser = { id: 'test-uuid', email: 'luciana@remax.com' } as unknown as import('@supabase/supabase-js').User
     useAuthStore.getState().setUser(mockUser)
 
     const state = useAuthStore.getState()
@@ -22,7 +22,7 @@ describe('useAuthStore', () => {
   })
 
   it('should clear user on logout', () => {
-    const mockUser = { id: 'test-uuid' } as any
+    const mockUser = { id: 'test-uuid' } as unknown as import('@supabase/supabase-js').User
     useAuthStore.getState().setUser(mockUser)
     useAuthStore.getState().setUser(null)
 

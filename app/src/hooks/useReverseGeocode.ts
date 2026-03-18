@@ -36,11 +36,11 @@ export function useReverseGeocode() {
         const feature = data.features?.[0]
         if (!feature) return null
 
-        const context = feature.context || []
-        const bairro = context.find((c: any) => c.id.startsWith('neighborhood'))?.text || null
-        const cidade = context.find((c: any) => c.id.startsWith('place'))?.text || 'São Paulo'
-        const estado = context.find((c: any) => c.id.startsWith('region'))?.short_code?.replace('BR-', '') || 'SP'
-        const cep = context.find((c: any) => c.id.startsWith('postcode'))?.text || null
+        const context: Array<{ id: string; text: string; short_code?: string }> = feature.context || []
+        const bairro = context.find((c) => c.id.startsWith('neighborhood'))?.text || null
+        const cidade = context.find((c) => c.id.startsWith('place'))?.text || 'São Paulo'
+        const estado = context.find((c) => c.id.startsWith('region'))?.short_code?.replace('BR-', '') || 'SP'
+        const cep = context.find((c) => c.id.startsWith('postcode'))?.text || null
 
         return {
           endereco: feature.place_name_pt || feature.place_name || '',

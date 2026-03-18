@@ -2,6 +2,13 @@
 // Story 1.7: Seed Data — Pré-carga de Edifícios (VETO PV #1)
 // Fonte primária: 16.595 edifícios verificados no raio 2km de Moema
 
+interface OverpassElement {
+  id: number
+  type: string
+  center?: { lat: number; lon: number }
+  tags?: Record<string, string>
+}
+
 interface OverpassBuilding {
   id: number
   type: string
@@ -38,12 +45,12 @@ export async function fetchBuildingsFromOverpass(
   const elements = data.elements || []
 
   return elements
-    .filter((el: any) => el.center?.lat && el.center?.lon)
-    .map((el: any) => ({
+    .filter((el: OverpassElement) => el.center?.lat && el.center?.lon)
+    .map((el: OverpassElement) => ({
       id: el.id,
       type: el.type,
-      lat: el.center.lat,
-      lng: el.center.lon,
+      lat: el.center!.lat,
+      lng: el.center!.lon,
       name: el.tags?.name || null,
       address: formatAddress(el.tags),
       housenumber: el.tags?.['addr:housenumber'] || null,
@@ -54,7 +61,7 @@ export async function fetchBuildingsFromOverpass(
     }))
 }
 
-function formatAddress(tags: any): string | null {
+function formatAddress(tags: Record<string, string> | undefined): string | null {
   if (!tags) return null
   const parts = []
   if (tags['addr:street']) parts.push(tags['addr:street'])

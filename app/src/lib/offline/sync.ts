@@ -22,7 +22,7 @@ export async function syncPendingMutations(): Promise<{ synced: number; failed: 
 
         if (error) throw error
       } else if (mutation.operation === 'update') {
-        const { id, ...data } = mutation.data as any
+        const { id, ...data } = mutation.data as Record<string, unknown>
         const { error } = await supabase
           .from(mutation.table)
           .update(data)

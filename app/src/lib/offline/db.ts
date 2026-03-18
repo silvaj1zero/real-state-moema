@@ -35,13 +35,13 @@ function openDB(): Promise<IDBDatabase> {
 }
 
 // Cache buildings locally
-export async function cacheBuildingsLocally(buildings: any[]): Promise<void> {
+export async function cacheBuildingsLocally(buildings: Record<string, unknown>[]): Promise<void> {
   const db = await openDB()
   const tx = db.transaction('buildings', 'readwrite')
   const store = tx.objectStore('buildings')
 
   for (const b of buildings) {
-    store.put(b)
+    store.put(b as Record<string, unknown>)
   }
 
   return new Promise((resolve, reject) => {
@@ -51,7 +51,7 @@ export async function cacheBuildingsLocally(buildings: any[]): Promise<void> {
 }
 
 // Get cached buildings (for offline use)
-export async function getCachedBuildings(): Promise<any[]> {
+export async function getCachedBuildings(): Promise<Record<string, unknown>[]> {
   const db = await openDB()
   const tx = db.transaction('buildings', 'readonly')
   const store = tx.objectStore('buildings')

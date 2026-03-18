@@ -29,7 +29,7 @@ export function useBuildings() {
       if (error || !data) return []
 
       // Get qualifications for these buildings
-      const buildingIds = data.map((b: any) => b.edificio_id)
+      const buildingIds = data.map((b: { edificio_id: string }) => b.edificio_id)
       if (buildingIds.length === 0) return []
 
       const { data: buildings } = await supabase
@@ -42,7 +42,7 @@ export function useBuildings() {
       // Parse coordinates from PostGIS geography to lat/lng
       return buildings.map((b) => {
         // PostGIS returns geography as hex WKB - we use the fn_edificios_no_raio coordinates
-        const rpcMatch = data.find((d: any) => d.edificio_id === b.id)
+        const rpcMatch = data.find((d: { edificio_id: string }) => d.edificio_id === b.id)
         return {
           ...b,
           lat: rpcMatch ? epicenter.lat + (Math.random() - 0.5) * 0.001 : undefined, // temp: will be replaced by real coords

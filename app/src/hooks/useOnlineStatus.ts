@@ -16,7 +16,9 @@ export function useOnlineStatus() {
     const handleOnline = () => {
       setIsOnline(true)
       // Auto-sync when back online
-      doSync()
+      syncPendingMutations().then(({ synced }) => {
+        if (synced > 0) getPendingCount().then(setPendingCount)
+      })
     }
     const handleOffline = () => setIsOnline(false)
 
