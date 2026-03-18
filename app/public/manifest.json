@@ -1,0 +1,24 @@
+{
+  "name": "RE/MAX Moema — Mapeamento Territorial",
+  "short_name": "RE/MAX Moema",
+  "description": "Sistema de mapeamento e assessoria imobiliária para consultores RE/MAX",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#003DA5",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
