@@ -1,7 +1,7 @@
 'use client'
 
 import { useMapStore } from '@/store/map'
-import { useState } from 'react'
+import { Filter, Layers, WifiOff } from 'lucide-react'
 
 interface HeaderBarProps {
   isOffline?: boolean
@@ -17,7 +17,8 @@ export function HeaderBar({ isOffline, onFilterClick, onLayersClick }: HeaderBar
       {/* Left: offline indicator */}
       <div className="w-16 flex items-center">
         {isOffline && (
-          <span className="text-xs font-medium text-orange-600 bg-orange-100 px-2 py-0.5 rounded-full">
+          <span className="flex items-center gap-1 text-xs font-medium text-orange-600 bg-orange-100 px-2 py-0.5 rounded-full">
+            <WifiOff size={12} />
             Offline
           </span>
         )}
@@ -36,20 +37,14 @@ export function HeaderBar({ isOffline, onFilterClick, onLayersClick }: HeaderBar
           className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100"
           aria-label="Filtros"
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-          </svg>
+          <Filter size={18} strokeWidth={1.8} />
         </button>
         <button
           onClick={onLayersClick}
           className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100"
           aria-label="Camadas"
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <polygon points="12 2 2 7 12 12 22 7 12 2" />
-            <polyline points="2 17 12 22 22 17" />
-            <polyline points="2 12 12 17 22 12" />
-          </svg>
+          <Layers size={18} strokeWidth={1.8} />
         </button>
       </div>
     </header>

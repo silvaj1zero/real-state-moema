@@ -4,7 +4,7 @@ import { useMapStore } from './map'
 describe('useMapStore', () => {
   beforeEach(() => {
     useMapStore.setState({
-      epicenter: { lat: -23.5988, lng: -46.6658 },
+      epicenter: { lat: -23.605077, lng: -46.675792 },
       activeRadius: 500,
       showRadius500: true,
       showRadius1000: true,
@@ -16,8 +16,8 @@ describe('useMapStore', () => {
 
   it('should have default epicenter at Rua Alvorada', () => {
     const { epicenter } = useMapStore.getState()
-    expect(epicenter?.lat).toBeCloseTo(-23.5988, 3)
-    expect(epicenter?.lng).toBeCloseTo(-46.6658, 3)
+    expect(epicenter?.lat).toBeCloseTo(-23.605077, 3)
+    expect(epicenter?.lng).toBeCloseTo(-46.675792, 3)
   })
 
   it('should toggle radius visibility', () => {

@@ -107,8 +107,8 @@ export function MapView() {
         ref={mapRef}
         mapboxAccessToken={MAPBOX_TOKEN}
         initialViewState={{
-          latitude: epicenter?.lat ?? -23.5988,
-          longitude: epicenter?.lng ?? -46.6658,
+          latitude: epicenter?.lat ?? -23.605077,
+          longitude: epicenter?.lng ?? -46.675792,
           zoom: 15,
         }}
         style={{ width: '100%', height: '100%' }}

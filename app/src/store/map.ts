@@ -21,7 +21,8 @@ interface MapState {
 }
 
 // Epicentro padrão: Rua Alvorada, Moema
-const DEFAULT_EPICENTER = { lat: -23.5988, lng: -46.6658 }
+// Rua Alvorada, 71 — Moema, São Paulo (geocoded via Mapbox)
+const DEFAULT_EPICENTER = { lat: -23.605077, lng: -46.675792 }
 
 export const useMapStore = create<MapState>((set) => ({
   epicenter: DEFAULT_EPICENTER,
