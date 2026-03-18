@@ -3,7 +3,9 @@ import type { StatusVarredura } from '@/lib/supabase/types'
 
 interface FilterState {
   activeStatuses: Set<StatusVarredura>
+  fisboOnly: boolean
   toggleStatus: (status: StatusVarredura) => void
+  toggleFisboOnly: () => void
   showAll: () => void
   isVisible: (status: StatusVarredura) => boolean
 }
@@ -12,6 +14,7 @@ const ALL_STATUSES: StatusVarredura[] = ['nao_visitado', 'mapeado', 'em_prospecc
 
 export const useFilterStore = create<FilterState>((set, get) => ({
   activeStatuses: new Set(ALL_STATUSES),
+  fisboOnly: false,
 
   toggleStatus: (status) =>
     set((state) => {
@@ -24,7 +27,9 @@ export const useFilterStore = create<FilterState>((set, get) => ({
       return { activeStatuses: next }
     }),
 
-  showAll: () => set({ activeStatuses: new Set(ALL_STATUSES) }),
+  toggleFisboOnly: () => set((state) => ({ fisboOnly: !state.fisboOnly })),
+
+  showAll: () => set({ activeStatuses: new Set(ALL_STATUSES), fisboOnly: false }),
 
   isVisible: (status) => get().activeStatuses.has(status),
 }))
