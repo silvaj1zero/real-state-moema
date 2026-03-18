@@ -1,5 +1,6 @@
 -- =============================================================================
 -- MIGRATION 003: Epic 3 — Inteligencia, ACM & Agentes de Automacao
+-- Updated 2026-03-18: Schema fixes from PO validation (Stories 3.3, 3.5, 3.6, 3.8)
 -- =============================================================================
 -- Stories: 3.1-3.8
 -- Depende de: 001 + 002
@@ -245,6 +246,59 @@ BEGIN
   ORDER BY ST_Distance(ac.coordinates, ST_SetSRID(ST_MakePoint(p_lng, p_lat), 4326)::geography);
 END;
 $$ LANGUAGE plpgsql STABLE;
+
+-- =============================================================================
+-- SCHEMA FIX — PO Validation (2026-03-18)
+-- Gaps identified during Story validation for Epic 3
+-- =============================================================================
+
+-- ---------------------------------------------------------------------------
+-- Fix 1 — Story 3.3 (Home Staging): FALSE POSITIVE
+-- The field `home_staging_enviado` already exists in `checklists_preparacao`
+-- (created in migration 002_epic2_methodology.sql, line 161).
+-- No schema change needed.
+-- ---------------------------------------------------------------------------
+
+-- ---------------------------------------------------------------------------
+-- Fix 2 — Story 3.5 (Pre-Mapping Advanced): GeoSampa IPTU enrichment fields
+-- ---------------------------------------------------------------------------
+ALTER TABLE edificios ADD COLUMN IF NOT EXISTS total_units INTEGER;
+ALTER TABLE edificios ADD COLUMN IF NOT EXISTS area_construida NUMERIC(10,2);
+ALTER TABLE edificios ADD COLUMN IF NOT EXISTS ano_construcao INTEGER;
+ALTER TABLE edificios ADD COLUMN IF NOT EXISTS padrao_iptu TEXT;
+ALTER TABLE edificios ADD COLUMN IF NOT EXISTS tipo_uso_iptu TEXT;
+ALTER TABLE edificios ADD COLUMN IF NOT EXISTS num_pavimentos INTEGER;
+ALTER TABLE edificios ADD COLUMN IF NOT EXISTS sql_lote TEXT;
+ALTER TABLE edificios ADD COLUMN IF NOT EXISTS seed_source_secondary TEXT;
+ALTER TABLE edificios ADD COLUMN IF NOT EXISTS edited_fields JSONB DEFAULT '[]'::jsonb;
+
+-- ---------------------------------------------------------------------------
+-- Fix 3 — Story 3.6 (Cross-Referencing): Cross-referencing entre portais
+-- ---------------------------------------------------------------------------
+ALTER TABLE scraped_listings ADD COLUMN IF NOT EXISTS merged_group_id UUID;
+
+CREATE TABLE IF NOT EXISTS listing_cross_refs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  listing_a_id UUID NOT NULL REFERENCES scraped_listings(id) ON DELETE CASCADE,
+  listing_b_id UUID NOT NULL REFERENCES scraped_listings(id) ON DELETE CASCADE,
+  match_score INTEGER NOT NULL CHECK (match_score BETWEEN 0 AND 100),
+  match_method TEXT, -- 'geo_area_price', 'address_normalize', 'manual'
+  is_confirmed BOOLEAN NOT NULL DEFAULT false,
+  merged_at TIMESTAMPTZ,
+  reviewed_by UUID REFERENCES consultores(id),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE(listing_a_id, listing_b_id)
+);
+
+CREATE INDEX idx_cross_refs_listing_a ON listing_cross_refs(listing_a_id);
+CREATE INDEX idx_cross_refs_listing_b ON listing_cross_refs(listing_b_id);
+CREATE INDEX idx_scraped_merged_group ON scraped_listings(merged_group_id) WHERE merged_group_id IS NOT NULL;
+
+-- ---------------------------------------------------------------------------
+-- Fix 4 — Story 3.8 (Lead Enrichment): Enriquecimento sob demanda
+-- ---------------------------------------------------------------------------
+ALTER TABLE leads ADD COLUMN IF NOT EXISTS enrichment_data JSONB;
+-- Structure: {enriched_at, anuncios_entorno: [], estimativa_m2: {}, fisbo_score: {}, scraped_match_id}
 
 -- =============================================================================
 -- FIM: Migration 003 — Epic 3 Intelligence
