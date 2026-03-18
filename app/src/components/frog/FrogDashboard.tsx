@@ -111,7 +111,7 @@ export function FrogDashboard({ className }: FrogDashboardProps) {
               style={{
                 borderColor: config.color,
                 ...(activeCategory === cat
-                  ? { ringColor: config.color }
+                  ? { outlineColor: config.color, outlineWidth: '2px', outlineStyle: 'solid' as const }
                   : {}),
               }}
             >

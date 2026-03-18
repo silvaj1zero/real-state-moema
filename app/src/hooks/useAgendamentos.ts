@@ -133,13 +133,11 @@ export function useUpcomingAgendamentos(
       }
 
       // Flatten leads.nome into the result
-      return (data ?? []).map((row: Record<string, unknown>) => {
-        const leads = row.leads as { nome: string } | null
-        return {
-          ...row,
-          lead_nome: leads?.nome ?? undefined,
-          leads: undefined,
-        } as Agendamento & { lead_nome?: string }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return (data ?? []).map((row: any) => {
+        const leadNome = row.leads?.nome ?? undefined
+        const { leads: _leads, ...rest } = row
+        return { ...rest, lead_nome: leadNome } as Agendamento & { lead_nome?: string }
       })
     },
     enabled: !!consultantId,

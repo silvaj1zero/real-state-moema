@@ -19,11 +19,11 @@ const PERIOD_OPTIONS: { value: DashboardPeriod; label: string }[] = [
 export function DashboardPage() {
   const { user } = useAuthStore()
   const [period, setPeriod] = useState<DashboardPeriod>('mes')
-  const { data: kpis, isLoading, refetch } = useDashboardKPIs(user?.id || '', period)
+  const dashboard = useDashboardKPIs(user?.id || '', period)
 
   const handleRefresh = useCallback(async () => {
-    await refetch()
-  }, [refetch])
+    await dashboard.refetch()
+  }, [dashboard])
 
   return (
     <div className="flex flex-col h-full bg-gray-50">
@@ -36,7 +36,7 @@ export function DashboardPage() {
             className="p-2 text-gray-500 hover:text-gray-700 rounded-lg"
             aria-label="Atualizar"
           >
-            <svg className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className={`w-5 h-5 ${dashboard.isLoading ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
           </button>
@@ -62,23 +62,23 @@ export function DashboardPage() {
 
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 pb-24">
-        {/* Meta diária — always first */}
-        <MetaDiaria consultantId={user?.id || ''} />
+        {/* Meta diária */}
+        <MetaDiaria kpis={dashboard.metaDiaria} />
 
         {/* Upcoming appointments */}
-        <UpcomingSection consultantId={user?.id || ''} />
+        <UpcomingSection />
 
         {/* Territorial KPIs */}
-        <TerritorialSection kpis={kpis?.territorial} isLoading={isLoading} />
+        <TerritorialSection kpis={dashboard.territorial} />
 
         {/* Funnel KPIs */}
-        <FunnelSection consultantId={user?.id || ''} period={period} />
+        <FunnelSection kpis={dashboard.funnel} />
 
         {/* Informantes KPIs */}
-        <InformantesSection consultantId={user?.id || ''} />
+        <InformantesSection kpis={dashboard.informantes} />
 
         {/* FROG KPIs */}
-        <FrogSection consultantId={user?.id || ''} />
+        <FrogSection kpis={dashboard.frog} />
       </div>
     </div>
   )

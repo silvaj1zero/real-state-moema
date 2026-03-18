@@ -101,7 +101,7 @@ function RadiusBar({
             ? 'bg-gray-50 opacity-60'
             : 'bg-white ring-1 ring-gray-200'
       }`}
-      style={isActive ? { ringColor: color } : undefined}
+      style={isActive ? { outlineColor: color, outlineWidth: '2px', outlineStyle: 'solid' } : undefined}
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-2">

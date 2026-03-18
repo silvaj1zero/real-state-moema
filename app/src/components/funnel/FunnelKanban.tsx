@@ -1,19 +1,5 @@
 'use client'
 
-import { useState, useCallback } from 'react'
-import {
-  DndContext,
-  DragOverlay,
-  closestCenter,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragStartEvent,
-  type DragEndEvent,
-} from '@dnd-kit/core'
-import { useDroppable } from '@dnd-kit/core'
-import { useDraggable } from '@dnd-kit/core'
-import { CSS } from '@dnd-kit/utilities'
 import { useAuthStore } from '@/store/auth'
 import { useLeadsByFunnel } from '@/hooks/useLeads'
 import { useFunnelStore } from '@/store/funnel'
@@ -42,72 +28,37 @@ const KANBAN_COLUMNS: ColumnConfig[] = [
   { etapa: 'venda', label: 'Venda', headerColor: 'bg-[#22C55E]', headerTextColor: 'text-white' },
 ]
 
-// ---------------------------------------------------------------------------
-// DraggableLeadCard
-// ---------------------------------------------------------------------------
-
-interface DraggableLeadCardProps {
-  lead: LeadWithEdificio
-}
-
-function DraggableLeadCard({ lead }: DraggableLeadCardProps) {
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
-    id: lead.id,
-    data: { lead },
-  })
-
-  const style = {
-    transform: CSS.Translate.toString(transform),
-    opacity: isDragging ? 0.4 : 1,
-  }
-
-  return (
-    <div ref={setNodeRef} style={style} {...listeners} {...attributes}>
-      <LeadCard lead={lead} className={cn(isDragging && 'shadow-lg ring-2 ring-[#003DA5]')} />
-    </div>
-  )
-}
+const ETAPA_ORDER: EtapaFunil[] = [
+  'contato', 'v1_agendada', 'v1_realizada', 'v2_agendada', 'v2_realizada', 'representacao', 'venda'
+]
 
 // ---------------------------------------------------------------------------
-// DroppableColumn
+// KanbanColumn
 // ---------------------------------------------------------------------------
 
-interface DroppableColumnProps {
+interface KanbanColumnProps {
   column: ColumnConfig
   leads: LeadWithEdificio[]
   isLoading: boolean
   count: number
+  onAdvanceLead: (leadId: string, fromEtapa: EtapaFunil, toEtapa: EtapaFunil) => void
 }
 
-function DroppableColumn({ column, leads, isLoading, count }: DroppableColumnProps) {
-  const { setNodeRef, isOver } = useDroppable({
-    id: column.etapa,
-  })
+function KanbanColumn({ column, leads, isLoading, count, onAdvanceLead }: KanbanColumnProps) {
+  const currentIndex = ETAPA_ORDER.indexOf(column.etapa)
+  const nextEtapa = currentIndex < ETAPA_ORDER.length - 1 ? ETAPA_ORDER[currentIndex + 1] : null
 
   return (
-    <div
-      ref={setNodeRef}
-      className={cn(
-        'flex flex-col min-w-[260px] w-[260px] bg-gray-50 rounded-xl border border-gray-200 overflow-hidden transition-colors',
-        isOver && 'bg-blue-50 border-[#003DA5] ring-1 ring-[#003DA5]/30'
-      )}
-    >
-      {/* Column header */}
+    <div className="flex flex-col min-w-[260px] w-[260px] bg-gray-50 rounded-xl border border-gray-200 overflow-hidden">
       <div className={cn('px-3 py-2.5 flex items-center justify-between', column.headerColor)}>
         <span className={cn('text-sm font-semibold', column.headerTextColor)}>
           {column.label}
         </span>
-        <span
-          className={cn(
-            'text-[10px] min-w-[20px] h-[20px] flex items-center justify-center rounded-full px-1.5 bg-white/20',
-            column.headerTextColor
-          )}
-        >
+        <span className={cn('text-[10px] min-w-[20px] h-[20px] flex items-center justify-center rounded-full px-1.5 bg-white/20', column.headerTextColor)}>
           {count}
         </span>
       </div>
 
-      {/* Column content */}
       <div className="flex-1 overflow-y-auto p-2 space-y-2 max-h-[calc(100vh-220px)]">
         {isLoading ? (
           <div className="flex items-center justify-center py-8">
@@ -119,7 +70,18 @@ function DroppableColumn({ column, leads, isLoading, count }: DroppableColumnPro
           </div>
         ) : (
           leads.map((lead) => (
-            <DraggableLeadCard key={lead.id} lead={lead} />
+            <div key={lead.id} className="group relative">
+              <LeadCard lead={lead} />
+              {nextEtapa && (
+                <button
+                  onClick={() => onAdvanceLead(lead.id, column.etapa, nextEtapa)}
+                  className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-[#003DA5] text-white text-[10px] px-2 py-1 rounded-full shadow-md hover:bg-[#002d7a]"
+                  title={`Avançar para ${nextEtapa}`}
+                >
+                  Avançar →
+                </button>
+              )}
+            </div>
           ))
         )}
       </div>
@@ -128,7 +90,7 @@ function DroppableColumn({ column, leads, isLoading, count }: DroppableColumnPro
 }
 
 // ---------------------------------------------------------------------------
-// FunnelKanban — Desktop Kanban with drag-and-drop
+// FunnelKanban — Desktop Kanban with button-based transitions
 // ---------------------------------------------------------------------------
 
 interface FunnelKanbanProps {
@@ -138,9 +100,7 @@ interface FunnelKanbanProps {
 export function FunnelKanban({ stageCounts }: FunnelKanbanProps) {
   const user = useAuthStore((s) => s.user)
   const openTransitionModal = useFunnelStore((s) => s.openTransitionModal)
-  const [activeDragLead, setActiveDragLead] = useState<LeadWithEdificio | null>(null)
 
-  // Fetch leads per column
   const contatoQuery = useLeadsByFunnel(user?.id ?? null, 'contato')
   const v1AgendadaQuery = useLeadsByFunnel(user?.id ?? null, 'v1_agendada')
   const v1RealizadaQuery = useLeadsByFunnel(user?.id ?? null, 'v1_realizada')
@@ -159,71 +119,25 @@ export function FunnelKanban({ stageCounts }: FunnelKanbanProps) {
     venda: vendaQuery,
   }
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    })
-  )
-
-  const handleDragStart = useCallback((event: DragStartEvent) => {
-    const lead = event.active.data.current?.lead as LeadWithEdificio | undefined
-    if (lead) {
-      setActiveDragLead(lead)
-    }
-  }, [])
-
-  const handleDragEnd = useCallback(
-    (event: DragEndEvent) => {
-      setActiveDragLead(null)
-
-      const { active, over } = event
-      if (!over) return
-
-      const targetEtapa = over.id as EtapaFunil
-      const lead = active.data.current?.lead as LeadWithEdificio | undefined
-      if (!lead) return
-
-      // Don't transition if dropped on same column
-      if (lead.etapa_funil === targetEtapa) return
-
-      // Open transition modal — mandatory for all transitions
-      openTransitionModal(lead.id, lead.etapa_funil, targetEtapa)
-    },
-    [openTransitionModal]
-  )
+  const handleAdvanceLead = (leadId: string, fromEtapa: EtapaFunil, toEtapa: EtapaFunil) => {
+    openTransitionModal(leadId, fromEtapa, toEtapa)
+  }
 
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-    >
-      <div className="flex gap-3 overflow-x-auto p-4 h-full">
-        {KANBAN_COLUMNS.map((column) => {
-          const queryData = leadsMap[column.etapa]
-          return (
-            <DroppableColumn
-              key={column.etapa}
-              column={column}
-              leads={queryData?.leads ?? []}
-              isLoading={queryData?.isLoading ?? false}
-              count={stageCounts[column.etapa] ?? 0}
-            />
-          )
-        })}
-      </div>
-
-      {/* Drag overlay — shows floating card while dragging */}
-      <DragOverlay>
-        {activeDragLead ? (
-          <div className="w-[240px] opacity-90">
-            <LeadCard lead={activeDragLead} className="shadow-xl ring-2 ring-[#003DA5]" />
-          </div>
-        ) : null}
-      </DragOverlay>
-    </DndContext>
+    <div className="flex gap-3 overflow-x-auto p-4 h-full">
+      {KANBAN_COLUMNS.map((column) => {
+        const queryData = leadsMap[column.etapa]
+        return (
+          <KanbanColumn
+            key={column.etapa}
+            column={column}
+            leads={queryData?.leads ?? []}
+            isLoading={queryData?.isLoading ?? false}
+            count={stageCounts[column.etapa] ?? 0}
+            onAdvanceLead={handleAdvanceLead}
+          />
+        )
+      })}
+    </div>
   )
 }
