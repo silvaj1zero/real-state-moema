@@ -2,14 +2,7 @@
 
 import type { AcmCalculations } from '@/hooks/useAcm'
 import { TrendingUp, TrendingDown, BarChart3, Hash } from 'lucide-react'
-
-function formatBRL(value: number): string {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-    minimumFractionDigits: 2,
-  }).format(value)
-}
+import { formatBRL } from '@/lib/format'
 
 interface AcmSummaryCardsProps {
   stats: AcmCalculations

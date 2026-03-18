@@ -5,14 +5,7 @@ import { ArrowLeft, Brain, Search, TrendingUp, AlertTriangle } from 'lucide-reac
 import { useLeadEnrichment, useEnrichLead, type EnrichmentData } from '@/hooks/useLeadEnrichment'
 import { relativeTime } from '@/hooks/useFeed'
 import { cn } from '@/lib/utils'
-
-function formatBRL(value: number): string {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-    minimumFractionDigits: 2,
-  }).format(value)
-}
+import { formatBRL } from '@/lib/format'
 
 const PORTAL_COLORS: Record<string, string> = {
   zap: 'bg-purple-100 text-purple-700',

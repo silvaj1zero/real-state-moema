@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 
 import { useAcmStore, getEffectiveRadius } from '@/store/acm'
 import { useComparaveis, useScrapedInRadius, calculateAcmStats } from '@/hooks/useAcm'
+import { useCreateDossie, type AcmSnapshot } from '@/hooks/useDossie'
 import type { ComparavelNoRaio } from '@/lib/supabase/types'
 
 import { AcmMiniMap } from './AcmMiniMap'
@@ -65,10 +66,31 @@ export function AcmScreen({
   // Calculate stats on filtered data (AC3)
   const stats = useMemo(() => calculateAcmStats(filteredComparaveis), [filteredComparaveis])
 
-  // AC7: Export — Incluir no Dossiê callback
-  function handleIncluirDossie() {
-    // TODO: Story 3.2 — save snapshot JSONB in dossies.acm_snapshot
-    console.log('ACM snapshot for dossiê:', { stats, comparaveis: filteredComparaveis, leadId })
+  // AC7: Export — Incluir no Dossiê (saves ACM snapshot to dossies table)
+  const createDossie = useCreateDossie()
+
+  async function handleIncluirDossie() {
+    const snapshot: AcmSnapshot = {
+      mediaPrecoM2: stats.mediaPrecoM2,
+      medianaPrecoM2: stats.medianaPrecoM2,
+      totalComparaveis: stats.totalComparaveis,
+      top5: filteredComparaveis.slice(0, 5).map((c) => ({
+        endereco: c.endereco,
+        preco: c.preco,
+        preco_m2: c.preco_m2,
+        area_m2: c.area_m2,
+        is_venda_real: c.is_venda_real,
+      })),
+    }
+
+    await createDossie.mutateAsync({
+      lead_id: leadId,
+      consultant_id: consultantId,
+      titulo: `Dossiê — ${edificioEndereco}`,
+      acm_snapshot: snapshot,
+      plano_marketing: { estrategia: '', canais: '', timeline: '' },
+      historico_resultados: { vendasRealizadas: 0, tempoMedio: '', depoimentos: '' },
+    })
   }
 
   return (

@@ -126,16 +126,19 @@ export function LeadCard({ lead, className }: LeadCardProps) {
           <Home className="size-3.5" />
           Staging
         </button>
-        <button
-          onClick={(e) => {
-            e.stopPropagation()
-            router.push(`/dossie/${lead.id}`)
-          }}
-          className="flex items-center justify-center gap-1 h-8 px-2 text-[10px] font-medium text-[#003DA5] border border-[#003DA5] rounded-lg hover:bg-[#003DA5]/5 transition-colors"
-        >
-          <FileText className="size-3.5" />
-          Dossiê
-        </button>
+        {/* Dossie only visible for leads past V1 Realizada (AC1 Story 3.2) */}
+        {(['v1_realizada', 'v2_agendada', 'v2_realizada', 'representacao', 'venda'] as string[]).includes(lead.etapa_funil) && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              router.push(`/dossie/${lead.id}`)
+            }}
+            className="flex items-center justify-center gap-1 h-8 px-2 text-[10px] font-medium text-[#003DA5] border border-[#003DA5] rounded-lg hover:bg-[#003DA5]/5 transition-colors"
+          >
+            <FileText className="size-3.5" />
+            Dossiê
+          </button>
+        )}
         <button
           onClick={(e) => {
             e.stopPropagation()

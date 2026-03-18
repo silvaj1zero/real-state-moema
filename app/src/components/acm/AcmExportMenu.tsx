@@ -4,14 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import type { ComparavelNoRaio } from '@/lib/supabase/types'
 import type { AcmCalculations } from '@/hooks/useAcm'
 import { Download, Copy, FileSpreadsheet, BookOpen, ChevronDown } from 'lucide-react'
-
-function formatBRL(value: number): string {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-    minimumFractionDigits: 2,
-  }).format(value)
-}
+import { formatBRL } from '@/lib/format'
 
 interface AcmExportMenuProps {
   comparaveis: ComparavelNoRaio[]

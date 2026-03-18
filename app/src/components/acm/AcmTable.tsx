@@ -4,14 +4,7 @@ import type { ComparavelNoRaio } from '@/lib/supabase/types'
 import type { AcmFilterType } from '@/store/acm'
 import { Eye, Handshake } from 'lucide-react'
 import { cn } from '@/lib/utils'
-
-function formatBRL(value: number): string {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-    minimumFractionDigits: 2,
-  }).format(value)
-}
+import { formatBRL } from '@/lib/format'
 
 const FONTE_COLORS: Record<string, string> = {
   manual: 'bg-blue-100 text-blue-700',

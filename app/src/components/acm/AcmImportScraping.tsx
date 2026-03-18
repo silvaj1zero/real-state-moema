@@ -4,14 +4,7 @@ import { useAcmStore } from '@/store/acm'
 import { useImportFromScraping } from '@/hooks/useAcm'
 import type { ScrapedListing } from '@/lib/supabase/types'
 import { Download } from 'lucide-react'
-
-function formatBRL(value: number): string {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-    minimumFractionDigits: 2,
-  }).format(value)
-}
+import { formatBRL } from '@/lib/format'
 
 interface AcmImportScrapingProps {
   scrapedListings: ScrapedListing[]
