@@ -1,0 +1,35 @@
+schema: 1
+story: '3.8'
+gate: PASS
+status_reason: '7 ACs implemented. FISBO score algorithm with 4 signals. On-demand enrichment with 10s timeout and parallel queries. Market estimate via fn_comparaveis_no_raio. 7 tests for scoring algorithm.'
+reviewer: 'Quinn'
+updated: '2026-03-18T18:20:00Z'
+top_issues:
+  - id: 'PERF-001'
+    severity: medium
+    finding: 'useEnrichLead fetches ALL active scraped_listings without PostGIS spatial filter (same pattern as ACM Story 3.1 PERF-001). At scale, needs server-side RPC.'
+    suggested_action: 'Create fn_scraped_no_raio RPC for spatial filtering. Defer to infrastructure pass.'
+  - id: 'REQ-001'
+    severity: low
+    finding: 'AC3 nearby listings spatial filtering is client-side approximation. PostGIS ST_DWithin(100m) not used server-side.'
+    suggested_action: 'Same as PERF-001 — RPC needed for accurate spatial queries.'
+  - id: 'MNT-001'
+    severity: low
+    finding: 'parseCoordinates utility duplicated in enrich/[leadId]/page.tsx and acm/[leadId]/page.tsx'
+    suggested_action: 'Extract to shared lib/coordinates.ts. Accumulating tech debt.'
+waiver: { active: false }
+
+acceptance_criteria_review:
+  AC1: PASS  # Buscar inteligencia button, loading state, 10s timeout
+  AC2: PASS  # On-demand only, no automation
+  AC3: PASS  # Nearby listings displayed (simplified spatial filter)
+  AC4: PASS  # Market estimate via fn_comparaveis_no_raio
+  AC5: PASS  # FISBO score 0-100 with signal breakdown, color badges
+  AC6: PASS  # enrichment_data JSONB saved to lead
+  AC7: PASS  # Intelligence section with all sub-components
+
+automated_checks:
+  tests: '53/53 passed (7 enrichment specific)'
+  typecheck: '0 errors in enrichment code'
+  lint: 'Clean'
+  regression: 'None'

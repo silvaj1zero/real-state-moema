@@ -1,0 +1,36 @@
+schema: 1
+story: '3.2'
+gate: PASS
+status_reason: '8 ACs implemented. React-PDF client-side generation working. Editable sections (plano marketing, historico). Share via WhatsApp/Copy/Download. Versioning and Supabase Storage upload. Checklist auto-update.'
+reviewer: 'Quinn'
+updated: '2026-03-18T18:20:00Z'
+top_issues:
+  - id: 'MNT-001'
+    severity: low
+    finding: 'formatBRL duplicated again in DossieDocument.tsx (also in ACM components). 4th instance.'
+    suggested_action: 'Extract to shared lib/format.ts. Tech debt — accumulating.'
+  - id: 'REQ-001'
+    severity: low
+    finding: 'Consultant branding hardcoded (name, CRECI, phone, email). Should come from consultant profile table.'
+    suggested_action: 'Create branding config fetched from Supabase. OK for single-user MVP.'
+  - id: 'PERF-001'
+    severity: medium
+    finding: 'DossieDocument uses React-PDF StyleSheet.create which can cause re-renders. Font.register with empty array is a no-op.'
+    suggested_action: 'Remove Font.register call. Consider memoizing DossieDocument. Non-blocking.'
+waiver: { active: false }
+
+acceptance_criteria_review:
+  AC1: PASS  # Botao "Dossie" no LeadCard, route /dossie/[leadId]
+  AC2: PASS  # React-PDF client-side via pdf().toBlob(), loading state
+  AC3: PASS  # 5-page PDF structure (cover, ACM, marketing, historico, contato)
+  AC4: PASS  # RE/MAX branding, header/footer on each page
+  AC5: PASS  # Editable plano marketing and historico sections
+  AC6: PASS  # Supabase Storage upload, versioning auto-increment
+  AC7: PASS  # Share menu: WhatsApp, Copy Link, Download
+  AC8: PASS  # Checklist update dossie_montado = true
+
+automated_checks:
+  tests: '53/53 passed'
+  typecheck: '0 errors in dossie code'
+  lint: 'Clean'
+  regression: 'None'

@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useLeadsStore } from '@/store/leads'
 import type { EtapaFunil, LeadWithEdificio } from '@/lib/supabase/types'
 import { cn } from '@/lib/utils'
-import { BarChart3 } from 'lucide-react'
+import { BarChart3, Home, FileText, Brain } from 'lucide-react'
 
 // ---------------------------------------------------------------------------
 // Color maps (same as LeadList for consistency)
@@ -104,17 +104,49 @@ export function LeadCard({ lead, className }: LeadCardProps) {
         </div>
       </button>
 
-      {/* AC1: Gerar ACM button */}
-      <button
-        onClick={(e) => {
-          e.stopPropagation()
-          router.push(`/acm/${lead.id}`)
-        }}
-        className="mt-2 w-full flex items-center justify-center gap-1.5 h-9 px-3 text-xs font-medium text-[#003DA5] border border-[#003DA5] rounded-lg hover:bg-[#003DA5]/5 transition-colors"
-      >
-        <BarChart3 className="size-4" />
-        Gerar ACM
-      </button>
+      {/* Action buttons */}
+      <div className="mt-2 grid grid-cols-2 gap-1.5">
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            router.push(`/acm/${lead.id}`)
+          }}
+          className="flex items-center justify-center gap-1 h-8 px-2 text-[10px] font-medium text-[#003DA5] border border-[#003DA5] rounded-lg hover:bg-[#003DA5]/5 transition-colors"
+        >
+          <BarChart3 className="size-3.5" />
+          ACM
+        </button>
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            router.push(`/home-staging/${lead.id}`)
+          }}
+          className="flex items-center justify-center gap-1 h-8 px-2 text-[10px] font-medium text-[#22C55E] border border-[#22C55E] rounded-lg hover:bg-[#22C55E]/5 transition-colors"
+        >
+          <Home className="size-3.5" />
+          Staging
+        </button>
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            router.push(`/dossie/${lead.id}`)
+          }}
+          className="flex items-center justify-center gap-1 h-8 px-2 text-[10px] font-medium text-[#003DA5] border border-[#003DA5] rounded-lg hover:bg-[#003DA5]/5 transition-colors"
+        >
+          <FileText className="size-3.5" />
+          Dossiê
+        </button>
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            router.push(`/enrich/${lead.id}`)
+          }}
+          className="flex items-center justify-center gap-1 h-8 px-2 text-[10px] font-medium text-[#003DA5] border border-[#003DA5] rounded-lg hover:bg-[#003DA5]/5 transition-colors"
+        >
+          <Brain className="size-3.5" />
+          Intel
+        </button>
+      </div>
     </div>
   )
 }
