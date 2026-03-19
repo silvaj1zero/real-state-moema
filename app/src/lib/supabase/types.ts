@@ -22,8 +22,18 @@ export interface Edificio {
   estado: string
   origem: OrigemEdificio
   seed_source: string | null
+  seed_source_secondary: string | null
   verificado: boolean
   created_by: string | null
+  // Story 3.5 — GeoSampa IPTU enrichment fields
+  total_units: number | null
+  area_construida: number | null
+  ano_construcao: number | null
+  padrao_iptu: string | null
+  tipo_uso_iptu: string | null
+  num_pavimentos: number | null
+  sql_lote: string | null
+  edited_fields: string[] | null
   created_at: string
   updated_at: string
 }
@@ -406,6 +416,9 @@ export interface MarketingPlan {
 // Epic 3 (continued)
 // =============================================================================
 
+export type GeocodingStatus = 'pending' | 'success' | 'failed' | 'manual'
+export type MatchMethod = 'postgis_50m' | 'geocoding' | 'manual' | 'unmatched'
+
 export interface ScrapedListing {
   id: string
   portal: PortalScraping
@@ -415,6 +428,7 @@ export interface ScrapedListing {
   endereco: string | null
   endereco_normalizado: string | null
   coordinates: string | null
+  geocoding_status: GeocodingStatus
   bairro: string | null
   preco: number | null
   area_m2: number | null
@@ -429,7 +443,44 @@ export interface ScrapedListing {
   preco_anterior: number | null
   preco_changed_at: string | null
   matched_edificio_id: string | null
+  match_method: MatchMethod
+  match_distance_m: number | null
+  merged_group_id: string | null
   is_active: boolean
   created_at: string
   updated_at: string
+}
+
+// Story 3.6 — Cross-referencing
+export interface ListingCrossRef {
+  id: string
+  listing_a_id: string
+  listing_b_id: string
+  match_score: number
+  match_method: string | null
+  is_confirmed: boolean
+  merged_at: string | null
+  reviewed_by: string | null
+  created_at: string
+}
+
+// Intelligence Feed (Story 3.7)
+export type TipoFeed = 'novo_fisbo' | 'reducao_preco' | 'ex_imobiliaria_fisbo' | 'novo_raio_desbloqueado' | 'lead_parado' | 'agendamento_proximo' | 'seed_completo' | 'sync_completo'
+export type PrioridadeFeed = 'alta' | 'media' | 'baixa'
+
+export interface IntelligenceFeedEvent {
+  id: string
+  consultant_id: string
+  tipo: TipoFeed
+  prioridade: PrioridadeFeed
+  titulo: string
+  descricao: string | null
+  coordinates: string | null
+  edificio_id: string | null
+  lead_id: string | null
+  scraped_listing_id: string | null
+  metadata: Record<string, unknown> | null
+  is_read: boolean
+  is_push_sent: boolean
+  created_at: string
 }

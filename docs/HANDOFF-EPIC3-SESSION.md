@@ -3,11 +3,11 @@
 ## Resumo da Sessao
 
 **Agente:** Dex (dev) + Quinn (qa) + Gage (devops) via AIOX
-**Duracao:** ~2h sessao completa
+**Duracao:** ~3h sessao completa (2 sessoes)
 **Modelo:** Claude Opus 4.6 (1M context)
-**Commits:** 4 pushes para `origin/master`
+**Commits:** 4 pushes para `origin/master` + 1 sessao infra (uncommitted)
 
-## Commits Nesta Sessao
+## Commits Nesta Sessao (Session 1)
 
 | Commit | Descricao | Linhas |
 |--------|-----------|--------|
@@ -16,7 +16,17 @@
 | `ca5d9cc` | refactor: integration pass — shared utils, feed badge, wiring | +104/-122 |
 | `6ef7ea0` | feat: Story 3.4 partial — CSV import + agent dashboard | +548 |
 
-**Total: ~4,500 linhas adicionadas, 59 testes**
+## Session 2 — Infra Implementation (uncommitted)
+
+| Story | Descricao | Arquivos Novos | Linhas |
+|-------|-----------|---------------|--------|
+| 3.4 complete | API routes (scrape, geocode, match), Apify client, hooks | 11 | ~800 |
+| 3.5 | API routes (Google Places, OSM, GeoSampa), hooks, dashboard | 6 | ~500 |
+| 3.6 | API route (cross-reference), hooks, review panel | 3 | ~400 |
+| Shared | admin client, types, vercel.json, migration | 4 | ~200 |
+| Tests | apify.test (11), geocoding.test (4) | 2 | ~150 |
+
+**Total Session 2: ~2,050 linhas, 15 testes novos (74 total), 26 arquivos criados/modificados**
 
 ## Epic 3 — Status
 
@@ -25,11 +35,11 @@
 | **3.1** | ACM Semi-Automatizada | **SHIPPED** | 9 ACs, QA PASS, 20 testes |
 | **3.2** | Dossie/Showcase PDF | **SHIPPED** | React-PDF 5 paginas, editavel, share |
 | **3.3** | Home Staging Automatizado | **SHIPPED** | 3 regras ouro, tipologia, WhatsApp |
-| **3.4** | Scraping Pipeline | **PARCIAL** | CSV import + dashboard. Apify/Edge/cron pendente |
-| **3.5** | Pre-Mapping Advanced | **PENDENTE** | Infra: Google Places, GeoSampa, OSM APIs |
-| **3.6** | Cross-Referencing | **PENDENTE** | Infra: depende de scraped_listings populados |
+| **3.4** | Scraping Pipeline | **IMPLEMENTADO** | API routes + Apify + geocoding + match + dashboard. Necessita config Apify Actors e env vars |
+| **3.5** | Pre-Mapping Advanced | **IMPLEMENTADO** | Google Places + OSM + GeoSampa routes. Necessita GOOGLE_API_KEY |
+| **3.6** | Cross-Referencing | **IMPLEMENTADO** | Dedup + transition detection + review UI. Funcional quando 3.4 tem dados |
 | **3.7** | Feed de Inteligencia | **SHIPPED** | Infinite scroll, filtros, mark-read. Push/cron pendente |
-| **3.8** | Lead Enrichment | **SHIPPED** | FISBO score, estimativa m², on-demand |
+| **3.8** | Lead Enrichment | **SHIPPED** | FISBO score, estimativa m2, on-demand |
 
 ## Rotas Disponiveis
 
@@ -43,43 +53,77 @@
 /home-staging/[leadId]    → Home Staging (Story 3.3)
 /feed                     → Inteligencia Feed (Story 3.7)
 /enrich/[leadId]          → Lead Enrichment (Story 3.8)
-/agents                   → Agent Dashboard (Story 3.4)
+/agents                   → Agent Dashboard + Cross-Refs (Story 3.4/3.6)
 /marketing/[leadId]       → Marketing (Epic 4 — outro terminal)
 /parceiros                → Parceiros (Epic 4 — outro terminal)
 /safari/[id]              → Safari (Epic 4 — outro terminal)
+
+# API Routes (Cron)
+/api/cron/scrape-portals    → Story 3.4 AC1/AC2/AC5/AC6/AC7
+/api/cron/geocode-listings  → Story 3.4 AC4
+/api/cron/match-listings    → Story 3.4 AC3
+/api/cron/seed-google-places → Story 3.5 AC2
+/api/cron/seed-osm-advanced  → Story 3.5 AC3
+/api/cron/seed-geosampa-iptu → Story 3.5 AC4
+/api/cron/cross-reference    → Story 3.6 AC1/AC2/AC6
 ```
 
-## Arquitetura de Componentes Criados
+## Arquitetura de Componentes (Session 2 additions)
 
 ```
 app/src/
 ├── lib/
-│   ├── format.ts                    # formatBRL shared utility
-│   └── coordinates.ts               # parseCoordinates shared utility
+│   ├── supabase/admin.ts               # Service role client for API routes
+│   ├── apify.ts + test                  # Apify: normalize, run, parse (11 tests)
+│   ├── geocoding.ts + test             # Mapbox: geocode, batch (4 tests)
+│   ├── format.ts                        # formatBRL shared utility
+│   └── coordinates.ts                   # parseCoordinates shared utility
 ├── hooks/
-│   ├── useAcm.ts + test             # ACM: comparaveis, create, import, stats
-│   ├── useHomeStage.ts + test       # Home Staging: templates, WhatsApp
-│   ├── useDossie.ts                 # Dossie: CRUD, Storage upload
-│   ├── useFeed.ts + test            # Feed: infinite query, mark read
-│   ├── useLeadEnrichment.ts + test  # Enrichment: FISBO score, parallel queries
-│   └── useScrapedListings.ts + test # Agents: listings, stats, CSV import
-├── store/
-│   └── acm.ts + test                # ACM filter/radius/selection state
+│   ├── useAgentOps.ts                   # Cron logs, geocoding/match counts, manual triggers
+│   ├── useAdvancedSeed.ts               # Seed progress, breakdown, manual trigger
+│   ├── useCrossRefs.ts                  # Cross-refs: pending, stats, transitions, confirm/reject
+│   └── ... (existing hooks)
 ├── components/
-│   ├── acm/          (9 files)      # ACM screen, table, cards, filters
-│   ├── home-staging/ (3 files)      # Home Staging screen, rules
-│   ├── dossie/       (3 files)      # Dossie screen, React-PDF document
-│   ├── feed/         (4 files)      # Feed screen, cards, filters
-│   ├── enrichment/   (2 files)      # Enrichment screen
-│   └── agents/       (3 files)      # Agent dashboard, CSV import
-└── app/
-    ├── acm/[leadId]/
-    ├── dossie/[leadId]/
-    ├── home-staging/[leadId]/
-    ├── feed/
-    ├── enrich/[leadId]/
-    └── agents/
+│   ├── agents/
+│   │   ├── AgentDashboard.tsx           # Enhanced: tabs, cron status, Run Now, match progress
+│   │   ├── CrossRefPanel.tsx            # Cross-ref review: stats, transitions, merge cards
+│   │   └── CsvImportModal.tsx           # CSV import (unchanged)
+│   └── seed/
+│       └── AdvancedSeedDashboard.tsx    # Seed progress: by source, by field, update button
+├── app/
+│   └── api/cron/
+│       ├── scrape-portals/route.ts      # Apify → scraped_listings (upsert + removal)
+│       ├── geocode-listings/route.ts    # Mapbox → coordinates + endereco_normalizado
+│       ├── match-listings/route.ts      # fn_match_listing_edificio → match + distance
+│       ├── seed-google-places/route.ts  # Google Places → edificios enrichment
+│       ├── seed-osm-advanced/route.ts   # Overpass → building:levels
+│       ├── seed-geosampa-iptu/route.ts  # IPTU records → edificios (COALESCE)
+│       └── cross-reference/route.ts     # Dedup + transition detection
+└── vercel.json                          # Cron schedule
 ```
+
+## Env Vars Necessarias (Session 2)
+
+| Var | Usado Por | Status |
+|-----|-----------|--------|
+| `NEXT_PUBLIC_SUPABASE_URL` | All | Configurado |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | All | Configurado |
+| `SUPABASE_SERVICE_ROLE_KEY` | API routes (admin client) | Necessita adicionar |
+| `NEXT_PUBLIC_MAPBOX_TOKEN` | Map + Geocoding | Configurado |
+| `MAPBOX_TOKEN` | API routes (server-side geocoding) | Necessita adicionar (pode ser mesmo do NEXT_PUBLIC) |
+| `APIFY_TOKEN` | scrape-portals | Necessita configurar |
+| `APIFY_ACTOR_ZAP` | scrape-portals | Necessita configurar Actor ID |
+| `APIFY_ACTOR_OLX` | scrape-portals | Necessita configurar Actor ID |
+| `APIFY_ACTOR_VIVAREAL` | scrape-portals | Necessita configurar Actor ID |
+| `GOOGLE_API_KEY` | seed-google-places | Necessita configurar |
+| `CRON_SECRET` | All API routes (auth) | Necessita configurar |
+
+## Migration Pendente
+
+Executar no Supabase SQL Editor:
+- `docs/architecture/migrations/003b_epic3_rpc_functions.sql`
+  - `fn_set_listing_coordinates` — used by geocode-listings
+  - `fn_insert_scraped_listing_with_coords` — used by scrape-portals
 
 ## Tech Debt Acumulado
 
@@ -88,41 +132,46 @@ app/src/
 | PERF-001 | medium | scraped_listings fetch sem filtro PostGIS (ACM + Enrichment) |
 | MNT-001 | low | formatBRL ainda duplicada em DossieDocument.tsx (React-PDF contexto) |
 | REQ-INFRA-1 | medium | Edge Functions pendentes: push notifications, morning summary, stale leads cron |
-| REQ-INFRA-2 | medium | Apify Actors nao configurados (Story 3.4 AC1-AC7) |
-| REQ-INFRA-3 | medium | APIs externas nao configuradas (Google Places, GeoSampa, OSM) |
+| REQ-INFRA-2 | **resolved** | ~~Apify Actors nao configurados~~ → API routes implementadas, falta config env vars |
+| REQ-INFRA-3 | **resolved** | ~~APIs externas nao configuradas~~ → Google Places + OSM + GeoSampa routes implementadas |
 | REQ-002 | low | Autocomplete de edificios no AddComparableSheet |
 | REQ-003 | low | Map alert pins nao integrados ao MapView |
 | REQ-004 | low | Feed badge precisa de Realtime subscription (poll atual) |
+| XREF-001 | medium | Cross-ref dedup nao usa PostGIS ST_DWithin (compara area/preco client-side) — ideal seria RPC no DB |
 
 ## O Que a Proxima Sessao Deve Fazer
 
-### Prioridade 1: Infra Stories
-1. **3.4 completo** — Configurar Apify Actors, Edge Functions `scrape-portals`, pg_cron
-2. **3.5** — Configurar Google Places API, GeoSampa IPTU pipeline, OSM Overpass
-3. **3.6** — Implementar apos 3.4 ter dados
+### Prioridade 1: Config & Deploy
+1. **Executar migration 003b** no Supabase SQL Editor
+2. **Configurar env vars** (SUPABASE_SERVICE_ROLE_KEY, APIFY_TOKEN, GOOGLE_API_KEY, CRON_SECRET) no Vercel
+3. **Configurar Apify Actors** — criar ou selecionar actors para ZAP/OLX/VivaReal
+4. **Commit + Push** via @devops
 
 ### Prioridade 2: Integration
-4. Verificar merge com Epic 2 (outro terminal) e Epic 4 (outro terminal)
-5. Resolver conflitos se houver
-6. E2E testing completo
+5. Verificar merge com Epic 2 (outro terminal) e Epic 4 (outro terminal)
+6. Resolver conflitos se houver
 
-### Prioridade 3: Polish
-7. Resolver tech debt acumulado
-8. Realtime subscription para feed badge
-9. Map alert pins
+### Prioridade 3: E2E Testing
+7. Testar fluxo completo: CSV import → geocode → match → cross-ref → feed
+8. Testar Run Now buttons no dashboard
+9. Validar seed progress dashboard com dados reais
+
+### Prioridade 4: Polish
+10. Mover dedup cross-ref para RPC PostGIS (XREF-001)
+11. Realtime subscription para feed badge
+12. Map alert pins
 
 ## Credenciais (do handoff anterior)
 
 - Supabase URL: https://hculsnvpyccnekfyficu.supabase.co
 - Mapbox Token: pk.eyJ1Ijoic2lsdmFqMXplcm8iLCJhIjoiY21tdnN6ZmtmMDVtZTJyb3NtMHJ5YmFoOCJ9.rGTUD0aP...
-- DB: 18 tables (Epic 1 + 2 + 3), 662 edificios seed
+- DB: 18+ tables (Epic 1 + 2 + 3 + 4), 662 edificios seed
 - Vercel: https://app-caos-off.vercel.app (auto-deploy from master)
 - Repo: https://github.com/silvaj1zero/real-state-moema
 
 ## Validacao Final
 
-- Build: PASS (todas as rotas compilando)
-- Testes: 59/59 PASS
-- Lint: Clean (0 errors, 1 warning)
-- TypeScript: 0 erros no codigo Epic 3 (pre-existentes em dashboard/funnel — outro terminal)
-- Deploy: Vercel ativo, auth guard funcionando
+- Build: PASS (todas as rotas compilando, incluindo 7 API routes novas)
+- Testes: 74/74 PASS (15 novos: 11 apify + 4 geocoding)
+- Lint: 0 errors nos arquivos novos (1 warning pre-existente)
+- TypeScript: 0 erros
