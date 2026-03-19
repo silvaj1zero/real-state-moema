@@ -5,8 +5,8 @@ import {
   waitForRun,
   getDatasetItems,
   normalizeListing,
-  ACTOR_IDS,
-  MOEMA_SEARCH_INPUT,
+  ACTOR_ID,
+  buildSearchInput,
 } from '@/lib/apify'
 import type { NormalizedListing } from '@/lib/apify'
 
@@ -37,15 +37,14 @@ export async function POST(request: Request) {
   const results: Record<string, { collected: number; new: number; updated: number; fisbo: number; errors: string[] }> = {}
 
   for (const portal of portals) {
-    const actorId = ACTOR_IDS[portal]
-    if (!actorId) {
-      results[portal] = { collected: 0, new: 0, updated: 0, fisbo: 0, errors: [`No APIFY_ACTOR_${portal.toUpperCase()} configured`] }
+    if (!ACTOR_ID) {
+      results[portal] = { collected: 0, new: 0, updated: 0, fisbo: 0, errors: ['No APIFY_ACTOR_ID configured'] }
       continue
     }
 
     try {
-      // 1. Run Apify Actor
-      const run = await runActor(actorId, MOEMA_SEARCH_INPUT)
+      // 1. Run Apify Actor with portal-specific input
+      const run = await runActor(ACTOR_ID, buildSearchInput(portal))
 
       // 2. Wait for completion
       const completed = await waitForRun(run.id)
@@ -194,10 +193,7 @@ export async function POST(request: Request) {
 export async function GET() {
   return NextResponse.json({
     status: 'ok',
-    portals: {
-      zap: { configured: !!ACTOR_IDS.zap },
-      olx: { configured: !!ACTOR_IDS.olx },
-      vivareal: { configured: !!ACTOR_IDS.vivareal },
-    },
+    actorId: ACTOR_ID,
+    configured: !!ACTOR_ID && !!process.env.APIFY_TOKEN,
   })
 }

@@ -13,20 +13,41 @@ interface ApifyRunResult {
   defaultDatasetId: string
 }
 
+/** Output schema from viralanalyzer/brazil-real-estate-scraper */
 interface ApifyListingRaw {
-  url?: string
+  id?: string // e.g. "olx-1487017053"
   title?: string
-  address?: string
+  url?: string
   price?: number | string
+  priceFormatted?: string
+  condominiumFee?: number
+  iptu?: number | null
+  transactionType?: string
+  propertyType?: string
+  propertySubType?: string
   area?: number | string
+  bedrooms?: number | string
+  bathrooms?: number
+  parkingSpaces?: number
+  amenities?: string
+  complexAmenities?: string | null
+  neighborhood?: string
+  city?: string
+  state?: string
+  images?: string[]
+  imageCount?: number
+  publishedAt?: string
+  pricePerSqm?: number
+  source?: string // "OLX Imoveis", "ZAP Imoveis", "VivaReal", etc.
+  scrapedAt?: string
+  // Legacy fields (kept for generic actor compatibility)
+  address?: string
   rooms?: number | string
-  advertiserType?: string // 'owner', 'broker', 'agency'
+  advertiserType?: string
   description?: string
   externalId?: string
   latitude?: number
   longitude?: number
-  neighborhood?: string
-  propertyType?: string
 }
 
 export interface NormalizedListing {
@@ -133,47 +154,83 @@ function mapAdvertiserType(raw: string | undefined): 'proprietario' | 'corretor'
   return 'desconhecido'
 }
 
+/** Detect portal from Actor source field */
+function detectPortal(raw: ApifyListingRaw, fallback: 'zap' | 'olx' | 'vivareal'): 'zap' | 'olx' | 'vivareal' | 'quintoandar' | 'outro' {
+  const src = (raw.source || '').toLowerCase()
+  if (src.includes('zap')) return 'zap'
+  if (src.includes('olx')) return 'olx'
+  if (src.includes('vivareal') || src.includes('viva real')) return 'vivareal'
+  if (src.includes('quintoandar') || src.includes('quinto andar')) return 'quintoandar'
+
+  // Fallback: detect from URL
+  const url = (raw.url || '').toLowerCase()
+  if (url.includes('zapimoveis') || url.includes('zap.com')) return 'zap'
+  if (url.includes('olx.com')) return 'olx'
+  if (url.includes('vivareal')) return 'vivareal'
+  if (url.includes('quintoandar')) return 'quintoandar'
+
+  return fallback
+}
+
 /** Normalize raw Apify listing to our standard format */
 export function normalizeListing(raw: ApifyListingRaw, portal: 'zap' | 'olx' | 'vivareal'): NormalizedListing | null {
-  const externalId = raw.externalId || raw.url || null
+  // Use actor's id field, or our own, or URL as fallback
+  const externalId = raw.id || raw.externalId || raw.url || null
   if (!externalId) return null
 
   const preco = typeof raw.price === 'string' ? parseBrazilianNumber(raw.price) : (raw.price ?? null)
   const area = typeof raw.area === 'string' ? parseBrazilianNumber(raw.area) : (raw.area ?? null)
-  const quartos = typeof raw.rooms === 'string' ? parseInt(raw.rooms) : (raw.rooms ?? null)
+  const quartos = raw.bedrooms != null
+    ? (typeof raw.bedrooms === 'string' ? parseInt(raw.bedrooms) : raw.bedrooms)
+    : (typeof raw.rooms === 'string' ? parseInt(raw.rooms) : (raw.rooms ?? null))
   const tipo = mapAdvertiserType(raw.advertiserType)
+  const detectedPortal = detectPortal(raw, portal)
+
+  // Build address from title or city+neighborhood
+  const endereco = raw.address
+    || (raw.neighborhood && raw.city ? `${raw.neighborhood}, ${raw.city} - ${raw.state || 'SP'}` : null)
+    || raw.title?.split(' - ').pop() || null
 
   return {
-    portal,
+    portal: detectedPortal === 'quintoandar' || detectedPortal === 'outro' ? portal : detectedPortal,
     external_id: String(externalId),
     url: raw.url || null,
     tipo_anunciante: tipo,
-    endereco: raw.address || null,
+    endereco,
     bairro: raw.neighborhood || null,
     preco: preco && preco > 0 ? preco : null,
     area_m2: area && area > 0 ? area : null,
-    preco_m2: preco && area && area > 0 ? Math.round((preco / area) * 100) / 100 : null,
+    preco_m2: raw.pricePerSqm ?? (preco && area && area > 0 ? Math.round((preco / area) * 100) / 100 : null),
     tipologia: raw.propertyType || null,
     quartos: quartos && quartos > 0 ? quartos : null,
-    descricao: raw.description?.slice(0, 500) || null,
+    descricao: raw.title?.slice(0, 500) || raw.description?.slice(0, 500) || null,
     is_fisbo: tipo === 'proprietario',
     lat: raw.latitude ?? null,
     lng: raw.longitude ?? null,
   }
 }
 
-/** Portal-specific Apify Actor IDs (configure via env vars) */
-export const ACTOR_IDS = {
-  zap: process.env.APIFY_ACTOR_ZAP || '',
-  olx: process.env.APIFY_ACTOR_OLX || '',
-  vivareal: process.env.APIFY_ACTOR_VIVAREAL || '',
-} as const
+/**
+ * Single Actor handles all portals: viralanalyzer/brazil-real-estate-scraper
+ * Differentiated by `platform` input param.
+ */
+export const ACTOR_ID = process.env.APIFY_ACTOR_ID || 'viralanalyzer~brazil-real-estate-scraper'
 
-/** Default search input for Moema region */
-export const MOEMA_SEARCH_INPUT = {
-  locations: ['Moema', 'Vila Olímpia', 'Itaim Bibi'],
-  city: 'São Paulo',
-  state: 'SP',
-  transactionType: 'sale',
-  maxResults: 200,
+/** Platform identifiers for the brazil-real-estate-scraper Actor */
+export const PORTAL_PLATFORMS: Record<string, string> = {
+  zap: 'zapimoveis',
+  olx: 'olx',
+  vivareal: 'vivareal',
+}
+
+/** Build search input for a specific portal in Moema region */
+export function buildSearchInput(portal: 'zap' | 'olx' | 'vivareal', maxItems = 200): Record<string, unknown> {
+  return {
+    platform: PORTAL_PLATFORMS[portal] || portal,
+    state: 'sp',
+    city: 'sao-paulo',
+    neighborhood: 'moema',
+    listingType: 'sale',
+    maxItems,
+  }
 }
