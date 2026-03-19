@@ -5,7 +5,8 @@ import {
   waitForRun,
   getDatasetItems,
   normalizeListing,
-  ACTOR_ID,
+  isInMoemaRegion,
+  ACTOR_IDS,
   buildSearchInput,
 } from '@/lib/apify'
 import type { NormalizedListing } from '@/lib/apify'
@@ -37,14 +38,15 @@ export async function POST(request: Request) {
   const results: Record<string, { collected: number; new: number; updated: number; fisbo: number; errors: string[] }> = {}
 
   for (const portal of portals) {
-    if (!ACTOR_ID) {
-      results[portal] = { collected: 0, new: 0, updated: 0, fisbo: 0, errors: ['No APIFY_ACTOR_ID configured'] }
+    const actorId = ACTOR_IDS[portal]
+    if (!actorId) {
+      results[portal] = { collected: 0, new: 0, updated: 0, fisbo: 0, errors: [`No APIFY_ACTOR_${portal.toUpperCase()} configured — rent actor at apify.com`] }
       continue
     }
 
     try {
       // 1. Run Apify Actor with portal-specific input
-      const run = await runActor(ACTOR_ID, buildSearchInput(portal))
+      const run = await runActor(actorId, buildSearchInput(portal))
 
       // 2. Wait for completion
       const completed = await waitForRun(run.id)
@@ -52,9 +54,11 @@ export async function POST(request: Request) {
       // 3. Fetch results
       const rawItems = await getDatasetItems(completed.defaultDatasetId)
 
-      // 4. Normalize and upsert
-      const listings: NormalizedListing[] = rawItems
+      // 4. Normalize, filter by Moema region, and upsert
+      const allNormalized = rawItems
+        .filter((item) => isInMoemaRegion(item))
         .map((item) => normalizeListing(item, portal))
+      const listings: NormalizedListing[] = allNormalized
         .filter((l): l is NormalizedListing => l !== null)
 
       let newCount = 0
@@ -193,7 +197,11 @@ export async function POST(request: Request) {
 export async function GET() {
   return NextResponse.json({
     status: 'ok',
-    actorId: ACTOR_ID,
-    configured: !!ACTOR_ID && !!process.env.APIFY_TOKEN,
+    portals: {
+      olx: { actorId: ACTOR_IDS.olx, configured: !!ACTOR_IDS.olx },
+      zap: { actorId: ACTOR_IDS.zap || null, configured: !!ACTOR_IDS.zap },
+      vivareal: { actorId: ACTOR_IDS.vivareal || null, configured: !!ACTOR_IDS.vivareal },
+    },
+    hasToken: !!process.env.APIFY_TOKEN,
   })
 }

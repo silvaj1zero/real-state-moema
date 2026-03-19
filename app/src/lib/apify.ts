@@ -211,26 +211,65 @@ export function normalizeListing(raw: ApifyListingRaw, portal: 'zap' | 'olx' | '
 }
 
 /**
- * Single Actor handles all portals: viralanalyzer/brazil-real-estate-scraper
- * Differentiated by `platform` input param.
+ * Portal-specific Actor IDs.
+ * Each portal uses a different Apify Actor with its own input schema.
+ *
+ * OLX: viralanalyzer/brazil-real-estate-scraper (confirmed working)
+ * ZAP: avorio/zap-imoveis-scraper (needs rental)
+ * VivaReal: makemakers/Viva-Real-Scraper (needs rental)
  */
-export const ACTOR_ID = process.env.APIFY_ACTOR_ID || 'viralanalyzer~brazil-real-estate-scraper'
-
-/** Platform identifiers for the brazil-real-estate-scraper Actor */
-export const PORTAL_PLATFORMS: Record<string, string> = {
-  zap: 'zapimoveis',
-  olx: 'olx',
-  vivareal: 'vivareal',
+export const ACTOR_IDS: Record<string, string> = {
+  olx: process.env.APIFY_ACTOR_OLX || 'viralanalyzer~brazil-real-estate-scraper',
+  zap: process.env.APIFY_ACTOR_ZAP || '',
+  vivareal: process.env.APIFY_ACTOR_VIVAREAL || '',
 }
 
-/** Build search input for a specific portal in Moema region */
+/** Moema + adjacent neighborhoods for post-scrape filtering */
+const MOEMA_NEIGHBORHOODS = [
+  'moema', 'indianópolis', 'indianopolis', 'vila olímpia', 'vila olimpia',
+  'itaim bibi', 'vila nova conceição', 'vila nova conceicao',
+  'planalto paulista', 'campo belo', 'brooklin', 'jardim lusitânia',
+  'jardim lusitania', 'vila clementino',
+]
+
+/** Check if a listing is in Moema region */
+export function isInMoemaRegion(raw: ApifyListingRaw): boolean {
+  const bairro = (raw.neighborhood || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  const titulo = (raw.title || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  const endereco = (raw.address || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+
+  return MOEMA_NEIGHBORHOODS.some(n => {
+    const norm = n.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    return bairro.includes(norm) || titulo.includes(norm) || endereco.includes(norm)
+  })
+}
+
+/** Build search input per portal */
 export function buildSearchInput(portal: 'zap' | 'olx' | 'vivareal', maxItems = 200): Record<string, unknown> {
-  return {
-    platform: PORTAL_PLATFORMS[portal] || portal,
-    state: 'sp',
-    city: 'sao-paulo',
-    neighborhood: 'moema',
-    listingType: 'sale',
-    maxItems,
+  switch (portal) {
+    case 'olx':
+      // viralanalyzer: supports sources, state, city (neighborhood ignored by actor)
+      return {
+        sources: 'olx',
+        state: 'sp',
+        city: 'sao-paulo',
+        transactionType: 'sale',
+        maxListings: maxItems,
+      }
+    case 'zap':
+      // avorio/zap-imoveis-scraper input schema (to be confirmed after rental)
+      return {
+        listingType: 'SALE',
+        locationState: 'SP',
+        locationCity: 'São Paulo',
+        locationNeighborhood: 'Moema',
+        maxItems,
+      }
+    case 'vivareal':
+      // makemakers/Viva-Real-Scraper input schema (to be confirmed after rental)
+      return {
+        url: 'https://www.vivareal.com.br/venda/sp/sao-paulo/zona-sul/moema/',
+        maxItems,
+      }
   }
 }

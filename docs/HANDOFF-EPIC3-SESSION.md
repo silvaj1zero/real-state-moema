@@ -102,28 +102,33 @@ app/src/
 └── vercel.json                          # Cron schedule
 ```
 
-## Env Vars Necessarias (Session 2)
+## Env Vars Necessarias (Session 2) — ATUALIZADO 2026-03-19
 
 | Var | Usado Por | Status |
 |-----|-----------|--------|
 | `NEXT_PUBLIC_SUPABASE_URL` | All | Configurado |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | All | Configurado |
-| `SUPABASE_SERVICE_ROLE_KEY` | API routes (admin client) | Necessita adicionar |
+| `SUPABASE_SERVICE_ROLE_KEY` | API routes (admin client) | Configurado |
 | `NEXT_PUBLIC_MAPBOX_TOKEN` | Map + Geocoding | Configurado |
-| `MAPBOX_TOKEN` | API routes (server-side geocoding) | Necessita adicionar (pode ser mesmo do NEXT_PUBLIC) |
-| `APIFY_TOKEN` | scrape-portals | Necessita configurar |
-| `APIFY_ACTOR_ZAP` | scrape-portals | Necessita configurar Actor ID |
-| `APIFY_ACTOR_OLX` | scrape-portals | Necessita configurar Actor ID |
-| `APIFY_ACTOR_VIVAREAL` | scrape-portals | Necessita configurar Actor ID |
+| `MAPBOX_TOKEN` | API routes (server-side geocoding) | Configurado |
+| `APIFY_TOKEN` | scrape-portals | Configurado |
+| `APIFY_ACTOR_OLX` | scrape-portals (OLX) | Configurado (`viralanalyzer~brazil-real-estate-scraper`) |
+| `APIFY_ACTOR_ZAP` | scrape-portals (ZAP) | Pendente — alugar `avorio/zap-imoveis-scraper` |
+| `APIFY_ACTOR_VIVAREAL` | scrape-portals (VivaReal) | Pendente — alugar `makemakers/Viva-Real-Scraper` |
 | `GOOGLE_API_KEY` | seed-google-places | Necessita configurar |
-| `CRON_SECRET` | All API routes (auth) | Necessita configurar |
+| `CRON_SECRET` | All API routes (auth) | Configurado |
 
-## Migration Pendente
+**Arquitetura multi-actor:** Cada portal usa um Actor Apify separado. OLX funciona agora. ZAP/VivaReal precisam ser alugados no console Apify. O codigo filtra por bairro Moema + adjacentes apos o scrape (o Actor OLX nao suporta filtro por bairro).
 
-Executar no Supabase SQL Editor:
-- `docs/architecture/migrations/003b_epic3_rpc_functions.sql`
-  - `fn_set_listing_coordinates` — used by geocode-listings
-  - `fn_insert_scraped_listing_with_coords` — used by scrape-portals
+**Actors recomendados:**
+- OLX: `viralanalyzer~brazil-real-estate-scraper` (confirmado, $0.002/listing)
+- ZAP: `avorio~zap-imoveis-scraper` (30k+ runs, 165 users)
+- VivaReal: `makemakers~Viva-Real-Scraper` (711 runs, 97 users)
+
+## Migration 003b — EXECUTADA 2026-03-19
+
+- `fn_set_listing_coordinates` — used by geocode-listings
+- `fn_insert_scraped_listing_with_coords` — used by scrape-portals
 
 ## Tech Debt Acumulado
 
