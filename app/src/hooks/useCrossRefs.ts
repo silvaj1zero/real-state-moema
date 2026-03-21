@@ -48,6 +48,7 @@ export interface CrossRefStats {
   totalRefs: number
   pendingReview: number
   transitions: number
+  avgTimeOnMarket: number | null
 }
 
 // ---------------------------------------------------------------------------
@@ -103,11 +104,26 @@ export function useCrossRefStats() {
 
       const uniqueGroups = new Set((groups ?? []).map((g) => g.merged_group_id)).size
 
+      // AC3: Average time on market for active listings
+      const { data: activeListings } = await supabase
+        .from('scraped_listings')
+        .select('first_seen_at')
+        .eq('is_active', true)
+
+      let avgTimeOnMarket: number | null = null
+      if (activeListings && activeListings.length > 0) {
+        const now = Date.now()
+        const totalDays = activeListings.reduce((sum, l) =>
+          sum + Math.floor((now - new Date(l.first_seen_at).getTime()) / 86400000), 0)
+        avgTimeOnMarket = Math.round(totalDays / activeListings.length)
+      }
+
       return {
         totalGroups: uniqueGroups,
         totalRefs: totalRes.count ?? 0,
         pendingReview: pendingRes.count ?? 0,
         transitions: transitionsRes.count ?? 0,
+        avgTimeOnMarket,
       }
     },
     staleTime: 60 * 1000,
@@ -142,6 +158,129 @@ export function useTransitionAlerts() {
       return (data ?? []) as TransitionAlert[]
     },
     staleTime: 60 * 1000,
+  })
+}
+
+// ---------------------------------------------------------------------------
+// useMergedGroupPriceHistory — Story 3.6, AC4: price timeline for merged group
+// ---------------------------------------------------------------------------
+
+export interface PriceHistoryEntry {
+  date: string
+  portal: string
+  preco: number
+  isReduction: boolean
+  reductionPct?: number
+}
+
+export function useMergedGroupPriceHistory(groupId: string | null) {
+  return useQuery({
+    queryKey: ['cross-refs', 'price-history', groupId],
+    queryFn: async (): Promise<PriceHistoryEntry[]> => {
+      if (!groupId) return []
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from('scraped_listings')
+        .select('portal, preco, preco_anterior, preco_changed_at, first_seen_at')
+        .eq('merged_group_id', groupId)
+        .order('first_seen_at', { ascending: true })
+
+      if (error || !data) return []
+
+      const entries: PriceHistoryEntry[] = []
+      for (const l of data) {
+        if (!l.preco) continue
+        // Initial price at first_seen
+        if (l.preco_anterior && l.preco_changed_at) {
+          entries.push({
+            date: l.first_seen_at,
+            portal: l.portal,
+            preco: l.preco_anterior,
+            isReduction: false,
+          })
+          const pct = Math.round((1 - l.preco / l.preco_anterior) * 100)
+          entries.push({
+            date: l.preco_changed_at,
+            portal: l.portal,
+            preco: l.preco,
+            isReduction: pct > 0,
+            reductionPct: pct > 0 ? pct : undefined,
+          })
+        } else {
+          entries.push({
+            date: l.first_seen_at,
+            portal: l.portal,
+            preco: l.preco,
+            isReduction: false,
+          })
+        }
+      }
+
+      return entries.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    },
+    enabled: !!groupId,
+    staleTime: 60 * 1000,
+  })
+}
+
+// ---------------------------------------------------------------------------
+// useImportToAcm — Story 3.6, AC5: feed consolidated data to acm_comparaveis
+// ---------------------------------------------------------------------------
+
+export function useImportToAcm() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ groupId, acmId }: { groupId: string; acmId: string }) => {
+      const supabase = createClient()
+
+      // Get primary listing from merged group (most recent, active)
+      const { data: listings } = await supabase
+        .from('scraped_listings')
+        .select('id, portal, endereco, preco, area_m2, quartos, first_seen_at')
+        .eq('merged_group_id', groupId)
+        .eq('is_active', true)
+        .order('last_seen_at', { ascending: false })
+        .limit(1)
+
+      const primary = listings?.[0]
+      if (!primary) throw new Error('No active listing in group')
+
+      // Get group time on market
+      const { data: oldest } = await supabase
+        .from('scraped_listings')
+        .select('first_seen_at')
+        .eq('merged_group_id', groupId)
+        .order('first_seen_at', { ascending: true })
+        .limit(1)
+
+      const firstSeen = oldest?.[0]?.first_seen_at
+      const tempoMercado = firstSeen
+        ? Math.floor((Date.now() - new Date(firstSeen).getTime()) / 86400000)
+        : null
+
+      // Upsert into acm_comparaveis
+      const { error } = await supabase.from('acm_comparaveis').upsert({
+        acm_id: acmId,
+        scraped_listing_id: primary.id,
+        endereco: primary.endereco,
+        preco: primary.preco,
+        area_m2: primary.area_m2,
+        quartos: primary.quartos,
+        fonte: 'scraping',
+        metadata: {
+          merged_group_id: groupId,
+          portal: primary.portal,
+          tempo_mercado_dias: tempoMercado,
+          fonte_label: 'Scraping (consolidado)',
+        },
+      }, { onConflict: 'acm_id,scraped_listing_id' })
+
+      if (error) throw error
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: crossRefKeys.stats })
+    },
   })
 }
 

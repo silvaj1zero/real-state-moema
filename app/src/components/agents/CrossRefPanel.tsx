@@ -1,6 +1,7 @@
 'use client'
 
-import { Link2, AlertTriangle, Check, X } from 'lucide-react'
+import { useState } from 'react'
+import { Link2, AlertTriangle, Check, X, Clock, Filter } from 'lucide-react'
 import { useCrossRefsPending, useCrossRefStats, useTransitionAlerts, useConfirmCrossRef } from '@/hooks/useCrossRefs'
 import { formatBRL } from '@/lib/format'
 import { cn } from '@/lib/utils'
@@ -8,17 +9,28 @@ import { cn } from '@/lib/utils'
 /**
  * CrossRefPanel — Story 3.6, AC7
  * Review cross-portal references, confirm/reject merges, view transition alerts.
+ * AC7 filters: by score range. Stats include avg time on market (AC3).
  */
+
+type ScoreFilter = 'all' | 'high' | 'medium'
+
 export function CrossRefPanel() {
   const { data: pending, isLoading: loadingPending } = useCrossRefsPending()
   const { data: stats } = useCrossRefStats()
   const { data: transitions } = useTransitionAlerts()
   const confirmMutation = useConfirmCrossRef()
+  const [scoreFilter, setScoreFilter] = useState<ScoreFilter>('all')
+
+  const filteredPending = (pending ?? []).filter((ref) => {
+    if (scoreFilter === 'high') return ref.match_score >= 75
+    if (scoreFilter === 'medium') return ref.match_score < 75
+    return true
+  })
 
   return (
     <div className="space-y-4">
-      {/* Stats */}
-      <div className="grid grid-cols-4 gap-2">
+      {/* Stats — AC7 with avgTimeOnMarket (AC3) */}
+      <div className="grid grid-cols-5 gap-2">
         <div className="bg-white rounded-xl p-2.5 shadow-sm text-center">
           <p className="text-sm font-bold text-gray-900">{stats?.totalGroups ?? 0}</p>
           <p className="text-[9px] text-gray-500">Grupos</p>
@@ -34,6 +46,19 @@ export function CrossRefPanel() {
         <div className="bg-white rounded-xl p-2.5 shadow-sm text-center">
           <p className="text-sm font-bold text-red-600">{stats?.transitions ?? 0}</p>
           <p className="text-[9px] text-gray-500">Transicoes</p>
+        </div>
+        <div className="bg-white rounded-xl p-2.5 shadow-sm text-center">
+          <p className={cn(
+            'text-sm font-bold',
+            (stats?.avgTimeOnMarket ?? 0) > 90 ? 'text-red-600' :
+            (stats?.avgTimeOnMarket ?? 0) > 30 ? 'text-yellow-600' : 'text-green-600',
+          )}>
+            {stats?.avgTimeOnMarket ?? '—'}
+          </p>
+          <p className="text-[9px] text-gray-500 flex items-center justify-center gap-0.5">
+            <Clock className="size-2.5" />
+            Media dias
+          </p>
         </div>
       </div>
 
@@ -58,12 +83,29 @@ export function CrossRefPanel() {
         </div>
       )}
 
-      {/* Pending reviews — AC7 */}
+      {/* Pending reviews — AC7 with filters */}
       <div className="space-y-2">
-        <h3 className="text-xs font-semibold text-gray-900 flex items-center gap-1.5">
-          <Link2 className="size-3.5 text-orange-500" />
-          Sugestoes de Merge (score 60-79)
-        </h3>
+        <div className="flex items-center justify-between">
+          <h3 className="text-xs font-semibold text-gray-900 flex items-center gap-1.5">
+            <Link2 className="size-3.5 text-orange-500" />
+            Sugestoes de Merge
+          </h3>
+          <div className="flex items-center gap-1">
+            <Filter className="size-3 text-gray-400" />
+            {(['all', 'high', 'medium'] as const).map((f) => (
+              <button
+                key={f}
+                onClick={() => setScoreFilter(f)}
+                className={cn(
+                  'px-2 py-0.5 rounded-full text-[9px] font-medium transition-colors',
+                  scoreFilter === f ? 'bg-[#003DA5] text-white' : 'bg-gray-100 text-gray-500',
+                )}
+              >
+                {f === 'all' ? 'Todos' : f === 'high' ? '≥75' : '60-74'}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {loadingPending ? (
           <div className="space-y-2">
@@ -71,13 +113,13 @@ export function CrossRefPanel() {
               <div key={i} className="h-20 bg-white rounded-xl animate-pulse" />
             ))}
           </div>
-        ) : !pending || pending.length === 0 ? (
+        ) : filteredPending.length === 0 ? (
           <div className="text-center py-6 text-gray-400">
             <Link2 className="size-6 mx-auto mb-1 opacity-50" />
-            <p className="text-[10px]">Nenhuma sugestao pendente.</p>
+            <p className="text-[10px]">Nenhuma sugestao {scoreFilter !== 'all' ? 'neste filtro' : 'pendente'}.</p>
           </div>
         ) : (
-          pending.map((ref) => (
+          filteredPending.map((ref) => (
             <div key={ref.id} className="bg-white rounded-xl p-3 shadow-sm border border-orange-200">
               <div className="flex items-center justify-between mb-2">
                 <span className={cn(

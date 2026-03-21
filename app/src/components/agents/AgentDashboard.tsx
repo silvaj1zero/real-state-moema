@@ -285,12 +285,21 @@ export function AgentDashboard({ consultantId: _consultantId }: AgentDashboardPr
                       {listing.preco && <span>{formatBRL(listing.preco)}</span>}
                       {listing.area_m2 && <span>{listing.area_m2}m²</span>}
                       {listing.quartos && <span>{listing.quartos}q</span>}
-                      <span className="ml-auto flex items-center gap-0.5">
-                        <Clock className="size-2.5" />
-                        {listing.is_active
-                          ? `${daysSince(listing.first_seen_at)}d`
-                          : `Removido ${daysSince(listing.removed_at || listing.updated_at)}d`}
-                      </span>
+                      {listing.is_active ? (
+                        <span className={cn(
+                          'ml-auto flex items-center gap-0.5',
+                          daysSince(listing.first_seen_at) > 90 ? 'text-red-500 font-medium' :
+                          daysSince(listing.first_seen_at) > 30 ? 'text-yellow-600' : 'text-green-600',
+                        )}>
+                          <Clock className="size-2.5" />
+                          {daysSince(listing.first_seen_at)}d
+                        </span>
+                      ) : (
+                        <span className="ml-auto flex items-center gap-0.5 text-gray-400">
+                          <Clock className="size-2.5" />
+                          Removido {daysSince(listing.removed_at || listing.updated_at)}d
+                        </span>
+                      )}
                       {listing.preco_anterior && listing.preco && listing.preco < listing.preco_anterior && (
                         <span className="text-red-500 flex items-center gap-0.5">
                           <TrendingDown className="size-3" />
