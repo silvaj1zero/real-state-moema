@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient, verifyCronSecret } from '@/lib/supabase/admin'
+import { withRetry } from '@/lib/retry'
 
 /**
  * POST /api/cron/seed-osm-advanced
@@ -56,13 +57,15 @@ export async function POST(request: Request) {
       // Overpass query: apartments with advanced tags
       const overpassQuery = `[out:json][timeout:180];(way["building"="apartments"](around:${r},${lat},${lng});way["building"="residential"](around:${r},${lat},${lng}););out center tags;`
 
-      const res = await fetch(OVERPASS_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `data=${encodeURIComponent(overpassQuery)}`,
-      })
-
-      if (!res.ok) throw new Error(`Overpass API: ${res.status}`)
+      const res = await withRetry(async () => {
+        const r = await fetch(OVERPASS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: `data=${encodeURIComponent(overpassQuery)}`,
+        })
+        if (!r.ok) throw new Error(`Overpass API: ${r.status}`)
+        return r
+      }, 3, 2000)
 
       const data = await res.json()
       const elements: OsmElement[] = data.elements || []
@@ -105,7 +108,17 @@ export async function POST(request: Request) {
         }
       }
     } catch (err) {
-      errors.push(`Epicentro ${epicentro.id}: ${err instanceof Error ? err.message : 'Unknown'}`)
+      const msg = err instanceof Error ? err.message : 'Unknown'
+      errors.push(`Epicentro ${epicentro.id}: ${msg}`)
+      // AC7: Log failure to feed
+      await supabase.from('intelligence_feed').insert({
+        consultant_id: '00000000-0000-0000-0000-000000000000',
+        tipo: 'seed_completo',
+        prioridade: 'media',
+        titulo: `Seed OSM Overpass falhou`,
+        descricao: msg,
+        metadata: { fonte: 'osm_overpass', status: 'failed', erro: msg },
+      })
     }
   }
 

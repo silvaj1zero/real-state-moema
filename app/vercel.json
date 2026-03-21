@@ -23,6 +23,14 @@
     {
       "path": "/api/cron/cross-reference",
       "schedule": "0 3 * * 0"
+    },
+    {
+      "path": "/api/cron/seed-google-places",
+      "schedule": "0 4 * * 0"
+    },
+    {
+      "path": "/api/cron/seed-osm-advanced",
+      "schedule": "0 5 * * 0"
     }
   ]
 }

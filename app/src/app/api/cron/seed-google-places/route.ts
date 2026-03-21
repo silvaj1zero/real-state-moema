@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient, verifyCronSecret } from '@/lib/supabase/admin'
+import { withRetry } from '@/lib/retry'
 
 /**
  * POST /api/cron/seed-google-places
@@ -86,8 +87,11 @@ export async function POST(request: Request) {
         })
         if (nextPageToken) params.set('pagetoken', nextPageToken)
 
-        const res = await fetch(`${PLACES_BASE}?${params}`)
-        if (!res.ok) throw new Error(`Google Places API: ${res.status}`)
+        const res = await withRetry(async () => {
+          const r = await fetch(`${PLACES_BASE}?${params}`)
+          if (!r.ok) throw new Error(`Google Places API: ${r.status}`)
+          return r
+        }, 3, 1000)
 
         const data = await res.json()
         allPlaces.push(...(data.results || []))
@@ -138,7 +142,17 @@ export async function POST(request: Request) {
         }
       }
     } catch (err) {
-      errors.push(`Epicentro ${epicentro.id}: ${err instanceof Error ? err.message : 'Unknown'}`)
+      const msg = err instanceof Error ? err.message : 'Unknown'
+      errors.push(`Epicentro ${epicentro.id}: ${msg}`)
+      // AC7: Log failure to feed
+      await supabase.from('intelligence_feed').insert({
+        consultant_id: '00000000-0000-0000-0000-000000000000',
+        tipo: 'seed_completo',
+        prioridade: 'media',
+        titulo: `Seed Google Places falhou`,
+        descricao: msg,
+        metadata: { fonte: 'google_places', status: 'failed', erro: msg },
+      })
     }
   }
 
