@@ -128,10 +128,9 @@ export function InformanteDetail({ informante, onClose }: InformanteDetailProps)
                     {QUALIDADE_LABELS[informante.qualidade_relacao]}
                   </span>
                 </div>
-                {informante.telefone_encrypted && (
+                {informante.telefone && (
                   <p className="text-sm text-gray-500 mt-1">
-                    {/* TODO: pgcrypto — decrypt for display */}
-                    Tel: {informante.telefone_encrypted}
+                    Tel: {informante.telefone}
                   </p>
                 )}
               </div>

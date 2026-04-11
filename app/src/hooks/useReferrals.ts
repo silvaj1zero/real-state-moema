@@ -24,7 +24,7 @@ export interface Partner {
   parceiro_franquia: string | null
   parceiro_email: string | null
   parceiro_regiao: string | null
-  parceiro_telefone_encrypted: string | null
+  parceiro_telefone: string | null
   enviados: number
   recebidos: number
 }
@@ -90,7 +90,7 @@ export function usePartners(consultantId: string | null) {
         parceiro_franquia: r.parceiro_franquia,
         parceiro_email: r.parceiro_email,
         parceiro_regiao: r.parceiro_regiao,
-        parceiro_telefone_encrypted: r.parceiro_telefone_encrypted,
+        parceiro_telefone: r.parceiro_telefone,
         enviados: 0,
         recebidos: 0,
       }
@@ -99,7 +99,7 @@ export function usePartners(consultantId: string | null) {
     // Update latest contact info
     if (r.parceiro_email) p.parceiro_email = r.parceiro_email
     if (r.parceiro_regiao) p.parceiro_regiao = r.parceiro_regiao
-    if (r.parceiro_telefone_encrypted) p.parceiro_telefone_encrypted = r.parceiro_telefone_encrypted
+    if (r.parceiro_telefone) p.parceiro_telefone = r.parceiro_telefone
 
     if (r.direcao === 'enviado') p.enviados++
     else p.recebidos++
@@ -165,7 +165,7 @@ export function useCreateReferral() {
         direcao: input.direcao,
         parceiro_nome: input.parceiro_nome,
         parceiro_franquia: input.parceiro_franquia || null,
-        parceiro_telefone_encrypted: input.parceiro_telefone || null, // TODO: pgcrypto encryption
+        parceiro_telefone: input.parceiro_telefone || null,
         parceiro_email: input.parceiro_email || null,
         parceiro_regiao: input.parceiro_regiao || null,
         cliente_perfil: input.cliente_perfil || null,

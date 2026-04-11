@@ -52,3 +52,8 @@ squads/
 
 # Claude memory (per-user)
 .claude/hooks/
+
+# Backup files (prevent credential leaks)
+*.backup.*
+*.backup
+.env.backup*

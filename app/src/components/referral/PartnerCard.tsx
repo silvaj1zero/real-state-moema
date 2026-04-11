@@ -57,7 +57,7 @@ export function PartnerCard({ partner }: PartnerCardProps) {
         {partner.parceiro_regiao && (
           <span className="truncate max-w-[120px]">{partner.parceiro_regiao}</span>
         )}
-        <span>{maskPhone(partner.parceiro_telefone_encrypted)}</span>
+        <span>{maskPhone(partner.parceiro_telefone)}</span>
       </div>
 
       {/* Stats + action */}

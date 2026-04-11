@@ -228,7 +228,7 @@ export function useCreateFrogContact() {
         consultant_id: input.consultant_id,
         nome: input.nome,
         categoria: input.categoria,
-        telefone_encrypted: input.telefone || null,
+        telefone: input.telefone || null,
         email: input.email || null,
         notas: input.notas || null,
         leads_gerados: 0,

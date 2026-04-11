@@ -190,7 +190,7 @@ export function useCapteiImport(consultantId: string | null) {
     // Fetch existing leads for duplicate detection
     const { data: existingLeads } = await supabase
       .from('leads')
-      .select('id, nome, telefone_encrypted, edificio_id')
+      .select('id, nome, telefone, edificio_id')
       .eq('consultant_id', consultantId)
 
     const existing = existingLeads ?? []
@@ -301,8 +301,8 @@ export function useCapteiImport(consultantId: string | null) {
           consultant_id: consultantId,
           edificio_id: row.edificioMatch?.id || null,
           nome: row.nome,
-          telefone_encrypted: row.telefone || null, // TODO: pgcrypto encryption
-          email_encrypted: row.email || null, // TODO: pgcrypto encryption
+          telefone: row.telefone || null,
+          email: row.email || null,
           origem: 'captei' as const,
           etapa_funil: 'contato' as const,
           notas: row.endereco ? `Importado Captei — Endereço: ${row.endereco}` : 'Importado Captei',

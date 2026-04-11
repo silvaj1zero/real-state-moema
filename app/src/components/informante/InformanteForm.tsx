@@ -219,7 +219,6 @@ export function InformanteForm({
             {/* Telefone — BR mask */}
             <div>
               <Label htmlFor="informante-telefone">Telefone</Label>
-              {/* TODO: pgcrypto encryption — telefone will be encrypted before storage */}
               <Input
                 id="informante-telefone"
                 value={telefone}

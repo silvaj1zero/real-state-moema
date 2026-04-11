@@ -102,8 +102,8 @@ export interface CreateLeadInput {
   edificio_id: string
   nome: string
   unidade?: string
-  telefone?: string // TODO: pgcrypto encryption — will be stored as telefone_encrypted
-  email?: string // TODO: pgcrypto encryption — will be stored as email_encrypted
+  telefone?: string
+  email?: string
   origem: OrigemLead
   fonte_frog?: FonteFrog
   informante_id?: string
@@ -123,15 +123,13 @@ export function useCreateLead() {
     mutationFn: async (input: CreateLeadInput): Promise<Lead> => {
       const supabase = createClient()
 
-      // TODO: pgcrypto encryption — encrypt telefone and email before insert
-      // For now, store as plain text in the encrypted columns
       const insertData = {
         consultant_id: input.consultant_id,
         edificio_id: input.edificio_id,
         nome: input.nome,
         unidade: input.unidade || null,
-        telefone_encrypted: input.telefone || null, // TODO: pgcrypto encryption
-        email_encrypted: input.email || null, // TODO: pgcrypto encryption
+        telefone: input.telefone || null,
+        email: input.email || null,
         origem: input.origem,
         fonte_frog: input.fonte_frog || null,
         informante_id: input.informante_id || null,
@@ -177,8 +175,8 @@ export function useCreateLead() {
         informante_id: input.informante_id || null,
         nome: input.nome,
         unidade: input.unidade || null,
-        telefone_encrypted: input.telefone || null,
-        email_encrypted: input.email || null,
+        telefone: input.telefone || null,
+        email: input.email || null,
         origem: input.origem,
         fonte_frog: input.fonte_frog || null,
         etapa_funil: 'contato',
@@ -254,8 +252,8 @@ export interface UpdateLeadInput {
       | 'informante_id'
     >
   > & {
-    telefone?: string // TODO: pgcrypto encryption
-    email?: string // TODO: pgcrypto encryption
+    telefone?: string
+    email?: string
   }
 }
 
@@ -266,15 +264,12 @@ export function useUpdateLead() {
     mutationFn: async (input: UpdateLeadInput): Promise<Lead> => {
       const supabase = createClient()
 
-      // TODO: pgcrypto encryption — encrypt telefone and email before update
       const updateData: Record<string, unknown> = { ...input.updates }
       if (input.updates.telefone !== undefined) {
-        updateData.telefone_encrypted = input.updates.telefone || null
-        delete updateData.telefone
+        updateData.telefone = input.updates.telefone || null
       }
       if (input.updates.email !== undefined) {
-        updateData.email_encrypted = input.updates.email || null
-        delete updateData.email
+        updateData.email = input.updates.email || null
       }
 
       const { data, error } = await supabase

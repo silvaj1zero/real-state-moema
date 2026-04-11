@@ -17,7 +17,7 @@ export default async function HomeStagingPage({ params }: PageProps) {
 
   const { data: lead, error } = await supabase
     .from('leads')
-    .select('id, nome, telefone_encrypted, consultant_id, edificio_id, edificios(id, nome, endereco)')
+    .select('id, nome, telefone, consultant_id, edificio_id, edificios(id, nome, endereco)')
     .eq('id', leadId)
     .single()
 
@@ -45,7 +45,7 @@ export default async function HomeStagingPage({ params }: PageProps) {
     <HomeStageScreen
       leadId={lead.id}
       leadNome={lead.nome}
-      telefone={lead.telefone_encrypted}
+      telefone={lead.telefone}
       edificioEndereco={edificio?.endereco || 'Endereço não cadastrado'}
       edificioTipologia={tipologia}
       consultantId={lead.consultant_id}

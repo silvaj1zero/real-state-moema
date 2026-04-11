@@ -46,8 +46,8 @@ export default function IntegracoesPage() {
     if (exportType === 'csv') {
       const data = leads.map((l) => ({
         Nome: l.nome,
-        Telefone: l.telefone_encrypted || '',
-        Email: l.email_encrypted || '',
+        Telefone: l.telefone || '',
+        Email: l.email || '',
         Edificio: l.edificios?.nome || '',
         Endereco: l.edificios?.endereco || '',
         Etapa: FUNNEL_MAP[l.etapa_funil] || l.etapa_funil,

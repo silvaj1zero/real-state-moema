@@ -116,8 +116,8 @@ export interface Lead {
   informante_id: string | null
   nome: string
   unidade: string | null
-  telefone_encrypted: string | null // TODO: pgcrypto encryption — BYTEA in DB, text in app for now
-  email_encrypted: string | null // TODO: pgcrypto encryption — BYTEA in DB, text in app for now
+  telefone: string | null
+  email: string | null
   origem: OrigemLead
   fonte_frog: FonteFrog | null
   etapa_funil: EtapaFunil
@@ -143,7 +143,7 @@ export interface Informante {
   consultant_id: string
   nome: string
   funcao: FuncaoInformante
-  telefone_encrypted: string | null // TODO: pgcrypto encryption
+  telefone: string | null
   qualidade_relacao: 'frio' | 'morno' | 'quente'
   notas: string | null
   total_investido_gentileza: number
@@ -214,7 +214,7 @@ export interface FrogContact {
   consultant_id: string
   nome: string
   categoria: FonteFrog
-  telefone_encrypted: string | null // TODO: pgcrypto encryption
+  telefone: string | null
   email: string | null
   notas: string | null
   leads_gerados: number
@@ -310,7 +310,7 @@ export interface Referral {
   direcao: DirecaoReferral
   parceiro_nome: string
   parceiro_franquia: string | null
-  parceiro_telefone_encrypted: string | null // BYTEA in DB, text for now
+  parceiro_telefone: string | null
   parceiro_email: string | null
   parceiro_regiao: string | null
   cliente_perfil: string | null

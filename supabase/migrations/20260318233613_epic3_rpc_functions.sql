@@ -1,7 +1,7 @@
 -- =============================================================================
 -- MIGRATION 003b: RPC Functions for Epic 3 API Routes
 -- Stories: 3.4 (geocoding, coordinate insert), 3.5 (seed), 3.6 (cross-ref)
--- Depends on: 003_epic3_intelligence.sql
+-- Depends on: 20260318000004_003_epic3_intelligence.sql
 -- =============================================================================
 
 -- fn_set_listing_coordinates: update listing with geocoded coordinates

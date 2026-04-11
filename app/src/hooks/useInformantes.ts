@@ -128,7 +128,7 @@ export interface CreateInformanteInput {
   consultant_id: string
   nome: string
   funcao: Informante['funcao']
-  telefone?: string // TODO: pgcrypto encryption — will be stored as telefone_encrypted
+  telefone?: string
   qualidade_relacao: Informante['qualidade_relacao']
   notas?: string
   edificio_ids: string[] // N:M — link to 1+ buildings via informantes_edificios
@@ -148,7 +148,7 @@ export function useCreateInformante() {
           consultant_id: input.consultant_id,
           nome: input.nome,
           funcao: input.funcao,
-          telefone_encrypted: input.telefone || null, // TODO: pgcrypto encryption
+          telefone: input.telefone || null,
           qualidade_relacao: input.qualidade_relacao,
           notas: input.notas || null,
           total_investido_gentileza: 0,
@@ -199,7 +199,7 @@ export function useCreateInformante() {
         consultant_id: input.consultant_id,
         nome: input.nome,
         funcao: input.funcao,
-        telefone_encrypted: input.telefone || null,
+        telefone: input.telefone || null,
         qualidade_relacao: input.qualidade_relacao,
         notas: input.notas || null,
         total_investido_gentileza: 0,
@@ -260,7 +260,7 @@ export interface UpdateInformanteInput {
       | 'total_investido_gentileza'
     >
   > & {
-    telefone?: string // TODO: pgcrypto encryption
+    telefone?: string
   }
 }
 
@@ -271,10 +271,10 @@ export function useUpdateInformante() {
     mutationFn: async (input: UpdateInformanteInput): Promise<Informante> => {
       const supabase = createClient()
 
-      // TODO: pgcrypto encryption — encrypt telefone before update
+      — encrypt telefone before update
       const updateData: Record<string, unknown> = { ...input.updates }
       if (input.updates.telefone !== undefined) {
-        updateData.telefone_encrypted = input.updates.telefone || null
+        updateData.telefone = input.updates.telefone || null
         delete updateData.telefone
       }
 
