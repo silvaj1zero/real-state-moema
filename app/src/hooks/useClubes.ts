@@ -61,7 +61,9 @@ export function useClubeThresholds() {
         .select('*')
         .order('vgv_minimo_anual', { ascending: true })
 
-      if (error) { console.error('Error fetching thresholds:', error); return [] }
+      if (error) {
+        throw new Error(`Failed to fetch clube thresholds: ${error.message}`)
+      }
       return (data ?? []) as ClubeThreshold[]
     },
     staleTime: Infinity, // Static data

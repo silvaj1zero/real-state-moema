@@ -19,6 +19,7 @@ import { FilterPanel } from './FilterPanel'
 import { MapLegend } from './MapLegend'
 import { useFilterStore } from '@/store/filters'
 import { useOnlineStatus } from '@/hooks/useOnlineStatus'
+import { ErrorBanner } from '@/components/ui/ErrorBanner'
 import type { EdificioWithQualificacao, StatusVarredura } from '@/lib/supabase/types'
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
@@ -41,7 +42,7 @@ export function MapView() {
   const [showMoveConfirm, setShowMoveConfirm] = useState<{ lat: number; lng: number } | null>(null)
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const { buildings, invalidate } = useBuildings()
+  const { buildings, invalidate, error: buildingsError, refetch: refetchBuildings } = useBuildings()
   const isStatusVisible = useFilterStore((s) => s.isVisible)
   const { isOnline, pendingCount } = useOnlineStatus()
 
@@ -97,6 +98,11 @@ export function MapView() {
 
   return (
     <div className="h-screen w-screen relative overflow-hidden">
+      {buildingsError && (
+        <div className="absolute top-14 left-0 right-0 z-50 px-0">
+          <ErrorBanner error={buildingsError} onRetry={() => refetchBuildings()} />
+        </div>
+      )}
       <HeaderBar
         isOffline={!isOnline}
         onLayersClick={() => setShowLayers(!showLayers)}

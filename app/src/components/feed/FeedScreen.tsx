@@ -10,6 +10,7 @@ import {
 } from '@/hooks/useFeed'
 import { FeedCard } from './FeedCard'
 import { FeedFiltersBar } from './FeedFilters'
+import { ErrorBanner } from '@/components/ui/ErrorBanner'
 
 interface FeedScreenProps {
   consultantId: string
@@ -25,6 +26,8 @@ export function FeedScreen({ consultantId }: FeedScreenProps) {
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
+    error,
+    refetch,
   } = useFeed(consultantId, filters)
 
   const items = data?.pages.flat() ?? []
@@ -72,6 +75,9 @@ export function FeedScreen({ consultantId }: FeedScreenProps) {
         </div>
         <FeedFiltersBar filters={filters} onChange={setFilters} />
       </div>
+
+      {/* Error banner */}
+      {error && <ErrorBanner error={error} onRetry={() => refetch()} />}
 
       {/* Feed list */}
       <div className="px-4 py-3 space-y-2 pb-20">

@@ -68,8 +68,7 @@ export function useChecklistByLead(leadId: string | null) {
         .maybeSingle()
 
       if (error) {
-        console.error('Error fetching checklist:', error)
-        return null
+        throw new Error(`Failed to fetch checklist: ${error.message}`)
       }
 
       return (data as ChecklistPreparacao) ?? null

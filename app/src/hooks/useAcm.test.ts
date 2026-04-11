@@ -1,6 +1,45 @@
-import { describe, it, expect } from 'vitest'
-import { calculateAcmStats } from './useAcm'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { renderHook, waitFor } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import React from 'react'
+import { calculateAcmStats, useComparaveis } from './useAcm'
 import type { ComparavelNoRaio } from '@/lib/supabase/types'
+
+// Mock Supabase
+vi.mock('@/lib/supabase/client', () => ({ createClient: vi.fn() }))
+import { createClient } from '@/lib/supabase/client'
+const mockCreateClient = vi.mocked(createClient)
+
+function makeRpcError(msg = 'RPC error') {
+  return {
+    rpc: vi.fn().mockResolvedValue({ data: null, error: { message: msg } }),
+  }
+}
+
+function makeWrapper() {
+  const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+  return ({ children }: { children: React.ReactNode }) =>
+    React.createElement(QueryClientProvider, { client: qc }, children)
+}
+
+beforeEach(() => { vi.resetAllMocks() })
+
+describe('useComparaveis — error propagation', () => {
+  it('propagates Supabase RPC error instead of returning []', async () => {
+    mockCreateClient.mockReturnValue(makeRpcError() as unknown as ReturnType<typeof createClient>)
+
+    const { result } = renderHook(
+      () => useComparaveis(-23.6, -46.6, 'consultant-1', 500),
+      { wrapper: makeWrapper() },
+    )
+
+    await waitFor(() => expect(result.current.error).not.toBeNull())
+
+    expect(result.current.error).toBeInstanceOf(Error)
+    expect((result.current.error as Error).message).toContain('Failed to fetch comparáveis')
+    expect(result.current.comparaveis).toEqual([])
+  })
+})
 
 function makeComparavel(overrides: Partial<ComparavelNoRaio> = {}): ComparavelNoRaio {
   return {

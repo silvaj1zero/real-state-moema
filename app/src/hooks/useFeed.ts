@@ -129,8 +129,7 @@ export function useFeed(consultantId: string | null, filters: FeedFilters) {
       const { data, error } = await q
 
       if (error) {
-        console.error('Error fetching feed:', error)
-        return []
+        throw new Error(`Failed to fetch feed: ${error.message}`)
       }
 
       return (data ?? []) as FeedItem[]

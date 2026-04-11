@@ -89,8 +89,7 @@ export function useComissoes(consultantId: string | null) {
         .order('created_at', { ascending: false })
 
       if (error) {
-        console.error('Error fetching comissoes:', error)
-        return []
+        throw new Error(`Failed to fetch comissoes: ${error.message}`)
       }
 
       return (data ?? []) as Comissao[]

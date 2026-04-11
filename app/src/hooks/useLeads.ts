@@ -35,8 +35,7 @@ export function useLeadsByEdificio(edificioId: string | null) {
         .order('created_at', { ascending: false })
 
       if (error) {
-        console.error('Error fetching leads by edificio:', error)
-        return []
+        throw new Error(`Failed to fetch leads by edificio: ${error.message}`)
       }
 
       return (data ?? []) as Lead[]
@@ -76,8 +75,7 @@ export function useLeadsByFunnel(consultantId: string | null, etapa?: string) {
       const { data, error } = await q
 
       if (error) {
-        console.error('Error fetching leads by funnel:', error)
-        return []
+        throw new Error(`Failed to fetch leads by funnel: ${error.message}`)
       }
 
       return (data ?? []) as LeadWithEdificio[]

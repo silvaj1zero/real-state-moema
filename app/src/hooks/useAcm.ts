@@ -45,8 +45,7 @@ export function useComparaveis(
       })
 
       if (error) {
-        console.error('Error fetching comparáveis:', error)
-        return []
+        throw new Error(`Failed to fetch comparáveis: ${error.message}`)
       }
 
       return (data ?? []) as ComparavelNoRaio[]
@@ -87,8 +86,7 @@ export function useScrapedInRadius(
         .eq('is_active', true)
 
       if (error) {
-        console.error('Error fetching scraped listings:', error)
-        return []
+        throw new Error(`Failed to fetch scraped listings: ${error.message}`)
       }
 
       return (data ?? []) as ScrapedListing[]

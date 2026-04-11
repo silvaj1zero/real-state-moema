@@ -9,6 +9,7 @@ import { MetaDiaria } from './MetaDiaria'
 import { InformantesSection } from './InformantesSection'
 import { FrogSection } from './FrogSection'
 import { UpcomingSection } from './UpcomingSection'
+import { ErrorBanner } from '@/components/ui/ErrorBanner'
 
 const PERIOD_OPTIONS: { value: DashboardPeriod; label: string }[] = [
   { value: 'semana', label: 'Semana' },
@@ -59,6 +60,11 @@ export function DashboardPage() {
           ))}
         </div>
       </div>
+
+      {/* Error banner */}
+      {dashboard.error && (
+        <ErrorBanner error={dashboard.error} onRetry={handleRefresh} />
+      )}
 
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 pb-24">

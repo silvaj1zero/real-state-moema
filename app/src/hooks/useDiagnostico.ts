@@ -143,13 +143,7 @@ export function useFunnelDiagnostico(
       const { data, error } = await q
 
       if (error) {
-        console.error('Error fetching funnel transitions:', error)
-        return {
-          transitionRates: [],
-          retrocesso: { count: 0, total: 0, rate: 0 },
-          stageDurations: [],
-          totalTransitions: 0,
-        }
+        throw new Error(`Failed to fetch funnel transitions: ${error.message}`)
       }
 
       const transitions = (data ?? []) as FunnelTransition[]

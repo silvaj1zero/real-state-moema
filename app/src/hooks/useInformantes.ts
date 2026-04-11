@@ -55,8 +55,7 @@ export function useInformantesByConsultant(consultantId: string | null) {
         .order('created_at', { ascending: false })
 
       if (error) {
-        console.error('Error fetching informantes:', error)
-        return []
+        throw new Error(`Failed to fetch informantes: ${error.message}`)
       }
 
       return (data ?? []) as InformanteWithEdificios[]
@@ -98,8 +97,7 @@ export function useInformantesByEdificio(edificioId: string | null) {
         .eq('edificio_id', edificioId)
 
       if (error) {
-        console.error('Error fetching informantes by edificio:', error)
-        return []
+        throw new Error(`Failed to fetch informantes by edificio: ${error.message}`)
       }
 
       // Flatten: each row has { informantes: {...} }
@@ -410,8 +408,7 @@ export function useAcoesGentileza(informanteId: string | null) {
         .order('data_acao', { ascending: false })
 
       if (error) {
-        console.error('Error fetching acoes gentileza:', error)
-        return []
+        throw new Error(`Failed to fetch acoes gentileza: ${error.message}`)
       }
 
       return (data ?? []) as AcaoGentileza[]

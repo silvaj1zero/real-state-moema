@@ -63,8 +63,7 @@ export function useMarketingPlan(leadId: string | null) {
         .maybeSingle()
 
       if (error) {
-        console.error('Error fetching marketing plan:', error)
-        return null
+        throw new Error(`Failed to fetch marketing plan: ${error.message}`)
       }
 
       return data as MarketingPlan | null

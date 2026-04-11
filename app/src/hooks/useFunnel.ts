@@ -79,8 +79,7 @@ export function useFunnelStats(consultantId: string | null) {
         .not('etapa_funil', 'eq', 'perdido')
 
       if (error) {
-        console.error('Error fetching funnel stats:', error)
-        return { stages: [], total: 0, conversionRates: {} }
+        throw new Error(`Failed to fetch funnel stats: ${error.message}`)
       }
 
       // Aggregate counts

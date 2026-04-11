@@ -78,8 +78,7 @@ export function useDossie(leadId: string | null) {
         .maybeSingle()
 
       if (error) {
-        console.error('Error fetching dossie:', error)
-        return null
+        throw new Error(`Failed to fetch dossie: ${error.message}`)
       }
       return data as DossieData | null
     },

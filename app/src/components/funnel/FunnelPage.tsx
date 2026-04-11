@@ -8,6 +8,7 @@ import { FunnelTabs } from '@/components/funnel/FunnelTabs'
 import { FunnelKanban } from '@/components/funnel/FunnelKanban'
 import { TransitionModal } from '@/components/funnel/TransitionModal'
 import { cn } from '@/lib/utils'
+import { ErrorBanner } from '@/components/ui/ErrorBanner'
 
 // ---------------------------------------------------------------------------
 // useMediaQuery hook (SSR-safe)
@@ -134,6 +135,11 @@ export function FunnelPage() {
           </button>
         </div>
       </header>
+
+      {/* Error banner */}
+      {stats.error && (
+        <ErrorBanner error={stats.error} onRetry={() => refetch()} />
+      )}
 
       {/* Filter panel (collapsible) */}
       {showFilters && (

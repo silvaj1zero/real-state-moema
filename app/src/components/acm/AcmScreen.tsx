@@ -17,6 +17,7 @@ import { AcmTable } from './AcmTable'
 import { AcmExportMenu } from './AcmExportMenu'
 import { AcmImportScraping } from './AcmImportScraping'
 import { AddComparableSheet } from './AddComparableSheet'
+import { ErrorBanner } from '@/components/ui/ErrorBanner'
 
 interface AcmScreenProps {
   leadId: string
@@ -46,7 +47,7 @@ export function AcmScreen({
   const effectiveRadius = getEffectiveRadius(radiusOption, customRadius)
 
   // Fetch comparáveis via RPC
-  const { comparaveis, isLoading } = useComparaveis(
+  const { comparaveis, isLoading, error: comparaveisError, refetch: refetchComparaveis } = useComparaveis(
     lat,
     lng,
     consultantId,
@@ -120,6 +121,11 @@ export function AcmScreen({
           />
         </div>
       </div>
+
+      {/* Error banner */}
+      {comparaveisError && (
+        <ErrorBanner error={comparaveisError} onRetry={() => refetchComparaveis()} />
+      )}
 
       {/* Content */}
       <div className="px-4 py-4 space-y-4 pb-24">

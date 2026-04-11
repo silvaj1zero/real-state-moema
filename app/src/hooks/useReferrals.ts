@@ -54,8 +54,7 @@ export function useReferrals(consultantId: string | null) {
         .order('created_at', { ascending: false })
 
       if (error) {
-        console.error('Error fetching referrals:', error)
-        return []
+        throw new Error(`Failed to fetch referrals: ${error.message}`)
       }
 
       return (data ?? []) as Referral[]

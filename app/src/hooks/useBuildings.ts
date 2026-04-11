@@ -24,8 +24,7 @@ export function useBuildings() {
         .limit(2000)
 
       if (error) {
-        console.error('Query error:', error)
-        return []
+        throw new Error(`Failed to fetch buildings: ${error.message}`)
       }
 
       if (!data || data.length === 0) return []
@@ -55,7 +54,7 @@ export function useBuildings() {
     queryClient.invalidateQueries({ queryKey: ['buildings'] })
   }
 
-  return { buildings: query.data || [], isLoading: query.isLoading, invalidate }
+  return { buildings: query.data || [], isLoading: query.isLoading, error: query.error, refetch: query.refetch, invalidate }
 }
 
 // Parse WKB hex → lat or lng
