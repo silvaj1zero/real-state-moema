@@ -269,11 +269,9 @@ export function useUpdateInformante() {
     mutationFn: async (input: UpdateInformanteInput): Promise<Informante> => {
       const supabase = createClient()
 
-      — encrypt telefone before update
       const updateData: Record<string, unknown> = { ...input.updates }
       if (input.updates.telefone !== undefined) {
         updateData.telefone = input.updates.telefone || null
-        delete updateData.telefone
       }
 
       const { data, error } = await supabase

@@ -46,7 +46,7 @@ interface FilterState {
 
 export function FunnelPage() {
   const user = useAuthStore((s) => s.user)
-  const { stats, isLoading: statsLoading, refetch } = useFunnelStats(user?.id ?? null)
+  const { stats, isLoading: statsLoading, error: statsError, refetch } = useFunnelStats(user?.id ?? null)
   const transitionModalOpen = useFunnelStore((s) => s.transitionModalOpen)
 
   const isDesktop = useMediaQuery('(min-width: 768px)')
@@ -137,8 +137,8 @@ export function FunnelPage() {
       </header>
 
       {/* Error banner */}
-      {stats.error && (
-        <ErrorBanner error={stats.error} onRetry={() => refetch()} />
+      {statsError && (
+        <ErrorBanner error={statsError} onRetry={() => refetch()} />
       )}
 
       {/* Filter panel (collapsible) */}
