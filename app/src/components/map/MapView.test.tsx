@@ -109,10 +109,11 @@ describe('MapView', () => {
     const { useBuildings } = await import('@/hooks/useBuildings')
     vi.mocked(useBuildings).mockReturnValueOnce({
       buildings: [],
+      isLoading: false,
       invalidate: vi.fn(),
       error: new Error('Network error'),
       refetch: vi.fn(),
-    })
+    } as any)
     const { container } = render(React.createElement(MapView))
     // Component should not throw, either shows map with error or no-token fallback
     expect(container).toBeTruthy()

@@ -28,7 +28,7 @@ beforeEach(() => { vi.resetAllMocks() })
 
 describe('useFunnelStats — error propagation', () => {
   it('propagates Supabase error instead of returning empty stats', async () => {
-    mockCreateClient.mockReturnValue({ from: () => makeErrorBuilder() } as ReturnType<typeof createClient>)
+    mockCreateClient.mockReturnValue({ from: () => makeErrorBuilder() } as unknown as ReturnType<typeof createClient>)
 
     const { result } = renderHook(() => useFunnelStats('consultant-abc'), {
       wrapper: makeWrapper(),

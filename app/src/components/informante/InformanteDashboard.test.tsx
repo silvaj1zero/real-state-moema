@@ -47,7 +47,8 @@ describe('InformanteDashboard', () => {
     vi.mocked(useInformantesByConsultant).mockReturnValueOnce({
       informantes: [],
       isLoading: true,
-    })
+      error: null,
+    } as any)
     const { container } = render(React.createElement(InformanteDashboard))
     // Skeleton divs should be rendered during loading
     const pulseElements = container.querySelectorAll('.animate-pulse')

@@ -12,9 +12,9 @@ vi.mock('@/store/auth', () => ({
   }),
 }))
 
-const mockFunnelStore = {
+const mockFunnelStore: Record<string, unknown> = {
   transitionModalOpen: false,
-  transitionModalLeadId: null as string | null,
+  transitionModalLeadId: null,
   transitionModalFromEtapa: null,
   transitionModalTargetEtapa: null,
   closeTransitionModal: vi.fn(),

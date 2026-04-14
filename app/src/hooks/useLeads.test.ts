@@ -38,7 +38,7 @@ beforeEach(() => {
 
 describe('useLeadsByEdificio — error propagation', () => {
   it('propagates Supabase error instead of returning []', async () => {
-    mockCreateClient.mockReturnValue({ from: () => makeErrorBuilder() } as ReturnType<typeof createClient>)
+    mockCreateClient.mockReturnValue({ from: () => makeErrorBuilder() } as unknown as ReturnType<typeof createClient>)
 
     const { result } = renderHook(() => useLeadsByEdificio('edificio-123'), {
       wrapper: makeWrapper(),
@@ -74,7 +74,7 @@ describe('useLeadsByFunnel — error propagation', () => {
     supabaseBuilder.then = (resolve: (v: unknown) => void) =>
       Promise.resolve({ data: null, error: { message: 'Network error', code: '503' } }).then(resolve)
 
-    mockCreateClient.mockReturnValue({ from: () => supabaseBuilder } as ReturnType<typeof createClient>)
+    mockCreateClient.mockReturnValue({ from: () => supabaseBuilder } as unknown as ReturnType<typeof createClient>)
 
     const { result } = renderHook(() => useLeadsByFunnel('consultant-abc'), {
       wrapper: makeWrapper(),

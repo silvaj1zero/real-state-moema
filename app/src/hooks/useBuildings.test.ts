@@ -42,7 +42,7 @@ beforeEach(() => { vi.resetAllMocks() })
 
 describe('useBuildings — error propagation', () => {
   it('propagates Supabase error instead of returning []', async () => {
-    mockCreateClient.mockReturnValue({ from: () => makeErrorBuilder() } as ReturnType<typeof createClient>)
+    mockCreateClient.mockReturnValue({ from: () => makeErrorBuilder() } as unknown as ReturnType<typeof createClient>)
 
     const { result } = renderHook(() => useBuildings(), {
       wrapper: makeWrapper(),
