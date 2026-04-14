@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { ChipSelect } from '@/components/lead/ChipSelect'
 import { PhotoUploader } from '@/components/lead/PhotoUploader'
 import { useCreateLead } from '@/hooks/useLeads'
+import { useInformantesByEdificio } from '@/hooks/useInformantes'
 import { useLeadsStore } from '@/store/leads'
 import { useAuthStore } from '@/store/auth'
 import type { OrigemLead, FonteFrog, PrazoUrgencia } from '@/lib/supabase/types'
@@ -102,6 +103,11 @@ export function LeadForm({ edificioId, edificioNome, onClose, onSuccess }: LeadF
   const [prazoUrgencia, setPrazoUrgencia] = useState<PrazoUrgencia | null>(null)
   const [fotosV1, setFotosV1] = useState<string[]>([])
 
+  // Informante selection (AC7 — when origem = Zelador or Indicacao)
+  const [informanteId, setInformanteId] = useState<string | null>(null)
+  const { informantes: availableInformantes } = useInformantesByEdificio(edificioId)
+  const showInformanteSelector = origem === 'zelador' || origem === 'indicacao'
+
   // Notes
   const [notas, setNotas] = useState('')
 
@@ -123,6 +129,7 @@ export function LeadForm({ edificioId, edificioNome, onClose, onSuccess }: LeadF
         email: email.trim() || undefined,
         origem: origem || 'digital',
         fonte_frog: fonteFrog || undefined,
+        informante_id: showInformanteSelector ? informanteId || undefined : undefined,
         motivacao_venda: motivacaoVenda.trim() || undefined,
         prazo_urgencia: prazoUrgencia || undefined,
         fotos_v1: fotosV1.length > 0 ? fotosV1 : undefined,
@@ -270,6 +277,70 @@ export function LeadForm({ edificioId, edificioNome, onClose, onSuccess }: LeadF
                 className="mt-2"
               />
             </div>
+
+            {/* AC7: Informante selector when origem = Zelador or Indicacao */}
+            {showInformanteSelector && (
+              <div>
+                <Label>Informante (origem da indicação)</Label>
+                {availableInformantes.length > 0 ? (
+                  <div className="mt-2 space-y-1.5 max-h-32 overflow-y-auto">
+                    {availableInformantes.map((inf) => {
+                      const isSelected = informanteId === inf.id
+                      return (
+                        <button
+                          key={inf.id}
+                          type="button"
+                          onClick={() =>
+                            setInformanteId(isSelected ? null : inf.id)
+                          }
+                          className={`w-full text-left px-3 py-2 rounded-lg text-sm border transition-colors ${
+                            isSelected
+                              ? 'bg-blue-50 border-blue-300 text-blue-800'
+                              : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300'
+                          }`}
+                        >
+                          <span className="flex items-center gap-2">
+                            <span
+                              className={`w-4 h-4 rounded border flex items-center justify-center text-[10px] ${
+                                isSelected
+                                  ? 'bg-[#003DA5] border-[#003DA5] text-white'
+                                  : 'border-gray-300'
+                              }`}
+                            >
+                              {isSelected && '\u2713'}
+                            </span>
+                            <span>{inf.nome}</span>
+                            <span className="text-[10px] text-gray-400 ml-auto">
+                              {inf.funcao}
+                            </span>
+                          </span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                ) : (
+                  <p className="mt-2 text-xs text-gray-400">
+                    Nenhum informante neste edifício.{' '}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        // Open informante form — dispatch event consumed by building card
+                        if (typeof window !== 'undefined') {
+                          window.dispatchEvent(
+                            new CustomEvent('open-informante-form', {
+                              detail: { edificioId },
+                            }),
+                          )
+                        }
+                      }}
+                      className="text-[#003DA5] font-medium hover:underline"
+                    >
+                      Cadastrar informante
+                    </button>
+                  </p>
+                )}
+              </div>
+            )}
 
             {/* Fonte FROG (optional) */}
             <div>
