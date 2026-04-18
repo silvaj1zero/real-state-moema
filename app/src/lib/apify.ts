@@ -66,6 +66,11 @@ export interface NormalizedListing {
   is_fisbo: boolean
   lat: number | null
   lng: number | null
+  // Epic 6 — Contact data from portal
+  nome_anunciante: string | null
+  telefone_anunciante: string | null
+  email_anunciante: string | null
+  whatsapp_anunciante: string | null
 }
 
 function getApifyToken(): string {
@@ -207,6 +212,92 @@ export function normalizeListing(raw: ApifyListingRaw, portal: 'zap' | 'olx' | '
     is_fisbo: tipo === 'proprietario',
     lat: raw.latitude ?? null,
     lng: raw.longitude ?? null,
+    // Epic 6 — Contact data (extracted from raw if available)
+    nome_anunciante: (raw as Record<string, unknown>).advertiserName as string ?? null,
+    telefone_anunciante: (raw as Record<string, unknown>).advertiserPhone as string ?? null,
+    email_anunciante: (raw as Record<string, unknown>).advertiserEmail as string ?? null,
+    whatsapp_anunciante: (raw as Record<string, unknown>).advertiserWhatsapp as string ?? null,
+  }
+}
+
+/** Haversine distance in meters between two lat/lng points */
+export function haversineDistance(
+  lat1: number, lng1: number,
+  lat2: number, lng2: number
+): number {
+  const R = 6371000 // Earth radius in meters
+  const dLat = (lat2 - lat1) * Math.PI / 180
+  const dLng = (lng2 - lng1) * Math.PI / 180
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLng / 2) * Math.sin(dLng / 2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  return R * c
+}
+
+/** Check if a point is within radius of a center */
+export function isWithinRadius(
+  lat: number, lng: number,
+  centerLat: number, centerLng: number,
+  radiusMeters: number
+): boolean {
+  return haversineDistance(lat, lng, centerLat, centerLng) <= radiusMeters
+}
+
+/** Build parametric search input per portal with user-defined filters (Story 6.2) */
+export function buildParametricSearchInput(
+  portal: 'zap' | 'olx' | 'vivareal',
+  params: {
+    quartos_min?: number | null
+    quartos_max?: number | null
+    area_min?: number | null
+    area_max?: number | null
+    preco_min?: number | null
+    preco_max?: number | null
+    tipo_transacao?: 'venda' | 'aluguel'
+    bairros?: string[] | null
+  },
+  maxItems = 200
+): Record<string, unknown> {
+  const transactionType = params.tipo_transacao === 'aluguel' ? 'rent' : 'sale'
+  const neighborhood = params.bairros?.[0] || 'Moema'
+
+  switch (portal) {
+    case 'olx':
+      return {
+        sources: 'olx',
+        state: 'sp',
+        city: 'sao-paulo',
+        transactionType,
+        maxListings: maxItems,
+        ...(params.preco_min != null && { minPrice: params.preco_min }),
+        ...(params.preco_max != null && { maxPrice: params.preco_max }),
+        ...(params.area_min != null && { minArea: params.area_min }),
+        ...(params.area_max != null && { maxArea: params.area_max }),
+      }
+    case 'zap':
+      return {
+        listingType: transactionType === 'rent' ? 'RENTAL' : 'SALE',
+        locationState: 'SP',
+        locationCity: 'São Paulo',
+        locationNeighborhood: neighborhood,
+        maxItems,
+        ...(params.quartos_min != null && { minBedrooms: params.quartos_min }),
+        ...(params.quartos_max != null && { maxBedrooms: params.quartos_max }),
+        ...(params.area_min != null && { minArea: params.area_min }),
+        ...(params.area_max != null && { maxArea: params.area_max }),
+        ...(params.preco_min != null && { minPrice: params.preco_min }),
+        ...(params.preco_max != null && { maxPrice: params.preco_max }),
+      }
+    case 'vivareal': {
+      const type = transactionType === 'rent' ? 'aluguel' : 'venda'
+      const bairro = neighborhood.toLowerCase().replace(/\s+/g, '-')
+      return {
+        url: `https://www.vivareal.com.br/${type}/sp/sao-paulo/zona-sul/${bairro}/`,
+        maxItems,
+      }
+    }
   }
 }
 

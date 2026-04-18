@@ -6,6 +6,7 @@ import { useScrapedListings, useScrapedStats } from '@/hooks/useScrapedListings'
 import { useAgentCronLogs, useGeocodingPending, useUnmatchedCount, useRunScraper, useRunGeocode, useRunMatch, useRunCrossRef } from '@/hooks/useAgentOps'
 import { CsvImportModal } from './CsvImportModal'
 import { CrossRefPanel } from './CrossRefPanel'
+import { SearchHistoryTab } from './SearchHistoryTab'
 import { formatBRL } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import type { ScrapedListing } from '@/lib/supabase/types'
@@ -30,7 +31,7 @@ function timeAgo(date: string): string {
   return `${Math.floor(hours / 24)}d atras`
 }
 
-type Tab = 'listings' | 'crossrefs'
+type Tab = 'listings' | 'crossrefs' | 'searches'
 type ListingFilter = 'all' | 'active' | 'fisbo' | 'inactive'
 
 interface AgentDashboardProps {
@@ -100,6 +101,15 @@ export function AgentDashboard({ consultantId: _consultantId }: AgentDashboardPr
             )}
           >
             Cross-Refs
+          </button>
+          <button
+            onClick={() => setTab('searches')}
+            className={cn(
+              'px-3 py-1.5 rounded-lg text-xs font-medium transition-colors',
+              tab === 'searches' ? 'bg-[#003DA5] text-white' : 'bg-gray-100 text-gray-600',
+            )}
+          >
+            Buscas
           </button>
         </div>
       </div>
@@ -208,7 +218,9 @@ export function AgentDashboard({ consultantId: _consultantId }: AgentDashboardPr
         </div>
 
         {/* Tab content */}
-        {tab === 'crossrefs' ? (
+        {tab === 'searches' ? (
+          <SearchHistoryTab consultantId={_consultantId} />
+        ) : tab === 'crossrefs' ? (
           <CrossRefPanel />
         ) : (
           <>

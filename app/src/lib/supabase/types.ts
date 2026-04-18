@@ -447,6 +447,14 @@ export interface ScrapedListing {
   match_distance_m: number | null
   merged_group_id: string | null
   is_active: boolean
+  // Epic 6 — Contact enrichment fields
+  nome_anunciante: string | null
+  telefone_anunciante: string | null
+  email_anunciante: string | null
+  whatsapp_anunciante: string | null
+  creci_anunciante: string | null
+  contact_enriched_at: string | null
+  lgpd_consent_origin: string | null
   created_at: string
   updated_at: string
 }
@@ -465,7 +473,7 @@ export interface ListingCrossRef {
 }
 
 // Intelligence Feed (Story 3.7)
-export type TipoFeed = 'novo_fisbo' | 'reducao_preco' | 'ex_imobiliaria_fisbo' | 'novo_raio_desbloqueado' | 'lead_parado' | 'agendamento_proximo' | 'seed_completo' | 'sync_completo'
+export type TipoFeed = 'novo_fisbo' | 'reducao_preco' | 'ex_imobiliaria_fisbo' | 'novo_raio_desbloqueado' | 'lead_parado' | 'agendamento_proximo' | 'seed_completo' | 'sync_completo' | 'busca_parametrica'
 export type PrioridadeFeed = 'alta' | 'media' | 'baixa'
 
 export interface IntelligenceFeedEvent {
@@ -483,4 +491,62 @@ export interface IntelligenceFeedEvent {
   is_read: boolean
   is_push_sent: boolean
   created_at: string
+}
+
+// =============================================================================
+// Epic 6 — Busca Parametrica On-Demand com Enriquecimento de Contatos
+// =============================================================================
+
+export type SearchStatus = 'pending' | 'running' | 'completed' | 'failed' | 'cancelled'
+
+export interface PortalSearchParams {
+  quartos_min?: number | null
+  quartos_max?: number | null
+  suites_min?: number | null
+  banheiros_min?: number | null
+  banheiros_max?: number | null
+  area_min?: number | null
+  area_max?: number | null
+  preco_min?: number | null
+  preco_max?: number | null
+  tipo_transacao?: 'venda' | 'aluguel'
+  bairros?: string[] | null
+  cep?: string | null
+  endereco?: string | null
+  raio_metros?: number
+  center_lat?: number
+  center_lng?: number
+  edificio_ids?: string[] | null
+  portais?: string[]
+}
+
+export interface PortalSearch {
+  id: string
+  consultant_id: string
+  status: SearchStatus
+  search_params: PortalSearchParams
+  portals: string[]
+  results_count: number
+  new_listings_count: number
+  fisbo_count: number
+  apify_run_ids: Record<string, string> | null
+  apify_cost_usd: number | null
+  error_message: string | null
+  started_at: string | null
+  completed_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface PortalSearchResult {
+  id: string
+  search_id: string
+  scraped_listing_id: string
+  is_new: boolean
+  created_at: string
+}
+
+/** Result from fn_scraped_listings_parametric RPC */
+export interface ScrapedListingParametric extends Omit<ScrapedListing, 'coordinates' | 'geocoding_status' | 'preco_changed_at' | 'merged_group_id' | 'created_at' | 'updated_at'> {
+  distancia_m: number
 }
