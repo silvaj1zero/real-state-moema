@@ -1,13 +1,18 @@
 'use client'
 
-import { useEffect } from 'react'
-import { MapPin, Building2, Check } from 'lucide-react'
+import { useState, useEffect, useMemo } from 'react'
+import { MapPin, Building2, Check, Search } from 'lucide-react'
 import { useSearchStore } from '@/store/search'
 import { useMapStore } from '@/store/map'
 import { useBuildings } from '@/hooks/useBuildings'
 import { cn } from '@/lib/utils'
 
-const RADIUS_OPTIONS = [
+const RADIUS_PRESETS = [
+  { value: 50, label: '50m' },
+  { value: 100, label: '100m' },
+  { value: 200, label: '200m' },
+  { value: 300, label: '300m' },
+  { value: 400, label: '400m' },
   { value: 500, label: '500m' },
   { value: 1000, label: '1km' },
   { value: 2000, label: '2km' },
@@ -27,12 +32,29 @@ export function SearchAreaSelector() {
   const epicenter = useMapStore((s) => s.epicenter)
   const { buildings, isLoading: buildingsLoading } = useBuildings()
 
+  const [showCustomRadius, setShowCustomRadius] = useState(false)
+  const [customRadiusValue, setCustomRadiusValue] = useState(500)
+  const [addressFilter, setAddressFilter] = useState('')
+
   // Initialize center from map epicenter
   useEffect(() => {
     if (!center && epicenter) {
       setCenter(epicenter)
     }
   }, [center, epicenter, setCenter])
+
+  // Filter buildings by address
+  const filteredBuildings = useMemo(() => {
+    if (!addressFilter.trim()) return buildings
+    const query = addressFilter.toLowerCase()
+    return buildings.filter(
+      (b) =>
+        b.endereco?.toLowerCase().includes(query) ||
+        b.nome?.toLowerCase().includes(query)
+    )
+  }, [buildings, addressFilter])
+
+  const isCustom = !RADIUS_PRESETS.some((p) => p.value === radius)
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-4">
@@ -59,17 +81,20 @@ export function SearchAreaSelector() {
       {/* Radius mode */}
       {searchMode === 'radius' && (
         <div className="space-y-3">
-          {/* Radius selector */}
+          {/* Radius selector - 2 rows */}
           <div>
             <label className="text-xs text-gray-500 mb-1 block">Raio</label>
-            <div className="flex gap-2">
-              {RADIUS_OPTIONS.map((opt) => (
+            <div className="flex flex-wrap gap-1.5">
+              {RADIUS_PRESETS.map((opt) => (
                 <button
                   key={opt.value}
-                  onClick={() => setRadius(opt.value)}
+                  onClick={() => {
+                    setRadius(opt.value)
+                    setShowCustomRadius(false)
+                  }}
                   className={cn(
-                    'flex-1 h-10 rounded-lg text-sm font-medium border transition-colors',
-                    radius === opt.value
+                    'px-3 h-9 rounded-lg text-xs font-medium border transition-colors',
+                    radius === opt.value && !isCustom
                       ? 'bg-[#003DA5] text-white border-[#003DA5]'
                       : 'bg-gray-50 text-gray-700 border-gray-200 hover:border-[#003DA5]/50'
                   )}
@@ -77,8 +102,39 @@ export function SearchAreaSelector() {
                   {opt.label}
                 </button>
               ))}
+              <button
+                onClick={() => setShowCustomRadius(!showCustomRadius)}
+                className={cn(
+                  'px-3 h-9 rounded-lg text-xs font-medium border transition-colors',
+                  isCustom || showCustomRadius
+                    ? 'bg-[#003DA5] text-white border-[#003DA5]'
+                    : 'bg-gray-50 text-gray-700 border-gray-200 hover:border-[#003DA5]/50'
+                )}
+              >
+                {isCustom ? `${radius}m` : 'Custom'}
+              </button>
             </div>
           </div>
+
+          {/* Custom radius input */}
+          {showCustomRadius && (
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                value={customRadiusValue}
+                onChange={(e) => {
+                  const v = Math.max(10, Math.min(10000, Number(e.target.value) || 500))
+                  setCustomRadiusValue(v)
+                  setRadius(v)
+                }}
+                className="w-24 h-9 px-3 text-sm border border-gray-300 rounded-lg focus:border-[#003DA5] focus:ring-1 focus:ring-[#003DA5] outline-none"
+                min={10}
+                max={10000}
+                placeholder="metros"
+              />
+              <span className="text-xs text-gray-500">metros</span>
+            </div>
+          )}
 
           {/* Center coordinates */}
           {center && (
@@ -97,8 +153,22 @@ export function SearchAreaSelector() {
       {/* Buildings mode */}
       {searchMode === 'buildings' && (
         <div className="space-y-2">
+          {/* Address search input */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
+            <input
+              type="text"
+              value={addressFilter}
+              onChange={(e) => setAddressFilter(e.target.value)}
+              placeholder="Buscar endereco... (ex: Rua Alvorada)"
+              className="w-full h-10 pl-9 pr-3 border border-gray-200 rounded-lg text-sm focus:border-[#003DA5] focus:ring-1 focus:ring-[#003DA5] outline-none"
+            />
+          </div>
+
           <label className="text-xs text-gray-500 block">
-            Selecione condominios ({selectedEdificioIds.size} selecionados)
+            {addressFilter
+              ? `${filteredBuildings.length} encontrados`
+              : `Selecione condominios (${selectedEdificioIds.size} selecionados)`}
           </label>
 
           {buildingsLoading ? (
@@ -107,13 +177,15 @@ export function SearchAreaSelector() {
                 <div key={i} className="h-12 bg-gray-100 rounded-lg animate-pulse" />
               ))}
             </div>
-          ) : buildings.length === 0 ? (
+          ) : filteredBuildings.length === 0 ? (
             <p className="text-xs text-gray-400 py-4 text-center">
-              Nenhum edificio encontrado no raio atual.
+              {addressFilter
+                ? `Nenhum edificio com "${addressFilter}" encontrado.`
+                : 'Nenhum edificio encontrado no raio atual.'}
             </p>
           ) : (
             <div className="max-h-60 overflow-y-auto space-y-1">
-              {buildings.map((b) => {
+              {filteredBuildings.map((b) => {
                 const isSelected = selectedEdificioIds.has(b.id)
                 const qual = b.edificios_qualificacoes?.[0]
                 return (

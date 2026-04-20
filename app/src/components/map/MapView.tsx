@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import Map, { NavigationControl, Marker, type MapRef, type MapMouseEvent } from 'react-map-gl/mapbox'
 import 'mapbox-gl/dist/mapbox-gl.css'
 
@@ -35,6 +36,7 @@ export function MapView() {
   const mapRef = useRef<MapRef>(null)
   const epicenter = useMapStore((s) => s.epicenter)
   const setEpicenter = useMapStore((s) => s.setEpicenter)
+  const activeRadius = useMapStore((s) => s.activeRadius)
   const [showLayers, setShowLayers] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
   const [showRegister, setShowRegister] = useState(false)
@@ -42,6 +44,7 @@ export function MapView() {
   const [showMoveConfirm, setShowMoveConfirm] = useState<{ lat: number; lng: number } | null>(null)
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  const router = useRouter()
   const { buildings, invalidate, error: buildingsError, refetch: refetchBuildings } = useBuildings()
   const isStatusVisible = useFilterStore((s) => s.isVisible)
   const { isOnline, pendingCount } = useOnlineStatus()
@@ -200,6 +203,22 @@ export function MapView() {
 
       {/* Legend (Story 1.5) */}
       <MapLegend counts={statusCounts} total={buildings.length} />
+
+      {/* FAB - Buscar aqui (Epic 6 enhancement) */}
+      {!showRegister && !selectedBuilding && epicenter && (
+        <button
+          onClick={() => {
+            router.push(`/search?lat=${epicenter.lat}&lng=${epicenter.lng}&radius=${activeRadius}`)
+          }}
+          className="absolute bottom-20 right-20 z-10 w-12 h-12 rounded-full bg-[#003DA5] text-white shadow-lg flex items-center justify-center active:scale-95 transition-transform"
+          aria-label="Buscar imoveis aqui"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+        </button>
+      )}
 
       {/* FAB - Cadastro Rápido (Story 1.3) */}
       {!showRegister && !selectedBuilding && (

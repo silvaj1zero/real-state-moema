@@ -60,7 +60,7 @@ const DEFAULT_FILTERS: SearchFilters = {
 export const useSearchStore = create<SearchState>((set) => ({
   searchMode: 'radius',
   center: null,
-  radius: 2000,
+  radius: 500,
   selectedEdificioIds: new Set(),
   filters: { ...DEFAULT_FILTERS },
   tipo_transacao: 'venda',
