@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { Suspense, useState, useCallback, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Search, ChevronDown, ChevronUp, MapPin } from 'lucide-react'
 import { useAuthStore } from '@/store/auth'
@@ -15,6 +15,14 @@ import { SearchProgressBar } from '@/components/search/SearchProgressBar'
 import type { ScrapedListingParametric } from '@/lib/supabase/types'
 
 export default function SearchPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="size-8 border-3 border-gray-200 border-t-[#003DA5] rounded-full animate-spin" /></div>}>
+      <SearchPageContent />
+    </Suspense>
+  )
+}
+
+function SearchPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const user = useAuthStore((s) => s.user)
