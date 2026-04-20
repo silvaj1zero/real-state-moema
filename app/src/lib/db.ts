@@ -14,8 +14,8 @@ let sql: ReturnType<typeof postgres> | null = null
 export function getDb() {
   if (sql) return sql
 
-  const host = process.env.DB_HOST || 'aws-1-sa-east-1.pooler.supabase.com'
-  const password = process.env.DB_PASSWORD
+  const host = (process.env.DB_HOST || 'aws-1-sa-east-1.pooler.supabase.com').trim()
+  const password = (process.env.DB_PASSWORD || '').trim()
   if (!password) {
     throw new Error('Missing DB_PASSWORD env var')
   }
