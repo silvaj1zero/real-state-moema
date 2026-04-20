@@ -23,6 +23,7 @@ export function getDb() {
     connect_timeout: 10,
     prepare: false,       // Required: Supavisor transaction mode doesn't support prepared statements
     max_lifetime: 60 * 5, // 5 min — avoid stale connections in serverless
+    username: 'postgres.hculsnvpyccnekfyficu', // Explicit: postgres.js parses dots in URL username incorrectly
   })
 
   return sql
