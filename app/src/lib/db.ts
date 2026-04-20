@@ -21,6 +21,8 @@ export function getDb() {
     max: 5,
     idle_timeout: 20,
     connect_timeout: 10,
+    prepare: false,       // Required: Supavisor transaction mode doesn't support prepared statements
+    max_lifetime: 60 * 5, // 5 min — avoid stale connections in serverless
   })
 
   return sql
