@@ -34,26 +34,29 @@ export function useLocalSearch(
     queryFn: async (): Promise<ScrapedListingParametric[]> => {
       if (lat == null || lng == null) return []
 
-      const supabase = createClient()
-
-      const { data, error } = await supabase.rpc('fn_scraped_listings_parametric', {
-        p_lat: lat,
-        p_lng: lng,
-        p_raio_metros: radius,
-        p_quartos_min: filters.quartos_min,
-        p_quartos_max: filters.quartos_max,
-        p_area_min: filters.area_min,
-        p_area_max: filters.area_max,
-        p_preco_min: filters.preco_min,
-        p_preco_max: filters.preco_max,
+      // Use proxy API route to bypass PostgREST schema cache issue
+      const response = await fetch('/api/search/local', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          p_lat: lat,
+          p_lng: lng,
+          p_raio_metros: radius,
+          p_quartos_min: filters.quartos_min,
+          p_quartos_max: filters.quartos_max,
+          p_area_min: filters.area_min,
+          p_area_max: filters.area_max,
+          p_preco_min: filters.preco_min,
+          p_preco_max: filters.preco_max,
+        }),
       })
 
-      if (error) {
-        console.error('Error in fn_scraped_listings_parametric:', error)
+      if (!response.ok) {
+        console.error('Error in local search:', await response.text())
         return []
       }
 
-      return (data ?? []) as ScrapedListingParametric[]
+      return (await response.json()) as ScrapedListingParametric[]
     },
     enabled: lat != null && lng != null,
     staleTime: 30 * 1000,
@@ -187,21 +190,15 @@ export function useSearchHistory(consultantId: string | null) {
     queryFn: async (): Promise<PortalSearch[]> => {
       if (!consultantId) return []
 
-      const supabase = createClient()
+      // Use proxy API route to bypass PostgREST schema cache issue
+      const response = await fetch(`/api/search/history?consultant_id=${consultantId}`)
 
-      const { data, error } = await supabase
-        .from('portal_searches')
-        .select('*')
-        .eq('consultant_id', consultantId)
-        .order('created_at', { ascending: false })
-        .limit(20)
-
-      if (error) {
-        console.error('Error fetching search history:', error)
+      if (!response.ok) {
+        console.error('Error fetching search history:', await response.text())
         return []
       }
 
-      return (data ?? []) as PortalSearch[]
+      return (await response.json()) as PortalSearch[]
     },
     enabled: !!consultantId,
     staleTime: 30 * 1000,
