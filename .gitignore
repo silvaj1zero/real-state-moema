@@ -57,3 +57,6 @@ squads/
 *.backup.*
 *.backup
 .env.backup*
+
+.vercel
+.env*.local
