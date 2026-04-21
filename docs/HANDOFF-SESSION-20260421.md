@@ -1,13 +1,15 @@
 # Session Handoff — 21 Abr 2026 (madrugada)
 
-## TL;DR para amanhã
+## TL;DR — RESOLVIDO em 21/04 manhã
 
-**O app está em estado limpo (Plano B), mas bloqueado por 1 passo manual seu:**
+Rodado `docs/APPLY-EPIC-6-MIGRATION.sql` + `docs/FIX-FN-PARAMETRIC.sql` via SQL Editor.
+`/api/health/db` retorna `status: ok` nos 5 checks. Epic 6 plenamente operacional.
 
-1. Abrir https://supabase.com/dashboard/project/hculsnvpyccnekfyficu/sql/new
-2. Colar o conteúdo de `docs/UNBLOCK-POSTGREST.sql` → Run
-3. Testar: `curl -H "Authorization: Bearer $CRON_SECRET" https://real-state-moema.vercel.app/api/health/db`
-4. Se todos os checks vierem `ok: true`, **está tudo funcionando**. Continuar com P3/P4/P5.
+**Descoberta importante:** as migrations do Epic 6 nunca tinham sido aplicadas ao banco remoto
+(contrário ao que o handoff anterior indicava). Schema cache não era o problema — a estrutura
+inteira estava faltando.
+
+Pronto para seguir P3/P4/P5.
 
 ## O que aconteceu nesta sessão
 
