@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { processParametricSearch, checkRateLimit } from '@/lib/apify-parametric'
+import { ParametricSearchSchema } from '@/lib/schemas/search'
 import type { PortalSearchParams } from '@/lib/supabase/types'
 
 /**
@@ -17,18 +18,15 @@ import type { PortalSearchParams } from '@/lib/supabase/types'
  */
 export async function POST(request: Request) {
   const body = await request.json()
-  const { consultant_id, portals, params } = body as {
-    consultant_id: string
-    portals: string[]
-    params: PortalSearchParams
-  }
-
-  if (!consultant_id || !portals?.length) {
+  const parsed = ParametricSearchSchema.safeParse(body)
+  if (!parsed.success) {
     return NextResponse.json(
-      { error: 'consultant_id and portals are required' },
+      { error: 'Invalid input', details: parsed.error.flatten() },
       { status: 400 }
     )
   }
+  const { consultant_id, portals } = parsed.data
+  const params = parsed.data.params as PortalSearchParams
 
   // AC5: Rate limit — 5 searches per hour
   const rateCheck = await checkRateLimit(consultant_id)

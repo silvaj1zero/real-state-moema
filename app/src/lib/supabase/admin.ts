@@ -21,6 +21,9 @@ export function createAdminClient() {
 export function verifyCronSecret(request: Request): boolean {
   const auth = request.headers.get('authorization')
   const secret = process.env.CRON_SECRET
-  if (!secret) return true // No secret configured = allow (dev mode)
+  if (!secret) {
+    if (process.env.NODE_ENV === 'production') return false
+    return true
+  }
   return auth === `Bearer ${secret}`
 }

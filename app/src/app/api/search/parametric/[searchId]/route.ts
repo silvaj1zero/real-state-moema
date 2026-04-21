@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { SearchIdParamSchema } from '@/lib/schemas/search'
 
 /**
  * GET /api/search/parametric/[searchId]
@@ -11,7 +12,12 @@ export async function GET(
   _request: Request,
   { params }: { params: Promise<{ searchId: string }> }
 ) {
-  const { searchId } = await params
+  const raw = await params
+  const parsed = SearchIdParamSchema.safeParse(raw)
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Invalid searchId' }, { status: 400 })
+  }
+  const { searchId } = parsed.data
   const supabase = createAdminClient()
 
   // Fetch search record
