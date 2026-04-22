@@ -9,7 +9,57 @@ Rodado `docs/APPLY-EPIC-6-MIGRATION.sql` + `docs/FIX-FN-PARAMETRIC.sql` via SQL 
 (contrário ao que o handoff anterior indicava). Schema cache não era o problema — a estrutura
 inteira estava faltando.
 
-Pronto para seguir P3/P4/P5.
+## Continuação 21/04 (YOLO) — P3, P4, P5 concluídos
+
+### P4 — Integração Captei CSV (concluído)
+- Draft de email para `contato@captei.com.br` em `docs/outreach/captei-api-inquiry-email.md`
+- Ação pendente: usuário enviar o email quando puder
+
+### P5 — Audit Técnico AIOX (concluído)
+Relatório completo: `docs/reviews/audit-tecnico-20260421.md`. Fixes críticos aplicados:
+- **Input validation** com Zod nas 4 rotas `/api/search/*` (era risco SQL injection + DoS)
+- **`verifyCronSecret`** fail-closed em produção (antes liberava tudo sem `CRON_SECRET`)
+- **Vitest coverage** config (provider v8)
+- Removido `postgres` dos deps (código morto)
+- Adicionado `zod` dos deps
+
+RLS audit: 26/26 tabelas seguras. Security Advisor era falso positivo (estado pré-migration).
+
+Débitos registrados para backlog futuro:
+- `MapView.test.tsx` — 4 testes pré-existentes falhando
+- Sem targets de cobertura no CI
+- 15 vulnerabilidades no `npm audit` a revisar
+- Funções SQL sem `SET search_path` (baixo risco)
+
+### P3 — Feature "Quem é o dono?" (stories Ready)
+Stories criadas e autovalidadas (9/10):
+- **6.6** — Backend: tabela `owner_lookups`, `/api/owners/lookup`, Infosimples/ARISP, cache 90d, rate limit, budget guard, LGPD compliant
+- **6.7** — UI: botão em `BuildingCard`, `OwnerLookupModal` com 3 seções, aba "Proprietários" em `/mais`, dashboard de consumo
+
+Pronto para @dev implementar. Custo estimado: R$ 0,28/consulta × 30 consultas/hora × 30 dias ≈ R$ 60/mês (budget default), mas com cache ~70-80% do volume cai para ≈ R$ 20/mês.
+
+## Passos para você (sem bloqueio)
+
+1. **Limpar env vars mortas** (1 min):
+   ```bash
+   cd app
+   vercel env rm DB_HOST production --yes
+   vercel env rm DB_PASSWORD production --yes
+   ```
+
+2. **Enviar email Captei** quando puder (draft em `docs/outreach/`).
+
+3. **Sobre P3**: se quiser que o @dev implemente as stories 6.6 + 6.7, me chamar na próxima sessão — vai precisar do `INFOSIMPLES_TOKEN` (conta comercial) para funcionar em prod.
+
+4. **Sobre audit**: os 4 itens menores (MapView test, coverage target, npm audit, search_path) podem virar stories do Epic 7 ou ficar no backlog de techdebt.
+
+## Commits adicionados após o destravamento
+
+| Commit | Descrição |
+|---|---|
+| `72fcb69` | docs: Epic 6 migrations + RPC type fix applied |
+| `61ffe8b` | feat(security): Zod validation on /api/search/* + cron fail-closed |
+| `24b9e99` | docs(stories): add 6.6 and 6.7 for "Quem é o dono?" |
 
 ## O que aconteceu nesta sessão
 
