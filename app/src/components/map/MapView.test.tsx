@@ -45,6 +45,20 @@ vi.mock('@/hooks/useOnlineStatus', () => ({
   useOnlineStatus: vi.fn(() => ({ isOnline: true, pendingCount: 0 })),
 }))
 
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    refresh: vi.fn(),
+    prefetch: vi.fn(),
+  }),
+  usePathname: () => '/',
+  useSearchParams: () => new URLSearchParams(),
+  useParams: () => ({}),
+}))
+
 // Mock child components
 vi.mock('./RadiusCircles', () => ({
   RadiusCircles: () => React.createElement('div', { 'data-testid': 'radius-circles' }),
