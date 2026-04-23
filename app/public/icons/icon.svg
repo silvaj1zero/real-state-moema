@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="96" fill="#003DA5"/>
+  <g fill="#FFFFFF" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif" font-weight="800">
+    <text x="256" y="240" font-size="110" letter-spacing="-4">RE/MAX</text>
+    <text x="256" y="340" font-size="56" fill="#DC1431" letter-spacing="8">MOEMA</text>
+  </g>
+</svg>

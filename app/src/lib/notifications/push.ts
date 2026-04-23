@@ -36,8 +36,8 @@ export function showNotification(title: string, body: string): void {
   try {
     new Notification(title, {
       body,
-      icon: '/icon-192x192.png',
-      badge: '/icon-192x192.png',
+      icon: '/icons/icon.svg',
+      badge: '/icons/icon.svg',
       tag: `remax-${Date.now()}`,
     })
   } catch (error) {
