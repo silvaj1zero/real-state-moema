@@ -89,7 +89,8 @@ export async function runActor(actorId: string, input: Record<string, unknown>):
   })
 
   if (!res.ok) throw new Error(`Apify run failed: ${res.status} ${await res.text()}`)
-  return res.json()
+  const body = (await res.json()) as { data: ApifyRunResult }
+  return body.data
 }
 
 /** Poll for Actor run completion */
@@ -100,7 +101,8 @@ export async function waitForRun(runId: string, maxWaitMs = 300000): Promise<Api
   while (Date.now() - start < maxWaitMs) {
     const res = await fetch(`${APIFY_BASE}/actor-runs/${runId}?token=${token}`)
     if (!res.ok) throw new Error(`Apify poll failed: ${res.status}`)
-    const run: ApifyRunResult = await res.json()
+    const body = (await res.json()) as { data: ApifyRunResult }
+    const run = body.data
 
     if (run.status === 'SUCCEEDED') return run
     if (run.status === 'FAILED' || run.status === 'ABORTED') {
@@ -245,7 +247,11 @@ export function isWithinRadius(
   return haversineDistance(lat, lng, centerLat, centerLng) <= radiusMeters
 }
 
-/** Build parametric search input per portal with user-defined filters (Story 6.2) */
+/** Build parametric search input per portal with user-defined filters (Story 6.2)
+ *
+ * Todos os portais usam o actor unificado viralanalyzer/brazil-real-estate-scraper,
+ * que aceita `sources: 'olx' | 'zap' | 'vivareal'`. Input schema compartilhado.
+ */
 export function buildParametricSearchInput(
   portal: 'zap' | 'olx' | 'vivareal',
   params: {
@@ -261,58 +267,36 @@ export function buildParametricSearchInput(
   maxItems = 200
 ): Record<string, unknown> {
   const transactionType = params.tipo_transacao === 'aluguel' ? 'rent' : 'sale'
-  const neighborhood = params.bairros?.[0] || 'Moema'
-
-  switch (portal) {
-    case 'olx':
-      return {
-        sources: 'olx',
-        state: 'sp',
-        city: 'sao-paulo',
-        transactionType,
-        maxListings: maxItems,
-        ...(params.preco_min != null && { minPrice: params.preco_min }),
-        ...(params.preco_max != null && { maxPrice: params.preco_max }),
-        ...(params.area_min != null && { minArea: params.area_min }),
-        ...(params.area_max != null && { maxArea: params.area_max }),
-      }
-    case 'zap':
-      return {
-        listingType: transactionType === 'rent' ? 'RENTAL' : 'SALE',
-        locationState: 'SP',
-        locationCity: 'São Paulo',
-        locationNeighborhood: neighborhood,
-        maxItems,
-        ...(params.quartos_min != null && { minBedrooms: params.quartos_min }),
-        ...(params.quartos_max != null && { maxBedrooms: params.quartos_max }),
-        ...(params.area_min != null && { minArea: params.area_min }),
-        ...(params.area_max != null && { maxArea: params.area_max }),
-        ...(params.preco_min != null && { minPrice: params.preco_min }),
-        ...(params.preco_max != null && { maxPrice: params.preco_max }),
-      }
-    case 'vivareal': {
-      const type = transactionType === 'rent' ? 'aluguel' : 'venda'
-      const bairro = neighborhood.toLowerCase().replace(/\s+/g, '-')
-      return {
-        url: `https://www.vivareal.com.br/${type}/sp/sao-paulo/zona-sul/${bairro}/`,
-        maxItems,
-      }
-    }
+  return {
+    sources: portal,
+    state: 'sp',
+    city: 'sao-paulo',
+    transactionType,
+    maxListings: maxItems,
+    propertyType: 'all',
+    includeDescription: false,
+    ...(params.preco_min != null && { minPrice: params.preco_min }),
+    ...(params.preco_max != null && { maxPrice: params.preco_max }),
+    ...(params.area_min != null && { minArea: params.area_min }),
+    ...(params.area_max != null && { maxArea: params.area_max }),
+    ...(params.quartos_min != null && { minBedrooms: params.quartos_min }),
+    ...(params.quartos_max != null && { maxBedrooms: params.quartos_max }),
   }
 }
 
 /**
  * Portal-specific Actor IDs.
- * Each portal uses a different Apify Actor with its own input schema.
  *
- * OLX: viralanalyzer/brazil-real-estate-scraper (confirmed working)
- * ZAP: avorio/zap-imoveis-scraper (needs rental)
- * VivaReal: makemakers/Viva-Real-Scraper (needs rental)
+ * viralanalyzer/brazil-real-estate-scraper cobre OLX, ZAP e VivaReal via
+ * o parâmetro `sources`. Os 3 usam o mesmo actor por default; env vars
+ * permitem override caso se queira um actor dedicado por portal no futuro.
  */
+const DEFAULT_ACTOR = 'viralanalyzer~brazil-real-estate-scraper'
+
 export const ACTOR_IDS: Record<string, string> = {
-  olx: process.env.APIFY_ACTOR_OLX || 'viralanalyzer~brazil-real-estate-scraper',
-  zap: process.env.APIFY_ACTOR_ZAP || '',
-  vivareal: process.env.APIFY_ACTOR_VIVAREAL || '',
+  olx: process.env.APIFY_ACTOR_OLX || DEFAULT_ACTOR,
+  zap: process.env.APIFY_ACTOR_ZAP || DEFAULT_ACTOR,
+  vivareal: process.env.APIFY_ACTOR_VIVAREAL || DEFAULT_ACTOR,
 }
 
 /** Moema + adjacent neighborhoods for post-scrape filtering */
