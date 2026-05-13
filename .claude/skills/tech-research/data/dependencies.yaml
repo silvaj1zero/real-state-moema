@@ -1,0 +1,74 @@
+dependencies:
+  templates:
+    - deep-research-prompt-template.md
+    - output-structure.md
+  prompts:
+    - decompose.md
+    - evaluate.md
+    - page-extract.md
+    - tech-discovery.md
+    - verify-citations.md
+    - tool-strategy.md       # Exa/Context7/ETL/WebSearch hierarchy with fallbacks
+    - executor-matrix.md     # Worker vs Agent classification (deterministic vs LLM)
+    - playwright-deep-research.md  # NEW: Multi-LLM browser automation workflow
+  config:
+    - config.yaml            # NEW: Playwright deep research configuration
+
+  infrastructure:
+    etl_service: "infrastructure/services/etl/"
+    etl_youtube_cli: "node infrastructure/services/etl/bin/youtube-transcript.js {videoId}"
+    etl_blog_cli: "node infrastructure/services/etl/bin/fetch-page.js {url}"
+    etl_blog_api: "ETLService.collectBlog(url)"
+
+  worker_scripts:
+    base_path: ".claude/skills/tech-research/scripts/"
+    scripts:
+      - id: scaffold
+        path: ".claude/skills/tech-research/scripts/scaffold.py"
+        atoms: [atm_scaffold_output]
+        cli: "python3 .claude/skills/tech-research/scripts/scaffold.py --slug {slug} --title \"{title}\" --query \"{query}\" --date {YYYY-MM-DD}"
+        stdin: "echo '{\"slug\":\"...\",\"title\":\"...\",\"query\":\"...\"}' | python3 .claude/skills/tech-research/scripts/scaffold.py --stdin"
+        behavior: "Creates folder + 4 stub files (README, 00, 02, 03) with correct templates. Idempotent — never overwrites existing files."
+      - id: url_detector
+        path: ".claude/skills/tech-research/scripts/url_detector.py"
+        atoms: [atm_classify_urls, atm_parse_query]
+        cli: "python3 .claude/skills/tech-research/scripts/url_detector.py {url}"
+        batch: "echo '[\"url1\",\"url2\"]' | python3 .claude/skills/tech-research/scripts/url_detector.py --stdin"
+      - id: credibility_scorer
+        path: ".claude/skills/tech-research/scripts/credibility_scorer.py"
+        atoms: [atm_pattern_match]
+        cli: "python3 .claude/skills/tech-research/scripts/credibility_scorer.py {url}"
+        batch: "echo '[{\"url\":\"...\",\"title\":\"...\"}]' | python3 .claude/skills/tech-research/scripts/credibility_scorer.py --stdin"
+      - id: coverage_calculator
+        path: ".claude/skills/tech-research/scripts/coverage_calculator.py"
+        atoms: [atm_calc_coverage, atm_calc_newinfo, atm_stopping_decision]
+        cli_coverage: "echo '{dimensions_json}' | python3 .claude/skills/tech-research/scripts/coverage_calculator.py coverage"
+        cli_newinfo: "python3 .claude/skills/tech-research/scripts/coverage_calculator.py newinfo --new {N} --total {M}"
+        cli_stop: "echo '{state_json}' | python3 .claude/skills/tech-research/scripts/coverage_calculator.py stop"
+      - id: metrics_collector
+        path: ".claude/skills/tech-research/scripts/metrics_collector.py"
+        atoms: [atm_compute_metrics, atm_save_state]
+        cli_compute: "echo '{data_json}' | python3 .claude/skills/tech-research/scripts/metrics_collector.py compute"
+        cli_save: "echo '{state_json}' | python3 .claude/skills/tech-research/scripts/metrics_collector.py save --dir {output_dir}"
+      - id: logger
+        path: ".claude/skills/tech-research/scripts/logger.py"
+        atoms: [all_worker_atoms]
+        cli: "python3 .claude/skills/tech-research/scripts/logger.py {atom_id} {level} {event} '{data_json}'"
+        python: "from infrastructure.services.tech_research.logger import ResearchLogger"
+      - id: output_validator
+        path: ".claude/skills/tech-research/scripts/output_validator.py"
+        atoms: [QG-PROD-6]
+        cli: "python3 .claude/skills/tech-research/scripts/output_validator.py {output_dir}"
+      - id: claim_extractor
+        path: ".claude/skills/tech-research/scripts/claim_extractor.py"
+        atoms: [atm_extract_claims, atm_match_sources]
+        cli_extract: "python3 .claude/skills/tech-research/scripts/claim_extractor.py extract < {report.md}"
+        cli_match: "echo '{claims_and_sources_json}' | python3 .claude/skills/tech-research/scripts/claim_extractor.py match"
+
+  mcp_servers:
+    context7:
+      tools: ["mcp__context7__resolve-library-id", "mcp__context7__query-docs"]
+      fallback: "WebSearch with site:{library}.dev"
+    exa:
+      tools: ["mcp__exa__web_search_exa", "mcp__exa__research_paper_search", "mcp__exa__github_search", "mcp__exa__crawling"]
+      fallback: "WebSearch (native)"

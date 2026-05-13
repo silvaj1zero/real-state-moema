@@ -1,0 +1,43 @@
+pack:
+  name: sinkra-validate-squad
+  version: "2.0.0"
+  description: "3-Tier SINKRA Squad Validation — structural inventory, 9-dimension LLM scoring, forensic cross-reference. Modes: quick/standard/deep."
+  icon: "VSQ"
+  type: skill
+  location: .claude/skills/sinkra-validate-squad/
+
+process:
+  id: SP-SINKRA-VALIDATE-SQUAD
+  mode: VALIDAR
+  sinkra_version: "1.2"
+  organism: ORG-VSQ-001
+  molecules: 3    # Tier1 structural, Tier2 9-dim scoring, Tier3 forensic xref
+  atoms: 8        # 3 Tier2 agents + 5 Tier3 agents
+
+artifact_contracts:
+  - artifact_id: score-card
+    template_path: outputs/squad-validations/{squad}/{timestamp}/score-card.yaml
+    lifecycle_states: [generated, reviewed, approved]
+  - artifact_id: validation-report
+    template_path: outputs/squad-validations/{squad}/{timestamp}/report.md
+    lifecycle_states: [generated]
+  - artifact_id: latest-symlink
+    template_path: outputs/squad-validations/{squad}/latest
+    lifecycle_states: [symlink]
+
+supported_modes: [VALIDAR]
+bu_mapping: hub-framework
+
+token_count: 3
+token_families: [Tier, Dimension, Severity]
+
+knowledge_sources:
+  - .claude/rules/skill-standards.md
+  - squads/sinkra-squad/templates/validate-squad/
+
+invoked_by:
+  - path: /sinkra-upgrade-squad
+    phase: P1 (Assessment) + P8 (Validation)
+    relationship: mandatory pre/post-upgrade validation
+
+process_mapping: squads/sinkra-squad/tasks/validate-sinkra-squad.md

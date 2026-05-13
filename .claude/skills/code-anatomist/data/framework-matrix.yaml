@@ -1,0 +1,177 @@
+# Code Anatomist v2.0.0 — Framework Comparison Matrix
+# Source: docs/research/2026-04-03-reverse-engineering-frameworks/structured-output.yaml
+# 18 frameworks cataloged from deep research
+
+frameworks:
+  academic:
+    - name: "Horseshoe Model"
+      authors: "Kazman, Carriere, Woods (SEI/CMU)"
+      year: 1998
+      dimensions: [architecture, dependencies]
+      phases_used: [0, 6]
+      agent: "rick-kazman"
+      maturity: mature
+      key_contribution: "3-tier RE process — existing → abstract → new"
+
+    - name: "Symphony"
+      authors: "van Deursen, Hofmeister, Koschke, Moonen, Riva"
+      year: 2004
+      dimensions: [architecture, dependencies]
+      phases_used: [0]
+      agent: "rick-kazman"
+      maturity: established
+      key_contribution: "Goal-driven viewpoint selection"
+
+    - name: "Reflexion Models"
+      authors: "Murphy, Notkin, Sullivan"
+      year: 1995
+      dimensions: [architecture, dependencies]
+      phases_used: [7]
+      agent: "gail-murphy"
+      maturity: mature
+      key_contribution: "Convergence/divergence/absence comparison"
+
+    - name: "Dali/ARMIN"
+      authors: "Kazman, O'Brien, Verhoef (SEI/CMU)"
+      year: 1999
+      dimensions: [architecture, dependencies]
+      phases_used: [2, 3]
+      agent: "rick-kazman"
+      maturity: mature
+      key_contribution: "View extraction and fusion workbench"
+
+    - name: "QADSAR"
+      authors: "Stoermer, O'Brien et al. (SEI)"
+      year: 2003
+      dimensions: [architecture]
+      phases_used: [0]
+      agent: "rick-kazman"
+      maturity: established
+      key_contribution: "Quality attributes drive view selection"
+
+    - name: "ATAM"
+      authors: "Kazman, Klein, Clements"
+      year: 2000
+      dimensions: [architecture]
+      phases_used: [6]
+      agent: "rick-kazman"
+      maturity: mature
+      key_contribution: "Sensitivity/tradeoff point identification"
+
+    - name: "Ducasse-Pollet Taxonomy"
+      authors: "Ducasse, Pollet"
+      year: 2009
+      dimensions: [architecture, domain, data, api, dependencies, infra]
+      phases_used: [0]
+      agent: "decoder-chief"
+      maturity: mature
+      key_contribution: "Meta-framework classifying all RE approaches"
+
+    - name: "DDD (Domain-Driven Design)"
+      authors: "Eric Evans"
+      year: 2003
+      dimensions: [domain]
+      phases_used: [5]
+      agent: "eric-evans"
+      maturity: mature
+      key_contribution: "Bounded contexts, ubiquitous language, aggregates"
+
+    - name: "Ross Business Rule Taxonomy"
+      authors: "Ronald Ross"
+      year: 1997
+      dimensions: [domain]
+      phases_used: [5]
+      agent: "ronald-ross"
+      maturity: mature
+      key_contribution: "5-type business rule classification"
+
+    - name: "Decision Model"
+      authors: "Barbara von Halle, Larry Goldberg"
+      year: 2009
+      dimensions: [domain]
+      phases_used: [5]
+      agent: "barbara-von-halle"
+      maturity: established
+      key_contribution: "Decision modeling with DMN tables"
+
+    - name: "SBVR"
+      authors: "OMG Standard"
+      year: 2008
+      dimensions: [domain]
+      phases_used: [5]
+      agent: "graham-witt"
+      maturity: mature
+      key_contribution: "Semantics of Business Vocabulary and Rules"
+
+    - name: "PoEAA"
+      authors: "Martin Fowler"
+      year: 2002
+      dimensions: [architecture, domain]
+      phases_used: [2, 5]
+      agent: "martin-fowler"
+      maturity: mature
+      key_contribution: "Domain logic patterns (Transaction Script, Domain Model, etc.)"
+
+  industry:
+    - name: "Arc42"
+      authors: "Starke, Hruschka"
+      year: 2005
+      dimensions: [architecture, domain, data, api, dependencies, infra]
+      phases_used: [6, 8]
+      agent: "simon-brown"
+      maturity: mature
+      key_contribution: "12-section documentation template (all optional)"
+
+    - name: "C4 Model"
+      authors: "Simon Brown"
+      year: 2011
+      dimensions: [architecture, dependencies, infra]
+      phases_used: [1, 3, 6, 8]
+      agent: "simon-brown"
+      maturity: mature
+      key_contribution: "4-level abstraction diagramming"
+
+    - name: "MADR (ADRs)"
+      authors: "Nygard (coined), Fowler (popularized)"
+      year: 2011
+      dimensions: [architecture]
+      phases_used: [8]
+      agent: "simon-brown"
+      maturity: mature
+      key_contribution: "Markdown decision records"
+
+    - name: "Moose Platform"
+      authors: "Ducasse, Anquetil et al."
+      year: 1996
+      dimensions: [architecture, dependencies]
+      phases_used: [2]
+      agent: null
+      maturity: mature
+      key_contribution: "FAMIX meta-model for code analysis"
+
+  emerging:
+    - name: "RepoAgent"
+      authors: "OpenBMB"
+      year: 2024
+      dimensions: [architecture, domain]
+      phases_used: []
+      agent: null
+      maturity: emerging
+      key_contribution: "AST + global context + Git hooks (EMNLP 2024)"
+
+    - name: "DocAgent"
+      authors: "ACL 2025"
+      year: 2025
+      dimensions: [architecture, domain]
+      phases_used: []
+      agent: null
+      maturity: emerging
+      key_contribution: "Multi-agent topological code traversal"
+
+dimension_coverage:
+  architecture: 12
+  dependencies: 7
+  domain: 6
+  data: 2
+  api: 2
+  infra: 2

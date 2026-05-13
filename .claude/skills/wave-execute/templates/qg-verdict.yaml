@@ -1,0 +1,25 @@
+# Extracted from: .claude/skills/wave-execute/SKILL.md (QG Verdict Contract)
+# Part of: SP-WAVE-EXECUTE process
+# Version: 1.1.0
+
+# Quality Gate Verdict Contract — Structured Output
+# Every QG agent MUST return this format.
+# ALL severity levels block PASS — including COSMETIC. No deferral.
+
+quality_gate_report:
+  story_id: "{story_id}"          # e.g., "68.14"
+  verdict: PASS                   # PASS | FAIL
+  score: 0.0                      # 0-10 scale, min TK-WE-002 (7.0) for PASS
+  findings:
+    - id: F-001
+      severity: MINOR             # CRITICAL | MAJOR | MINOR | COSMETIC
+      description: "What is wrong"
+      location: "file:line or AC reference"
+      prescription: "Specific fix required"
+  all_acs_verified: true           # true | false
+  dev_agent_record_complete: true  # true | false — 4 sections populated
+  reviewed_by: "@agent-id"         # e.g., "@cso", "@architect"
+  reviewed_at: "2026-01-01T00:00:00Z"  # ISO timestamp
+  tools_executed:
+    - tool: "node scripts/registry-governance-check.js"
+      result: "PASS"              # PASS | FAIL | N/A

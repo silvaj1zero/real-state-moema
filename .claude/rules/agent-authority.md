@@ -1,105 +1,61 @@
-# Agent Authority — Detailed Rules
+---
+paths:
+  - "squads/**/agents/**"
+  - "squads/**/config.yaml"
+  - "squads/**/squad-io.yaml"
+  - ".claude/agents/**"
+  - ".aiox-core/development/agents/**"
+  - "**/migrations/*.sql"
+  - ".github/workflows/**"
+  - ".claude/settings*.json"
+  - ".aiox-core/core-config.yaml"
+---
 
-## Delegation Matrix
+# Agent Authority — Sinkra Hub
 
-### @devops (Gage) — EXCLUSIVE Authority
+Applies when any agent is activated.
 
-| Operation | Exclusive? | Other Agents |
-|-----------|-----------|--------------|
-| `git push` / `git push --force` | YES | BLOCKED |
-| `gh pr create` / `gh pr merge` | YES | BLOCKED |
-| MCP add/remove/configure | YES | BLOCKED |
-| CI/CD pipeline management | YES | BLOCKED |
-| Release management | YES | BLOCKED |
+## Exclusive Authorities
 
-### @pm (Morgan) — Epic Orchestration
+| Agent | Exclusive Rights | Others MUST Delegate |
+|-------|-----------------|---------------------|
+| `@devops` | `git push`, `git tag`, PR creation, MCP management, release, deploy (Docker Swarm, Railway, Vercel) + Supabase migration execution in production + model routing config (`model_routing.*` in `core-config.yaml`), budget pressure thresholds, model tier mappings — Art. XII-B | All agents propose, `@devops` deploys and owns routing config |
+| `@db-sage` | Database migrations, schema changes, query optimization, RLS policies — **ENFORCED** (`enforce-migration-authority.sh`: blocks Edit/Write on `**/migrations/*.sql` + Bash `supabase db push`/`prisma migrate`/`drizzle-kit migrate`/`knex migrate`/`psql *.sql` unless `AIOX_ACTIVE_AGENT ∈ {db-sage, aiox-data-engineer, devops, github-devops}`) | `@dev` proposes, `@db-sage` executes |
+| `@architect` | Architecture decisions, tech stack changes + intent resolver configuration (keyword table, confidence thresholds, embedding model selection) — Art. XII-B | `@dev` proposes, `@architect` decides |
+| `@qa` | Quality sign-off, test strategy | `@dev` writes tests, `@qa` validates |
+| `@po` | Story validation (10-point check) | `@pm` creates, `@po` validates |
+| `@sm` | Sprint management, story creation | Others request, `@sm` creates |
+| `@clickup-chief` | ClickUp structure creation (Spaces, Folders, Lists, CFs), SuperAgent config | All other agents propose, `@clickup-chief` materializes |
+| `@sinkra-chief` | Dispatch table ownership (`DISPATCH_RULES[]` in `dispatch-table.js`), dispatch routing logic — Art. XII-B | All agents propose dispatch rules, `@sinkra-chief` approves and merges; escalation to `@master` |
 
-| Operation | Exclusive? | Delegated From |
-|-----------|-----------|---------------|
-| `*execute-epic` | YES | — |
-| `*create-epic` | YES | — |
-| EPIC-{ID}-EXECUTION.yaml management | YES | — |
-| Requirements gathering | YES | — |
-| Spec writing (spec pipeline) | YES | — |
+## Delegation Protocol
 
-### @po (Pax) — Story Validation
+When `@dev` needs to push code:
+1. `@dev` completes implementation
+2. `@dev` requests `@devops` to push via handoff
+3. `@devops` validates and pushes
 
-| Operation | Exclusive? | Details |
-|-----------|-----------|---------|
-| `*validate-story-draft` | YES | 10-point checklist |
-| Story context tracking in epics | YES | — |
-| Epic context management | YES | — |
-| Backlog prioritization | YES | — |
+When any agent needs architecture change:
+1. Agent proposes to `@architect`
+2. `@architect` evaluates and decides
+3. Decision logged in `.ai/` directory
 
-### @sm (River) — Story Creation
+When `@db-sage` handles database migrations:
+1. `@db-sage` designs migration and runs dry-run + staging execution
+2. `@db-sage` hands off to `@devops` for production execution
+3. `@devops` executes migration in production via `*deploy-story`
 
-| Operation | Exclusive? | Details |
-|-----------|-----------|---------|
-| `*draft` / `*create-story` | YES | From epic/PRD |
-| Story template selection | YES | — |
+When any agent needs to deploy:
+1. `@dev` or `@db-sage` proposes, implements, and tests in staging/dry-run
+2. `@devops` executes deploy in production (EXCLUSIVE authority)
+3. `@qa` or `@devops` runs `*verify-deploy` post-deploy for E2E verification
 
-### @dev (Dex) — Implementation
+## MCP Governance
 
-| Allowed | Blocked |
-|---------|---------|
-| `git add`, `git commit`, `git status` | `git push` (delegate to @devops) |
-| `git branch`, `git checkout`, `git merge` (local) | `gh pr create/merge` (delegate to @devops) |
-| `git stash`, `git diff`, `git log` | MCP management |
-| Story file updates (File List, checkboxes) | Story file updates (AC, scope, title) |
+**ONLY `@devops`** can:
+- `claude mcp add/remove`
+- Modify `.mcp.json`
+- Configure Docker MCP Gateway
+- Manage MCP secrets
 
-### @architect (Aria) — Design Authority
-
-| Owns | Delegates To |
-|------|-------------|
-| System architecture decisions | — |
-| Technology selection | — |
-| High-level data architecture | @data-engineer (detailed DDL) |
-| Integration patterns | @data-engineer (query optimization) |
-| Complexity assessment | — |
-
-### @data-engineer (Dara) — Database
-
-| Owns (delegated from @architect) | Does NOT Own |
-|----------------------------------|-------------|
-| Schema design (detailed DDL) | System architecture |
-| Query optimization | Application code |
-| RLS policies implementation | Git operations |
-| Index strategy execution | Frontend/UI |
-| Migration planning & execution | — |
-
-### @aiox-master — Framework Governance
-
-| Capability | Details |
-|-----------|---------|
-| Execute ANY task directly | No restrictions |
-| Framework governance | Constitutional enforcement |
-| Override agent boundaries | When necessary for framework health |
-
-## Cross-Agent Delegation Patterns
-
-### Git Push Flow
-```
-ANY agent → @devops *push
-```
-
-### Schema Design Flow
-```
-@architect (decides technology) → @data-engineer (implements DDL)
-```
-
-### Story Flow
-```
-@sm *draft → @po *validate → @dev *develop → @qa *qa-gate → @devops *push
-```
-
-### Epic Flow
-```
-@pm *create-epic → @pm *execute-epic → @sm *draft (per story)
-```
-
-## Escalation Rules
-
-1. Agent cannot complete task → Escalate to @aiox-master
-2. Quality gate fails → Return to @dev with specific feedback
-3. Constitutional violation detected → BLOCK, require fix before proceed
-4. Agent boundary conflict → @aiox-master mediates
+Other agents are MCP **consumers**, not administrators.

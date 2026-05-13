@@ -1,0 +1,32 @@
+# Extracted from: .claude/skills/wave-execute/SKILL.md (ATM-WE-007 — Compound QG merge rules + AUTH-4)
+# Part of: SP-WAVE-EXECUTE process
+# Version: 1.1.0
+#
+# Schema: compound_qg_merge
+#   verdict: enum                  # REQUIRED — ALL_MUST_PASS | ANY_PASS — how individual verdicts combine
+#   score: enum                    # REQUIRED — MIN | MAX | AVG — how numeric scores are aggregated
+#   findings: enum                 # REQUIRED — UNION | INTERSECTION — how finding lists merge
+#   conflict_resolution: enum      # REQUIRED — FAIL_WINS | PASS_WINS — tie-breaker when verdicts conflict
+
+# Compound QG Merge Rules
+# Applied when a story has multiple QG agents (e.g., @cso + @architect).
+# Triggered by CHK-3 when story touches files in multiple sensitive domains.
+# See also: AUTH-4 in Agent Authority Rules.
+
+compound_qg_merge:
+  # Verdict resolution: ALL agents must return PASS for overall PASS
+  verdict: ALL_MUST_PASS
+
+  # Score resolution: take the minimum (most conservative) score across all agents
+  score: MIN
+
+  # Findings: combine all findings from all agents into a single list
+  findings: UNION
+
+  # Conflict resolution: if any agent returns FAIL, overall result is FAIL
+  conflict_resolution: FAIL_WINS
+
+# Examples:
+#   @cso PASS (8.0) + @architect PASS (7.5) → PASS (7.5)
+#   @cso PASS (8.0) + @architect FAIL (5.0) → FAIL (5.0)
+#   @cso FAIL (4.0) + @architect FAIL (5.0) → FAIL (4.0)

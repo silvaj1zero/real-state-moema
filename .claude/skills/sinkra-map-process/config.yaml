@@ -1,0 +1,169 @@
+pack:
+  name: sinkra-map-process
+  version: "1.1.0"
+  description: "SINKRA 7-phase process mapping pipeline — Discovery → Architecture → Executors → Workflows → Tasks → QA Gates → Infrastructure → QA Validation → Handoff, with checkpoint enforcement (PV_BS_001, PV_PA_001, PV_PM_001, META_AXIOMAS, SINKRA_QA_GATE)."
+  icon: "SMP"
+  type: skill
+  location: .claude/skills/sinkra-map-process/
+
+process:
+  id: SP-SINKRA-MAP-PROCESS
+  mode: MAPEAR
+  sinkra_version: "1.2"
+  organism: ORG-SMP-001
+  molecules: 7   # P01 Discovery / P02 Architecture / P03 Executors / P04 Workflows+P05 Tasks / P06 QA Gates / P07a Infra / P07b QA Validation
+  atoms: 11      # 7 phase outputs + 4 handoff artifacts (sinkra-output.yaml + .md + pipeline-diagram + handoff-downstream)
+
+artifact_contracts:
+  - artifact_id: process-map
+    template_path: outputs/sinkra-squad/{slug}/process_map.yaml
+    lifecycle_states: [draft, validated]
+    phase: P01
+  - artifact_id: stakeholders
+    template_path: outputs/sinkra-squad/{slug}/stakeholders.yaml
+    lifecycle_states: [draft, validated]
+    phase: P01
+  - artifact_id: as-is-doc
+    template_path: outputs/sinkra-squad/{slug}/as_is_doc.md
+    lifecycle_states: [draft, validated]
+    phase: P01
+  - artifact_id: architecture
+    template_path: outputs/sinkra-squad/{slug}/architecture.yaml
+    lifecycle_states: [draft, approved]
+    phase: P02
+    checkpoint: PV_BS_001
+  - artifact_id: domain-map
+    template_path: outputs/sinkra-squad/{slug}/domain_map.yaml
+    lifecycle_states: [draft, approved]
+    phase: P02
+  - artifact_id: executor-matrix
+    template_path: outputs/sinkra-squad/{slug}/executor_matrix.yaml
+    lifecycle_states: [draft, approved]
+    phase: P03
+    checkpoint: PV_PA_001
+  - artifact_id: raci-matrix
+    template_path: outputs/sinkra-squad/{slug}/raci_matrix.yaml
+    lifecycle_states: [draft, approved]
+    phase: P03
+  - artifact_id: workflow-definition
+    template_path: outputs/sinkra-squad/{slug}/workflow_definition.yaml
+    lifecycle_states: [draft, approved]
+    phase: P04
+    checkpoint: PV_PM_001
+  - artifact_id: task-definitions
+    template_path: outputs/sinkra-squad/{slug}/task_definitions.yaml
+    lifecycle_states: [draft, validated]
+    phase: P05
+  - artifact_id: dependency-graph
+    template_path: outputs/sinkra-squad/{slug}/dependency_graph.yaml
+    lifecycle_states: [draft, validated]
+    phase: P05
+  - artifact_id: token-assignments
+    template_path: outputs/sinkra-squad/{slug}/token_assignments.yaml
+    lifecycle_states: [draft, validated]
+    phase: P05
+  - artifact_id: quality-gates
+    template_path: outputs/sinkra-squad/{slug}/quality_gates.yaml
+    lifecycle_states: [draft, approved]
+    phase: P06
+    checkpoint: META_AXIOMAS
+  - artifact_id: axioma-report
+    template_path: outputs/sinkra-squad/{slug}/axioma_report.md
+    lifecycle_states: [generated]
+    phase: P06
+  - artifact_id: infrastructure-connections
+    template_path: outputs/sinkra-squad/{slug}/infrastructure_connections.yaml
+    lifecycle_states: [draft, approved]
+    phase: P07a
+  - artifact_id: gap-analysis
+    template_path: outputs/sinkra-squad/{slug}/gap_analysis.md
+    lifecycle_states: [generated]
+    phase: P07a
+  - artifact_id: score-card
+    template_path: outputs/sinkra-squad/{slug}/score_card.yaml
+    lifecycle_states: [generated]
+    phase: P07b
+    checkpoint: SINKRA_QA_GATE
+  - artifact_id: sinkra-compliance-report
+    template_path: outputs/sinkra-squad/{slug}/sinkra_compliance_report.md
+    lifecycle_states: [generated]
+    phase: P07b
+  - artifact_id: sinkra-output
+    template_path: outputs/sinkra-squad/{slug}/sinkra-output.yaml
+    lifecycle_states: [generated]
+    phase: P07c
+    downstream_consumer: squad-creator
+  - artifact_id: pipeline-diagram
+    template_path: outputs/sinkra-squad/{slug}/pipeline-diagram.md
+    lifecycle_states: [generated]
+    phase: P07c
+  - artifact_id: handoff-downstream
+    template_path: outputs/sinkra-squad/{slug}/handoff-downstream.yaml
+    lifecycle_states: [pending, accepted, consumed]
+    phase: P07d
+    downstream_consumer: squad-creator
+
+supported_modes: [MAPEAR]
+bu_mapping: hub-framework
+
+token_count: 5
+token_families: [Checkpoint, Phase, Executor, Artifact, Verdict]
+
+checkpoints:
+  - id: PV_BS_001
+    name: Future Back-Casting
+    phase: P02
+    veto_enabled: true
+    thresholds: { end_state_vision_clarity: 0.7 }
+  - id: PV_PA_001
+    name: Systemic Coherence Scan
+    phase: P03
+    veto_enabled: true
+    thresholds: { human: 0.7, agent: 0.9, clone: 0.9, worker: 0.95, weighted: 0.8 }
+  - id: PV_PM_001
+    name: Automation Tipping Point
+    phase: P04
+    veto_enabled: true
+    veto_condition: guardrails_missing
+  - id: META_AXIOMAS
+    name: 10-Dimension Axiomatic Validation
+    phase: P06
+    veto_enabled: true
+    veto_dimension: verdade
+    veto_threshold: 7.0
+    overall_threshold: 7.0
+  - id: SINKRA_QA_GATE
+    name: Mandatory Compliance Gate
+    phase: P07b
+    veto_enabled: true
+    mandatory: true
+    thresholds: { compliance_score: 80, structural_integrity: 0.8, critical_violations: 0 }
+
+knowledge_sources:
+  - squads/sinkra-squad/workflows/sinkra-pipeline.yaml
+  - squads/sinkra-squad/agents/sinkra-chief.md
+  - squads/sinkra-squad/agents/process-discoverer.md
+  - squads/sinkra-squad/agents/architecture-designer.md
+  - squads/sinkra-squad/agents/executor-classifier.md
+  - squads/sinkra-squad/agents/composition-engineer.md
+  - squads/sinkra-squad/agents/quality-gatekeeper.md
+  - squads/sinkra-squad/agents/infrastructure-mapper.md
+  - squads/sinkra-squad/agents/sinkra-qa.md
+  - .claude/rules/prior-art-search.md
+  - .claude/rules/incremental-learning-log.md
+
+rules_applied:
+  - prior-art-search          # absence claims require documented search
+  - incremental-learning-log  # log at P0, update per phase
+
+invokes:
+  - path: /squadCreator:squad-chief
+    relationship: downstream handoff
+    trigger: SINKRA_QA_GATE APPROVE
+
+invoked_by:
+  - path: /sinkra-upgrade-squad
+    phase: P3 (SINKRA Mapping)
+    relationship: sub-skill for brownfield mapping
+
+process_mapping: squads/sinkra-squad/workflows/sinkra-pipeline.yaml
