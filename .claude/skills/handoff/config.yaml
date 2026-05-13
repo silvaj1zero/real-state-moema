@@ -1,0 +1,78 @@
+pack:
+  name: handoff
+  version: "3.1.0"
+  description: "Generates SINKRA-compliant handoff documents for work continuity without prior context"
+  icon: "HO"
+  type: skill
+  location: .claude/skills/handoff/
+
+process:
+  id: SP-HANDOFF-GEN
+  mode: CRIAR
+  sinkra_version: "1.2"
+  organism: ORG-HO-001
+  molecules: 4
+  atoms: 11
+
+artifact_contracts:
+  - artifact_id: handoff-document-full
+    template_path: handoff-template-full.md
+    lifecycle_states: [draft, approved, stale, archived]
+  - artifact_id: handoff-document-lite
+    template_path: handoff-template-lite.md
+    lifecycle_states: [draft, approved, stale, archived]
+  - artifact_id: handoff-yaml-summary
+    template_path: templates/handoff-yaml-summary.yaml
+    lifecycle_states: [draft, approved]
+  - artifact_id: handoff-registry-entry
+    lifecycle_states: [draft, approved]
+
+supported_modes: [CRIAR]
+bu_mapping: hub-framework
+
+token_count: 14
+token_families: [Identity, Executor, Threshold, Context, Time]
+
+checklist_refs:
+  - checklists/quality-checklist-full.md
+  - checklists/quality-checklist-lite.md
+
+template_selection:
+  lite:
+    conditions:
+      priority: [P2, P3]
+      scope: [intra_processo, self_continuation]
+    template: handoff-template-lite.md
+    checklist: checklists/quality-checklist-lite.md
+    gate: 4
+  full:
+    conditions:
+      priority: [P0, P1]
+      scope: [intra_bu, inter_bu]
+    template: handoff-template-full.md
+    checklist: checklists/quality-checklist-full.md
+    gate: 7
+  default: full
+
+size_limits:
+  P3: 500
+  P2: 1500
+  P1: 3000
+  P0: unlimited
+
+handoff_types:
+  - session
+  - agent_transfer
+  - phase_transition
+  - roundtable_summary
+  - self_continuation
+
+scopes:
+  - intra_processo
+  - intra_bu
+  - inter_bu
+  - self_continuation
+
+inter_skill_contracts:
+  invoked_by: []  # standalone — not invoked by other skills
+  triggers: []    # does not trigger other skills

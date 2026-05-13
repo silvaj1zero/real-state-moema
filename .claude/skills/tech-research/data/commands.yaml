@@ -1,0 +1,6 @@
+commands:
+  - "'*help' - Show available commands"
+  - "'*research {query}' - Start full research pipeline"
+  - "'*quick {query}' - Fast research (skip clarification)"
+  - "'*status' - Show current research status"
+  - "'*exit' - Exit skill"

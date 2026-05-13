@@ -1,0 +1,142 @@
+# Advisory Council — SINKRA Process Configuration
+# Tier 2 compliance: process_id + artifact_contracts + mode declaration
+# RT-AC-001: 2026-04-27
+
+process:
+  id: ARCH-AC-001
+  name: "Advisory Council — Cognitive Diversity Synthesis"
+  parent_process: ARCH-ROUNDTABLE
+  mode: EXPLORAR
+  supported_modes: [EXPLORAR, VALIDAR]
+  sinkra_version: "1.2"
+
+organism:
+  id: ORG-AC-001
+  name: "Advisory Council Pipeline"
+  molecules:
+    - id: MOL-AC-001
+      name: "Parse & Confirm"
+      atoms:
+        - id: ATM-AC-PARSE
+          name: "Parse Input"
+          executor: "Agent(main-session)"
+    - id: MOL-AC-002
+      name: "Advisor Execution"
+      atoms:
+        - id: ATM-AC-001
+          name: "Contrarian Advisor"
+          executor: "Agent(sonnet)"
+          cognitive_lens: "steel-man + fatal flaw detection"
+          tool_scope: full
+        - id: ATM-AC-002
+          name: "First Principles Thinker"
+          executor: "Agent(sonnet)"
+          cognitive_lens: "ground-up reasoning from irreducible truths"
+          tool_scope: full
+        - id: ATM-AC-003
+          name: "Expansion Advisor"
+          executor: "Agent(sonnet)"
+          cognitive_lens: "unseen opportunities, adjacent possible"
+          tool_scope: full
+        - id: ATM-AC-004
+          name: "Outsider Advisor"
+          executor: "Agent(sonnet)"
+          cognitive_lens: "zero internal context, external perspective"
+          tool_scope: web_only  # Outsider Isolation Contract
+        - id: ATM-AC-005
+          name: "Executor Advisor"
+          executor: "Agent(sonnet)"
+          cognitive_lens: "pure practicality, action plans"
+          tool_scope: full
+    - id: MOL-AC-003
+      name: "Blind Synthesis"
+      pattern: "temporal_mechanism"
+      description: "Anonymize → shuffle → label → synthesize blind → de-anonymize"
+      atoms:
+        - id: ATM-AC-ANON
+          name: "Anonymize & Shuffle"
+          executor: "Agent(main-session)"
+        - id: ATM-AC-SYNTH
+          name: "Blind Synthesis"
+          executor: "Agent(opus)"
+        - id: ATM-AC-DEANON
+          name: "De-anonymize & Report"
+          executor: "Agent(main-session)"
+    - id: MOL-AC-004
+      name: "Cleanup"
+      atoms:
+        - id: ATM-AC-CLEANUP
+          name: "Shutdown Team"
+          executor: "Agent(main-session)"
+
+tokens:
+  # Identity
+  - id: TK-AC-001
+    family: Identity
+    name: council_id
+    type: string
+    description: "Unique council instance ID (AC-{YYYY-MM-DD}-{seq})"
+
+  # Threshold
+  - id: TK-AC-002
+    family: Threshold
+    name: min_advisor_response_tokens
+    type: integer
+    default: 300
+    description: "Minimum tokens per advisor response. Below = insufficient, not computed in verdict."
+
+  - id: TK-AC-003
+    family: Threshold
+    name: outsider_min_sources
+    type: integer
+    default: 2
+    description: "Minimum external sources cited by Outsider. Below = outsider_status: degraded."
+
+  # Time
+  - id: TK-AC-004
+    family: Time
+    name: advisor_timeout_seconds
+    type: integer
+    default: 300
+    description: "Timeout per advisor. Exceeded = skip with warning."
+
+  - id: TK-AC-005
+    family: Time
+    name: report_ttl_days
+    type: integer
+    default: 90
+    description: "TTL for advisory council reports before STALE status."
+
+  # Capacity
+  - id: TK-AC-006
+    family: Capacity
+    name: max_synthesis_attempts
+    type: integer
+    default: 2
+    description: "Max synthesis attempts. After = INCONCLUSIVE verdict with raw outputs."
+
+  # Permission
+  - id: TK-AC-007
+    family: Permission
+    name: outsider_tool_scope
+    type: enum
+    values: [web_only]
+    default: web_only
+    description: "Outsider advisor tool restriction — WebSearch + SendMessage only."
+
+  # Context
+  - id: TK-AC-008
+    family: Context
+    name: anonymization_mode
+    type: enum
+    values: [heuristic, disabled]
+    default: heuristic
+    description: "Anonymization mode. Heuristic = shuffle+label. Disabled = transparent attribution."
+
+artifact_contracts:
+  - artifact_id: "advisory-council-report"
+    template_path: "templates/advisory-council-report-tmpl.yaml"
+    lifecycle_states: [draft, blind_synthesis, de_anonymized, final, stale, archived]
+    description: "Advisory Council output report with verdict, consensus, conflicts, action plan"
+
+state_machine: "IDLE → PARSING → ADVISING → ANONYMIZING → SYNTHESIZING → REPORTING → COMPLETE | ERROR | INCONCLUSIVE"

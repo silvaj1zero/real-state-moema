@@ -1,0 +1,22 @@
+workflow:
+  phases:
+    1_clarify:
+      name: "Clarificação Rápida"
+      description: |
+        Manual clarification step. Behavior depends on auto-clarification results:
+        - If inferred_context.skip_clarification == true: SKIP this phase entirely.
+          All context was inferred automatically. Proceed to 2_generate_prompt.
+        - If inferred_context.skip_clarification == false: Ask ONE combined question
+          using the single_question_template from auto_clarification.ask_threshold.
+          Do NOT ask the original 3 separate questions.
+        - If auto_clarification section is missing (backward compatibility):
+          Ask the original 3 questions below as before.
+      original_questions:
+        - "Foco: técnico (código/docs) ou geral (artigos/news)?"
+        - "Requisitos de performance? (latência, recursos)"
+        - "Contexto específico? (framework, linguagem, plataforma)"
+      reduced_question: |
+        When auto-clarification detected 0 patterns, ask ONLY this single question:
+        "Sua query parece ampla. Para uma pesquisa mais precisa, me diga em uma frase:
+        Qual o foco e contexto tecnico desta pesquisa?"
+      output: "Respostas para refinar prompt (or inferred_context if skipped)"

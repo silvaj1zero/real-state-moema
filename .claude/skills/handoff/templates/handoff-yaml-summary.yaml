@@ -1,0 +1,55 @@
+# Extracted from: .claude/skills/handoff/SKILL.md (ATM-008)
+# Part of: SP-HANDOFF-GEN process
+# Version: 3.1.0
+#
+# YAML Summary Template for Agent-Handoff Protocol Compatibility
+# Target path: .aiox/handoffs/handoff-session-to-next-{date}.yaml
+# Size budget: ~400 tokens
+# Reference: INFRA-GAP-3 fix (dual output: markdown + YAML)
+
+handoff:
+  from: "Agent:current-session"           # Producer agent identifier
+  to: "Agent:next-session"                # Consumer agent identifier
+  date: "{CURRENT_DATE}"                  # YYYY-MM-DD format
+  scope: "{SCOPE}"                        # intra_processo | intra_bu | inter_bu (from ATM-003)
+  story: "{ACTIVE_STORY}"                 # Active story reference if any (e.g., "Story 68.3"), or "none"
+  branch: "{GIT_BRANCH}"                  # Current git branch name
+
+context:
+  what_was_done:
+    - "{ACTION_1}"                        # Concrete actions: files created/edited, decisions made
+    - "{ACTION_2}"                        # Use past tense, be specific
+    # Add more bullets as needed
+
+  what_remains:
+    - "{NEXT_STEP_1}"                     # Logical next steps based on remaining work
+    - "{NEXT_STEP_2}"                     # Use imperative, be actionable
+    # Add more bullets as needed
+
+  files_modified:
+    - "{FILE_PATH_1}"                     # From ATM-002 git diff --name-only
+    - "{FILE_PATH_2}"                     # Use relative paths from repo root
+    # Add more files as needed
+
+  decisions_made:
+    - "{DECISION_1}"                      # Key decisions from the session (Q2)
+    - "{DECISION_2}"                      # Include rationale when non-obvious
+    # Add more decisions as needed
+
+  blockers:
+    - "{BLOCKER_1}"                       # From Q4 vetos/critical rules
+    # Empty list [] if no blockers
+
+artifacts:
+  - id: "{HANDOFF_ID}"                   # Format: {date}-{project}-handoff
+    path: "docs/sessions/{YYYY-MM}/{date}-{project}-handoff.md"  # Full markdown handoff
+    status: "{STATUS}"                    # approved (score >= 7) | draft (score < 7)
+    score: "{SCORE}"                      # 0-10 completeness score from ATM-006
+
+# Lifecycle:
+#   - TTL: 30 days (TK-HO-002) — after which status -> stale
+#   - Score >= 7: artifact_status = approved
+#   - Score < 7 (after fix attempt): artifact_status = draft
+#
+# Registry entry: docs/sessions/registry.yaml
+# Journey log: docs/sessions/journey-log.yaml (birth event)

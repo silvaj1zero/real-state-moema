@@ -1,0 +1,278 @@
+# =============================================================================
+# Wave Execution Engine — Workflow YAML
+# Source: .claude/skills/wave-execute/SKILL.md (v2.0)
+# Phase 4 — SINKRA Skills Compliance Roadmap
+# =============================================================================
+
+workflow:
+  id: "WF-WAVE-EXECUTE-001"
+  skill_ref: "wave-execute"
+  process_ref: "SP-WAVE-EXECUTE"
+  version: "2.0.0"
+  molecules: 3  # MOL-WE-002 + MOL-WE-003 merged into MOL-WE-002 (Parallel Story Cycle)
+  atoms: 10  # lead-level atoms (teammate-internal steps are sub-steps of ATM-WE-004)
+
+  state_machine: "PLANNING -> VALIDATING -> EXECUTING -> REVIEWING -> [QG_LOOP] -> COMMITTING -> CONSOLIDATING -> COMPLETE | ABORTED | ESCALATED | PAUSED"
+
+  # ---------------------------------------------------------------------------
+  # MOL-WE-001: Story Validation
+  # Pattern: ATM-001 -> ATM-002 (parallel per story) -> ATM-003
+  # ---------------------------------------------------------------------------
+
+  steps:
+    - id: 1
+      atom_ref: "ATM-WE-001"
+      molecule_ref: "MOL-WE-001"
+      name: "Parse Wave & Build DAG"
+      executor: "Worker"
+      inputs:
+        - "Epic ID + Wave number"
+        - "Prior wave retrospective (if exists, for effort calibration)"
+      outputs:
+        - "Execution plan: DAG, parallel batches, assignments"
+        - "Calibrated effort estimates"
+        - "Decomposition candidate warnings"
+        - "Persisted plan: .aiox/waves/{epic}-wave-{N}/plan.yaml"
+      on_success: 2
+      on_failure: "halt"
+      gate: "User confirms execution plan"
+      timeout: null
+      token_refs:
+        - "TK-WE-008 (parallel_stories: 3)"
+        - "TK-WE-009 (max_stories_per_wave: 8)"
+        - "TK-WE-017 (decomposition_effort_threshold: 8h)"
+        - "TK-WE-018 (decomposition_task_threshold: 6)"
+        - "TK-WE-019 (effort_calibration_ratio: 0.3)"
+      notes: "Detects circular dependencies -> HALT. Cold start (wave 1, no retrospective): use TK-WE-019 default 0.3x."
+
+    - id: 2
+      atom_ref: "ATM-WE-002"
+      molecule_ref: "MOL-WE-001"
+      name: "Validate Story Drafts"
+      executor: "Agent"
+      inputs:
+        - "All stories from plan"
+        - "10-point validation checklist (inline)"
+      outputs:
+        - "Per-story validation result (Ready or failed with issues)"
+        - "Wave-aware AC enrichments applied"
+        - "Corrections logged in story Change Log"
+      on_success: 3
+      on_failure: "escalate"
+      gate: null
+      timeout: null
+      token_refs:
+        - "TK-WE-003 (validation_min_score: 8.0)"
+        - "TK-WE-017 (decomposition_effort_threshold: 8h)"
+      governance:
+        - "CHK-1: Story status must be Draft or Ready"
+        - "CHK-2: executor and quality_gate fields non-empty"
+        - "CHK-3: Sensitive domain -> correct QG (compound QG if multiple domains)"
+      notes: "Parallel execution: 1 Agent per story via run_in_background. @po persona. CHK-3 can ADD required agents but NEVER removes existing QG from YAML."
+
+    - id: 3
+      atom_ref: "ATM-WE-003"
+      molecule_ref: "MOL-WE-001"
+      name: "Confirm & Persist Validation"
+      executor: "Worker"
+      inputs:
+        - "Validation results (from ATM-WE-002)"
+      outputs:
+        - "Updated .aiox/waves/{epic}-wave-{N}/state.yaml"
+        - "Validation summary presented to user"
+      on_success: 4
+      on_failure: "halt"
+      gate: "All stories Ready (or user overrides/skips specific stories)"
+      timeout: null
+      notes: "User can exclude stories: --skip {id} -> status Skipped, deferred to next wave."
+
+  # ---------------------------------------------------------------------------
+  # MOL-WE-002: Parallel Story Cycle (merged MOL-WE-002 + MOL-WE-003 in v2.0)
+  # Pattern: For each batch: ATM-004 (spawn teammates) -> ATM-005 (wait) -> ATM-006 (merge + checks)
+  # Each teammate internally runs: validate -> develop -> QG loop -> close
+  # Batch loop: after ATM-009B, next batch starts at ATM-004
+  # ---------------------------------------------------------------------------
+
+    - id: 4
+      atom_ref: "ATM-WE-004"
+      molecule_ref: "MOL-WE-002"
+      name: "Spawn Story Teammates"
+      executor: "Agent Teams"
+      inputs:
+        - "Batch N stories from plan (all with status Ready, deps satisfied)"
+        - "Story files (read completely)"
+      outputs:
+        - "N teammates spawned (1 per story), each with isolated worktree"
+        - "Each teammate runs full cycle: validate → develop → QG loop → close"
+      on_success: 5
+      on_failure: "halt"
+      gate: null
+      timeout: null
+      token_refs:
+        - "TK-WE-008 (parallel_stories: 3)"
+      prerequisite: "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1"
+      notes: "Parallel fan-out. Each teammate gets independent context window + git worktree. Teammate-internal steps: (1) @po validate, (2) executor develop, (3) QG review, (4) QG loop if FAIL (max TK-WE-001), (5) @po close. See teammate_sub_workflow."
+
+    - id: 5
+      atom_ref: "ATM-WE-005"
+      molecule_ref: "MOL-WE-002"
+      name: "Wait All Teammates"
+      executor: "Lead"
+      inputs:
+        - "Spawned teammates from ATM-WE-004"
+      outputs:
+        - "Per-story results (status, QG verdict, files modified)"
+        - "Blocked stories identified (timeout or circuit breaker)"
+      on_success: 6
+      on_failure: "escalate"
+      gate: null
+      timeout: "TK-WE-006 (story_timeout_hours: 4h)"
+      token_refs:
+        - "TK-WE-006 (story_timeout_hours: 4h)"
+      notes: "Blocking wait. Lead collects results from all teammates. Timeout → Blocked. Circuit breaker (3 QG fails) → Blocked + cascade-block dependents."
+
+    - id: 6
+      atom_ref: "ATM-WE-006"
+      molecule_ref: "MOL-WE-002"
+      name: "Merge Worktrees + Post-Batch Checks"
+      executor: "Lead"
+      inputs:
+        - "All completed teammate worktrees"
+        - "Per-story results from ATM-WE-005"
+      outputs:
+        - "Merged changes on main branch"
+        - "Governance check results (CHK-4, CHK-5, CHK-6, CHK-7 re-checked by lead)"
+        - "Post-merge integration check result (CHK-10)"
+      on_success: 7
+      on_failure: "halt"
+      gate: "CHK-4, CHK-5, CHK-6, CHK-7 all pass + CHK-10 (npm run lint && npm run typecheck)"
+      timeout: null
+      governance:
+        - "CHK-4: Dev Agent Record has all 4 subsections (re-checked by lead)"
+        - "CHK-5: All AC checkboxes addressed (re-checked by lead)"
+        - "CHK-6: QG Report populated in story file (re-checked by lead)"
+        - "CHK-7: Change Log updated with QG result (re-checked by lead)"
+        - "CHK-10: Post-merge integration check — npm run lint && npm run typecheck pass after worktree merge"
+      notes: "Merge teammate worktrees back to main. If merge conflicts → HALT, user resolves. CHK-10 catches cross-story integration issues (conflicting imports, duplicate routes, shared state). Proceeds to ATM-WE-009B."
+
+  # ---------------------------------------------------------------------------
+  # SCM Checkpoint (between MOL-WE-002 and MOL-WE-004)
+  # Triggers after all stories in a batch pass checks
+  # ---------------------------------------------------------------------------
+
+    - id: 7
+      atom_ref: "ATM-WE-009B"
+      molecule_ref: "MOL-WE-002"
+      name: "SCM Checkpoint"
+      executor: "Worker"
+      inputs:
+        - "All Done stories in current batch"
+        - "File lists from Dev Agent Records"
+      outputs:
+        - "1 git commit per batch"
+        - "Commit SHA logged in .aiox/waves/{epic}-wave-{N}/state.yaml"
+      on_success: 4
+      on_failure: "halt"
+      gate: null
+      timeout: null
+      governance:
+        - "CHK-9: Commit created before wave consolidation"
+      batch_loop:
+        condition: "More batches remaining in DAG"
+        target_step: 4
+        on_all_batches_done: 8
+      notes: "Stages files, presents git diff --stat for user confirmation, creates commit. NEVER pushes (AUTH-1). On git failure: HALT batch, user resolves manually. After all batches done: proceed to MOL-WE-004."
+
+  # ---------------------------------------------------------------------------
+  # MOL-WE-004: Wave Consolidation (was MOL-WE-004 in v1.x, now MOL-WE-003)
+  # Pattern: ATM-010 -> ATM-011 -> ATM-012
+  # Trigger: All batches committed + all stories Done/Blocked/Skipped
+  # ---------------------------------------------------------------------------
+
+    - id: 8
+      atom_ref: "ATM-WE-010"
+      molecule_ref: "MOL-WE-004"
+      name: "Aggregate Wave Results"
+      executor: "Worker"
+      inputs:
+        - "All story states from .aiox/waves/"
+        - "Commit SHAs"
+        - "Wave gate criteria (from Epic file)"
+      outputs:
+        - "Wave summary YAML"
+        - "Wave gate result (PASS | FAIL)"
+        - "Registry governance check result"
+      on_success: 9
+      on_failure: "escalate"
+      gate: null
+      timeout: null
+      token_refs:
+        - "TK-WE-005 (wave_timebox: 2w)"
+        - "TK-WE-004 (wave_timebox_extension_pct: 50)"
+      governance:
+        - "CHK-8: node scripts/registry-governance-check.js --mode advisory"
+      notes: "Checks wave timebox. If elapsed > timebox * (1 + TK-WE-004/100): log warning. Calculates first_try_pass_rate, effort accuracy."
+
+    - id: 9
+      atom_ref: "ATM-WE-011"
+      molecule_ref: "MOL-WE-004"
+      name: "Run Roundtable"
+      executor: "Skill"
+      inputs:
+        - "Wave summary + all story QG reports"
+        - "Epic directory path"
+      outputs:
+        - "Roundtable verdict + action plan for next wave"
+      on_success: 10
+      on_failure: "escalate"
+      gate: null
+      timeout: null
+      skill_invocation: "/roundtable --mode review --preset epic_review docs/stories/{epic}/"
+      notes: "Invokes /roundtable skill. Reviews: individual story quality, cross-story integration, architecture consistency, governance compliance, findings affecting next waves."
+
+    - id: 10
+      atom_ref: "ATM-WE-012"
+      molecule_ref: "MOL-WE-004"
+      name: "Generate Retrospective"
+      executor: "Worker"
+      inputs:
+        - "Roundtable verdict + wave metrics"
+        - "Prior wave retrospective (if exists, for Flywheel circularidade)"
+      outputs:
+        - "Retrospective artifact: .aiox/waves/{epic}-wave-{N}/retrospective.yaml"
+        - "Flywheel metrics (momentum, friction, trending)"
+        - "Updated effort calibration for next wave (feeds TK-WE-019)"
+      on_success: "COMPLETE"
+      on_failure: "escalate"
+      gate: null
+      timeout: null
+      token_refs:
+        - "TK-WE-019 (effort_calibration_ratio)"
+      notes: "Flywheel circularidade (FW-R8): MUST reference prior wave improvements and verify they were applied. Tracks regressions with root cause. Feeds TK-WE-019 for next wave."
+
+  # ---------------------------------------------------------------------------
+  # Teammate Sub-Workflow (runs INSIDE each teammate spawned by ATM-WE-004)
+  # These are NOT lead-level atoms — they execute within each teammate's context
+  # ---------------------------------------------------------------------------
+
+  teammate_sub_workflow:
+    description: "5 internal steps each teammate runs sequentially within its isolated worktree"
+    steps:
+      - step: 1
+        name: "@po Validate"
+        description: "Run 10-point validation checklist, apply corrections, mark status → Ready"
+      - step: 2
+        name: "Executor Develop"
+        description: "Execute all tasks, check off ACs, populate Dev Agent Record (4 sections), mark status → InReview"
+      - step: 3
+        name: "QG Review"
+        description: "Quality gate agent reviews implementation against all ACs. Output structured QG verdict."
+      - step: 4
+        name: "QG Loop (if FAIL)"
+        description: "Fix findings, re-submit for review. Max TK-WE-001 retries, then escalate as Blocked."
+        loop:
+          max_retries: "TK-WE-001 (3)"
+          on_max: "Report Blocked to lead"
+      - step: 5
+        name: "@po Close Story"
+        description: "Verify CHK-4 (Dev Agent Record), CHK-5 (ACs), CHK-6 (QG Report), CHK-7 (Change Log). Mark status → Done."

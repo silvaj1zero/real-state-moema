@@ -1,0 +1,124 @@
+# Phase Configuration — Governance Pipeline
+# Configures behavior of each phase, Human gates, and YOLO rules
+
+phases:
+  consolidation:
+    molecule: MOL-GP-001
+    atoms: [ATM-GP-001, ATM-GP-002, ATM-GP-003]
+    human_gate: false
+    timeout_minutes: 10
+    description: "Parse input, generate consolidation artifact, validate readiness"
+
+  architecture:
+    molecule: MOL-GP-002
+    atoms: [ATM-GP-004, ATM-GP-005, ATM-GP-006, ATM-GP-007]
+    human_gate: true
+    gate_id: ADR
+    gate_position: after_rt_loop
+    timeout_minutes: 30
+    loop:
+      max_iterations: 3  # TK-GP-001
+      circuit_breaker_action: recommend_scope_split  # K2
+    description: "@architect ADR + /roundtable loop + Human approval"
+
+  epic_stories:
+    molecule: MOL-GP-003
+    atoms: [ATM-GP-008, ATM-GP-009, ATM-GP-010, ATM-GP-011]
+    human_gate: false
+    timeout_minutes: 60
+    max_stories: 15  # TK-GP-007
+    story_draft_timeout: 15  # TK-GP-006 per story
+    validation_min_score: 7  # TK-GP-002
+    description: "@pm Epic + @sm Stories + @po Validate"
+
+  final_validation:
+    molecule: MOL-GP-004
+    atoms: [ATM-GP-012, ATM-GP-013, ATM-GP-014, ATM-GP-015]
+    human_gate: true
+    gate_id: GAPS
+    gate_position: after_gap_analysis
+    gap_auto_accept_below: MEDIUM  # TK-GP-003
+    description: "/roundtable gap_analysis + report + persist"
+
+# ─────────────────────────────────────────────
+# HUMAN GATE CONFIGURATION
+# ─────────────────────────────────────────────
+human_gates:
+  ADR:
+    phase: architecture
+    trigger: "RT verdict == DECIDED"
+    options: [APPROVE, REJECT, REVISE]
+    yolo_action: APPROVE
+    audit_required: true  # K1
+
+  GAPS:
+    phase: final_validation
+    trigger: "Gaps with severity >= gap_auto_accept_below found"
+    options: [fix, accept, abort]
+    yolo_action: accept
+    audit_required: true  # K1
+
+# ─────────────────────────────────────────────
+# YOLO MODE RULES (D5)
+# ─────────────────────────────────────────────
+yolo:
+  global_flag: "--yolo"
+  selective_flag: "--yolo-gate"
+  valid_gates: [ADR, GAPS]
+  audit_trail_mandatory: true  # Even in YOLO, audit logs are written
+  description: |
+    --yolo: auto-approve ALL gates
+    --yolo-gate ADR: auto-approve only ADR gate
+    --yolo-gate GAPS: auto-approve only GAPS gate
+    Audit trail is ALWAYS written regardless of mode (K1)
+
+# ─────────────────────────────────────────────
+# AGENT INVOCATIONS
+# ─────────────────────────────────────────────
+agent_commands:
+  architect:
+    command: "*analyze-project-structure"
+    agent_file: ".aiox-core/development/agents/architect.md"
+    timeout: 30  # minutes
+
+  pm:
+    command: "*create-epic"
+    agent_file: ".aiox-core/development/agents/pm.md"
+    timeout: 20
+
+  sm:
+    command: "*draft"
+    agent_file: ".aiox-core/development/agents/sm.md"
+    timeout: 15  # per story
+
+  po:
+    command: "*validate-story-draft"
+    agent_file: ".aiox-core/development/agents/po.md"
+    timeout: 10  # per story
+
+# ─────────────────────────────────────────────
+# SKILL INVOCATIONS
+# ─────────────────────────────────────────────
+skill_invocations:
+  roundtable_adr:
+    skill: roundtable
+    mode: decision
+    preset: architecture_decision
+    description: "Review ADR against original RT decisions"
+
+  roundtable_final:
+    skill: roundtable
+    mode: gap_analysis
+    preset: final_approval
+    description: "Compare all artifacts for consistency gaps"
+
+# ─────────────────────────────────────────────
+# STATE PERSISTENCE
+# ─────────────────────────────────────────────
+persistence:
+  state_dir: ".aiox/governance-pipelines/{pipeline_id}/"
+  files:
+    consolidation: "consolidation.yaml"
+    state: "state.yaml"
+    gate_audit: "gate-audit.yaml"
+    artifact_chain: "artifact-chain.yaml"

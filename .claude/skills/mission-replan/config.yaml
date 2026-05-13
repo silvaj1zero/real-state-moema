@@ -1,0 +1,135 @@
+# Mission Replan — SINKRA Skill Configuration
+# Tier 2: Standard — frontmatter + config.yaml + process_id + mode
+
+process_id: "SP-MISSION-REPLAN"
+version: "1.0.0"
+mode: GERENCIAR
+
+# Skill Identity
+skill:
+  name: mission-replan
+  owner_squad: backlog-ops
+  sinkra_tier: Tier2
+  description: "Re-analyzes a mission in-flight — diagnoses drift, proposes changes, validates via VMT, materializes locally + ClickUp"
+
+# Artifact Contracts — what this skill produces
+artifact_contracts:
+  - artifact_id: "replan-proposal"
+    description: "Diff visual com additions, adjustments e cancellations propostas"
+    lifecycle_states: [draft, approved, rejected]
+    template_path: null  # Inline in SKILL.md Phase 3
+
+  - artifact_id: "replan-report"
+    description: "Resumo executivo pós-materialização com before/after e métricas"
+    lifecycle_states: [generated]
+    template_path: null  # Inline in SKILL.md Phase 6
+
+  - artifact_id: "updated-mission-handoff"
+    description: "Mission handoff YAML atualizado com tasks adicionadas/ajustadas/canceladas"
+    lifecycle_states: [draft, validated, approved]
+    template_path: "squads/sinkra-squad/templates/mission-clickup-handoff-tmpl.yaml"
+
+# Phases — 6-phase pipeline
+phases:
+  - id: snapshot
+    name: "Snapshot"
+    description: "Capturar estado atual da mission (YAML + ClickUp + outputs)"
+    agent: general-purpose
+    reads:
+      - "workspace/{spoke}/L3-product/*/mission-clickup-handoff*.yaml"
+      - "services/clickup/tasks.js"
+    human_gate: false
+
+  - id: diagnose
+    name: "Diagnose"
+    description: "Comparar YAML vs ClickUp, detectar drift/orphans/stale/gaps"
+    agent: general-purpose
+    checks: [D-01, D-02, D-03, D-04, D-05, D-06]
+    human_gate: false
+
+  - id: propose
+    name: "Propose"
+    description: "Gerar proposta de additions/adjustments/cancellations"
+    agent: general-purpose
+    produces: ["replan-proposal"]
+    human_gate: true  # NON-NEGOTIABLE
+
+  - id: validate
+    name: "Validate"
+    description: "VMT 11-point em cada task nova/modificada + DAG integrity"
+    agent: general-purpose
+    depends_on_skill: "/validate-mission-task"
+    human_gate: false
+
+  - id: materialize
+    name: "Materialize"
+    description: "Atualizar YAML local + criar/atualizar/cancelar no ClickUp"
+    agent: general-purpose
+    writes:
+      - "workspace/{spoke}/L3-product/*/mission-clickup-handoff*.yaml"
+      - "ClickUp API (subtasks, deps, statuses, journal entries)"
+    produces: ["updated-mission-handoff"]
+    human_gate: false
+
+  - id: report
+    name: "Report"
+    description: "Resumo executivo com before/after e métricas"
+    agent: general-purpose
+    produces: ["replan-report"]
+    human_gate: false
+
+# Entity Graph Reference (OBRIGATÓRIO para output mapping)
+entity_graph_ref: "workspace/{spoke}/L2-tactical/sinkra-processes/*/sinkra-output.yaml"
+materialization_refs:
+  - "workspace/{spoke}/L2-tactical/sinkra-processes/*/materialization-result.yaml"
+infrastructure_ref: "workspace/{spoke}/L2-tactical/sinkra-processes/*/infrastructure.yaml"
+executor_matrix_ref: "workspace/{spoke}/L2-tactical/sinkra-processes/*/executor-matrix.yaml"
+
+# Entity Lists (spoke-specific — lookup from tokenization.yaml at runtime)
+# The list below shows the canonical pattern; spokes populate with their actual lists
+entity_lists: []  # Populated per-spoke from sinkra-output.yaml entity_graph
+
+# Service Dependencies
+service_dependencies:
+  - service: "services/clickup"
+    operations: [getTask, updateStatus, appendJournalEntry, updateTaskDescriptionSafe, createSubtask]
+  - service: "services/clickup/wave-calculator.js"
+    operations: [calculateWaves]
+  - service: "services/clickup/person-resolver.js"
+    operations: [resolvePerson]
+
+# Agent Dependencies (building blocks reused)
+agent_dependencies:
+  - agent: backlog-analyst
+    squad: backlog-ops
+    used_in: [snapshot, diagnose]
+    capability: "Anomaly detection, DAG analysis"
+
+  - agent: task-manager
+    squad: backlog-ops
+    used_in: [propose]
+    capability: "Task capture, classify, SINKRA template"
+
+  - agent: clickup-chief
+    squad: clickup-ops-squad
+    used_in: [materialize]
+    capability: "Mission DAG → ClickUp materialization (Recipe 5)"
+
+  - agent: sync-engineer
+    squad: backlog-ops
+    used_in: [materialize]
+    capability: "Bilateral sync, loop prevention"
+
+# Skill Dependencies
+skill_dependencies:
+  - skill: "/validate-mission-task"
+    used_in: [validate]
+    purpose: "VMT 11-point gate per task"
+
+# Tokens (thresholds)
+tokens:
+  stale_threshold_days: 3       # D-05: tasks doing > N days = stale
+  context_gap_auto_enrich: true # D-06: auto-inject context_from
+  max_additions_per_replan: 10  # Safety: cap on new tasks per replan
+  max_adjustments_per_replan: 20
+  dag_cycle_check: true         # Phase 4: mandatory cycle detection
