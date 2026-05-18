@@ -1,0 +1,15 @@
+# CNPJ ETL Container — Epic 7 Story 7.5
+# Pinned Python dependencies (reproducible builds).
+# Upstream rictom/cnpj-sqlite uses pandas + parfive + sqlalchemy.
+# DASK variant DISCARDED per docs/code-anatomy/rictom-cnpj-sqlite/extraction-notes.md.
+
+pandas==2.2.2
+parfive==2.1.2
+sqlalchemy==2.0.30
+requests==2.32.3
+beautifulsoup4==4.12.3
+tqdm==4.66.4
+
+# Test stack (kept in same file for simplicity — story scoped, no separate dev
+# requirements file needed at this scale).
+pytest==8.2.2

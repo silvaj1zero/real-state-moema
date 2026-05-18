@@ -1,0 +1,62 @@
+# =============================================================================
+# CNPJ ETL — monthly schedule (Story 7.5 AC8)
+#
+# STATUS: SCAFFOLD ONLY — `if: false` guard prevents execution.
+# Enable AFTER:
+#   1. Upstream scripts materialized in infrastructure/cnpj-etl/scripts-upstream
+#      (currently stubs — see infrastructure/cnpj-etl/README.md).
+#   2. Self-hosted runner (or Hetzner CPX21) provisioned by @devops.
+#   3. Secrets configured: DATABASE_URL, SUPABASE_STORAGE_URL, SUPABASE_SERVICE_ROLE_KEY.
+#   4. PoC complete with real RFB dump (docs/poc/7.5-cnpj-etl-smoke.md).
+#
+# To enable: change `if: false` to `if: true` (or remove the guard).
+# =============================================================================
+name: CNPJ ETL — Monthly
+
+on:
+  schedule:
+    # Day 20 of each month at 02:00 UTC (margin for RFB monthly publish window 5-15).
+    - cron: "0 2 20 * *"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Force run even if last run was < 25 days ago"
+        required: false
+        default: "false"
+
+permissions:
+  contents: read
+
+jobs:
+  etl:
+    if: false   # SCAFFOLD GUARD — see header. Remove when prerequisites met.
+    name: Build + push CNPJ enrichment
+    runs-on: self-hosted    # Free-tier GH runners are too small (RAM/disk).
+    timeout-minutes: 240    # 4h cap — alert if exceeded (AC7).
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      SUPABASE_STORAGE_URL: ${{ secrets.SUPABASE_STORAGE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build container
+        working-directory: infrastructure/cnpj-etl
+        run: docker compose build
+
+      - name: Run full pipeline
+        working-directory: infrastructure/cnpj-etl
+        run: docker compose run --rm cnpj-etl full-pipeline
+
+      - name: Backup filtered DB to Supabase Storage
+        working-directory: infrastructure/cnpj-etl
+        run: ./backup_to_storage.sh  # NOTE: helper to be added by @devops when enabling
+
+      - name: Telemetry — write crawl_runs row
+        run: |
+          echo "TODO: emit crawl_runs (portal=cnpj_rfb) via Supabase REST"

@@ -1,0 +1,26 @@
+version: "3.9"
+
+# Local orchestration for the Epic 7 CNPJ ETL container.
+# Persistent volume keeps the multi-GB RFB downloads + intermediate sqlite DB.
+# Pass DATABASE_URL via .env (not committed). See README.md.
+
+services:
+  cnpj-etl:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cnpj-etl-epic7:local
+    container_name: cnpj-etl-epic7
+    env_file:
+      - .env
+    volumes:
+      - cnpj_data:/data
+    # Default CMD = full-pipeline (see Dockerfile).
+    # Override with: docker compose run --rm cnpj-etl filter
+    restart: "no"
+    mem_limit: 8g
+    cpus: 4
+
+volumes:
+  cnpj_data:
+    name: cnpj-etl-epic7-data

@@ -60,3 +60,5 @@ squads/
 
 .vercel
 .env*.local
+infrastructure/cnpj-etl/__pycache__/
+infrastructure/cnpj-etl/**/__pycache__/
