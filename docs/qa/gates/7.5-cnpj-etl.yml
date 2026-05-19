@@ -1,0 +1,109 @@
+schema: 1
+story: '7.5'
+gate: CONCERNS
+status_reason: 'Scaffold + filter logic solid (22/22 unit tests PASS, migration 011 correct with RLS + column-level GRANT, Dockerfile follows Tier-1 best practices). Real RFB smoke (~5GB download, ~90min ETL), Hadolint, and ruff explicitly deferred to @devops per AC8 PoC plan. Gate is CONCERNS — not FAIL — because deferrals are documented, bounded, and the GH workflow is correctly guarded by `if: false`. Story should NOT transition to Done until @devops completes the real-data smoke pass on a Linux host.'
+reviewer: 'Quinn'
+updated: '2026-05-18T22:00:00Z'
+
+top_issues:
+  - id: 'DEP-001'
+    severity: high
+    finding: 'AC8 real RFB smoke (multi-GB / multi-hour) not executed — only scaffold-validated. Cannot confirm 50k-100k row target, P50 lookup <50ms, build <2h targets.'
+    suggested_action: '@devops must execute `docker compose run --rm cnpj-etl full-pipeline` on a Linux host with ≥40GB disk + ≥8GB RAM against staging Supabase before close-story. Capture results in `docs/poc/7.5-cnpj-etl-smoke.md` sign-off section.'
+  - id: 'DEP-002'
+    severity: high
+    finding: 'scripts-upstream/*.py committed as STUBS (exit 70). Real rictom/cnpj-sqlite scripts must be materialized before ANY container run can succeed.'
+    suggested_action: 'Materialize via README §Setup curl block at the pinned RICTOM_SHA. Verify SHA placeholder (4e1b9c5b0a1b8e0f5a3c8d7e2f1a9b6c4d3e8f0a) corresponds to an actual upstream commit — current value looks like a placeholder pattern. @devops to confirm and bump.'
+  - id: 'DEP-003'
+    severity: medium
+    finding: 'RICTOM_SHA in Dockerfile (4e1b9c5b...4d3e8f0a) appears synthetic — not validated against actual rictom/cnpj-sqlite git history.'
+    suggested_action: '@devops: `curl -fsI https://github.com/rictom/cnpj-sqlite/commit/4e1b9c5b...` to validate, or replace with real HEAD SHA before enabling workflow.'
+  - id: 'DEP-004'
+    severity: medium
+    finding: 'AC6 Supabase Edge Function `trigger_cnpj_etl` NOT implemented. README states GH workflow replaces edge function for now.'
+    suggested_action: 'Acceptable scope reduction — @devops decides final dispatch mechanism. Update AC6 in story to reflect GH-Actions-only or add edge function before close.'
+  - id: 'DEP-005'
+    severity: medium
+    finding: 'AC9 backup helper `backup_to_storage.sh` referenced in workflow but not present in repo. AC9 says "backup .db ... retencao 12 meses".'
+    suggested_action: '@devops creates `backup_to_storage.sh` and lifecycle policy on Supabase Storage bucket before enabling monthly run.'
+  - id: 'DEP-006'
+    severity: medium
+    finding: 'AC7 `crawl_runs` telemetry row is TODO comment in workflow — no row emission code yet.'
+    suggested_action: 'Implement telemetry emission (curl Supabase REST POST /rest/v1/crawl_runs) in workflow Step "Telemetry" before enabling.'
+  - id: 'CODE-001'
+    severity: low
+    finding: 'push_supabase.sh sources cnaes_secundarios from sqlite as empty string (always "") — `cnae_fiscal_secundaria` column in rictom schema is unverified. Will result in empty TEXT[] for all rows on first run.'
+    suggested_action: 'Verify upstream rictom estabelecimento schema has `cnae_fiscal_secundaria` or use the actual column name. If missing, parse from a different table. Confirm during real smoke.'
+  - id: 'CODE-002'
+    severity: low
+    finding: 'push_supabase.sh CSV export does NOT include socios JSONB or raw_data. cnpj_enrichment row populates with empty defaults — useful baseline but Story 7.3 lookups expecting socios will hit empty arrays.'
+    suggested_action: 'Documented behavior — socios JOIN deferred to ETL v2 (Story 7.10 encryption layer). Add explicit comment in push_supabase.sh.'
+  - id: 'CODE-003'
+    severity: low
+    finding: 'docker-compose.yml uses obsolete `version: "3.9"` key. Docker Compose v2+ ignores it with warning.'
+    suggested_action: 'Remove top-level `version` key (cosmetic — non-blocking).'
+  - id: 'CODE-004'
+    severity: low
+    finding: '_validate_cnpj_dv defined and unit-tested but never called inside build_filtered_db. Safety net code path is unreachable in production flow.'
+    suggested_action: 'Either wire `_validate_cnpj_dv` into the push CSV export filter (drop bad rows pre-INSERT) or document explicitly that it is library-only for downstream Story 7.3 use.'
+  - id: 'DOCS-001'
+    severity: low
+    finding: 'No reference to ADR-EPIC7-005 file in repo — code comments cite it but file presence not verified.'
+    suggested_action: '@architect or @pm: confirm ADR-EPIC7-005-cnpj-etl.md exists in docs/architecture/adrs/. If absent, create stub linking to extraction-notes.md.'
+
+waiver: { active: false }
+
+acceptance_criteria_review:
+  AC1: PASS       # Dockerfile + scripts present; sqlite + postgresql-client + ca-certificates installed
+  AC2: PASS       # 10 CNAEs verbatim verified against story AC + ADR-EPIC7-005 ref; order locked via test_target_list_order_locked
+  AC3: PASS       # Migration 011 creates table with all required columns + check constraint, btree+GIN indexes, RLS service_role+authenticated, column-level GRANT excludes socios/raw_data for authenticated
+  AC4: PASS       # push_supabase.sh uses psql \copy → temp staging → ON CONFLICT DO UPDATE (idempotent confirmed)
+  AC5: DEFERRED   # Build artifact targets (<2GB, 50-100k rows, <2h) DOCUMENTED but require real-data run for verification (DEP-001)
+  AC6: CONCERNS   # GH workflow scaffold present + guarded `if: false`; Supabase Edge Function NOT scaffolded (DEP-004)
+  AC7: CONCERNS   # Alert thresholds documented in workflow comments; crawl_runs row emission is TODO (DEP-006)
+  AC8: DEFERRED   # Scaffold validated; real RFB ETL deferred to @devops (DEP-001)
+  AC9: CONCERNS   # restore_cnpj_db.sh present; backup_to_storage.sh referenced in workflow but missing (DEP-005)
+  AC10: PASS      # README covers setup, manual exec, schedule, troubleshooting (5 rows including share_token + schema change)
+
+automated_checks:
+  tests: '22/22 PASS (filter logic, pytest 2.41s on Python 3.12.10 — offline synthetic fixture)'
+  typecheck: 'N/A — Python module with type hints; mypy not run (story local-only)'
+  lint: 'hadolint NOT run (deferred to CI); ruff NOT run (deferred to CI). Manual review: Dockerfile best practices OK (pinned tag, single RUN, --no-install-recommends, rm cache, --no-cache-dir pip, non-root USER, HEALTHCHECK, LABEL OCI). Python follows PEP8.'
+  regression: 'None — Python container is runtime-isolated from existing Crawlee TS Epic 6 stack. No JS files touched.'
+
+quality_dimensions:
+  code_review:
+    score: PASS
+    notes: 'Clean Python (type hints, snake_case, docstrings, < 100 LOC per fn). Dockerfile follows Tier-1 best practices. Bash scripts use `set -euo pipefail`, trap cleanup, env-var guards. Container runs non-root.'
+  unit_tests:
+    score: PASS
+    notes: '22 tests across TestCnaeList (4), TestConstants (2), TestCnpjDvValidator (7 parametrized), TestBuildFilteredDb (9). Covers CNAE list integrity, UF/situacao filter, multi-establishment-per-empresa, atomic-flip, index creation, count telemetry, error paths.'
+  acceptance_criteria:
+    score: CONCERNS
+    notes: '7/10 PASS, 3 CONCERNS, 3 DEFERRED. All deferrals documented in PoC + story Dev Agent Record. No invented features (Article IV compliant).'
+  regressions:
+    score: PASS
+    notes: 'Isolated Python container. Migration 011 is additive (CREATE TABLE IF NOT EXISTS). No modifications to existing tables, RLS policies, or JS code.'
+  performance:
+    score: DEFERRED
+    notes: 'P50 single-cnpj <50ms, P50 batch UPSERT 5000 rows <30s, build <2h — UNVERIFIED. Indexes designed to support targets (btree on cnpj UNIQUE, btree on cnae_primario, GIN on socios + cnaes_secundarios).'
+  security:
+    score: PASS
+    notes: 'RLS enabled, column-level GRANT excludes socios + raw_data from `authenticated` (PII gate). anon REVOKE ALL. Container runs non-root (uid=cnpj). DATABASE_URL via env, never logged. No secrets in committed files (.env in .gitignore implicit). CNPJ check constraint regex enforced at DB level.'
+  documentation:
+    score: PASS
+    notes: 'README comprehensive (architecture diagram, file table, setup, tests, troubleshooting). PoC document outlines real-smoke runbook. Code comments cite ADRs + story ACs. Dockerfile + workflow + scripts header comments are explicit about scaffold/stub state.'
+
+blockers_for_done:
+  - 'DEP-001 — @devops executes real RFB smoke on Linux host + populates PoC sign-off'
+  - 'DEP-002 — scripts-upstream materialized at real (validated) RICTOM_SHA'
+  - 'DEP-003 — RICTOM_SHA validated against actual rictom/cnpj-sqlite commit'
+  - 'DEP-005 — backup_to_storage.sh implemented OR AC9 scope reduced with @po sign-off'
+  - 'DEP-006 — crawl_runs telemetry emission wired OR AC7 deferred to follow-up story with @po sign-off'
+
+next_steps:
+  - '@devops: smoke run + materialize upstream scripts + validate SHA (blockers DEP-001, DEP-002, DEP-003)'
+  - '@devops: implement backup_to_storage.sh + crawl_runs telemetry (DEP-005, DEP-006)'
+  - '@architect: confirm/create ADR-EPIC7-005-cnpj-etl.md (DOCS-001)'
+  - '@dev (optional minor): remove docker-compose `version` key, wire _validate_cnpj_dv or document library-only intent (CODE-003, CODE-004)'
+  - 'Re-gate after smoke + telemetry complete — if PASS, transition InReview → Done'
