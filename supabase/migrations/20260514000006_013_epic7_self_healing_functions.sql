@@ -32,8 +32,17 @@ COMMENT ON COLUMN crawl_runs.retry_count IS
 -- available and we adopt it natively. Fallback `epic7_task_queue` table is
 -- documented in the PoC but NOT created here — adopting Path B requires
 -- explicit verdict change.
+--
+-- VERSION pinning (QA fix INFRA-001, gate fde1ca3): we lock to the exact
+-- version validated by @data-engineer (PoC: pgmq 1.5.1). Supabase platform
+-- updates may bump default_version forward and silently break the contract
+-- surface (`pgmq.send`, `pgmq.create`, `pgmq.read`). If the extension is
+-- already installed at a different version, Postgres emits a NOTICE (not
+-- an error) because IF NOT EXISTS short-circuits before VERSION is enforced;
+-- pre-deploy validation MUST run: `SELECT extversion FROM pg_extension
+-- WHERE extname='pgmq';` and require '1.5.1'.
 -- =============================================================================
-CREATE EXTENSION IF NOT EXISTS pgmq;
+CREATE EXTENSION IF NOT EXISTS pgmq VERSION '1.5.1';
 
 -- pgmq.create is idempotent (returns null if queue exists in 1.5.1+)
 DO $$
