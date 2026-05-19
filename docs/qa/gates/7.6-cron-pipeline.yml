@@ -1,0 +1,105 @@
+schema: 1
+story: '7.6'
+gate: CONCERNS
+status_reason: 'All 11 ACs implemented offline with correct single-ownership of pg_cron schedules (AC1) and fn_mark_stale_runs (AC2 — defined only in migration 013, with 009 reduced to consumer comments). Boundary contract classify-anuncio (AC6) is exact: Wave A returns `source: deterministic_v1` with null fields; 12/12 contract tests PASS; OpenAPI 3.1 spec authoritative; pure-logic mirror in app/src/lib/edge-contracts/ keeps Edge Function testable from vitest. pgmq Path A adoption is gated by @data-engineer PoC (AC11 satisfied). Gate is CONCERNS — not PASS — because: (1) pgmq extension is not VERSION-pinned in migration 013 despite PoC recommending `VERSION 1.5.1`; (2) v_crawl_health view inherits crawl_runs RLS without explicit security model declaration, creating a dashboard observability blind spot for non-service-role consumers; (3) cron jobs rely on `current_setting(app.service_role_key, true)` and `app.edge_function_base_url` that must be wired by @devops at deploy — if unset, cron fires silently against empty URL; (4) AC9 smoke E2E remains doc-only, gated on @devops staging push. None of these are correctness defects in the offline artifacts — they are runtime/deploy concerns that @devops must address before close-story.'
+reviewer: 'Quinn'
+updated: '2026-05-18T02:30:00Z'
+
+top_issues:
+  - id: 'INFRA-001'
+    severity: medium
+    finding: 'Migration 013 does `CREATE EXTENSION IF NOT EXISTS pgmq;` without VERSION clause. PoC 7.6-pgmq-availability-check.md explicitly recommends `VERSION ''1.5.1''` to lock the contract surface (`pgmq.send`, `pgmq.create`, `pgmq.read`). Supabase platform updates can move default_version forward and break the queue API silently.'
+    suggested_action: '@devops: change line 36 to `CREATE EXTENSION IF NOT EXISTS pgmq VERSION ''1.5.1'';`. Same for pg_cron in migration 012 (line 25 → `VERSION ''1.6.4''`). Pre-deploy validation: `SELECT extversion FROM pg_extension WHERE extname IN (''pgmq'',''pg_cron'');` must match pinned versions.'
+  - id: 'SEC-001'
+    severity: medium
+    finding: 'View v_crawl_health (migration 013, lines 147-168) does not declare SECURITY INVOKER nor SECURITY DEFINER. Default Postgres behavior is invoker-rights for views, meaning RLS on crawl_runs (service_role + authenticated per Story 7.2/7.5 pattern) propagates. An `authenticated` operator (e.g., Luciana) querying the dashboard view through PostgREST will get an empty result set rather than a meaningful denial — observability blind spot.'
+    suggested_action: 'Either (a) add `WITH (security_invoker=true)` and a permissive RLS read policy on crawl_runs for the dashboard role, OR (b) wrap as SECURITY DEFINER function (CREATE OR REPLACE FUNCTION fn_crawl_health() RETURNS TABLE ...). Recommend (b) for explicit auditability. Document the chosen path in next session.'
+  - id: 'INFRA-002'
+    severity: medium
+    finding: 'Cron schedules in migration 012 depend on `current_setting(''app.service_role_key'', true)` and `current_setting(''app.edge_function_base_url'', true)`. The `true` flag (missing_ok) means if these GUC settings are not wired by @devops at deploy, cron jobs will fire HTTP POSTs against an empty URL with no auth header — silent failure logged only in cron.job_run_details.'
+    suggested_action: '@devops: (1) wire both settings via `ALTER DATABASE postgres SET app.service_role_key = ...; ALTER DATABASE postgres SET app.edge_function_base_url = ...;` as part of staging deploy script; (2) add a smoke check post-deploy: `SELECT current_setting(''app.service_role_key'', true) IS NOT NULL;`. Consider follow-up story to fail-fast inside each cron body if setting is empty.'
+  - id: 'TEST-001'
+    severity: medium
+    finding: 'AC9 smoke E2E is documented (docs/poc/7.6-self-healing-smoke.md) but not executed against staging. Self-healing loop (stale → failed → retry x3 → terminal failed) has no live evidence yet. Risk that retry cap interaction with `finished_at > NOW() - INTERVAL ''2 hours''` window in fn_retry_failed_runs produces unexpected boundary behavior under real load.'
+    suggested_action: '@devops to execute the 5-step procedure in 7.6-self-healing-smoke.md on staging after applying 012+013. Capture raw output in a "Sign-off" section at the bottom of that PoC. Story must not transition to Done until smoke pass is recorded.'
+  - id: 'CODE-001'
+    severity: low
+    finding: 'fn_retry_failed_runs (013, line 113) calls `pgmq.send` but the message is enqueued before `retry_count` is incremented on the same run. If the async worker picks up the message and re-creates the run before this transaction commits (cross-tx visibility), the worker may see retry_count one less than expected. In practice pgmq uses the same DB so MVCC isolates it, but the ordering is fragile.'
+    suggested_action: 'Reorder: UPDATE retry_count first, then pgmq.send with the freshly-incremented value. Or use a CTE: `WITH bumped AS (UPDATE ... RETURNING retry_count) INSERT INTO pgmq.q ... FROM bumped`. Cosmetic — not a correctness defect in PostgreSQL''s default READ COMMITTED.'
+  - id: 'CODE-002'
+    severity: low
+    finding: 'v_crawl_health view does not include `apify_cost_usd` from scraped_listings — AC10 mentions cost as desirable. Story explicitly defers this (comment lines 173-174) to avoid coupling to 7.3/7.4-owned schemas. Acceptable scope reduction but should be tracked.'
+    suggested_action: 'Create follow-up story or backlog item: "extend v_crawl_health to include 24h total Apify cost per portal once scraped_listings join is stable". Reference in story 7.6 close note.'
+  - id: 'DOCS-001'
+    severity: low
+    finding: 'Migration 012 header comment (line 4) says "Depends on: 013" but in filesystem order 012 runs BEFORE 013 by timestamp (20260514000005 < 20260514000006). The note explains the cron body resolves functions lazily at job execution. Reader confusion risk — "depends on" semantics inverted from intuition.'
+    suggested_action: 'Reword comment to: "Runtime depends on 013 (functions are resolved at cron tick, not at migration apply time)". Cosmetic.'
+  - id: 'DOCS-002'
+    severity: low
+    finding: '`supabase/functions/_shared/run-lifecycle.ts` created but NOT consumed by any Edge Function yet (per Dev Decisions item 5). Story 7.4 trigger/webhook still inline. Dead code until a refactor story lands.'
+    suggested_action: 'Acceptable — Dev correctly respected 7.4 file ownership. Track as IDS REUSE candidate for the next Edge Function migration. Add backlog item: "refactor 7.4 trigger_mercadolivre_crawl + webhook_mercadolivre_done to consume _shared/run-lifecycle.ts".'
+
+waiver: { active: false }
+
+acceptance_criteria_review:
+  AC1: PASS       # Migration 012 is single owner of all 5 Epic 7 cron schedules; idempotent DO $$ ... IF EXISTS unschedule ... END $$; pattern correct; cron 5-field syntax valid; only other cron user in repo is Epic 3 geosampa (pre-existing, disjoint scope)
+  AC2: PASS       # fn_mark_stale_runs defined exclusively in 013; 009 only has comments confirming consumer status; 15min threshold + error_message format match AC spec; SECURITY DEFINER + search_path = public hardening present
+  AC3: PASS       # fn_retry_failed_runs(p_max_retries) defined; retry_count guard + 2-hour window + FOR UPDATE SKIP LOCKED concurrency-safe; pgmq.send + pg_notify dual signal; increments retry_count per run. CODE-001 is cosmetic.
+  AC4: PASS       # ALTER TABLE crawl_runs ADD COLUMN IF NOT EXISTS retry_count INTEGER NOT NULL DEFAULT 0; idempotent
+  AC5: CONCERNS   # pgmq enabled + epic7_long_tasks queue created idempotently; service_role grants in place. INFRA-001 (version pin missing) downgrades from PASS.
+  AC6: PASS       # classify-anuncio Edge Function returns Wave A {nulls, source: deterministic_v1}; OpenAPI 3.1 spec authoritative; pure-logic mirror in app/src/lib/edge-contracts/classify-anuncio.ts allows vitest validation; 12/12 contract tests PASS; UUID regex correct; method-not-allowed + invalid_json paths covered
+  AC7: PASS       # Pattern documented in _shared/run-lifecycle.ts (createRun helper, 202 helper); Story 7.4 owns active triggers — acceptable per Dev Decision 5
+  AC8: PASS       # completeRun helper in _shared/run-lifecycle.ts implements idempotency guard via `.eq(''status'', ''running'')` so duplicate webhooks are no-op
+  AC9: CONCERNS   # Procedure documented in docs/poc/7.6-self-healing-smoke.md but not yet executed against staging. TEST-001 captures the deferral.
+  AC10: CONCERNS  # v_crawl_health view present with portal × success_rate × avg_duration × total_retries; missing apify_cost_usd join (deferred, CODE-002); SEC-001 (RLS propagation undeclared) downgrades from PASS.
+  AC11: PASS      # @data-engineer PoC docs/poc/7.6-pgmq-availability-check.md confirms pgmq 1.5.1 + pg_cron 1.6.4 available, Path A adopted; pre-Sprint gate satisfied
+
+test_summary:
+  total_tests: 432
+  passing: 432
+  failing: 0
+  new_tests: 12
+  test_file: 'app/src/lib/edge-contracts/__tests__/classify-anuncio.test.ts'
+  coverage_notes: 'Boundary contract test suite covers: validateInput happy path, non-object body, non-UUID listing_id, missing text, empty string text; classifyAnuncioWaveA source enum, null urgency, null motivation, idempotency, OpenAPI shape parity, source enum membership, no input echo (privacy). All 12 PASS in 25ms.'
+
+quality_dimensions:
+  correctness: PASS    # SQL functions and Edge Function logic match AC spec
+  security: CONCERNS   # SEC-001 view RLS undeclared; SECURITY DEFINER on functions correctly applied
+  performance: PASS    # 5-min healer cadence + 2h retry window + 3-retry cap bound resource usage
+  observability: CONCERNS # v_crawl_health blind spot for non-service-role; cron silent-fail mode on missing GUC (INFRA-002)
+  idempotency: PASS    # Cron unschedule guard, pgmq.create exception handler, completeRun status guard, ALTER ADD COLUMN IF NOT EXISTS
+  testability: PASS    # Pure-logic mirror pattern (Deno-agnostic) enables vitest contract coverage; AC9 smoke doc enables staging E2E
+  versioning: PASS     # classify-anuncio `source` enum is correct contract anchor for Wave A→Wave B drop-in
+
+verdict_rationale: |
+  Quinn — quality is not an act, it is a habit.
+
+  Story 7.6 is structurally sound. The two cross-story risks the @po flagged
+  (cron single-ownership + fn_mark_stale_runs owner) have been resolved cleanly
+  in code: migration 012 is the only Epic 7 cron writer, and 013 is the only
+  fn_mark_stale_runs definer with 009 reduced to documentation comments.
+  The boundary contract for classify-anuncio is exactly what Wave B will need —
+  consumers branch on `source` and the OpenAPI spec is the law.
+
+  Four medium concerns prevent PASS and demand @devops attention before
+  close-story: pgmq version pin missing, v_crawl_health RLS model undeclared,
+  cron-time GUC settings (service_role_key, edge_function_base_url) silent on
+  absence, and AC9 smoke deferred to staging execution. All are runtime/deploy
+  concerns, not offline correctness defects.
+
+  Verdict: CONCERNS. Recommended path: @devops applies migrations to staging,
+  pins extension versions, wires GUC settings, executes the AC9 smoke
+  procedure, captures sign-off in docs/poc/7.6-self-healing-smoke.md, and only
+  then does @po transition status to Done.
+
+next_actions:
+  - actor: '@devops'
+    action: 'Pin pgmq + pg_cron VERSION clauses in migrations 012/013 before staging push (INFRA-001)'
+  - actor: '@devops'
+    action: 'Wire app.service_role_key + app.edge_function_base_url via ALTER DATABASE in staging deploy script (INFRA-002)'
+  - actor: '@db-sage / @architect'
+    action: 'Decide v_crawl_health security model: WITH (security_invoker=true) + RLS policy, OR SECURITY DEFINER wrapper function (SEC-001)'
+  - actor: '@devops'
+    action: 'Execute AC9 smoke procedure on staging post-migration; record sign-off in docs/poc/7.6-self-healing-smoke.md (TEST-001)'
+  - actor: '@po'
+    action: 'Hold status at InReview until @devops returns with INFRA-001/002 + SEC-001 + TEST-001 closed. Then transition to Done.'
