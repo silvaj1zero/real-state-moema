@@ -1,9 +1,34 @@
 schema: 1
 story: '7.4'
 gate: CONCERNS
-status_reason: 'Implementacao tecnica solida e bem testada (38/38 parser tests + 432/432 full suite). Architecture limpa: shared parsers em app/src/lib/scrapers/mercadolivre/ com sync-on-build per ADR-EPIC7-006, JSON-LD-first + DOM fallback, classify+intelligence_feed wiring correto, Edge Functions Deno separadas (trigger 202 + webhook idempotent). Gate fica CONCERNS por: (1) DEPLOY GATE 7.10 (LIA counsel) pendente — telefone PF bloqueado em prod; (2) AC9 doc-only — fixtures sinteticas sem hits reais MercadoLivre, telemetria 200-OK >=85% nao validada; (3) trigger Edge Function falta CORS + body-shape validation; (4) webhook usa shared-secret simples no header em vez de HMAC computado sobre body (story declara HMAC).'
+status_reason: 'Re-gate 2026-05-19: 3 fixes do gate anterior (LOGIC-001/SEC-001/SEC-002) RESOLVED com tests dedicados (23 novos, 455/455 full). Verdict permanece CONCERNS apenas por blockers externos pendentes: BLOCK-001 (Story 7.10 LGPD external counsel) + OBS-001 (AC9 PoC real execution em staging — @devops). Codigo aprovado; deploy producao continua BLOCKED organizacionalmente ate 7.10 Done.'
 reviewer: 'Quinn'
-updated: '2026-05-19T02:25:00Z'
+updated: '2026-05-19T04:35:00Z'
+
+reGate:
+  date: '2026-05-19'
+  reviewer: '@qa (Quinn)'
+  commit_reviewed: d7fe33f
+  previousVerdict: CONCERNS
+  newVerdict: CONCERNS
+  newVerdictReason: 'Tres fixes (LOGIC-001/SEC-001/SEC-002) RESOLVED com qualidade — modulo dedicado cap-per-bairro.ts + HMAC-SHA256 via Web Crypto + trigger shared-secret fail-closed. Tests 432 -> 455 (+23) verdes. Verdict mantem CONCERNS por blockers externos (BLOCK-001 LGPD counsel 7.10 + OBS-001 PoC staging real). Esses sao organizacionais, nao de codigo.'
+  fixesValidated:
+    LOGIC-001:
+      status: RESOLVED
+      notes: 'Modulo dedicado app/src/lib/scrapers/mercadolivre/cap-per-bairro.ts com 5 helpers puros (extractBairroFromUrl, shouldStopBairro, clampDetailsToCap, nextBairroCount, shouldEnqueueNextPage). main.ts seeds userData.bairro/bairroCount no enqueue inicial + propaga count incrementado por detail + gating de next-page via shouldEnqueueNextPage. 12 tests (boundary, pagination, isolation entre bairros). Bug do contador global eliminado — cada bairro chega ao cap independentemente.'
+    SEC-001:
+      status: RESOLVED
+      notes: 'webhook_mercadolivre_done agora le body raw via req.text() ANTES de JSON.parse, valida x-webhook-signature via crypto.subtle.importKey/sign HMAC-SHA256 (Web Crypto API, Deno-native), compara hex com timingSafeEqualHex (constant-time). Trigger envia _webhookKey: WEBHOOK_SECRET ao Apify p/ assinar body. Fail-closed (500) se WEBHOOK_SECRET unset, 401 se signature missing/invalid. 11 tests cross-validados contra Node crypto.createHmac + tamper detection.'
+    SEC-002:
+      status: RESOLVED
+      notes: 'trigger_mercadolivre_crawl valida x-trigger-secret contra env MERCADOLIVRE_TRIGGER_SECRET ANTES de qualquer trabalho (insert crawl_runs, dispatch Apify). Fail-closed 500 se env unset; 401 se header missing/mismatch. Migration 017 (20260519000001) reconfigura cron job epic7_mercadolivre_daily via cron.unschedule+cron.schedule p/ incluir header lendo do GUC app.mercadolivre_trigger_secret. PoC runbook atualizado com setup envvars.'
+  remainingBlockers:
+    - 'BLOCK-001 (Story 7.10 LGPD/LIA counsel) — external dependency; deploy producao permanece blocked'
+    - 'OBS-001 (AC9 PoC real execution em staging) — @devops; Apify Actor deploy + run real 100 URLs'
+  testEvidence:
+    targeted: '23/23 passing (cap-per-bairro 12 + webhook-hmac 11)'
+    full_suite: '455/455 passing (era 432; +23 sem regressao)'
+    duration: '~29.4s vitest run completo'
 
 top_issues:
   - id: 'BLOCK-001'
