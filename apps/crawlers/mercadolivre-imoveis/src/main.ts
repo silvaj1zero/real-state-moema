@@ -25,6 +25,11 @@ import {
   parseDetailPage,
   toPropertyEpic7,
   buildAdvertiserSignals,
+  extractBairroFromUrl,
+  shouldStopBairro,
+  clampDetailsToCap,
+  nextBairroCount,
+  shouldEnqueueNextPage,
 } from './shared/scrapers/mercadolivre'
 
 // ---------------------------------------------------------------------------
@@ -175,11 +180,17 @@ const startUrls = buildStartUrls(input)
 log.info('Start URLs', { count: startUrls.length, sample: startUrls.slice(0, 2) })
 
 const requestQueue = await RequestQueue.open()
-for (const url of startUrls) {
-  await requestQueue.addRequest({ url, userData: { label: 'LISTING_PAGE', bairroCount: 0 } })
-}
 
-let detailsProcessed = 0
+// Seed requestQueue userData.bairro from start URLs (LOGIC-001 fix).
+// Bairro helper + cap logic shared via app/src/lib/scrapers/mercadolivre/cap-per-bairro.ts
+for (const url of startUrls) {
+  const bairro = extractBairroFromUrl(url)
+  await requestQueue.addRequest({
+    url,
+    userData: { label: 'LISTING_PAGE', bairro, bairroCount: 0 },
+    uniqueKey: `${bairro}::${url}`,
+  })
+}
 
 const crawler = createPortalCrawler({
   portal: 'mercadolivre',
@@ -196,17 +207,55 @@ const crawler = createPortalCrawler({
     }
     const html = typeof body === 'string' ? body : body.toString('utf8')
     const label = String(request.userData?.label ?? 'LISTING_PAGE')
+    const bairro = String(request.userData?.bairro ?? extractBairroFromUrl(request.url))
+    const bairroCount = Number(request.userData?.bairroCount ?? 0)
+    const maxPerBairro = input.max_listings_per_bairro
 
     if (label === 'LISTING_PAGE') {
-      const parsed = parseListingPage(html, request.url)
-      log.info('Listing page', { url: request.url, detailUrls: parsed.detailUrls.length })
-      for (const u of parsed.detailUrls) {
-        await requestQueue.addRequest({ url: u, userData: { label: 'DETAIL_PAGE' } })
+      // LOGIC-001 fix: enforce cap PER BAIRRO, not global
+      if (shouldStopBairro(bairroCount, maxPerBairro)) {
+        log.info('Bairro hit cap — stopping pagination', {
+          bairro,
+          bairroCount,
+          maxPerBairro,
+        })
+        return
       }
-      if (parsed.nextPageUrl && detailsProcessed < input.max_listings_per_bairro) {
+
+      const parsed = parseListingPage(html, request.url)
+      log.info('Listing page', {
+        url: request.url,
+        bairro,
+        bairroCount,
+        detailUrls: parsed.detailUrls.length,
+      })
+
+      // Only enqueue up to remaining capacity for this bairro
+      const detailsToEnqueue = clampDetailsToCap(parsed.detailUrls, bairroCount, maxPerBairro)
+      let idx = 0
+      for (const u of detailsToEnqueue) {
+        idx += 1
         await requestQueue.addRequest({
-          url: parsed.nextPageUrl,
-          userData: { label: 'LISTING_PAGE' },
+          url: u,
+          userData: {
+            label: 'DETAIL_PAGE',
+            bairro,
+            bairroCount: bairroCount + idx,
+          },
+          uniqueKey: `${bairro}::${u}`,
+        })
+      }
+
+      const newCount = nextBairroCount(bairroCount, detailsToEnqueue.length)
+      if (shouldEnqueueNextPage(newCount, maxPerBairro, Boolean(parsed.nextPageUrl))) {
+        await requestQueue.addRequest({
+          url: parsed.nextPageUrl!,
+          userData: {
+            label: 'LISTING_PAGE',
+            bairro,
+            bairroCount: newCount,
+          },
+          uniqueKey: `${bairro}::${parsed.nextPageUrl}`,
         })
       }
       return
@@ -215,7 +264,6 @@ const crawler = createPortalCrawler({
     if (label === 'DETAIL_PAGE') {
       const detail = parseDetailPage(html, request.url)
       const envelope = toPropertyEpic7(detail, request.url)
-      detailsProcessed += 1
       await Dataset.pushData(envelope)
 
       if (!db) return

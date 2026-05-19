@@ -5,10 +5,15 @@
  * Padrão per ADR-EPIC7-003: registrar start em crawl_runs + disparar
  * Apify runs/start; retornar 202 em <=5s (limite Cron UI).
  *
+ * Auth (SEC-002 fix, gate 2794411): valida shared secret no header
+ *   `x-trigger-secret` contra env `MERCADOLIVRE_TRIGGER_SECRET`.
+ *   Cron (Story 7.6 migration 012) deve enviar o header — ver migration 017.
+ *
  * Inputs (POST body, opcional):
  *   { bairros?: string[], preco_min?, preco_max?, area_min?, area_max?, quartos_min? }
  *
  * Resposta: 202 { run_id, apify_run_id, status: 'running' }
+ * ou 401 se header de auth ausente/incorreto
  * ou 5xx em falha pré-dispatch.
  *
  * Runtime: Deno (Supabase Edge Function).
@@ -22,7 +27,8 @@ const APIFY_ACTOR_ID = Deno.env.get('APIFY_ACTOR_MERCADOLIVRE_ID')
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const WEBHOOK_BASE = Deno.env.get('EDGE_FUNCTION_BASE_URL') // ex: https://{ref}.supabase.co/functions/v1
-const WEBHOOK_SECRET = Deno.env.get('MERCADOLIVRE_WEBHOOK_SECRET') // shared HMAC secret
+const WEBHOOK_SECRET = Deno.env.get('MERCADOLIVRE_WEBHOOK_SECRET') // HMAC secret p/ webhook_mercadolivre_done
+const TRIGGER_SECRET = Deno.env.get('MERCADOLIVRE_TRIGGER_SECRET') // shared secret p/ esta função
 
 interface ActorInput {
   bairros?: string[]
@@ -43,6 +49,16 @@ serve(async (req) => {
   if (req.method !== 'POST') {
     return new Response('Method Not Allowed', { status: 405 })
   }
+
+  // SEC-002 fix: exigir auth header. Cron pg_cron envia x-trigger-secret.
+  if (!TRIGGER_SECRET) {
+    return jsonResponse(500, { error: 'trigger_secret_unset' })
+  }
+  const provided = req.headers.get('x-trigger-secret')
+  if (provided !== TRIGGER_SECRET) {
+    return jsonResponse(401, { error: 'unauthorized' })
+  }
+
   if (!APIFY_TOKEN || !APIFY_ACTOR_ID) {
     return jsonResponse(500, { error: 'apify_env_missing' })
   }
@@ -75,7 +91,10 @@ serve(async (req) => {
     })
   }
 
-  // 2. Disparar Apify Actor (não aguardar conclusão)
+  // 2. Disparar Apify Actor (não aguardar conclusão).
+  // `webhookKey` faz o Apify Actor assinar o body via HMAC-SHA256 ao chamar
+  // o webhook configurado dentro do Actor (Story 7.4 webhook_mercadolivre_done
+  // valida `x-webhook-signature` com este mesmo secret).
   const webhookUrl = WEBHOOK_BASE
     ? `${WEBHOOK_BASE}/webhook_mercadolivre_done?run_id=${run.id}`
     : undefined
@@ -89,7 +108,7 @@ serve(async (req) => {
         ...input,
         _runId: run.id,
         _webhook: webhookUrl,
-        _webhookSecret: WEBHOOK_SECRET,
+        _webhookKey: WEBHOOK_SECRET, // Apify computa HMAC do body com este secret
       }),
     },
   )

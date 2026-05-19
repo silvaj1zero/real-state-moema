@@ -30,3 +30,11 @@ export {
   buildAdvertiserSignals,
   type ToPropertyOptions,
 } from './toPropertyEpic7'
+
+export {
+  extractBairroFromUrl,
+  shouldStopBairro,
+  clampDetailsToCap,
+  nextBairroCount,
+  shouldEnqueueNextPage,
+} from './cap-per-bairro'
