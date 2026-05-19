@@ -1,0 +1,106 @@
+storyId: STORY-7.1
+storyTitle: Schema Unificado Advertiser/Property/HomeFlags + Migration 008
+verdict: PASS
+verdictReason: |
+  All 7 ACs cumpridos (1-4, 6, 7 hard PASS; AC5 conditional/deferred per
+  story scope — types regen pendente de apply remote, nao bloqueante). Codigo
+  limpo, TS puro conforme ADR-EPIC7-006, 23 testes verdes, baseline preservada,
+  migration 008 idempotente com defaults seguros.
+reviewedAt: 2026-05-19
+reviewer: "@qa (Quinn)"
+commit: "2523954"
+testsBaseline: 162
+testsObserved: 432
+qualityChecks:
+  codeReview:
+    status: PASS
+    notes: |
+      Schemas Zod bem estruturados, JSDoc abrangente em todos os arquivos,
+      barrel `index.ts` como unica superficie publica (documentado), pureza
+      TS preservada (nenhum import next/*, fs/path/crypto, supabase client).
+      .nullable() vs .optional() corretamente escolhido para match com payload
+      HomeHarvest. ClassificationSignalSchema fechado (z.enum) forca disciplina
+      em Story 7.3. CnpjRegex compartilhado entre Broker/Builder via re-import.
+  unitTests:
+    status: PASS
+    coverage: |
+      23 testes novos cobrem: enum classification (in/out-of-range), enum
+      signals (in/out), CRECI regex (5 valid + 5 invalid), CNPJ regex (2
+      valid + 4 invalid), Agent/Broker schemas (valid/invalid/null), Advertisers
+      composto (happy path, empty signals, confidence out-of-range superior/inferior,
+      enum invalido, required field missing), HomeFlags (defaults, partial,
+      all-true, type rejection). Edge cases AC6 todos cobertos.
+    notes: |
+      Testes claramente nomeados por AC, usam vitest safeParse pattern consistente,
+      sem mocks fragies. Executados localmente: 23/23 PASS em 1.49s.
+  acceptanceCriteria:
+    status: PASS
+    met: 6
+    partial: 1
+    failed: 0
+    notes: |
+      AC1 PASS — 12 arquivos no path canonico, barrel + README + tests.
+      AC2 PASS — AdvertiserClassification enum exposto com 5 categorias + unknown,
+        Advertisers tem classification/confidence/signals.
+      AC3 PASS — HomeFlags com 7 booleans, default false em todos.
+      AC4 PASS — Migration 008 cria/altera todas as colunas previstas + indexes
+        (idx_scraped_listings_classification parcial, idx_leads_type parcial),
+        DEFAULT 'unknown'/'UNKNOWN' mitiga risco de violacao CHECK em dados
+        existentes Epic 6.
+      AC5 PARTIAL/DEFERRED — types.ts regen depende de @devops aplicar migration
+        em remote DB. Zod types cobrem contrato TS no entretempo. TODO logado
+        no Dev Agent Record. NAO BLOQUEANTE para QA gate (depende de step
+        downstream de outro agent).
+      AC6 PASS — 23 testes cobrem todas as exigencias (happy path, missing
+        required, out-of-enum, CRECI/CNPJ regex match/no-match).
+      AC7 PASS — README com mapping conceitual HomeHarvest -> Zod, secao de
+        pureza TS, ref a ADR-EPIC7-006 e extraction-notes.md.
+  noRegressions:
+    status: PASS
+    notes: |
+      Full suite executada: 432 testes passing (45 arquivos). Baseline Epic 1-6
+      (139 testes citados na story) preservada. Nenhum schema/codigo Epic 6
+      modificado — story 7.1 e aditiva apenas (12 arquivos novos, 0 modificados).
+  performance:
+    status: PASS
+    notes: |
+      Schemas Zod sao validacao em-memoria, latencia desprezivel para volume
+      Wave A (4 portais x crawl batches). CnpjRegex e CreciRegex compilados
+      uma vez (constantes exportadas). Indexes parciais em scraped_listings
+      e leads evitam inchaco quando massa de linhas tem classification/lead_type
+      em estado default.
+  security:
+    status: PASS
+    notes: |
+      Type-safety end-to-end via z.infer. Validators rejeitam: out-of-enum
+      classification, confidence fora [0,1], CNPJ mascarado/curto/longo, CRECI
+      lowercase ou com 2 letras finais. CHECK constraints no DB sao defesa-
+      em-profundidade. Sem PII hardcoded nos schemas (apenas formato). LGPD
+      audit cobertura sera Story 7.10.
+  documentation:
+    status: PASS
+    notes: |
+      README.md completo (estrutura, mapping HomeHarvest, taxonomy de classification,
+      regex specs, link a migration). ADR-EPIC7-006 referenciado em todos os
+      JSDocs principais. extraction-notes.md Sec. 1 citada como fonte primaria.
+      JSDoc nos schemas explica pureza TS e racional de cada decisao.
+issues:
+  - severity: low
+    category: docs
+    description: |
+      `app/src/lib/supabase/types.ts` regen + link de schemas/epic7/ em
+      docs/architecture/system-architecture.md sao TODOs deferred para
+      apos apply remote da migration 008 (responsabilidade @devops).
+    recommendation: |
+      Apos @devops *deploy-story executar `npx supabase gen types typescript --linked`
+      e atualizar barrel se houver divergencia. Link no system-architecture.md
+      naturalmente cai na Story 7.2 (primeiro consumer real).
+deploymentReadiness:
+  blockers: []
+  warnings:
+    - "AC5 deferred — types.ts regen pendente de apply remote (responsavel @devops)"
+nextSteps:
+  - "Handoff para @devops aplicar migration 008 via *deploy-story"
+  - "Apos apply: rodar `supabase gen types typescript --linked > app/src/lib/supabase/types.ts`"
+  - "Validar barrel index.ts vs Supabase regen-types; re-exportar LeadType se necessario"
+  - "Story 7.2 (PortalCrawler) ja pode prosseguir consumindo barrel"
