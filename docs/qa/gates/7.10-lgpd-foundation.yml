@@ -1,0 +1,220 @@
+storyId: STORY-7.10
+verdict: CONCERNS
+verdictReason: >
+  Code/test/security layers PASS with high confidence; deployment is GATED on
+  AC1 LIA counsel signature (external SLA 15-25d) — explicitly WAIVED for this
+  review per Dev Agent Record + mission brief. Two security/process concerns
+  documented for follow-up (cross-story coupling with scraped_listings PII in
+  apify*.ts / contact-enrichment.ts, retention cron unscheduled). None block
+  story closure to InReview, but ALL crawler-PF deploys must wait for AC1
+  signature + AC11 real smoke execution.
+reviewedAt: 2026-05-19
+reviewer: "@qa (Quinn)"
+commit: 9786e5b
+testsBaseline: 201
+testsAfter: 432
+acsCompleted: "10/11 (AC1 WAIVED — counsel pending)"
+
+qualityChecks:
+  codeReview:
+    status: PASS
+    notes: >
+      Clean separation of concerns: vault.ts (pure wrapper, no state) →
+      lgpd-crypto.ts (thin facade for 7.4 import path canonization) →
+      lgpd-audit.ts (typed action/legal_basis enums aligned with SQL CHECK
+      constraints). RPCs SECURITY DEFINER with explicit RLS bridge
+      (consultant_id ownership check + auth.role() filter) — correct mitigation
+      for SECURITY DEFINER RLS bypass. Idempotent vault upsert via
+      vault.update_secret when name collision detected. EXECUTE format() uses
+      whitelisted field names (no SQL injection vector — VALID_FIELDS gate at
+      app + SQL CHECK at RPC entry). Schemas use Zod with explicit transforms
+      (digits-only normalization for phone match; lowercase+trim for email).
+      Protocol number generator deterministic for tests via Date injection.
+      Admin endpoint enforces both authN (getUser) AND authZ (role=admin claim).
+  unitTests:
+    status: PASS
+    coverage: "39 LGPD-specific tests (vault: 9, lgpd-crypto: 4, lgpd-audit: 10, schemas: 16)"
+    notes: >
+      432/432 passing (was 201 baseline; +231 from 7.1-7.9 + 39 LGPD). Vault
+      tests cover happy path, invalid field rejection, empty plaintext, RPC
+      error propagation, null-safety, batch skip-undefined. Audit tests cover
+      snake_case mapping, default {}, null-safe optional fields, RPC log_scrape
+      path, select chain (filter+order+limit). Schema tests cover BR phone
+      formats (E.164, masked, alphabetic rejection), email normalization,
+      optOutRequest "at least one identifier" refine, protocol regex
+      round-trip, zero-pad for month/day. NO integration test against real
+      Supabase Vault — explicitly deferred to AC11 smoke (PoC spec in
+      docs/poc/7.10-lgpd-smoke.md), tracked.
+  acceptanceCriteria:
+    status: CONCERNS
+    met: 10
+    partial: 1
+    failed: 0
+    notes: >
+      AC1 WAIVED (LIA counsel signature — external blocker, draft v0.1 DRAFT
+      at docs/legal/lia-epic7.md 267 lines covering 5 mandatory sections + 4
+      annex requirements + version history; cover-letter present). AC2 PASS
+      (Vault native v0.3.1 confirmed by docs/poc/7.10-vault-availability-check.md;
+      pgcrypto fallback NOT used — superior choice). AC3 PASS (lgpd_audit_log
+      with 9-action CHECK + 3-legal-basis CHECK + 4 indexes + admin/own RLS).
+      AC4 PASS (auto-log via fn_decrypt_lead_pii inline insert + fn_lgpd_log_scrape
+      RPC + endpoint inline log — decision to use RPCs instead of trigger
+      documented and sound for Wave A where PII lives in `leads` not
+      `scraped_listings`). AC5 PASS (202 Accepted, protocol number, audit row,
+      legal_obligation basis). AC6 PASS (admin-only via authN+role claim,
+      service-role RPC, anonymize via fn_lgpd_anonymize_lead with vault
+      cascade DELETE + defensive clear of legacy clear columns). AC7-AC9 PASS
+      (3 pages built, role gate at admin/lgpd). AC10 PARTIAL (no descricao_*
+      column in source — grep confirms; formal regression test deferred to
+      7.4 per Dev Agent Record TODO). AC11 PASS-as-spec (PoC spec end-to-end
+      in 302 lines; real execution deferred to @qa local Supabase + staging
+      pre-deploy).
+  noRegressions:
+    status: PASS
+    notes: >
+      All 432 tests pass; pre-existing 162 baseline preserved. No edits to
+      existing modules — 11 new files, 0 modified per Dev Agent Record.
+      Migrations 014/015 use ADD COLUMN IF NOT EXISTS + CREATE * IF NOT
+      EXISTS — idempotent and additive. ON DELETE SET NULL on FKs to
+      vault.secrets prevents orphan-cascade risk.
+  performance:
+    status: PASS
+    notes: >
+      Vault decrypt expected P50 +20-50ms per query (documented Risk
+      acceptable). Indexes present on lgpd_status, lgpd_audit_log (user/lead/
+      action/timestamp DESC), lgpd_opt_out_requests (status/protocol/created).
+      Opt-out matcher loop is O(N_active_leads × decrypts) but volume bound
+      (<10 opt-outs/mo, manual review) — adequate Wave A; Wave B should add
+      stable hash column to short-circuit. No N+1 in admin page (single SELECT
+      with limit 50).
+  security:
+    status: PASS_WITH_CONCERNS
+    notes: >
+      STRENGTHS: (1) Vault.decrypted_secrets explicitly REVOKEd from
+      anon/authenticated/PUBLIC — only RPCs touch it. (2) Both RPCs are
+      SECURITY DEFINER WITH manual RLS bridge (consultant_id ownership + role
+      filter) — correctly mitigates the standard SECURITY DEFINER bypass risk.
+      (3) fn_decrypt_lead_pii blocks decryption when lgpd_status != 'active'
+      (defense-in-depth against opt-out race). (4) Admin endpoint double-gates
+      authN (Supabase getUser) + authZ (role=admin from JWT). (5) Anonymize
+      flow does cascade vault DELETE + defensive clear of legacy plaintext
+      columns + audit row. (6) Audit log RLS = SELECT-own OR admin; no UPDATE/
+      DELETE policy for authenticated → append-only by design. (7) PII never
+      logged: console.error grep shows only listing IDs / generic messages, no
+      PII strings. (8) Search_path pinned on every SECURITY DEFINER. (9) Zod
+      input validation before any DB write. (10) opt_out_at_least_one_field
+      CHECK at DB layer prevents empty submissions even if app bypassed.
+
+      CONCERNS (do NOT block merge but track):
+      C1 [MEDIUM] Cross-story: apify.ts / apify-parametric.ts / contact-enrichment.ts
+      still write PLAINTEXT telefone_anunciante / email_anunciante to
+      scraped_listings (legacy Epic 6 flow). The vault path is for `leads` not
+      `scraped_listings` (Wave A pivot documented in Dev Agent Record). This
+      is consistent with story scope (7.4 will materialize the consumer) but
+      means TODAY scraped_listings rows accumulating from Epic 6 portals still
+      contain plaintext PII. Recommend: 7.4 must encrypt-on-promotion from
+      scraped_listings → leads AND a back-fill migration (or retention sweep
+      extension) for legacy scraped_listings rows.
+      C2 [LOW] fn_lgpd_retention_sweep exists but has NO schedule — depends on
+      Story 7.6 pg_cron/Edge Function infra. Tracked in Dev Agent Record TODO.
+      Wave A acceptable (manual invoke) but counsel may flag if deploy>30d.
+      C3 [LOW] lgpd_audit_log retention is "indefinite Wave A" — needs counsel
+      direction on legal retention vs minimization tension (typical 5y for
+      proof-of-compliance). Not a blocker; track for Wave C.
+      C4 [INFO] LIA draft uses "Galeria Moema" + Luciana CRECI "a confirmar"
+      placeholders in privacy policy text — counsel must finalize before
+      go-live; UI already says "Última atualização: a confirmar".
+  documentation:
+    status: PASS
+    notes: >
+      Story file complete (Dev Agent Record decisions + surprises + TODO
+      explicit). docs/legal/lia-epic7.md draft 267 lines + cover-letter present
+      for counsel handoff. docs/poc/7.10-lgpd-smoke.md spec end-to-end with
+      "Como executar em local Supabase" block for @qa. Vault availability
+      already proven (docs/poc/7.10-vault-availability-check.md, 177 lines).
+      Migration headers cite LIA + ADR + dependency chain. Privacy policy
+      page renders core LGPD Art. 18 disclosures + DPO contact placeholder.
+      Inline JSDoc on all wrappers cites AC numbers.
+
+issues:
+  - severity: medium
+    category: security
+    description: >
+      Legacy Epic 6 ingestion paths (apify.ts:71-72, apify-parametric.ts:181-182,
+      contact-enrichment.ts:14-15 / 110-111 / 297-298 / 337-338) persist
+      plaintext PII (telefone_anunciante, email_anunciante) into
+      scraped_listings.* clear columns. Vault scope is `leads` table only.
+      Until Story 7.4 promotes scraped_listings → leads via encryptLeadField,
+      scraped_listings remains a plaintext PII vault by composition.
+    recommendation: >
+      (a) Story 7.4 MUST consume @/lib/lgpd-crypto encryptLeadField on
+      promotion path and clear the scraped_listings.* columns post-promote.
+      (b) Add a one-time migration OR extend fn_lgpd_retention_sweep to scan
+      scraped_listings for orphaned PII >30d. (c) Add regression test to
+      assert scraped_listings has no plaintext PII for rows where
+      promoted_to_lead_id IS NOT NULL. Track in 7.4 acceptance criteria.
+
+  - severity: low
+    category: security
+    description: >
+      fn_lgpd_retention_sweep RPC exists (migration 015) but has no scheduler
+      attached. ANPD may flag if production runs >30 days without retention
+      enforcement.
+    recommendation: >
+      Story 7.6 (cron infra) must schedule fn_lgpd_retention_sweep(90) at
+      monthly cadence. Until then, @devops should add a manual checklist entry
+      in *deploy-story for 7.10 to invoke sweep on day 30/60/90.
+
+  - severity: low
+    category: requirements
+    description: >
+      AC1 LIA counsel signature is the sole hard blocker for crawler-PF
+      production deploy. Currently WAIVED with draft + cover-letter ready.
+      SLA 15-25d external. Privacy policy page text also requires counsel
+      sign-off ("Última atualização: a confirmar").
+    recommendation: >
+      @pm to track counsel ETA weekly. Until signature: (a) story may close
+      to Done after this gate, (b) crawler-PF stories (7.4 et al) MUST NOT
+      run *deploy-story, (c) /lgpd/politica-privacidade page must remain
+      behind feature flag OR display draft banner.
+
+  - severity: low
+    category: tests
+    description: >
+      AC11 PoC spec is documented (docs/poc/7.10-lgpd-smoke.md) but not
+      executed end-to-end against a real Supabase instance (local or staging).
+      Mock-only unit tests cannot validate vault.create_secret / decrypted_secrets
+      contract.
+    recommendation: >
+      @qa to execute the PoC against local Supabase before *deploy-story.
+      Required artifacts: smoke-output.log demonstrating 6-step flow
+      (scrape → encrypt → reveal+audit → opt-out → process → assert anonymize).
+      Track as gating checklist item for *deploy-story 7.10.
+
+  - severity: low
+    category: requirements
+    description: >
+      AC10 minimization regression test deferred to Story 7.4 (no descricao_*
+      consumer yet exists in code; grep confirms absence).
+    recommendation: >
+      Story 7.4 acceptance criteria must include a regression test that fails
+      if scraped_listings or leads gains a descricao_integral / descricao_completa
+      column with raw (non-hashed) text.
+
+deploymentReadiness:
+  blockers:
+    - "AC1 LIA counsel signature pending (external 15-25d SLA) — REQUIRED before crawler-PF deploy"
+    - "AC11 real PoC execution against local Supabase + staging — required before *deploy-story"
+  warnings:
+    - "Cross-story coupling: scraped_listings.* still holds plaintext PII (Epic 6 legacy) — Story 7.4 must clean up on promotion"
+    - "fn_lgpd_retention_sweep has no scheduler (depends on 7.6 cron infra)"
+    - "Privacy policy text needs counsel final review (page shows 'última atualização: a confirmar' placeholder)"
+    - "lgpd_audit_log retention policy not defined (indefinite Wave A) — review with counsel Wave C"
+
+nextSteps:
+  - "@po close-story to mark Done (this gate authorises code-side closure; deploy-side remains gated)"
+  - "@pm escalate counsel review of LIA + privacy policy text; weekly status"
+  - "@qa schedule local Supabase PoC execution (docs/poc/7.10-lgpd-smoke.md) before any crawler-PF *deploy-story"
+  - "Story 7.4 must integrate @/lib/lgpd-crypto encryptLeadField on promotion path + add scraped_listings PII regression test"
+  - "Story 7.6 must include fn_lgpd_retention_sweep monthly cron schedule"
+  - "@devops MUST NOT *deploy-story for any crawler-PF story (7.4 et al) until AC1 signed + AC11 executed"
