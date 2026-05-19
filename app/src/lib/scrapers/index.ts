@@ -41,3 +41,18 @@ export {
   AntiBotDetectedError,
   LoginWallDetectedError,
 } from './hooks/postNavigationHooks'
+
+// Story 7.3 — Advertiser classifier (FISBO 4-signal heuristic)
+export {
+  classifyAdvertiser,
+  nameAppearsPersonal,
+  lookupCNAE,
+  SupabaseCNAELookupClient,
+  BUILDER_CNAES,
+  BROKER_CNAES,
+  type AdvertiserSignals,
+  type ClassificationResult,
+  type ClassificationSignal,
+  type CNAELookupClient,
+  type PhoneType,
+} from './classify-advertiser'
