@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <title>Financial Waterfall Wireframe</title>
+    <style>
+      :root { --bg:#ffffff; --ink:#151515; --muted:#666; --line:#d9d9d2; --blue:#2347ff; --green:#168a4a; --red:#b42318; }
+      body { margin:0; background:var(--bg); color:var(--ink); font-family:Inter, Arial, sans-serif; }
+      .slide { width:1280px; height:720px; box-sizing:border-box; padding:56px; display:grid; grid-template-rows:auto 1fr auto; gap:28px; }
+      header { display:grid; grid-template-columns:1fr 280px; gap:32px; }
+      h1 { margin:0; font-size:44px; line-height:1.05; }
+      .callout { border-left:4px solid var(--blue); padding-left:18px; color:var(--muted); font-size:19px; line-height:1.35; }
+      .chart { display:grid; grid-template-columns:repeat(7,1fr); align-items:end; gap:18px; border-bottom:2px solid var(--line); padding-top:30px; }
+      .bar-wrap { display:grid; gap:10px; align-items:end; height:360px; }
+      .bar { width:100%; background:var(--blue); min-height:34px; }
+      .bar.pos { background:var(--green); }
+      .bar.neg { background:var(--red); }
+      .value { font-weight:850; font-size:24px; }
+      .label { color:var(--muted); font-size:14px; line-height:1.2; min-height:36px; }
+      footer { display:grid; grid-template-columns:1fr auto; color:var(--muted); font-size:16px; }
+    </style>
+  </head>
+  <body>
+    <main class="slide">
+      <header><h1>{{action_title}}</h1><div class="callout">{{variance_explanation}}</div></header>
+      <section class="chart">
+        <div class="bar-wrap"><div class="value">{{start_value}}</div><div class="bar" style="height:{{start_height}}px"></div><div class="label">{{start_label}}</div></div>
+        <div class="bar-wrap"><div class="value">{{change_1_value}}</div><div class="bar pos" style="height:{{change_1_height}}px"></div><div class="label">{{change_1_label}}</div></div>
+        <div class="bar-wrap"><div class="value">{{change_2_value}}</div><div class="bar neg" style="height:{{change_2_height}}px"></div><div class="label">{{change_2_label}}</div></div>
+        <div class="bar-wrap"><div class="value">{{change_3_value}}</div><div class="bar pos" style="height:{{change_3_height}}px"></div><div class="label">{{change_3_label}}</div></div>
+        <div class="bar-wrap"><div class="value">{{change_4_value}}</div><div class="bar neg" style="height:{{change_4_height}}px"></div><div class="label">{{change_4_label}}</div></div>
+        <div class="bar-wrap"><div class="value">{{change_5_value}}</div><div class="bar pos" style="height:{{change_5_height}}px"></div><div class="label">{{change_5_label}}</div></div>
+        <div class="bar-wrap"><div class="value">{{end_value}}</div><div class="bar" style="height:{{end_height}}px"></div><div class="label">{{end_label}}</div></div>
+      </section>
+      <footer><span>{{source_note}}</span><strong>{{decision_ask}}</strong></footer>
+    </main>
+  </body>
+</html>

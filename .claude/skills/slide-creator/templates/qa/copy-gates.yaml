@@ -1,0 +1,44 @@
+version: 1
+gates:
+  - id: offer_clarity_gate
+    gate: The offer is legible as outcome, mechanism, deliverables, guarantee, and next step.
+    blocks_if:
+      - Offer is only a feature list.
+      - CTA is ambiguous.
+      - Guarantee or risk reversal is missing for a paid offer.
+    pass_if:
+      - Buyer can answer what they get, why it works, why now, and what to do next.
+    score_weight: 15
+    absorbed_from: [copy_hormozi_offer_systems]
+
+  - id: ethical_persuasion_gate
+    gate: Persuasion is strong without fake urgency or manipulation.
+    blocks_if:
+      - Scarcity is not tied to real capacity, time, cohort, or bonus constraint.
+      - Pain is amplified without empathy or solution path.
+      - Claims exceed what evidence supports.
+    pass_if:
+      - Urgency, proof, and promise are honest and decision-helpful.
+    score_weight: 15
+    absorbed_from: [copy_jon_benson_vsl_frameworks, copy_hormozi_offer_systems]
+
+  - id: avatar_language_gate
+    gate: The deck uses the prospect's actual language where possible.
+    blocks_if:
+      - Copy uses generic marketing language while user supplied calls, DMs, surveys, or notes.
+      - Objections are written from seller perspective only.
+    pass_if:
+      - Key slides mirror audience language, stage of awareness, and decision criteria.
+    score_weight: 10
+    absorbed_from: [copy_ry_schwartz_course_launch_frameworks, copy_mappings]
+
+  - id: objection_gate
+    gate: Objections are handled before the close.
+    blocks_if:
+      - Price, trust, time, ability, fit, or risk objections are ignored.
+      - Objection slide argues instead of facilitating decision.
+    pass_if:
+      - Each major objection has a reframe, proof, or fit filter.
+    score_weight: 10
+    absorbed_from: [copy_ry_schwartz_course_launch_frameworks]
+

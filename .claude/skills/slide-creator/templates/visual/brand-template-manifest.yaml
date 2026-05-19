@@ -1,0 +1,111 @@
+version: 1
+name: brand-template-manifest
+purpose: >
+  Extract reusable visual language from a brand deck, imported PPTX, screenshot,
+  design system, or bundled theme before claiming brand fidelity.
+
+brand_template_manifest:
+  deck_id: ""
+  generated_at: ""
+  source_reference:
+    type: "imported_pptx | brand_deck | screenshot | design_system | bundled_theme"
+    path_or_url: ""
+    license_or_usage_note: ""
+    confidence: "high | medium | low"
+  visual_dna:
+    summary: ""
+    non_color_traits:
+      - ""
+    must_preserve:
+      - ""
+    must_avoid:
+      - ""
+  token_map:
+    colors:
+      background: ""
+      surface: ""
+      surface_alt: ""
+      text: ""
+      muted_text: ""
+      accent: ""
+      border: ""
+      positive: ""
+      negative: ""
+      warning: ""
+    typography:
+      heading_family: ""
+      body_family: ""
+      mono_family: ""
+      title_px: 0
+      body_px: 0
+      min_px: 0
+      weights: []
+    spacing:
+      canvas: "16:9"
+      grid_columns: 12
+      margin_px: 0
+      gutter_px: 0
+      section_gap_px: 0
+    shape_language:
+      corner_radius_px: 0
+      stroke_px: 0
+      shadow_policy: "none | subtle | strong"
+      surface_policy: ""
+    chart_palette:
+      primary: []
+      neutral: ""
+      grid: ""
+      highlight: ""
+  layout_families:
+    - id: ""
+      role: ""
+      use_when:
+        - ""
+      avoid_when:
+        - ""
+      density: "low | medium | high"
+      slots:
+        - id: ""
+          role: ""
+          bounds_hint: ""
+  component_patterns:
+    - id: ""
+      role: ""
+      visual_rules:
+        - ""
+      reuse_for_slide_functions:
+        - ""
+  chart_language:
+    chart_types_allowed: []
+    label_policy: ""
+    axis_policy: ""
+    annotation_policy: ""
+  media_language:
+    image_treatment: ""
+    crop_policy: ""
+    icon_policy: ""
+    product_or_evidence_media_policy: ""
+  anti_patterns:
+    - id: "identity_as_skin"
+      description: "Using only logo/colors while ignoring layout, type, density, and component behavior."
+    - id: "generic_stock_visual"
+      description: "Using atmospheric images that do not prove, demonstrate, or clarify the slide claim."
+  evidence:
+    inspected_assets:
+      - path: ""
+        observed_rule: ""
+    unresolved_questions:
+      - ""
+
+validation:
+  block_if:
+    - source_reference_missing
+    - token_map_missing
+    - typography_or_grid_missing
+    - no_non_color_traits
+    - no_component_patterns
+    - no_anti_patterns
+  warn_if:
+    - confidence_low
+    - chart_language_empty
+    - media_language_empty

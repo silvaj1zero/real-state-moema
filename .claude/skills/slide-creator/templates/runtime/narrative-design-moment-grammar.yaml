@@ -1,0 +1,201 @@
+version: 1
+name: narrative-design-moment-grammar
+purpose: >
+  Bind narrative intent to visual execution at slide-moment level. Use this
+  when a deck must feel designed, not merely styled, and when the story arc
+  must control layout, density, proof, pacing, and visual contrast.
+
+moment_schema:
+  required_fields:
+    - moment_id
+    - narrative_job
+    - audience_state_before
+    - audience_state_after
+    - emotional_temperature
+    - cognitive_load
+    - primary_visual_move
+    - density_budget
+    - proof_visibility
+    - layout_family
+    - transition_role
+    - failure_mode
+  optional_fields:
+    - compatible_slide_functions
+    - compatible_wireframes
+    - forbidden_visual_moves
+    - speaker_note_rhythm
+    - edit_sensitivity
+
+moment_archetypes:
+  - id: shock_reframe
+    narrative_job: break_default_frame
+    audience_state_before: "They think the category is familiar."
+    audience_state_after: "They see the old frame is insufficient."
+    emotional_temperature: high
+    cognitive_load: low
+    primary_visual_move: one_big_contrast
+    density_budget: 18_visible_words
+    proof_visibility: one_evidence_anchor_or_visual_before_after
+    layout_family: contrast
+    transition_role: opens_attention_loop
+    compatible_slide_functions: [reframe, tension_amplify]
+    compatible_wireframes: [myth-truth, competitive-landscape, quote-evidence-panel]
+    forbidden_visual_moves: [multi_card_grid, dense_table, decorative_stock_image]
+    speaker_note_rhythm: "short claim, pause, explain why the default frame fails"
+    edit_sensitivity: high
+    failure_mode: "If the slide explains a topic instead of changing the frame, it fails."
+  - id: executive_answer_first
+    narrative_job: give_decision_context
+    audience_state_before: "They expect a walkthrough."
+    audience_state_after: "They know the answer and can inspect drivers."
+    emotional_temperature: medium
+    cognitive_load: medium
+    primary_visual_move: answer_plus_driver_stack
+    density_budget: 38_visible_words
+    proof_visibility: metrics_above_fold_with_units
+    layout_family: executive_snapshot
+    transition_role: establishes_orientation
+    compatible_slide_functions: [cover, synthesis, proof]
+    compatible_wireframes: [executive-summary, dashboard-grid, financial-waterfall]
+    forbidden_visual_moves: [chronological_intro, decorative_hero, unranked_metric_wall]
+    speaker_note_rhythm: "answer, consequence, two drivers, decision implication"
+    edit_sensitivity: medium
+    failure_mode: "If the audience must hunt for the answer, it fails."
+  - id: tension_ladder
+    narrative_job: increase_cost_of_inaction
+    audience_state_before: "They agree mildly but feel no urgency."
+    audience_state_after: "They feel the accumulating cost or risk."
+    emotional_temperature: high
+    cognitive_load: medium
+    primary_visual_move: escalating_sequence
+    density_budget: 32_visible_words
+    proof_visibility: trend_or_consequence_per_step
+    layout_family: timeline_or_ladder
+    transition_role: raises_stakes
+    compatible_slide_functions: [tension_amplify, proof]
+    compatible_wireframes: [incident-timeline, maturity-ladder, risk-heatmap]
+    forbidden_visual_moves: [flat_bullets, equal_weight_cards, low_contrast_risk_tokens]
+    speaker_note_rhythm: "step, consequence, escalation, next step"
+    edit_sensitivity: high
+    failure_mode: "If all risks feel equal, it fails."
+  - id: mechanism_reveal
+    narrative_job: explain_why_the_solution_works
+    audience_state_before: "They see the desired outcome but not the engine."
+    audience_state_after: "They understand the causal mechanism."
+    emotional_temperature: medium
+    cognitive_load: high
+    primary_visual_move: labeled_system_flow
+    density_budget: 45_visible_words
+    proof_visibility: cause_effect_labels_and_one_example
+    layout_family: system_diagram
+    transition_role: converts_interest_into_belief
+    compatible_slide_functions: [mechanism_step, demo_setup]
+    compatible_wireframes: [mechanism-map, technical-architecture, dependency-map]
+    forbidden_visual_moves: [logo_soup, unlabeled_arrows, pure_concept_art]
+    speaker_note_rhythm: "input, transformation, output, why it matters"
+    edit_sensitivity: high
+    failure_mode: "If arrows do not express causality, it fails."
+  - id: proof_stack
+    narrative_job: make_claim_credible
+    audience_state_before: "They like the claim but need evidence."
+    audience_state_after: "They can repeat why the claim is credible."
+    emotional_temperature: medium
+    cognitive_load: medium
+    primary_visual_move: ranked_evidence_stack
+    density_budget: 42_visible_words
+    proof_visibility: source_metric_quote_artifact
+    layout_family: evidence_panel
+    transition_role: reduces_perceived_risk
+    compatible_slide_functions: [proof, objection_neutralize]
+    compatible_wireframes: [proof-stack, case-study-proof, quote-evidence-panel]
+    forbidden_visual_moves: [testimonial_without_specificity, unsourced_metric, equal_weight_evidence]
+    speaker_note_rhythm: "claim, strongest proof, corroborating proof, implication"
+    edit_sensitivity: high
+    failure_mode: "If evidence is decorative or unsourced, it fails."
+  - id: demo_payoff
+    narrative_job: show_before_after_result
+    audience_state_before: "They expect feature navigation."
+    audience_state_after: "They see a concrete artifact or workflow payoff."
+    emotional_temperature: high
+    cognitive_load: medium
+    primary_visual_move: before_after_or_input_output
+    density_budget: 28_visible_words
+    proof_visibility: output_artifact_visible
+    layout_family: demo_sequence
+    transition_role: turns_mechanism_into_desire
+    compatible_slide_functions: [demo_payoff, artifact_reveal]
+    compatible_wireframes: [screen-sequence, api-request-response, data-lineage]
+    forbidden_visual_moves: [feature_list, screenshot_wall, hidden_output]
+    speaker_note_rhythm: "before, action, after, why this changes the workflow"
+    edit_sensitivity: high
+    failure_mode: "If no artifact/result is visible, it fails."
+  - id: decision_tradeoff
+    narrative_job: make_options comparable
+    audience_state_before: "They see multiple plausible choices."
+    audience_state_after: "They understand the recommended tradeoff."
+    emotional_temperature: medium
+    cognitive_load: high
+    primary_visual_move: option_matrix_with_recommendation
+    density_budget: 55_visible_words
+    proof_visibility: criteria_weights_and_consequences
+    layout_family: matrix
+    transition_role: prepares_decision
+    compatible_slide_functions: [contrast, synthesis, cta_concrete]
+    compatible_wireframes: [decision-options, architecture-tradeoff-table, scoring-rubric]
+    forbidden_visual_moves: [unweighted_table, hidden_recommendation, ornamental_badges]
+    speaker_note_rhythm: "criteria, option contrast, tradeoff, recommendation"
+    edit_sensitivity: medium
+    failure_mode: "If the recommendation is visually timid or criteria are unclear, it fails."
+  - id: breathing_room_transition
+    narrative_job: let_audience_absorb
+    audience_state_before: "They just processed a dense proof or mechanism."
+    audience_state_after: "They retain the point and are ready for the next beat."
+    emotional_temperature: low
+    cognitive_load: low
+    primary_visual_move: single_claim_with_space
+    density_budget: 14_visible_words
+    proof_visibility: no_new_proof
+    layout_family: sparse_claim
+    transition_role: resets_attention
+    compatible_slide_functions: [section_divider, emotional_anchor, close]
+    compatible_wireframes: [section-divider, closing-card, mission-vision]
+    forbidden_visual_moves: [new_dense_chart, multi_metric_grid, appendix_table]
+    speaker_note_rhythm: "recap, pause, bridge to next section"
+    edit_sensitivity: low
+    failure_mode: "If it introduces another complex idea, it fails."
+  - id: close_with_specific_next_step
+    narrative_job: convert belief into action
+    audience_state_before: "They understand the case but may defer."
+    audience_state_after: "They know the next step, owner, artifact, and date."
+    emotional_temperature: high
+    cognitive_load: low
+    primary_visual_move: cta_with_commitment_frame
+    density_budget: 30_visible_words
+    proof_visibility: recap_of_one_decisive_proof
+    layout_family: cta_panel
+    transition_role: closes_open_loop
+    compatible_slide_functions: [cta_concrete, close]
+    compatible_wireframes: [contact-next-step, decision-options, pricing-table]
+    forbidden_visual_moves: [generic_thank_you, multiple_ctas, vague_contact_us]
+    speaker_note_rhythm: "why now, what happens next, who owns it, when"
+    edit_sensitivity: medium
+    failure_mode: "If the CTA could be copied to any deck, it fails."
+
+continuity_rules:
+  - id: dense_then_breathing_room
+    rule: "A high-density proof/mechanism moment should be followed by a lower-density synthesis or transition unless the deck is an appendix."
+  - id: proof_before_ask
+    rule: "A CTA or decision ask must be preceded by a proof, demo payoff, or tradeoff moment."
+  - id: emotion_load_alternation
+    rule: "Do not stack more than two high-emotion moments without a grounding proof or mechanism."
+  - id: layout_follows_belief_shift
+    rule: "Layout family changes must map to a narrative shift: frame, stakes, mechanism, proof, decision, or close."
+  - id: visual_repetition_has_reason
+    rule: "Repeated layout is allowed only for deliberate comparison, sequence, or rhythm."
+
+score_relevance:
+  consultative_narrative__belief_shift: "Audience state before/after is required per moment."
+  narrative_governance_qa__key_slide_gate: "Key moments make cover/reframe/mechanism/proof/CTA inspectable."
+  visual_layout_quality__layout_variety: "Layout variation is driven by narrative role."
+  visual_layout_quality__visual_density_control: "Density budget is attached to each moment."
+  rendered_visual_quality__rendered_visual_quality: "Failure modes are visual and narrative at once."

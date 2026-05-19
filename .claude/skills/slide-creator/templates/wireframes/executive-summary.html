@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <title>Executive Summary Wireframe</title>
+    <style>
+      :root { --bg:#f7f7f4; --ink:#171717; --muted:#666a70; --line:#d7d7d0; --accent:#2457d6; }
+      body { margin:0; background:var(--bg); color:var(--ink); font-family:Inter, Arial, sans-serif; }
+      .slide { width:1280px; height:720px; box-sizing:border-box; padding:56px; display:grid; grid-template-rows:auto 1fr auto; gap:28px; }
+      header { display:grid; grid-template-columns:1fr auto; gap:32px; align-items:start; border-bottom:1px solid var(--line); padding-bottom:24px; }
+      h1 { margin:0; font-size:48px; line-height:1.02; max-width:840px; }
+      .status { color:var(--accent); font-weight:800; font-size:18px; letter-spacing:.08em; text-transform:uppercase; }
+      .grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+      .card { background:white; border:1px solid var(--line); border-radius:8px; padding:22px; min-height:140px; }
+      .label { color:var(--muted); font-size:13px; letter-spacing:.08em; text-transform:uppercase; }
+      .metric { font-size:44px; font-weight:850; margin-top:18px; }
+      .delta { color:var(--accent); font-weight:700; margin-top:10px; }
+      footer { display:grid; grid-template-columns:2fr 1fr; gap:24px; font-size:22px; }
+      .decision { border-left:4px solid var(--accent); padding-left:18px; font-weight:750; }
+      .source { color:var(--muted); font-size:15px; align-self:end; text-align:right; }
+    </style>
+  </head>
+  <body>
+    <main class="slide">
+      <header>
+        <h1>{{headline_answer}}</h1>
+        <div class="status">{{status_label}}</div>
+      </header>
+      <section class="grid">
+        <article class="card"><div class="label">{{metric_1_label}}</div><div class="metric">{{metric_1_value}}</div><div class="delta">{{metric_1_delta}}</div></article>
+        <article class="card"><div class="label">{{metric_2_label}}</div><div class="metric">{{metric_2_value}}</div><div class="delta">{{metric_2_delta}}</div></article>
+        <article class="card"><div class="label">{{metric_3_label}}</div><div class="metric">{{metric_3_value}}</div><div class="delta">{{metric_3_delta}}</div></article>
+        <article class="card"><div class="label">{{metric_4_label}}</div><div class="metric">{{metric_4_value}}</div><div class="delta">{{metric_4_delta}}</div></article>
+      </section>
+      <footer>
+        <div class="decision">{{decision_signal}}</div>
+        <div class="source">{{source_note}}</div>
+      </footer>
+    </main>
+  </body>
+</html>

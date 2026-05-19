@@ -1,0 +1,89 @@
+type: object
+required:
+  - id
+  - function
+  - pick_when
+  - skip_when
+  - slots
+  - constraints
+  - absorbed_from
+properties:
+  id:
+    type: string
+  function:
+    type: string
+  pick_when:
+    type: array
+    items:
+      type: string
+  skip_when:
+    type: array
+    items:
+      type: string
+  compatible_visuals:
+    type: array
+    items:
+      type: string
+  slots:
+    type: array
+    items:
+      type: object
+      required: [name, type, required]
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        required:
+          type: boolean
+        max_chars:
+          type: integer
+        suggested_characters:
+          type: integer
+        min_items:
+          type: integer
+        max_items:
+          type: integer
+        rewrite_if_exceeds:
+          type: boolean
+        must_exist_locally:
+          type: boolean
+        required_when:
+          type: array
+          items:
+            type: string
+        role:
+          type: string
+  variable_layouts:
+    type: object
+    properties:
+      by_item_count:
+        type: object
+  selection_audit:
+    type: object
+    properties:
+      requires_runners_up:
+        type: boolean
+      minimum_runners_up:
+        type: integer
+  constraints:
+    type: object
+    properties:
+      max_visible_words:
+        type: integer
+      max_bullets:
+        type: integer
+      requires_evidence:
+        type: boolean
+      avoid:
+        type: array
+        items:
+          type: string
+  qa:
+    type: array
+    items:
+      type: string
+  absorbed_from:
+    type: array
+    items:
+      type: string

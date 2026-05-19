@@ -1,0 +1,103 @@
+version: 1
+name: story-arc-contract
+purpose: >
+  Self-contained narrative arc contract for slide-creator decks. This absorbs
+  the evolved slides-creator squad arc discipline without requiring any squad
+  file, agent, task, or repository path at runtime.
+
+independence_rule: >
+  This bundled contract is the authority inside the skill. Do not reference
+  squads/slides-creator or route to squad agents to make the deck work.
+
+required_output:
+  file: story-arc.yaml
+  root_key: story_arc
+  required_fields:
+    - deck_id
+    - arc_type
+    - beats
+
+arc_types:
+  - educational_workshop
+  - executive_pitch
+  - sales_narrative
+  - thought_leadership
+  - product_demo
+  - board_update
+  - case_study
+  - webinar
+  - financial_update
+  - strategy_memo
+
+beat_types:
+  opening:
+    valid_values: [hook, situation, context, cold_open]
+    job: "Create relevance and orientation without becoming an agenda slide."
+  tension:
+    valid_values: [complication, tension, stakes, cost_of_inaction]
+    job: "Make the current belief or current process feel insufficient."
+  reframe:
+    valid_values: [reframe, insight, thesis, governing_thought]
+    job: "Replace the old frame with the central deck thesis."
+  proof:
+    valid_values: [proof, evidence, case, benchmark, data, demo_setup]
+    job: "Earn belief with sourced facts, examples, demo, or artifacts."
+  mechanism:
+    valid_values: [mechanism, model, framework, process, operating_system]
+    job: "Show how the thesis becomes repeatable action."
+  payoff:
+    valid_values: [demo_payoff, artifact_reveal, before_after, result]
+    job: "Let the audience see the promised outcome concretely."
+  close:
+    valid_values: [plan, decision, cta, next_steps, close]
+    job: "Convert belief into an explicit decision or action."
+
+beat_schema:
+  required_fields:
+    - beat_id
+    - beat_type
+    - narrative_function
+    - slides_estimated
+  optional_fields:
+    - source_topics
+    - evidence_refs
+    - design_hints
+    - objection_addressed
+    - emotional_state_before
+    - emotional_state_after
+  constraints:
+    max_beats: 8
+    slides_estimated_min: 1
+    narrative_function_min_chars: 32
+
+validation:
+  required_sequence_presence:
+    - at_least_one_opening_or_tension
+    - at_least_one_reframe_or_thesis
+    - at_least_one_proof_mechanism_or_payoff
+    - at_least_one_close_or_cta
+  consistency_checks:
+    - beat_ids_are_unique
+    - slide_function_map_entries_reference_existing_beats
+    - sum_slides_estimated_matches_slide_function_map_with_tolerance_20_percent
+    - no_more_than_8_beats
+  block_if:
+    - beats_missing
+    - topic_list_arc
+    - missing_payoff
+    - missing_cta_or_close
+    - narrative_function_is_generic_topic
+
+anti_patterns:
+  topic_list_arc:
+    symptom: "Beat names are only content categories such as mercado, produto, preço."
+    fix: "Rewrite beats as audience movement: what must change in belief at that moment."
+  missing_payoff:
+    symptom: "Deck explains the mechanism but never shows an artifact, demo, result, or before/after."
+    fix: "Add proof/demo/artifact_reveal before CTA."
+  monolog_deck:
+    symptom: "Every beat pushes more information without objection, contrast, or decision."
+    fix: "Insert tension, objection neutralization, and a concrete decision point."
+  apostila:
+    symptom: "The arc preserves source-document order and behaves like a handout."
+    fix: "Compress source material into a persuasive or didactic journey."

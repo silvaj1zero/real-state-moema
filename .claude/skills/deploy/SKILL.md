@@ -90,14 +90,15 @@ steps:
   - If changes exist:
       - git add -A
       - git commit with descriptive message (conventional commits format)
-      - git push origin {branch}
+      - AIOX_ACTIVE_AGENT=devops AIOX_PUSH_TARGET={remote} node scripts/aiox-safe-push.js {remote} {branch}
   - If no changes:
       - Check if local is ahead of remote: git status -sb
-      - If ahead: git push origin {branch}
+      - If ahead: AIOX_ACTIVE_AGENT=devops AIOX_PUSH_TARGET={remote} node scripts/aiox-safe-push.js {remote} {branch}
       - If up to date: report "No changes to push" and continue
 ```
 
 **IMPORTANT:** Commit message must follow conventional commits (feat:, fix:, chore:, etc.).
+**IMPORTANT:** `{remote}` defaults to the deployment app's own repository remote, not the multi-tenant framework origin. Boundary validators must pass before any push.
 
 ### Phase 4: Vercel Deploy
 

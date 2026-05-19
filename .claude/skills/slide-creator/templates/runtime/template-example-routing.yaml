@@ -1,0 +1,47 @@
+version: 1
+runtime_jobs:
+  - id: template_examples_for_prompt
+    mode: template_selection
+    pick_when:
+      - The generator needs examples of allowed slide structures.
+      - User requests many slides and layout consistency matters.
+      - A slide should override the default template selected for the deck.
+    inputs:
+      - selected_template_ids
+      - outline_items
+      - template_registry
+    steps:
+      - select_template_candidates_by_slide_function
+      - serialize_template_examples_for_prompt
+      - attach_usage_hint_per_template
+      - apply_outline_template_overrides
+      - reject_templates_that_violate_density_or_media_rules
+    outputs:
+      - serialized_template_examples
+      - outline_template_overrides
+      - template_selection_rationale
+    failure_policy:
+      continue_on_error: true
+      block_if_missing:
+        - template_registry
+    absorbed_from:
+      - presentation-ai/template-serializer.ts
+      - presentation-ai/templates.tsx
+
+template_example_contract:
+  required_fields:
+    - template_id
+    - template_name
+    - category
+    - use_for
+    - example_structure
+  serialization_rules:
+    - Include structure examples only for selected templates.
+    - Keep examples short enough to guide the model without crowding the prompt.
+    - Include category usage hint, not just template name.
+    - Per-outline override wins over automatic category selection.
+
+override_rules:
+  - If a slide has a decisive function, allow explicit template override.
+  - If an override repeats the same layout more than twice in sequence, reroute or justify.
+  - If selected template cannot host the required evidence/media, choose a more suitable visual template.

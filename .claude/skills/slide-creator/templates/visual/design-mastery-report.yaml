@@ -1,0 +1,92 @@
+version: 1
+name: design-mastery-report
+purpose: >
+  Score Design as an operational release gate. This report is required when
+  the user asks for premium/reference-level design or Design 100.
+
+design_mastery_report:
+  deck_id: ""
+  generated_at: ""
+  target_score: 95
+  verdict: "pass | warn | fail"
+  source_artifacts:
+    brand_template_manifest: "brand-template-manifest.yaml"
+    design_direction: "design-direction.yaml"
+    render_lock: "render-lock.yaml"
+    template_selection_report: "template-selection-report.yaml"
+    key_slide_render_review: "key-slide-render-review.yaml"
+    visual_regression_checklist: "visual-regression-checklist.yaml"
+  score_lenses:
+    - id: template_manifest
+      weight: 15
+      score: 0
+      evidence: ""
+      blockers: []
+    - id: brand_fidelity
+      weight: 20
+      score: 0
+      evidence: ""
+      blockers: []
+    - id: layout_intelligence
+      weight: 20
+      score: 0
+      evidence: ""
+      blockers: []
+    - id: rendered_quality
+      weight: 20
+      score: 0
+      evidence: ""
+      blockers: []
+    - id: theme_runtime
+      weight: 15
+      score: 0
+      evidence: ""
+      blockers: []
+    - id: iteration_loop
+      weight: 10
+      score: 0
+      evidence: ""
+      blockers: []
+  calculated_score: 0
+  microdimension_mapping:
+    visual_layout_quality__layout_variety:
+      evidence: ""
+      target_met: false
+    visual_layout_quality__visual_density_control:
+      evidence: ""
+      target_met: false
+    visual_layout_quality__rendered_visual_quality:
+      evidence: ""
+      target_met: false
+    template_import_replication__template_manifest:
+      evidence: ""
+      target_met: false
+    template_import_replication__brand_fidelity:
+      evidence: ""
+      target_met: false
+    template_import_replication__template_selection_logic:
+      evidence: ""
+      target_met: false
+    theme_tokens_branding__token_schema:
+      evidence: ""
+      target_met: false
+    theme_tokens_branding__theme_runtime:
+      evidence: ""
+      target_met: false
+    theme_tokens_branding__brand_guardrails:
+      evidence: ""
+      target_met: false
+  required_fixes:
+    - slide_id: ""
+      issue: ""
+      patch_type: "hierarchy_fix | density_fix | crop_fix | spacing_fix | contrast_fix | template_fidelity_fix | chart_readability_fix | layout_variation_fix"
+      owner: ""
+      status: "open | fixed | accepted_risk"
+
+validation:
+  block_if:
+    - calculated_score_below_target
+    - any_score_lens_missing_evidence
+    - brand_fidelity_below_90
+    - rendered_quality_below_90
+    - unresolved_blockers

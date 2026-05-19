@@ -1,0 +1,129 @@
+version: 1
+name: squad-quality-rubric
+purpose: >
+  Self-contained quality rubric absorbed from the evolved slides-creator squad.
+  It keeps the stronger narrative/design gates while removing dependency on
+  squad agents, squad tasks, or private process files.
+
+score_scale: "0-100"
+
+dimensions:
+  narrativa:
+    weight: 25
+    description: "Pyramid, vertical flow, action titles, governing thought, SCQA, story arc, slide function."
+    sub_dimensions:
+      - pyramid_mece
+      - vertical_flow
+      - action_title_rhetoric
+      - governing_thought_strength
+      - scqa_depth
+      - story_arc
+      - slide_function_map
+  design:
+    weight: 25
+    description: "Density, hierarchy, contrast, readability, visual coherence."
+    sub_dimensions:
+      - density
+      - hierarchy
+      - contrast
+      - readability
+      - visual_coherence
+  acuracia:
+    weight: 20
+    description: "APA-quality sources, source fidelity, no invented claims, visual enumeration."
+    sub_dimensions:
+      - fontes_apa
+      - source_fidelity
+      - enumeration_universal
+  editabilidade:
+    weight: 10
+    description: "PPTX/editable delivery when export is requested."
+    sub_dimensions:
+      - opens_without_repair
+      - action_title_text_layer
+  brand:
+    weight: 10
+    description: "Token compliance, palette adherence, assets."
+    sub_dimensions:
+      - brand_token_compliance
+      - palette_adherence
+      - asset_resolution
+  tecnica:
+    weight: 10
+    description: "Export integrity, diagram/math safety, rendered technical QA."
+    sub_dimensions:
+      - export_integrity
+      - diagrams_math
+      - rendered_eval_composite
+
+killer_items:
+  - id: KI-01
+    description: "PPTX does not open or asks for repair."
+    dimension: editabilidade
+  - id: KI-02
+    description: "Action title is rasterized when editable PPTX was requested."
+    dimension: editabilidade
+  - id: KI-03
+    description: "Critical claim has no complete source."
+    dimension: acuracia
+  - id: KI-04
+    description: "Main slide text is clipped or unreadable."
+    dimension: design
+  - id: KI-05
+    description: "Primary text/background contrast below WCAG AA."
+    dimension: design
+  - id: KI-06
+    description: "Deck violates the approved briefing or user instruction."
+    dimension: narrativa
+  - id: KI-07
+    description: "Action title is descriptive instead of claim-driven."
+    dimension: narrativa
+  - id: KI-08
+    description: "Slide has no declared narrative function or function means 'explain topic'."
+    dimension: narrativa
+  - id: KI-09
+    description: "Final slide count exceeds 2x the planned slide-function map without explicit rationale."
+    dimension: narrativa
+  - id: KI-10
+    description: "Design direction is missing or brand identity is applied only as a skin."
+    dimension: design
+
+release_criteria:
+  pass:
+    overall_score_min: 85
+    killer_items_max: 0
+    narrativa_min: 70
+    design_min: 70
+    acuracia_min: 70
+  concerns:
+    overall_score_min: 75
+    overall_score_max: 84
+    killer_items_max: 0
+    requires_user_ack: true
+  fail:
+    overall_score_max: 74
+    killer_items_min: 1
+
+corrective_actions:
+  pyramid_mece: "Rebuild the governing thought and pyramid tree before editing slides."
+  vertical_flow: "Read action titles only; rewrite/reorder until the deck tells the story without body copy."
+  action_title_rhetoric: "Rewrite titles as claim + magnitude/contrast + implication."
+  governing_thought_strength: "Reduce to one executive sentence with claim, stakes, and implication."
+  scqa_depth: "Strengthen situation, complication, question, and answer before slide production."
+  story_arc: "Rebuild story-arc.yaml with tension, proof/mechanism/payoff, and close."
+  slide_function_map: "Compress source topics into audience movements; remove 'explain topic' slides."
+  density: "Limit to 1 governing claim and 3 supporting claims; split or cut content."
+  hierarchy: "Re-compose grid and type scale so reading order is obvious at a glance."
+  contrast: "Change foreground/background pair until text reaches WCAG AA."
+  readability: "Reduce line length, increase font size, and move nuance into speaker notes."
+  visual_coherence: "Reassert design-direction.yaml and align motif, spacing, and layout rhythm."
+  fontes_apa: "Add complete source metadata or mark the claim as assumption/client validation."
+  source_fidelity: "Replace invented or untraceable data with sourced text."
+  enumeration_universal: "Give each table, chart, figure, or artifact a stable ID."
+  brand_token_compliance: "Resolve active tokens and replace unregistered custom colors/fonts."
+  export_integrity: "Verify output path, media embeds, links, and text layers."
+
+aggregation:
+  overall_formula: "weighted_sum(dimension_score * dimension_weight)"
+  revise_if_below: 85
+  do_not_call_final_if_below: 75

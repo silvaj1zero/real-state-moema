@@ -1,0 +1,94 @@
+version: 1
+runtime_jobs:
+  - id: traceable_slide_creation_flow
+    mode: orchestration
+    pick_when:
+      - The process must be auditable, shareable, or reusable by other people.
+      - User asks why a deck/process failed or wants the skill to improve over time.
+      - Multiple critique perspectives are useful before final synthesis.
+    inputs:
+      - briefing
+      - selected_templates
+      - research_outputs
+      - draft_deck_spec
+      - rendered_eval
+    steps:
+      - compile_focused_working_set
+      - run_parallel_review_universes
+      - compact_handoffs_by_output_kind
+      - synthesize_findings
+      - produce_trace_report
+      - update_revision_actions
+    outputs:
+      - working_set_manifest
+      - stage_trace
+      - typed_handoffs
+      - synthesis_report
+      - revision_actions
+    failure_policy:
+      continue_on_error: true
+      block_if_missing:
+        - stage_trace
+    absorbed_from:
+      - deepH/docs/AGENTS_AND_SPECS.md
+      - deepH/docs/WORKFLOWS_AND_UNIVERSES.md
+      - deepH/crews/reviewflow.yaml
+
+handoff_contract:
+  required_fields:
+    - from_stage
+    - to_stage
+    - output_kind
+    - status
+    - compact_summary
+  output_kinds:
+    - summary/text
+    - diagnostic/narrative
+    - diagnostic/design
+    - diagnostic/proof
+    - diagnostic/render
+    - test/regression
+    - plan/revision
+  rules:
+    - Downstream stages receive compact structured context, not raw transcripts.
+    - Handoffs must state assumptions, unresolved blockers, and confidence.
+    - Final synthesis deduplicates findings and ranks by impact on audience outcome.
+
+review_universes:
+  - name: baseline
+    focus: Overall deck quality, clarity, and fit to brief.
+    output_kind: summary/text
+  - name: strict
+    focus: Regressions, weak assumptions, missing proof, and overconfident claims.
+    output_kind: diagnostic/proof
+  - name: narrative_focus
+    focus: Belief shift, story flow, tension, slide function, CTA.
+    output_kind: diagnostic/narrative
+  - name: design_focus
+    focus: Layout rhythm, hierarchy, density, media fit, brand consistency.
+    output_kind: diagnostic/design
+  - name: render_focus
+    focus: Clipping, overlap, export fidelity, screenshots, PPTX/PDF issues.
+    output_kind: diagnostic/render
+  - name: synth
+    focus: Merge upstream findings, remove duplicates, produce revision plan.
+    depends_on:
+      - baseline
+      - strict
+      - narrative_focus
+      - design_focus
+      - render_focus
+    output_kind: plan/revision
+
+trace_report:
+  required_sections:
+    - selected_context
+    - skipped_context_and_reason
+    - stage_decisions
+    - handoff_summary
+    - blockers
+    - revision_actions
+  block_if:
+    - Important source material was ignored without reason.
+    - Final deck changed core claim without trace.
+    - Reviewer findings were not synthesized into action.

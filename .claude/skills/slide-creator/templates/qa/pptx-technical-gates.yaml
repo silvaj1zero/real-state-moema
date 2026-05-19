@@ -1,0 +1,90 @@
+version: 1
+gates:
+  - id: pptx_boundary_and_overlap_gate
+    gate: PPTX elements must not overlap, clip, or violate safe margins.
+    blocks_if:
+      - Element bottom edge exceeds slide safe area.
+      - Text visually overflows its box.
+      - Card title overlaps card body.
+      - Elements overlap without intentional grouping.
+      - More than two consecutive slides repeat the same layout.
+    pass_if:
+      - Rendered preview or PPTX structural checker reports no critical overlap, clipping, or boundary issue.
+    score_weight: 15
+    absorbed_from:
+      - powerpoint-skill/check_overlaps.py
+      - powerpoint-skill/SKILL.md
+
+  - id: pptx_text_fit_gate
+    gate: Text boxes must use shrink-safe behavior and disciplined spacing.
+    blocks_if:
+      - A text box expands shape instead of shrinking text.
+      - Body copy exceeds four short lines per inch of available body height.
+      - Element below another starts less than 0.1in after previous bottom.
+      - Long card title wraps into body region.
+    pass_if:
+      - Text fit is explicitly handled by shrink or slide split.
+    score_weight: 10
+    absorbed_from:
+      - powerpoint-skill/SKILL.md
+
+  - id: pptx_math_and_diagram_gate
+    gate: Math, diagrams, and extracted figures must be PowerPoint-safe.
+    blocks_if:
+      - Math notation is represented as Unicode approximation instead of native math or image.
+      - Residual math placeholders remain in PPTX XML.
+      - Diagram uses default engine colors instead of deck theme.
+      - Diagram labels are unreadable or nodes overlap.
+      - Extracted figure lacks attribution.
+    pass_if:
+      - Math, diagrams, and figures are readable, attributed, and theme-consistent.
+    score_weight: 10
+    absorbed_from:
+      - powerpoint-skill/SKILL.md
+      - powerpoint-skill/references/themes.md
+
+  - id: pptx_rendered_density_gate
+    gate: Rendered content should occupy enough visual area.
+    blocks_if:
+      - Visible content occupies less than 75% of the area below title bar on a content slide.
+      - Text-only slides exceed 20% of the deck without deliberate pacing reason.
+      - Cards visually contain too little content and feel empty.
+    pass_if:
+      - Rendered slide feels intentionally composed, not sparse or accidentally empty.
+    score_weight: 8
+    absorbed_from:
+      - powerpoint-skill/SKILL.md
+      - powerpoint-skill/references/themes.md
+
+technical_scoring:
+  start_score: 100
+  deliver_threshold: 90
+  warning_threshold: 80
+  deductions:
+    - issue: script_or_export_failure
+      severity: critical
+      points: 100
+    - issue: element_overlap
+      severity: critical
+      points: 15
+      cap: 45
+    - issue: bottom_edge_clipping
+      severity: critical
+      points: 15
+      cap: 45
+    - issue: formula_missing_or_corrupted
+      severity: critical
+      points: 20
+      cap: 60
+    - issue: visual_blank_space
+      severity: major
+      points: 8
+    - issue: diagram_theme_mismatch
+      severity: major
+      points: 8
+    - issue: missing_figure_attribution
+      severity: major
+      points: 5
+    - issue: tight_margin
+      severity: minor
+      points: 2

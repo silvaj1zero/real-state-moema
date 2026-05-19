@@ -1,0 +1,109 @@
+version: 1
+name: runtime-gap-absorption-corpus
+purpose: >
+  Capability corpus for the non-narrative gaps that still limit the consolidated
+  benchmark score. These are not claims of finished app/runtime implementation;
+  they are acceptance contracts that turn remaining gaps into buildable slices.
+
+gap_groups:
+  - id: render_pptx
+    group: Renderização
+    target_score_path: "65 -> 85 -> 95"
+    absorbed_from: [ppt-master, powerpoint-skill, PPTAgent]
+    must_build:
+      - drawingml_shape_export
+      - native_chart_export
+      - html_to_pptx_render_equivalence
+      - overlap_boundary_checker
+      - powerpoint_roundtrip_report
+    acceptance:
+      - exported_file_exists_and_reopens
+      - text_boxes_do_not_clip
+      - charts_keep_editable_data_when_required
+      - rasterized_elements_are_reported
+      - screenshot_preview_matches_html_with_declared_tolerance
+  - id: editor_prompt_to_edit
+    group: Editor
+    target_score_path: "50 -> 75 -> 90"
+    absorbed_from: [banana-slides, presentation-ai, Presenton]
+    must_build:
+      - region_selection_model
+      - scoped_edit_diff
+      - undo_redo_history
+      - live_preview_contract
+      - review_comment_model
+    acceptance:
+      - edit_preserves_unselected_regions
+      - every_edit_has_before_after_diff
+      - undo_restores_prior_slide_state
+      - localized_regen_reruns_visual_qa
+      - comments_attach_to_slide_or_region
+  - id: distribution_analytics
+    group: Distribuição
+    target_score_path: "33 -> 65 -> 85"
+    absorbed_from: [presentation-ai]
+    must_build:
+      - export_package_manifest
+      - share_link_contract
+      - permission_policy
+      - view_event_schema
+      - crm_followup_signal
+    acceptance:
+      - share_artifact_has_public_private_mode
+      - export_manifest_lists_formats_and_paths
+      - view_event_has_deck_slide_session_timestamp
+      - engagement_summary_produces_actionable_followup
+  - id: multimedia_narration
+    group: Multimídia
+    target_score_path: "41 -> 70 -> 90"
+    absorbed_from: [PresentAgent-2, ppt-master]
+    must_build:
+      - speaker_notes_narration_contract
+      - tts_provider_routing
+      - slide_audio_sync_map
+      - video_export_job_contract
+      - media_asset_pipeline
+    acceptance:
+      - notes_have_timing_and_transition
+      - spoken_cues_match_visible_slide_elements
+      - media_assets_have_ids_and_usage_policy
+      - video_export_report_lists_audio_and_slide_timing
+  - id: infra_local_packaging
+    group: Infra
+    target_score_path: "40 -> 65 -> 85"
+    absorbed_from: [Presenton]
+    must_build:
+      - local_runtime_manifest
+      - docker_compose_contract
+      - desktop_packaging_contract
+      - offline_model_policy
+      - upgrade_and_storage_policy
+    acceptance:
+      - local_runtime_can_run_without_remote_required_services
+      - env_vars_are_documented_without_secrets
+      - storage_paths_are_declared
+      - upgrade_policy_preserves_user_decks
+  - id: automation_api_mcp
+    group: Automação
+    target_score_path: "69 -> 85 -> 95"
+    absorbed_from: [Presenton, banana-slides]
+    must_build:
+      - job_state_events
+      - api_create_edit_export_routes
+      - mcp_tool_contract
+      - batch_queue_policy
+      - resumable_job_report
+    acceptance:
+      - every_job_has_state_progress_artifacts_and_errors
+      - api_routes_are_reproducible_from_cli_contract
+      - mcp_tools_do_not_bypass_source_of_truth_policy
+      - batch_jobs_can_resume_or_fail_cleanly
+
+release_policy:
+  pass_if:
+    - every_gap_group_has_target_score_path
+    - every_gap_group_has_must_build_and_acceptance
+    - every_gap_group_maps_to_benchmark_group
+  block_if:
+    - capability_claim_without_acceptance_contract
+    - runtime_score_raised_without_artifact_or_test_plan

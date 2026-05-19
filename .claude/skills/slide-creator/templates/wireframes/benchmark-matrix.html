@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <title>Benchmark Matrix Wireframe</title>
+    <style>
+      body { margin: 0; background: #050505; color: #f5f5ef; font: 14px Inter, Arial, sans-serif; }
+      .wrap { padding: 32px; display: grid; grid-template-columns: 1fr 300px; gap: 24px; }
+      h1 { margin: 0 0 18px; font-size: 28px; }
+      .matrix { display: grid; grid-template-columns: 210px repeat(4, minmax(120px, 1fr)); border: 1px solid #292929; overflow: hidden; }
+      .cell { min-height: 86px; padding: 12px; border-right: 1px solid #292929; border-bottom: 1px solid #292929; background: #101010; }
+      .head { background: #171717; font-weight: 800; }
+      .score { font-size: 28px; font-weight: 900; }
+      .bar { height: 6px; background: #333; margin-top: 8px; }
+      .bar span { display: block; height: 100%; background: #f5f5ef; }
+      .win { background: #d7ff3f; color: #111; }
+      aside { border-left: 1px solid #292929; padding-left: 24px; color: #b8b8b0; }
+      .mono { font: 11px "IBM Plex Mono", monospace; text-transform: uppercase; letter-spacing: .08em; color: #d7ff3f; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <main>
+        <div class="mono">benchmark matrix</div>
+        <h1>Matriz mostra diferença real; comentário vive no painel.</h1>
+        <section class="matrix">
+          <div class="cell head">Dimensão</div><div class="cell head">Player A</div><div class="cell head">Player B</div><div class="cell head">Player C</div><div class="cell head">Player D</div>
+          <div class="cell">Prompt para deck completo</div><div class="cell win"><div class="score">95</div><div class="bar"><span style="width:95%"></span></div></div><div class="cell"><div class="score">82</div><div class="bar"><span style="width:82%"></span></div></div><div class="cell"><div class="score">75</div><div class="bar"><span style="width:75%"></span></div></div><div class="cell"><div class="score">70</div><div class="bar"><span style="width:70%"></span></div></div>
+          <div class="cell">Template importável</div><div class="cell"><div class="score">75</div><div class="bar"><span style="width:75%"></span></div></div><div class="cell win"><div class="score">96</div><div class="bar"><span style="width:96%"></span></div></div><div class="cell"><div class="score">70</div><div class="bar"><span style="width:70%"></span></div></div><div class="cell"><div class="score">40</div><div class="bar"><span style="width:40%"></span></div></div>
+        </section>
+      </main>
+      <aside>
+        <div class="mono">selected cell</div>
+        <h2>Por que 95?</h2>
+        <p>Detalhe com evidência, path de fonte, limitação e implicação. A matriz em si fica limpa.</p>
+      </aside>
+    </div>
+  </body>
+</html>
+

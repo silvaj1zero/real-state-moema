@@ -1,0 +1,38 @@
+visual_regression_checklist:
+  deck_id: design-100-fixture
+  generated_at: "2026-05-18"
+  checks:
+    - id: no_identity_as_skin
+      question: "Does the deck use brand language beyond logo/colors?"
+      status: pass
+      evidence: brand-template-manifest.yaml maps type, grid, panels, metadata labels, chart language, and anti-patterns.
+    - id: no_generic_stock_visual
+      question: "Does every meaningful image prove, demonstrate, or clarify a claim?"
+      status: pass
+      evidence: render-lock.yaml uses no atmospheric media; image policy requires evidence-first screenshots.
+    - id: no_repeated_layout_monotony
+      question: "Are there no more than two consecutive slides in the same layout family?"
+      status: pass
+      evidence: template-selection-report.yaml alternates hero_claim and evidence_matrix for decisive slide roles.
+    - id: no_dense_bullet_wall
+      question: "Are dense slides intentionally structured as tables, diagrams, or appendix?"
+      status: pass
+      evidence: evidence_matrix uses row headers and score cells instead of bullet walls.
+    - id: no_unmapped_theme_usage
+      question: "Do charts, diagrams, tables, and shapes use mapped theme tokens?"
+      status: pass
+      evidence: render-lock.yaml maps chart_palette, text, borders, surfaces, and accent usage.
+    - id: no_unrendered_key_slides
+      question: "Were decisive slides reviewed in render or preview?"
+      status: pass
+      evidence: key-slide-render-review.yaml reviews all five decisive roles.
+    - id: no_weak_action_title_hierarchy
+      question: "Is the action title visually dominant on each decisive slide?"
+      status: pass
+      evidence: key-slide-render-review.yaml title_claim_visibility scores are all 96 or higher.
+    - id: no_unresolved_overlap_clipping
+      question: "Are overlap, clipping, and text-fit issues resolved?"
+      status: pass
+      evidence: key-slide-render-review.yaml has no blockers and all body_text_fit scores are 95 or higher.
+  verdict: pass
+  release_blockers: []

@@ -1,0 +1,85 @@
+version: 1
+runtime_jobs:
+  - id: manuscript_first_deck_pipeline
+    mode: manuscript
+    pick_when:
+      - Deck depends on research, explanation, proof quality, or complex narrative.
+      - User provides only a broad topic but expects a strong presentation.
+      - Previous output failed because slides were generated directly from an outline.
+    inputs:
+      - user_goal
+      - audience
+      - desired_belief_shift
+      - source_material
+      - constraints
+    steps:
+      - planner_creates_outline_json
+      - research_creates_markdown_manuscript
+      - manuscript_sections_are_mapped_to_slide_functions
+      - evidence_and_media_are_bound_to_claims
+      - slide_structure_templates_are_selected
+      - visual_templates_are_selected
+      - deck_spec_is_generated_from_manuscript
+      - key_slides_are_render_checked_before_full_deck
+    outputs:
+      - outline_json
+      - research_manuscript
+      - claim_to_evidence_map
+      - media_inventory
+      - slide_function_map
+      - deck_spec
+      - qa_report
+    failure_policy:
+      continue_on_error: false
+      block_if_missing:
+        - audience
+        - desired_belief_shift
+        - slide_function_map
+    absorbed_from:
+      - PPTAgent/deeppresenter/roles/Planner.yaml
+      - PPTAgent/deeppresenter/roles/Research.yaml
+      - PPTAgent/deeppresenter/roles/PPTAgent.yaml
+
+contracts:
+  outline_json:
+    required_fields:
+      - index
+      - title
+      - context
+    rules:
+      - Each outline item must describe why it exists in the audience journey.
+      - Outline order is allowed to diverge from source order.
+      - No slide count is final until key-slide gate passes.
+
+  research_manuscript:
+    format: markdown
+    section_separator: "---"
+    required_per_section:
+      - section_title
+      - concise_argument
+      - source_notes
+      - candidate_visuals
+    rules:
+      - Keep claims and evidence together.
+      - Prefer local or cited media references over vague image ideas.
+      - Mark uncertain facts as assumptions instead of presenting them as proof.
+      - Remove source material that does not serve the belief shift.
+
+  renderer_handoff:
+    required_fields:
+      - slide_index
+      - slide_function
+      - action_title
+      - source_section_ids
+      - template_id
+      - visual_template_id
+      - speaker_note_intent
+    rules:
+      - Renderer receives structured slide intent, not raw research dump.
+      - Tables become visual artifacts only when they clarify the claim.
+      - Dense source sections must be compressed before slide drafting.
+
+quality_gates:
+  - Manuscript must contain more proof than the final deck shows.
+  - Every decisive slide must trace to one manuscript section or explicit synthesis.
+  - A deck cannot skip manuscript when topic requires research or prior process failed.

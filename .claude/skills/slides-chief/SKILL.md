@@ -306,7 +306,7 @@ operational_frameworks:
         why: "Source grounding prevents hallucinated claims"
       - id: BN_004
         when: "brand_config missing AND workspace has brand data"
-        then: "Auto-resolve from workspace/businesses/{brand}/. Report what was loaded."
+        then: "Auto-resolve from AIOX_BUSINESS_WORKSPACE_ROOT/{brand}/ using packages/core/workspace-root/resolve.cjs (fallback display path: workspace/businesses/{brand}/). Report what was loaded."
         why: "Brand-agnostic does not mean brand-absent"
       - id: BN_005
         when: "reference_assets include screenshots or PPTX"

@@ -36,8 +36,8 @@ Read the user's role from the story's `Accountable` field or team access control
 
 | User | Mode | Action |
 |------|------|--------|
-| Pedro Valério (admin) | **Direct push** | `git push origin {branch}` to main |
-| Others | **Pull Request** | `gh pr create` with story reference |
+| Framework maintainer | **Framework-only direct push** | Run `scripts/aiox-safe-push.js` with `AIOX_ALLOW_MULTITENANT_PUSH=1` only after boundary validators pass |
+| Operator/licensee | **Private remote or PR** | Push to `AIOX_PUSH_TARGET` private remote by default; create PR through `scripts/aiox-safe-pr.js` only for framework-only diffs |
 
 ### Step 3: Stage and Commit (if uncommitted changes)
 
@@ -49,14 +49,19 @@ Read the user's role from the story's `Accountable` field or team access control
 
 ### Step 4: Push or Create PR
 
-**Admin mode (direct push):**
+**Framework-only direct push:**
 ```bash
-git push origin main
+AIOX_ACTIVE_AGENT=devops AIOX_ALLOW_MULTITENANT_PUSH=1 node scripts/aiox-safe-push.js origin main
 ```
 
 **PR mode:**
 ```bash
-gh pr create --title "{conventional-commit-title} [Story {id}]" --body "## Summary\n{story-summary}\n\n## Test Plan\n- All ACs verified\n- {test_count} tests passing"
+AIOX_ACTIVE_AGENT=devops node scripts/aiox-safe-pr.js --title "{conventional-commit-title} [Story {id}]" --body "## Summary\n{story-summary}\n\n## Test Plan\n- All ACs verified\n- {test_count} tests passing"
+```
+
+**Operator-private backup mode:**
+```bash
+AIOX_ACTIVE_AGENT=devops AIOX_PUSH_TARGET="{operator-private-remote}" node scripts/aiox-safe-push.js "{operator-private-remote}" "{branch}"
 ```
 
 ### Step 5: Route Based on deploy_type (NON-NEGOTIABLE)
@@ -97,8 +102,9 @@ Display:
 
 1. **No QA gate PASS** — Story must have a gate file with PASS or WAIVED verdict
 2. **Uncommitted changes outside story scope** — Warn user, ask to stash or include
-3. **Push fails** — Report error, do not route to deploy
-4. **Branch conflicts** — Report conflict, do not force push
+3. **Boundary validator fails** — Report the private path category, do not push or create PR
+4. **Push fails** — Report error, do not route to deploy
+5. **Branch conflicts** — Report conflict, do not force push
 
 ## Veto
 

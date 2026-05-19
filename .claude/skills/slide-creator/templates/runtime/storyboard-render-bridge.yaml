@@ -1,0 +1,95 @@
+version: 1
+name: storyboard-render-bridge
+purpose: >
+  Bridge narrative and design into an execution-ready storyboard. Use this
+  before rendering/export so the deck keeps the belief shift, slide function,
+  visual system, density, proof, and export constraints connected.
+
+required_output:
+  file: storyboard-render-bridge.yaml
+  root_key: storyboard_render_bridge
+
+storyboard_contract:
+  required_fields:
+    - deck_id
+    - selected_narrative_case
+    - selected_design_fixture_set
+    - slides
+    - continuity_checks
+    - render_readiness
+
+slide_storyboard_schema:
+  required_fields:
+    - slide_id
+    - beat_ref
+    - audience_movement
+    - action_title
+    - slide_function
+    - selected_slide_template
+    - selected_visual_template
+    - selected_wireframe
+    - density_target
+    - proof_requirement
+    - design_role
+    - render_risk
+  optional_fields:
+    - rejected_templates
+    - speaker_note_intent
+    - interaction_or_demo_moment
+    - export_notes
+
+design_roles:
+  - cover
+  - reframe
+  - tension
+  - mechanism
+  - proof
+  - demo
+  - decision
+  - appendix
+  - close
+
+continuity_checks:
+  - id: belief_shift_continuity
+    question: "Does each slide move the audience closer to the desired belief?"
+    block_if:
+      - audience_movement_missing
+      - slide_only_explains_topic
+      - no_escalation_between_adjacent_slides
+  - id: visual_rhythm_continuity
+    question: "Does visual variety support the story instead of becoming a gallery?"
+    block_if:
+      - three_consecutive_same_layout_family
+      - visual_style_changes_without_narrative_reason
+      - dense_slide_not_followed_by_breathing_room_when_needed
+  - id: proof_path_continuity
+    question: "Does proof appear before asks and risky claims?"
+    block_if:
+      - claim_without_evidence_or_assumption_label
+      - offer_or_decision_before_proof
+      - demo_without_payoff
+  - id: render_export_continuity
+    question: "Can the storyboard survive render/export without losing meaning?"
+    block_if:
+      - action_title_too_long_for_selected_wireframe
+      - chart_or_table_has_no_data_contract
+      - source_label_or_cta_at_clipping_risk
+
+render_readiness:
+  pass_if:
+    - every_slide_has_template_visual_wireframe_and_density
+    - every_key_slide_has_render_risk_and_mitigation
+    - every_claim_heavy_slide_has_proof_requirement
+    - every_exportable_slide_has_export_notes_or_no_export_risk
+  block_if:
+    - storyboard_skips_design_direction
+    - slide_function_and_visual_template_conflict
+    - density_target_exceeds_selected_wireframe_capacity
+    - key_slide_missing_render_risk
+
+score_relevance:
+  consultative_narrative__belief_shift: "Keeps belief movement visible at slide level."
+  slide_structure_planning__slide_function_map: "Makes slide function executable through visual/template selection."
+  visual_layout_quality__visual_density_control: "Connects density target to selected wireframe capacity."
+  qa_evaluation_rubric__visual_qa: "Creates a render-risk checklist before output."
+  html_to_pptx_export__render_equivalence: "Prepares slide-level export notes before conversion."

@@ -1,0 +1,110 @@
+version: 1
+source_principle: >
+  Importing a PPTX template means extracting reusable behavior, constraints,
+  assets, and style metadata. It does not mean copying every arbitrary shape
+  into a new visual system or trusting screenshots as editable output.
+absorbed_from:
+  - ../../../../../../bench/ppt-master/skills/ppt-master/scripts/template_import/manifest.py
+
+import_pipelines:
+  - id: pptx_template_manifest_import
+    pick_when:
+      - User provides an existing PowerPoint template or brand deck.
+      - A deck must match a client template while keeping slide output editable.
+      - A benchmark project needs to learn placeholder geometry, theme fonts, or media behavior.
+    inputs:
+      - pptx_path
+      - output_workspace
+      - optional_reference_images
+      - target_deck_job
+    outputs:
+      - manifest.json
+      - summary.md
+      - assets/
+      - template-import-report.yaml
+    steps:
+      - read_presentation_package
+      - extract_slide_size
+      - extract_theme_fonts_and_colors
+      - resolve_master_layout_slide_inheritance
+      - extract_backgrounds
+      - extract_media_assets
+      - extract_placeholders
+      - extract_text_samples
+      - classify_page_type
+      - write_manifest_and_summary
+
+manifest_contract:
+  presentation:
+    slide_size:
+      width_emu: 0
+      height_emu: 0
+      aspect_ratio: ""
+    theme:
+      fonts: []
+      colors: []
+    asset_dir: "assets"
+  slides:
+    - index: 1
+      slide_path: "ppt/slides/slide1.xml"
+      layout_path: ""
+      master_path: ""
+      page_type: "cover | toc | chapter | content | thanks | contact | unknown"
+      background:
+        source: "slide | layout | master | none"
+        asset_id: ""
+      text_count: 0
+      shape_count: 0
+      image_assets: []
+      text_samples: []
+      placeholders: []
+  layouts:
+    - path: ""
+      name: ""
+      placeholder_count: 0
+  masters:
+    - path: ""
+      name: ""
+
+placeholder_contract:
+  fields:
+    - name: placeholder_type
+      examples: [title, body, picture, table, chart, footer, date, slide_number]
+    - name: idx
+      description: Original placeholder index when present.
+    - name: geometry
+      required_keys: [x, y, width, height]
+    - name: orientation
+      examples: [horizontal, vertical, square]
+    - name: text_style
+      required_keys: [font_family, font_size, bold, italic, color]
+
+page_type_keywords:
+  cover: [title, subtitle, hero, portada, capa]
+  toc: [agenda, contents, sumario, índice, indice, table_of_contents]
+  chapter: [section, chapter, divider, separador, parte]
+  thanks: [thanks, thank_you, obrigado, obrigada]
+  contact: [contact, email, website, telefone, phone]
+  content: [content, body, default]
+
+quality_rules:
+  - Preserve source inheritance: slide overrides layout; layout overrides master.
+  - Extract assets into a sanitized local asset directory with stable ids.
+  - Keep screenshots and SVG exports as references, not as the main editable representation.
+  - Do not claim template fidelity until at least one imported layout is rendered and compared.
+  - If placeholder geometry is missing, mark the layout as partial and route to manual design reconstruction.
+  - If page type is unknown, classify by actual slide function during deck planning instead of guessing from filename only.
+
+template_import_report:
+  template_import_report:
+    source_file: ""
+    status: "pass | partial | fail"
+    slide_size: ""
+    theme_fonts_detected: []
+    theme_colors_detected: []
+    reusable_assets: 0
+    reusable_layouts: 0
+    partial_layouts: []
+    unsupported_features: []
+    recommended_use:
+      - ""

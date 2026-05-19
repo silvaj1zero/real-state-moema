@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <title>Design System Audit Wireframe</title>
+    <style>
+      :root { --bg:#11100e; --panel:#1c1915; --ink:#f6f0e6; --muted:#b8aa99; --line:#39332b; --accent:#f2613f; --ok:#55c2a2; --warn:#f2cb57; }
+      body { margin:0; background:var(--bg); color:var(--ink); font-family:Inter, Arial, sans-serif; }
+      .slide { width:1280px; height:720px; box-sizing:border-box; padding:48px; display:grid; grid-template-rows:auto 1fr; gap:28px; }
+      h1 { margin:0; font-size:44px; line-height:1.05; max-width:900px; }
+      .audit { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+      .panel { border:1px solid var(--line); background:var(--panel); border-radius:8px; padding:22px; }
+      .panel h2 { margin:0 0 18px; font-size:24px; }
+      .score-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+      .score { border:1px solid var(--line); border-radius:7px; padding:16px; }
+      .score .label { color:var(--muted); font-size:12px; letter-spacing:.12em; text-transform:uppercase; }
+      .score .value { font-size:42px; font-weight:850; color:var(--accent); margin-top:12px; }
+      .bars { display:grid; gap:14px; }
+      .row { display:grid; grid-template-columns:180px 1fr 48px; gap:12px; align-items:center; }
+      .track { height:10px; background:#0d0c0b; border:1px solid var(--line); }
+      .fill { height:100%; background:var(--ok); }
+      .risk { color:var(--warn); }
+    </style>
+  </head>
+  <body>
+    <main class="slide">
+      <h1>{{action_title}}</h1>
+      <section class="audit">
+        <article class="panel"><h2>{{summary_title}}</h2><div class="score-grid"><div class="score"><div class="label">Tokens</div><div class="value">{{token_score}}</div></div><div class="score"><div class="label">Templates</div><div class="value">{{template_score}}</div></div><div class="score"><div class="label">QA</div><div class="value">{{qa_score}}</div></div></div></article>
+        <article class="panel"><h2>{{gap_title}}</h2><div class="bars"><div class="row"><strong>{{gap_1}}</strong><div class="track"><div class="fill" style="width:{{gap_1_width}}%"></div></div><span>{{gap_1_score}}</span></div><div class="row"><strong>{{gap_2}}</strong><div class="track"><div class="fill" style="width:{{gap_2_width}}%"></div></div><span>{{gap_2_score}}</span></div><div class="row"><strong>{{gap_3}}</strong><div class="track"><div class="fill" style="width:{{gap_3_width}}%"></div></div><span>{{gap_3_score}}</span></div><div class="row risk"><strong>{{risk_label}}</strong><span>{{risk_note}}</span><span>{{risk_score}}</span></div></div></article>
+      </section>
+    </main>
+  </body>
+</html>

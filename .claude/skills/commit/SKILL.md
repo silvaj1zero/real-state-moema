@@ -113,7 +113,8 @@ Parameters:
    - Capture the hash for the summary table.
 
 8. **Push** (unless `--no-push` / `--split-only`)
-   - `AIOX_ACTIVE_AGENT=devops git push origin <current-branch>`
+   - `AIOX_ACTIVE_AGENT=devops AIOX_PUSH_TARGET=<remote> node scripts/aiox-safe-push.js <remote> <current-branch>`
+   - Use the operator private remote by default; push to multi-tenant `origin` only when `AIOX_ALLOW_MULTITENANT_PUSH=1` and boundary validators pass.
    - On push failure: report and STOP. Do NOT force-push. Do NOT auto-merge.
    - On success: capture `old..new` range.
 

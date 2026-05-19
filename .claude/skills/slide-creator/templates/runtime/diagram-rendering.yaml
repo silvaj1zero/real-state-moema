@@ -1,0 +1,130 @@
+version: 1
+source_principle: >
+  Diagrams need engine routing. Pick the rendering layer by diagram semantics,
+  editability, math precision, and fidelity needs before generating source code
+  or slide shapes.
+absorbed_from:
+  - ../../../../../../bench/powerpoint-skill/powerpoint-slides/diagram-rendering.md
+
+engine_layers:
+  - id: graphviz
+    output: svg
+    best_for:
+      - architecture
+      - flow
+      - dependency_graph
+      - tree
+      - comparison_graph
+    constraints:
+      max_nodes: 15
+      preferred_rankdir: "LR | TB"
+      use_clusters_for_groups: true
+      avoid_cluttered_edge_labels: true
+    export_policy:
+      convert_to_svg: true
+      embed_or_trace_as_native: "renderer-dependent"
+  - id: mermaid
+    output: svg
+    best_for:
+      - sequence
+      - gantt
+      - pie
+      - state
+      - er
+    constraints:
+      max_sequence_participants: 6
+      use_cli_fallback_when_available: true
+    export_policy:
+      convert_to_svg: true
+  - id: tikz
+    output: "svg | png"
+    best_for:
+      - math_diagram
+      - geometric_construction
+      - paper_faithful_technical_figure
+    constraints:
+      prefer_for_formula_adjacent_diagrams: true
+      require_latex_available: "when rendering locally"
+    export_policy:
+      png_allowed_for_complex_latex: true
+  - id: native_shapes
+    output: pptx_native
+    best_for:
+      - simple_arrows
+      - annotations
+      - highlights
+      - callouts
+      - basic_process
+    constraints:
+      keep_text_editable: true
+      avoid_complex_auto_layout: true
+    export_policy:
+      raster_allowed: false
+  - id: pdf_figure_extraction
+    output: png
+    best_for:
+      - paper_figures
+      - externally_sourced_diagrams
+      - screenshots_that_are_evidence
+    constraints:
+      dpi: 300
+      min_width_px_warn: 800
+      require_source_attribution: true
+      never_extract_tables_as_images: true
+    export_policy:
+      rebuild_tables_natively: true
+
+diagram_routing:
+  architecture: graphviz
+  dependency: graphviz
+  process_with_branches: graphviz
+  sequence: mermaid
+  gantt: mermaid
+  state_machine: mermaid
+  entity_relationship: mermaid
+  math_or_geometry: tikz
+  simple_annotation: native_shapes
+  simple_arrow_flow: native_shapes
+  extracted_paper_figure: pdf_figure_extraction
+
+diagrams_json_contract:
+  diagrams:
+    - diagram_id: "d01"
+      slide_id: "s01"
+      purpose: ""
+      engine: "graphviz | mermaid | tikz | native_shapes | pdf_figure_extraction"
+      source_file: ""
+      output_file: ""
+      editable_level: "native | source_editable | raster_only"
+      theme:
+        colors: []
+        fonts: []
+      qa:
+        rendered: false
+        fits_container: false
+        legible_at_thumbnail: false
+        attributed: false
+        issues: []
+
+manifest_contract:
+  diagram_manifest:
+    output_dir: "diagrams"
+    generated_at: ""
+    diagrams: []
+    blockers: []
+
+theme_injection_rules:
+  - Inject deck fonts and colors into Graphviz/Mermaid/TikZ where the engine allows it.
+  - If SVG ignores theme tokens, post-process or mark as theme mismatch.
+  - Diagrams used as proof must include source or assumption in speaker notes.
+  - Diagram labels should be native overlay text when exact wording, accents, or numbers matter.
+
+quality_gates:
+  - diagram_source_exists
+  - diagram_output_exists
+  - output_matches_selected_engine
+  - no_unattributed_extracted_figures
+  - no_table_as_image
+  - no_unreadable_edge_labels
+  - no_theme_mismatch_unless_waived
+  - no_raster_only_when_editable_diagram_required

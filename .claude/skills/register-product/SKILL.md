@@ -41,9 +41,10 @@ Can also be used to remediate existing products that are below Tier 1.
 
 ## Pre-conditions
 
-1. Product directory exists: `workspace/businesses/{biz}/L3-product/{slug}/`
+1. Product directory exists under `AIOX_BUSINESS_WORKSPACE_ROOT/{biz}/L3-product/{slug}/` (fallback display path: `workspace/businesses/{biz}/L3-product/{slug}/`)
 2. At minimum, `offerbook.yaml` exists (can be stub)
 3. Business workspace is bootstrapped (L0-L4 structure exists)
+4. Resolve physical paths through `packages/core/workspace-root/resolve.cjs`; do not assume the multi-tenant checkout is the business workspace root.
 
 ## Pipeline (3 Phases)
 

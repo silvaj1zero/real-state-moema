@@ -1,0 +1,218 @@
+version: 1
+historical_sources:
+  - ../../../../apps/aiox-brandbook/src/components/brandbook-sections/editorial/spread-section.tsx
+  - ../../../../apps/aiox-brandbook/src/components/brandbook-sections/editorial/evidence-spread.tsx
+  - ../../../../apps/aiox-brandbook/src/components/brandbook-sections/editorial/narrative-spread.tsx
+  - ../../../../apps/aiox-brandbook/src/components/brandbook/molecules/bb-stat-cell.tsx
+  - ../../../../apps/aiox-brandbook/src/components/blocks/cohort/problem-section.tsx
+  - ../../../../apps/aiox-brandbook/src/components/blocks/cohort/proof-section.tsx
+  - ../../../../apps/aiox-brandbook/src/components/blocks/cohort/offer-section.tsx
+  - ../../../../apps/aiox-brandbook/src/components/pitch-deck/page-header.tsx
+  - ../../../../apps/aiox-brandbook/src/components/pitch-deck/metric-card.tsx
+  - ../../../../apps/aiox-brandbook/src/components/pitch-deck/investor-insight.tsx
+  - ../../../../apps/aiox-brandbook/src/app/(pitch-deck)/pitch-deck/competitive-analysis/page.tsx
+  - ../../../../apps/aiox-brandbook/src/app/(pitch-deck)/pitch-deck/finance/page.tsx
+  - ../../../../apps/aiox-brandbook/src/app/(pitch-deck)/pitch-deck/roadmap/page.tsx
+
+patterns:
+  - id: aiox_editorial_book_spread
+    category: editorial_spread
+    pick_when:
+      - A deck needs brandbook-like two-page editorial pacing.
+      - One side carries thesis or framework and the other carries proof, voice, or examples.
+    skip_when:
+      - The slide must be a single-screen dashboard or dense matrix.
+    structure:
+      container: two_page_spread
+      left_page: thesis_or_framework
+      right_page: proof_or_application
+      footer: page_number_section_name_brandline
+    constraints:
+      min_height_px: 800
+      page_padding: "4rem"
+      page_divider_required: true
+      mono_footer_required: true
+      lime_page_number_chip: true
+    absorbed_from: [aiox_editorial_spread_section]
+
+  - id: aiox_evidence_wall
+    category: proof
+    pick_when:
+      - The slide needs many compact proof points with source labels.
+      - Results are more persuasive as a wall than as a single case study.
+    skip_when:
+      - There are fewer than three proof points; use proof_before_after.
+    structure:
+      grid: "2x3 or 3x2 stat cells"
+      cell_slots: [value, label, description, source]
+      highlight_cells: "1-2 allowed"
+      secondary_badges: [license, agents, integrations]
+    constraints:
+      source_required_per_cell: true
+      highlight_cells_max: 2
+      value_uses_display_font: true
+      grid_gap: "1px"
+    absorbed_from: [aiox_evidence_spread, aiox_proof_section]
+
+  - id: aiox_hero_journey_four_acts
+    category: narrative
+    pick_when:
+      - The deck uses transformation narrative, community story, or founder/customer awakening.
+    skip_when:
+      - The message is purely operational with no identity shift.
+    structure:
+      acts:
+        - sleep_or_old_world
+        - call_or_red_pill
+        - descent_or_learning_loop
+        - awakening_or_new_identity
+      slots: [roman_index, act_title, act_description, metaphor_line]
+    constraints:
+      acts_exactly: 4
+      metaphor_must_match_brand: true
+      use_testimonials_on_adjacent_slide: true
+    absorbed_from: [aiox_narrative_spread]
+
+  - id: aiox_voice_testimonial_column
+    category: proof_voice
+    pick_when:
+      - The deck needs social proof that sounds like real audience language.
+    skip_when:
+      - Testimonials are generic or fabricated.
+    structure:
+      cards: "4-8 quote strips"
+      slots: [quote, author, proof_type]
+      emphasis_rule: "empowerment quotes get lime left border"
+    constraints:
+      exact_language_preferred: true
+      author_or_source_required: true
+      proof_type_required: true
+    absorbed_from: [aiox_narrative_spread, aiox_proof_section]
+
+  - id: aiox_problem_ticker_stage
+    category: tension
+    pick_when:
+      - A problem must feel systemic and recurring, not isolated.
+      - Statistics and hidden costs can run as ambient proof.
+    skip_when:
+      - The proof is too sparse for ticker repetition.
+    structure:
+      top_ticker: statistics
+      center: mono_label_plus_big_claim
+      bottom_ticker: hidden_costs
+      followup_grid: statistics_plus_cost_cards
+    constraints:
+      ticker_items_min: 4
+      center_claim_max_words: 18
+      hidden_costs_use_warning_or_error_accent: true
+    absorbed_from: [aiox_cohort_problem_section]
+
+  - id: aiox_offer_two_column_stack
+    category: conversion
+    pick_when:
+      - A paid offer needs benefits, anti-features, ownership claim, tiers, ROI, and testimonial.
+    skip_when:
+      - There is no price, package, or CTA.
+    structure:
+      left_column: [included_benefits, anti_features, ownership_claim]
+      right_column: [pricing_tiers, recommended_badge, payback, roi, cta]
+      bottom: testimonial_dark_card
+    constraints:
+      benefits_required: true
+      anti_features_required: true
+      primary_tier_required: true
+      payback_or_roi_required_for_financial_claims: true
+      testimonial_required: true
+    absorbed_from: [aiox_cohort_offer_section]
+
+  - id: aiox_pitch_page_header
+    category: pitch_component
+    pick_when:
+      - A pitch or strategy section needs compact navigation context.
+    skip_when:
+      - The slide is a cinematic hero or section divider.
+    structure:
+      icon_box: primary_tint
+      title: h1
+      badge: optional
+      subtitle: one_sentence
+    constraints:
+      subtitle_required: true
+      icon_must_match_section: true
+      badge_max_words: 3
+    absorbed_from: [aiox_pitch_page_header]
+
+  - id: aiox_metric_card_row
+    category: pitch_component
+    pick_when:
+      - Unit economics, traction, KPI, or operational metrics need scannable cards.
+    skip_when:
+      - Metrics require target/actual; use bullet_chart.
+    structure:
+      card_slots: [icon, value, label, caption]
+      row_layout: "2-3 columns desktop, 1 column mobile"
+    constraints:
+      caption_required: true
+      value_unit_required: true
+      icon_not_decorative: true
+    absorbed_from: [aiox_pitch_metric_card, aiox_finance_page]
+
+  - id: aiox_investor_insight_callout
+    category: pitch_component
+    pick_when:
+      - A slide needs a labeled investor-facing interpretation of data.
+    skip_when:
+      - The content is raw data only or a generic note.
+    variants:
+      - why_it_matters
+      - market_advantage
+      - investor_insight
+      - benchmark
+      - highlight
+    structure:
+      left_border: variant
+      icon: variant
+      label: uppercase
+      body: concise_interpretation
+    constraints:
+      interpretation_required: true
+      not_for_repeating_the_same_data: true
+      max_visible_words: 65
+    absorbed_from: [aiox_pitch_investor_insight]
+
+  - id: aiox_category_creation_matrix
+    category: competitive_analysis
+    pick_when:
+      - The deck must show that the product belongs to a new category, not merely a better existing tool.
+    skip_when:
+      - Competitors are truly same-category alternatives.
+    structure:
+      market_categories: [category, players, description, is_our_category]
+      competitor_table: [competitor, category, strength, limitation, our_advantage]
+      differentiators: [icon, title, description, contrast]
+      moat_reasons: [title, description]
+    constraints:
+      separate_category_cards_before_matrix: true
+      our_category_badge_required: true
+      strength_and_limitation_required: true
+      advantage_must_be_structural: true
+    absorbed_from: [aiox_pitch_competitive_analysis]
+
+  - id: aiox_gate_driven_roadmap
+    category: roadmap
+    pick_when:
+      - Roadmap should communicate milestones unlocked by evidence, not arbitrary dates.
+    skip_when:
+      - The roadmap is a strict Gantt with durations and dependencies.
+    structure:
+      philosophy_card: gate_driven_statement
+      timeline: [quarter, phase, items, status]
+      status_types: [completed, in_progress, planned]
+      milestone_table: [quarter, milestone, status]
+      post_seed_vision: optional
+    constraints:
+      status_badges_required: true
+      connector_line_required: true
+      each_phase_needs_unlock_metric_or_condition: true
+    absorbed_from: [aiox_pitch_roadmap_page]
+

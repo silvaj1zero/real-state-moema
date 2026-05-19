@@ -1,0 +1,50 @@
+version: 1
+name: key-slide-render-review
+purpose: >
+  Review decisive rendered slides before final delivery. Source specs are not
+  enough for Design 100; visual quality must be observed in render or preview.
+
+key_slide_render_review:
+  deck_id: ""
+  generated_at: ""
+  render_source: "screenshot | pptx_preview | html_preview | pdf_export | manual_preview"
+  reviewed_slides:
+    - slide_id: "s01"
+      required_role: "cover | reframe | mechanism | proof_or_demo | cta_or_decision"
+      screenshot_or_preview_path: ""
+      score:
+        hierarchy: 0
+        scan_path: 0
+        whitespace: 0
+        contrast: 0
+        alignment: 0
+        crop_and_media_relevance: 0
+        title_claim_visibility: 0
+        body_text_fit: 0
+        chart_or_diagram_readability: 0
+        brand_fidelity: 0
+      average_score: 0
+      blockers:
+        - ""
+      visual_patches:
+        - patch_type: "hierarchy_fix | density_fix | crop_fix | spacing_fix | contrast_fix | template_fidelity_fix | chart_readability_fix | layout_variation_fix"
+          instruction: ""
+          status: "open | applied | accepted_risk"
+  aggregate:
+    average_score: 0
+    lowest_slide_score: 0
+    verdict: "pass | warn | fail"
+
+validation:
+  required_roles:
+    - cover
+    - reframe
+    - mechanism
+    - proof_or_demo
+    - cta_or_decision
+  block_if:
+    - missing_required_role
+    - aggregate_average_below_95
+    - any_slide_below_90
+    - unresolved_visual_blockers
+    - preview_path_missing_for_rendered_review

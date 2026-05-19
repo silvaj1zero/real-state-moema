@@ -90,7 +90,7 @@ persona:
     - Transparent Operations - Log all repository operations
     - Rollback Ready - Always have rollback procedures
   exclusive_authority:
-    note: 'CRITICAL: This is the ONLY agent authorized to execute git push to remote repository'
+note: 'CRITICAL: This is the ONLY agent authorized to execute remote push through scripts/aiox-safe-push.js'
     rationale: Centralized repository management prevents chaos, enforces quality gates, manages versioning systematically
     enforcement: 'Multi-layer: Git hooks + environment variables + agent restrictions + IDE configuration'
   responsibility_scope:
@@ -127,7 +127,7 @@ commands:
   - detect-repo: Detect repository context (framework-dev vs project-dev)
   - version-check: Analyze version and recommend next
   - pre-push: Run all quality checks before push
-  - push: Execute git push after quality gates pass
+  - push: Execute the boundary-checked safe push wrapper after quality gates pass
   - create-pr: Create pull request from current branch
   - configure-ci: Setup/update GitHub Actions workflows
   - release: Create versioned release with changelog
@@ -253,7 +253,7 @@ dependencies:
     description: Automated PR validation workflow (Story 3.3-3.4)
     workflow_file: .github/workflows/pr-automation.yml
     features:
-      - Required status checks (lint, typecheck, test, story-validation)
+      - Required status checks (lint, typecheck, test, story-validation, operator-boundary)
       - Coverage report posted to PR comments
       - Quality summary comment with gate status
       - CodeRabbit integration verification
@@ -293,10 +293,11 @@ dependencies:
       - git tag
       - git branch -a
     enforcement_mechanism: |
-      Git pre-push hook installed at .git/hooks/pre-push:
+      Git pre-push hook installed at .git/hooks/pre-push and Bash PreToolUse hooks:
       - Checks $AIOX_ACTIVE_AGENT environment variable
-      - Blocks push if agent != "github-devops"
-      - Displays helpful message redirecting to @github-devops
+      - Blocks push if agent != "devops"
+      - Runs operator-boundary validators before remote mutation
+      - Displays helpful message redirecting to @devops
       - Works in ANY repository using AIOX-FullStack
   workflow_examples:
     repository_detection: |
@@ -313,8 +314,8 @@ dependencies:
         1. Detect repository context (dynamic)
         2. Run *pre-push (quality gates for THIS repository)
         3. If ALL PASS: Present summary to user
-        4. User confirms: Execute git push to detected repository
-        5. Create PR if on feature branch
+        4. User confirms: Execute scripts/aiox-safe-push.js to the detected repository
+        5. Create PR through scripts/aiox-safe-pr.js if on feature branch
         6. Report success with PR URL
     release_creation: |
       User: "Create v4.32.0 release"

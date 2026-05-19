@@ -1,0 +1,82 @@
+version: 1
+import_pipelines:
+  - id: structured_document_extraction
+    pick_when:
+      - Source material is a Markdown, PDF, DOCX, PPTX, transcript, article, report, or process log.
+      - User wants a deck from existing content rather than from a short prompt.
+    inputs:
+      - source_document
+      - image_dir
+      - objective
+      - audience
+    steps:
+      - normalize_to_markdown
+      - detect_document_language
+      - build_heading_tree
+      - split_by_semantic_top_level_headings
+      - extract_sections_and_subsections
+      - extract_metadata_per_section
+      - generate_section_summaries
+      - caption_images_and_tables
+      - merge_metadata
+      - link_media_to_sections
+      - create_claim_evidence_inventory
+    outputs:
+      - document_tree
+      - merged_metadata
+      - sections
+      - subsection_inventory
+      - media_inventory
+      - table_inventory
+      - claim_evidence_inventory
+    absorbed_from:
+      - PPTAgent/pptagent/document/document.py
+      - PPTAgent/pptagent/roles/doc_extractor.yaml
+      - PPTAgent/pptagent/prompts/document
+
+section_contract:
+  required_fields:
+    - title
+    - summary
+    - content
+    - metadata
+    - markdown_content
+  subsection_fields:
+    - title
+    - content
+  rules:
+    - Preserve original valid text; do not summarize away evidence during extraction.
+    - Merge logical paragraphs into subsections, but do not split paragraphs arbitrarily.
+    - Generate subsection titles of five words or fewer.
+    - Section summary must stay under 100 words.
+
+media_contract:
+  image_caption:
+    format: "<type>:<description>"
+    max_words: 50
+    allowed_types:
+      - Table
+      - Chart
+      - Diagram
+      - Banner
+      - Background
+      - Icon
+      - Logo
+      - Picture
+  table_caption:
+    prefix: "Table:"
+    max_words: 50
+  rules:
+    - Prioritize actual image or table content over nearby unreliable chunks.
+    - Validate media path exists before referencing it in deck spec.
+    - Missing media blocks final render unless an explicit fallback is declared.
+
+metadata_rules:
+  - Extract only explicit metadata.
+  - Merge duplicate or inconsistent metadata into one coherent dictionary.
+  - Do not confuse dataset metadata with document metadata.
+
+deck_synthesis_rules:
+  - Document order is input, not destiny.
+  - Claims, evidence, and media must be mapped to slide functions before drafting.
+  - Weak source sections may become appendix, not core story.

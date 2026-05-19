@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <title>Case Study Proof Wireframe</title>
+    <style>
+      :root { --bg:#fbfaf5; --panel:#fff; --ink:#111315; --muted:#67615a; --line:#ddd8cd; --accent:#e5484d; --teal:#1f9d8a; }
+      body { margin:0; background:var(--bg); color:var(--ink); font-family:Inter, Arial, sans-serif; }
+      .slide { width:1280px; height:720px; box-sizing:border-box; padding:52px; display:grid; grid-template-rows:auto 1fr auto; gap:24px; }
+      h1 { margin:0; font-size:44px; line-height:1.05; max-width:920px; }
+      .story { display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px; }
+      .card { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:24px; display:grid; grid-template-rows:auto auto 1fr; gap:16px; }
+      .eyebrow { color:var(--accent); font-size:12px; letter-spacing:.14em; text-transform:uppercase; font-weight:850; }
+      h2 { margin:0; font-size:30px; line-height:1.1; }
+      p { margin:0; color:var(--muted); font-size:19px; line-height:1.42; }
+      .result { color:var(--teal); font-size:56px; font-weight:900; }
+      footer { display:grid; grid-template-columns:2fr 1fr; gap:24px; border-top:1px solid var(--line); padding-top:18px; }
+      .lesson { font-size:22px; font-weight:750; }
+      .source { color:var(--muted); font-size:15px; text-align:right; align-self:end; }
+    </style>
+  </head>
+  <body>
+    <main class="slide">
+      <h1>{{action_title}}</h1>
+      <section class="story">
+        <article class="card"><div class="eyebrow">Antes</div><h2>{{baseline_title}}</h2><p>{{baseline_detail}}</p></article>
+        <article class="card"><div class="eyebrow">Intervenção</div><h2>{{intervention_title}}</h2><p>{{intervention_detail}}</p></article>
+        <article class="card"><div class="eyebrow">Resultado</div><div class="result">{{result_metric}}</div><p>{{result_detail}}</p></article>
+      </section>
+      <footer><div class="lesson">{{repeatable_lesson}}</div><div class="source">{{source_note}}</div></footer>
+    </main>
+  </body>
+</html>

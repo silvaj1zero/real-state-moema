@@ -1,0 +1,112 @@
+version: 1
+name: design-direction-contract
+purpose: >
+  Self-contained visual direction contract for making design a deck-level
+  operating system instead of a late-stage skin.
+
+independence_rule: >
+  This contract is bundled in the skill and must work without SINKRA squad
+  files, brand workspace paths, or design-renderer agents.
+
+required_output:
+  file: design-direction.yaml
+  root_key: design_direction
+  required_fields:
+    - deck_id
+    - visual_reference
+    - dominant_motif
+    - density_limits
+    - variation_rules
+    - composition_rules
+    - audience_context
+
+visual_reference:
+  type_enum:
+    - provided_brand
+    - provided_screenshot
+    - imported_pptx
+    - existing_design_system
+    - bundled_theme
+    - design_philosophy_fallback
+  required_fields:
+    - type
+    - rationale
+  optional_fields:
+    - paths
+    - notes
+    - must_follow
+    - must_avoid
+
+density_limits:
+  required_fields:
+    - max_governing_claims_per_slide
+    - max_supporting_claims_per_slide
+    - max_visible_words_default
+    - max_visual_elements
+    - forbidden_patterns
+  defaults:
+    max_governing_claims_per_slide: 1
+    max_supporting_claims_per_slide: 3
+    max_visible_words_default: 45
+    max_visual_elements: 5
+    forbidden_patterns:
+      - dense_bullet_wall
+      - decorative_card_stack
+      - repeated_two_column_monotony
+      - identity_as_skin
+
+variation_rules:
+  required_fields:
+    - layout_count_min
+    - layout_repetition_max
+    - quiet_slide_ratio_min
+    - accent_color_density
+    - motion_policy
+  defaults:
+    layout_count_min: 5
+    layout_repetition_max: 2
+    quiet_slide_ratio_min: 0.15
+    accent_color_density: "sparse"
+    motion_policy: "none unless output is web/native motion"
+
+composition_rules:
+  required_fields:
+    - grid_columns
+    - baseline_padding_pt
+    - title_anchor
+    - footer_policy
+    - slide_number_policy
+    - safe_area_pct
+  defaults:
+    grid_columns: 12
+    baseline_padding_pt: 32
+    title_anchor: "top_left_or_deliberately_centered"
+    footer_policy: "source/provenance only when it adds trust"
+    slide_number_policy: "subtle, never primary"
+    safe_area_pct: 6
+
+audience_context:
+  required_fields:
+    - audience
+    - viewing_context
+    - expected_reading_mode
+  examples:
+    - audience: "executive committee"
+      viewing_context: "live 20-minute decision meeting"
+      expected_reading_mode: "scan first, detail second"
+    - audience: "webinar attendees"
+      viewing_context: "screen-share with speaker narration"
+      expected_reading_mode: "big idea first, notes carry nuance"
+
+validation:
+  block_if:
+    - design_direction_missing
+    - visual_reference_missing
+    - density_limits_missing
+    - composition_rules_missing
+    - identity_as_skin_without_stage_specific_motif
+    - no_layout_variation_rule
+  warn_if:
+    - no_visual_reference_paths_when_type_is_provided_brand_or_imported_pptx
+    - quiet_slide_ratio_below_10_percent
+    - accent_color_density_unspecified

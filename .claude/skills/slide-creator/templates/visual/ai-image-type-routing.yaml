@@ -1,0 +1,206 @@
+version: 1
+source_principle: >
+  Image type is the internal composition of an AI-generated visual block, not
+  the whole slide layout. Select it after the slide function and before prompt
+  writing so visuals support the narrative instead of becoming decoration.
+absorbed_from:
+  - ../../../../../../bench/ppt-master/skills/ppt-master/references/image-type-templates/_index.md
+  - ../../../../../../bench/ppt-master/skills/ppt-master/references/image-type-templates/hero.md
+  - ../../../../../../bench/ppt-master/skills/ppt-master/references/image-type-templates/matrix.md
+
+route_order:
+  - slide_function
+  - visual_purpose_keywords
+  - image_type
+  - container_size
+  - text_policy
+  - prompt_skeleton
+  - overlay_or_native_text_plan
+
+text_policies:
+  none:
+    use_when:
+      - The slide needs precise copy, labels, numbers, axis names, or citations.
+      - Text must remain editable in PPTX/HTML.
+    rule: Generate image without text and overlay native text in the slide.
+  embedded:
+    use_when:
+      - The text is ornamental, short, non-critical, or part of a realistic scene.
+    rule: Keep embedded text under 3 words and validate rendered output.
+
+default_container_sizes:
+  hero_large:
+    aspect_ratio: "16:9"
+    slide_area: "60-85%"
+    use_for: [hero, background, scene]
+  evidence_panel:
+    aspect_ratio: "4:3 | 3:2"
+    slide_area: "35-60%"
+    use_for: [infographic, flowchart, framework, comparison, timeline]
+  icon_or_support:
+    aspect_ratio: "1:1"
+    slide_area: "12-30%"
+    use_for: [portrait, typography, map]
+  full_canvas:
+    aspect_ratio: "slide"
+    slide_area: "100%"
+    use_for: [background]
+
+purpose_keyword_routing:
+  - keywords: [atmosphere, opening, mood, context, texture]
+    image_type: background
+  - keywords: [main, protagonist, hero, product, device, object]
+    image_type: hero
+  - keywords: [person, founder, customer, audience, persona]
+    image_type: portrait
+  - keywords: [wordmark, lettering, headline, typographic]
+    image_type: typography
+  - keywords: [data, concept, education, explainer, infographic]
+    image_type: infographic
+  - keywords: [steps, process, sequence, workflow]
+    image_type: flowchart
+  - keywords: [model, method, system, mental_model, framework]
+    image_type: framework
+  - keywords: [quadrant, position, map, tradeoff, axis]
+    image_type: matrix
+  - keywords: [loop, flywheel, cycle, recurring]
+    image_type: cycle
+  - keywords: [conversion, narrowing, funnel, pipeline]
+    image_type: funnel
+  - keywords: [hierarchy, levels, maturity, pyramid]
+    image_type: pyramid
+  - keywords: [before_after, versus, alternative, compare]
+    image_type: comparison
+  - keywords: [history, roadmap, phases, milestones]
+    image_type: timeline
+  - keywords: [geography, territory, route, location]
+    image_type: map
+  - keywords: [environment, realistic_context, demo_scene, use_case]
+    image_type: scene
+
+image_types:
+  - id: background
+    composition: Full-bleed atmospheric or contextual canvas with low focal competition.
+    default_container: full_canvas
+    text_policy: none
+    use_when:
+      - A slide needs atmosphere behind native copy.
+      - Hero copy must sit over an image without losing contrast.
+    avoid_when:
+      - The message needs inspectable product detail.
+
+  - id: hero
+    composition: One dominant subject using 60-70% of the visual, minimal supporting detail, generous margin.
+    default_container: hero_large
+    text_policy: none
+    rules:
+      - Subject must be identifiable at thumbnail size.
+      - Keep at least 15% clean space for native title/caption.
+    use_when:
+      - The slide needs a single product, object, person, or concept to anchor attention.
+
+  - id: portrait
+    composition: Person or archetype with controlled background and expression aligned to audience role.
+    default_container: icon_or_support
+    text_policy: none
+    use_when:
+      - Personas, customer stakes, founder story, or role-based narrative matter.
+    avoid_when:
+      - The deck should avoid synthetic people or unsupported identity signals.
+
+  - id: typography
+    composition: Lettering or wordmark-like visual texture.
+    default_container: icon_or_support
+    text_policy: embedded
+    use_when:
+      - Decorative short type is the visual subject.
+    avoid_when:
+      - The text is a claim, number, citation, or instruction.
+
+  - id: infographic
+    composition: Visual explanation with icons, simplified objects, and clear hierarchy.
+    default_container: evidence_panel
+    text_policy: none
+    use_when:
+      - A concept needs visual explanation but exact labels stay native.
+
+  - id: flowchart
+    composition: Connected nodes with directional flow and clear start/end.
+    default_container: evidence_panel
+    text_policy: none
+    use_when:
+      - Steps or dependencies are important but should remain editable via overlays.
+
+  - id: framework
+    composition: Named model or system structure with modular regions.
+    default_container: evidence_panel
+    text_policy: none
+    use_when:
+      - The slide explains a method, operating model, or mechanism.
+
+  - id: matrix
+    composition: Equal 2x2 quadrant skeleton with balanced visual weight and visible axes.
+    default_container: evidence_panel
+    text_policy: none
+    rules:
+      - Use equal quadrant sizes.
+      - Do not place the main message in the center crossing.
+      - Keep quadrant icons or objects at 40-60% of each quadrant.
+      - Overlay axis labels and quadrant labels as native text.
+    use_when:
+      - Two independent axes explain positioning, priority, risk, or strategy.
+
+  - id: cycle
+    composition: Circular or flywheel process with repeating stages.
+    default_container: evidence_panel
+    text_policy: none
+    use_when:
+      - Recurrence matters more than sequence completion.
+
+  - id: funnel
+    composition: Wide-to-narrow or stage-gated conversion shape.
+    default_container: evidence_panel
+    text_policy: none
+    use_when:
+      - Attrition, qualification, or narrowing choice is the message.
+
+  - id: pyramid
+    composition: Stacked hierarchy with stable base and clear levels.
+    default_container: evidence_panel
+    text_policy: none
+    use_when:
+      - Maturity, hierarchy, or dependency levels are the concept.
+
+  - id: comparison
+    composition: Two or three alternatives shown with symmetrical visual treatment.
+    default_container: evidence_panel
+    text_policy: none
+    use_when:
+      - The slide contrasts states, options, products, or before/after.
+
+  - id: timeline
+    composition: Horizontal or vertical progression with milestones.
+    default_container: evidence_panel
+    text_policy: none
+    use_when:
+      - Time, phases, or roadmap sequence is the proof.
+
+  - id: map
+    composition: Geographic or territory representation with region emphasis.
+    default_container: icon_or_support
+    text_policy: none
+    use_when:
+      - Location, territory, or route is meaningful.
+
+  - id: scene
+    composition: Realistic or stylized use-case environment with subject and context.
+    default_container: hero_large
+    text_policy: none
+    use_when:
+      - A demo moment, operating environment, or customer context must feel concrete.
+
+rules:
+  - Most decks should use 2-5 image types. More than that usually creates visual noise.
+  - Never ask an image model to render exact data tables, long labels, formulas, or citations.
+  - Every generated visual must declare whether it is decorative, explanatory, evidentiary, or product-representational.
+  - Product-representational visuals must not invent UI, logos, charts, or screenshots unless clearly labeled as conceptual.

@@ -1,0 +1,131 @@
+version: 1
+name: design-philosophy-routing
+purpose: >
+  Fallback visual taxonomy for briefs with weak or absent visual direction. Use
+  after brand specs, user references, imported PPTX templates, and existing
+  design systems have been checked.
+
+precedence:
+  - provided_brand_or_brandbook
+  - user_reference_screenshot_link_or_deck
+  - imported_pptx_or_existing_design_system
+  - bundled_theme_profile
+  - design_philosophy_fallback
+
+selection_rule: >
+  When offering three options, choose three different schools. Do not offer
+  three minor variants of the same minimalist or tech style.
+
+schools:
+  information_architecture:
+    principle: "Data is construction material, not decoration."
+    best_for:
+      - executive_summary
+      - research_report
+      - benchmark
+      - financial_analysis
+    philosophies:
+      editorial_typography:
+        use_when: "The argument can be carried by strong type, grid, and negative space."
+        visual_traits: [strict_grid, extreme_type_hierarchy, one_accent_color, high_whitespace]
+      scientific_data_visualization:
+        use_when: "The deck must earn belief through precise charts, citations, and dense evidence."
+        visual_traits: [rational_sans, integrated_footnotes, precise_axes, neutral_palette]
+      content_first_reading:
+        use_when: "The deck behaves like a readable essay, memo, or policy paper."
+        visual_traits: [system_fonts, long_form_readability, progressive_disclosure, zero_decoration]
+      cartographic_information:
+        use_when: "Networks, ecosystems, flows, or geography need to feel spatial."
+        visual_traits: [layered_data, topographic_depth, warm_dataviz_palette, organic_patterns]
+  motion_poetics:
+    principle: "Technology has rhythm."
+    best_for:
+      - product_launch
+      - immersive_demo
+      - web_native_deck
+      - course_promo
+    philosophies:
+      cinematic_scroll:
+        use_when: "The experience should feel like scenes in a journey."
+        visual_traits: [film_composition, deep_spacing, parallax_ready, dark_base]
+      webgl_particles:
+        use_when: "Invisible data, AI, or system flow must become visible."
+        visual_traits: [particle_systems, neon_accents, depth_space, reactive_environment]
+      algorithmic_generative:
+        use_when: "The brand should feel computational, precise, and original."
+        visual_traits: [generated_geometry, mathematical_spacing, monochrome_base, vibrant_accent]
+      narrative_interaction:
+        use_when: "Learning or onboarding should feel like exploration."
+        visual_traits: [progress_indicators, illustrative_ui, warm_palette, scroll_reveals]
+  minimalism:
+    principle: "Reduce until the idea remains."
+    best_for:
+      - premium_pitch
+      - luxury_offer
+      - executive_decision
+      - manifesto
+    philosophies:
+      conceptual_monochrome:
+        use_when: "One metaphor should govern the whole deck."
+        visual_traits: [black_white_primary_colors, typography_as_graphic, rule_breaking_grid]
+      swiss_grid_purity:
+        use_when: "The deck needs timeless institutional authority."
+        visual_traits: [mathematical_grid, strict_alignment, two_colors_max, no_ornament]
+      premium_restraint:
+        use_when: "High-ticket work needs calm authority and polish."
+        visual_traits: [seventy_percent_whitespace, subtle_weight_shifts, sparse_accent, premium_photo]
+      joyful_minimalism:
+        use_when: "A human service needs clarity with emotional warmth."
+        visual_traits: [color_bursts, handmade_detail, optimistic_language, legible_experiment]
+  experimental_avant_garde:
+    principle: "Breaking rules can create the rule."
+    best_for:
+      - creative_campaign
+      - cultural_deck
+      - speculative_technology
+      - technical_depth_showcase
+    philosophies:
+      code_as_drawing:
+        use_when: "The making process should be visible and expressive."
+        visual_traits: [sketch_lines, construction_marks, pure_black_white, generative_patterns]
+      parametric_architecture:
+        use_when: "System complexity is the point."
+        visual_traits: [recursive_structures, fractal_detail, architectural_data, high_contrast]
+      cyber_poetics:
+        use_when: "A future-facing story needs warmth, solitude, and cinematic depth."
+        visual_traits: [warm_cyberpunk, film_lighting, industrial_luxury, volumetric_light]
+      fui_fantasy_interface:
+        use_when: "Speculative interfaces and data streams are part of the story."
+        visual_traits: [holographic_layers, amber_or_cyan, technical_readouts, believable_future_ui]
+  eastern_philosophy:
+    principle: "Empty space is content."
+    best_for:
+      - reflective_manifesto
+      - artisan_brand
+      - strategic_foresight
+      - premium_minimal_brand
+    philosophies:
+      speculative_design:
+        use_when: "The deck should feel like thoughtful technology research."
+        visual_traits: [soft_tech, concept_prototypes, gentle_shadows, natural_neutrals]
+      emptiness_design:
+        use_when: "Luxury or reflection needs extreme restraint."
+        visual_traits: [eighty_percent_whitespace, paper_texture, desaturated_palette, zen_simplicity]
+      book_architecture:
+        use_when: "Dense storytelling should feel editorial and tactile."
+        visual_traits: [non_linear_grid, margin_play, unexpected_colors, archival_density]
+      ink_wash_digital:
+        use_when: "The work needs emotional temperature and poetic negative space."
+        visual_traits: [soft_glow, ink_wash_reference, deep_blues, warm_grays, calligraphic_influence]
+
+prompting_rule:
+  good: "Describe mood and subject, then let the renderer handle layout."
+  bad: "Over-constrain the image prompt with exact slide layout, font sizes, and margins."
+
+output_when_used:
+  - selected_school
+  - selected_philosophy
+  - rejected_options_from_other_schools
+  - visual_traits_to_apply
+  - traits_to_avoid
+  - reason_this_fits_the_audience_and_deck_job

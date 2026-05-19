@@ -1,0 +1,152 @@
+version: 1
+name: brand-fidelity-playbooks
+purpose: >
+  Playbooks for replicating the visual language of a reference deck or brand
+  system without reducing fidelity to logo and colors.
+
+score_target:
+  template_import_replication__brand_fidelity: 95
+  theme_tokens_branding__brand_guardrails: 95
+
+fidelity_lenses:
+  - id: non_color_identity
+    question: "What makes the deck recognizable if all brand colors are removed?"
+    required_evidence:
+      - grid_behavior
+      - type_scale_behavior
+      - component_shape_language
+      - density_rhythm
+      - image_or_diagram_treatment
+  - id: component_reuse
+    question: "Which repeated components carry the brand system?"
+    required_evidence:
+      - component_name
+      - visual_rules
+      - slot_rules
+      - slide_functions_supported
+      - anti_patterns
+  - id: narrative_visual_fit
+    question: "Does the visual style support the deck's persuasion job?"
+    required_evidence:
+      - audience_context
+      - slide_function_map_alignment
+      - proof_visibility
+      - emotional_temperature
+  - id: render_fidelity
+    question: "Does the rendered slide preserve the locked brand behavior?"
+    required_evidence:
+      - key_slide_render_review
+      - before_after_patch_list
+      - unresolved_visual_debt
+
+playbooks:
+  - id: imported_template_fidelity
+    use_when:
+      - user_provides_pptx_template
+      - user_provides_client_brand_deck
+      - output_must_feel_like_existing_deck
+    steps:
+      - create_or_load_brand_template_manifest
+      - extract_non_color_identity
+      - map_source_components_to_slide_functions
+      - define_theme_runtime_mapping
+      - select_layouts_by_function
+      - render_key_slides
+      - compare_against_manifest
+      - patch_only_scoped_visual_debt
+    block_if:
+      - source_reference_missing
+      - no_non_color_traits
+      - no_component_patterns
+      - no_rendered_key_slide_review
+      - visual_copy_depends_on_flat_screenshot
+    pass_definition: >
+      Key slides are visibly in the same language family as the reference deck,
+      while content remains editable and slide functions remain explicit.
+
+  - id: editorial_brand_system
+    use_when:
+      - brand_manifesto
+      - category_creation_deck
+      - premium_workshop_deck
+      - founder_strategy_deck
+    steps:
+      - choose_brand_system_or_design_philosophy
+      - define_visual_thesis
+      - assign_hero_evidence_quiet_slide_ratio
+      - map_motifs_to_slide_functions
+      - lock_typographic_and_metadata_language
+      - review_cover_reframe_proof_cta
+    block_if:
+      - every_slide_uses_same_hero_or_card_pattern
+      - motif_is_decorative_only
+      - evidence_slide_does_not_match_editorial_language
+    pass_definition: >
+      The deck has a recognizable editorial system, not a set of isolated nice
+      slides.
+
+  - id: operational_design_system
+    use_when:
+      - dashboard_or_benchmark_deck
+      - incident_review
+      - board_operating_review
+      - product_metrics_review
+    steps:
+      - define_semantic_status_tokens
+      - define_table_and_chart_density_budget
+      - map_status_components_to_slide_functions
+      - lock_accessibility_and_contrast_rules
+      - render_dense_key_slide
+      - inspect_at_screenshot_scale
+    block_if:
+      - status_meaning_depends_on_color_only
+      - dense_table_has_no_grouping_or_scan_path
+      - charts_ignore_theme_tokens
+    pass_definition: >
+      High-density slides look intentional and scannable rather than crowded.
+
+  - id: technical_diagram_brand_system
+    use_when:
+      - architecture_deck
+      - api_demo
+      - research_method_deck
+      - engineering_update
+    steps:
+      - select_diagram_engine
+      - define_node_edge_label_tokens
+      - map_diagram_type_to_slide_function
+      - keep_code_or_formula_text_fit_rules
+      - render_mechanism_slide
+      - inspect_line_weight_and_label_hierarchy
+    block_if:
+      - diagram_uses_unmapped_default_colors
+      - code_or_formula_is_unreadable
+      - diagram_is_visual_decoration_without_explanatory_job
+    pass_definition: >
+      Diagrams carry the same visual system as the rest of the deck and clarify
+      the argument.
+
+brand_fidelity_report:
+  deck_id: ""
+  source_reference: ""
+  selected_playbook: ""
+  non_color_identity:
+    - trait: ""
+      evidence: ""
+      applied_to_slides: []
+  component_map:
+    - component: ""
+      source_behavior: ""
+      local_template_or_wireframe: ""
+      slide_functions: []
+  theme_runtime_map:
+    colors: "pass | warn | fail"
+    typography: "pass | warn | fail"
+    charts: "pass | warn | fail"
+    diagrams: "pass | warn | fail"
+    tables: "pass | warn | fail"
+  rendered_findings:
+    - slide_id: ""
+      verdict: "pass | warn | fail"
+      visual_debt: []
+  final_score: 0

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <title>Slide Creator Wireframe Gallery</title>
+    <style>
+      body { margin: 0; background: #050505; color: #f5f5ef; font: 16px Inter, Arial, sans-serif; }
+      main { padding: 32px; display: grid; gap: 24px; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); }
+      .frame { aspect-ratio: 16 / 9; border: 1px solid #2a2a2a; background: #111; padding: 24px; display: grid; gap: 16px; }
+      .title { font-size: 22px; font-weight: 800; }
+      .muted { color: #aaa; font-size: 13px; }
+      .bar { height: 14px; background: #d7ff3f; }
+      .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .card { border: 1px solid #333; padding: 12px; background: #171717; }
+      .matrix { display: grid; grid-template-columns: 110px repeat(3, 1fr); gap: 1px; background: #333; }
+      .matrix div { background: #111; padding: 8px; min-height: 44px; }
+      .accent { background: #d7ff3f !important; color: #111; font-weight: 800; }
+      .flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; align-items: center; }
+      .step { border: 1px solid #444; padding: 12px; min-height: 70px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="frame">
+        <div class="muted">hook_hero_claim</div>
+        <div class="title">A tese do deck precisa caber em uma frase defensável.</div>
+        <div class="bar" style="width: 55%"></div>
+      </section>
+      <section class="frame">
+        <div class="muted">comparison_matrix</div>
+        <div class="matrix">
+          <div></div><div>A</div><div>B</div><div>C</div>
+          <div>Critério 1</div><div class="accent">95</div><div>72</div><div>61</div>
+          <div>Critério 2</div><div>80</div><div class="accent">93</div><div>44</div>
+          <div>Critério 3</div><div>65</div><div>71</div><div class="accent">88</div>
+        </div>
+        <div class="muted">Detalhe de célula vai em painel/appendix, não repetido dentro da matriz.</div>
+      </section>
+      <section class="frame">
+        <div class="muted">mechanism_layered_system</div>
+        <div class="grid">
+          <div class="card">Camada 1<br><span class="muted">Entrada</span></div>
+          <div class="card">Camada 2<br><span class="muted">Processamento</span></div>
+          <div class="card">Camada 3<br><span class="muted">Decisão</span></div>
+          <div class="card accent">Resultado<br><span>Por que funciona</span></div>
+        </div>
+      </section>
+      <section class="frame">
+        <div class="muted">pipeline_with_stages</div>
+        <div class="flow">
+          <div class="step">Briefing<br><span class="muted">input</span></div>
+          <div class="step">Tese<br><span class="muted">claim</span></div>
+          <div class="step">Slides<br><span class="muted">spec</span></div>
+          <div class="step accent">QA<br><span>gate</span></div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
+

@@ -1,0 +1,71 @@
+type: object
+required:
+  - id
+  - name
+  - job
+  - pick_when
+  - skip_when
+  - narrative_arc
+  - slide_sequence
+  - absorbed_from
+properties:
+  id:
+    type: string
+  name:
+    type: string
+  job:
+    type: string
+  audience:
+    type: array
+    items:
+      type: string
+  pick_when:
+    type: array
+    items:
+      type: string
+  skip_when:
+    type: array
+    items:
+      type: string
+  narrative_arc:
+    type: array
+    items:
+      type: string
+  default_slide_count:
+    type: object
+    properties:
+      min:
+        type: integer
+      ideal:
+        type: integer
+      max:
+        type: integer
+  slide_sequence:
+    type: array
+    items:
+      type: object
+      required: [slot, function, required]
+      properties:
+        slot:
+          type: string
+        function:
+          type: string
+        required:
+          type: boolean
+        visual_family:
+          type: string
+        notes:
+          type: string
+  evidence_policy:
+    type: array
+    items:
+      type: string
+  qa_gates:
+    type: array
+    items:
+      type: string
+  absorbed_from:
+    type: array
+    items:
+      type: string
+

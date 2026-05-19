@@ -1,0 +1,49 @@
+version: 1
+gates:
+  - id: belief_shift_gate
+    gate: The deck changes what the audience believes.
+    blocks_if:
+      - Audience current belief is not stated.
+      - Desired belief is not stated.
+      - Slides list topics instead of moving belief.
+    pass_if:
+      - Current belief, desired belief, and proof path are explicit.
+      - Every section advances the belief shift.
+    score_weight: 20
+    absorbed_from: [slide-deck-ai]
+  - id: slide_function_gate
+    gate: Every slide has one primary job.
+    blocks_if:
+      - A slide has more than one primary function.
+      - Two adjacent slides repeat the same function without escalation.
+    pass_if:
+      - Every slide declares function, template, and reason.
+    score_weight: 15
+    absorbed_from: [slide-creator, ppt-master]
+  - id: action_title_gate
+    gate: Titles are claims, not labels.
+    blocks_if:
+      - Title is a generic noun phrase.
+      - Title does not communicate the slide's answer.
+    pass_if:
+      - Every key slide title can stand alone as an executive summary.
+    score_weight: 10
+    absorbed_from: [powerpoint-skill]
+  - id: proof_gate
+    gate: Important claims are supported.
+    blocks_if:
+      - Claim has no source, artifact, example, demo, or assumption label.
+    pass_if:
+      - Key claims map to evidence or are labeled as assumptions.
+    score_weight: 15
+    absorbed_from: [ppt-master, slide-deck-ai]
+  - id: decision_gate
+    gate: Decision slides make the ask explicit.
+    blocks_if:
+      - Options are presented without recommendation.
+      - Tradeoff is hidden.
+    pass_if:
+      - Recommendation, alternatives, tradeoff, and next action are visible.
+    score_weight: 10
+    absorbed_from: [ppt-master]
+

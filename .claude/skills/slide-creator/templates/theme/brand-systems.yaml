@@ -1,0 +1,133 @@
+version: 1
+brand_system_profiles:
+  - id: redpine_editorial_precision
+    name: Redpine Editorial Precision
+    pick_when:
+      - The deck should feel institutional, restrained, engineering-grade, or premium operational.
+      - The subject benefits from warm off-white surfaces, hairline rules, and one disciplined red accent.
+    skip_when:
+      - The deck needs neon cockpit energy, manifesto drama, or high-contrast dark HUD.
+      - The user asks for rounded playful SaaS styling.
+    historical_sources:
+      - ../../../../apps/redpine-ds/src/design-system/tokens.json
+      - ../../../../apps/redpine-ds/src/design-system/components.manifest.json
+      - ../../../../apps/design/src/data/designs/redpine/DESIGN.md
+    tokens:
+      colors:
+        page: "#FAF8F8"
+        elevated: "#FFFFFF"
+        panel: "#F4F1F1"
+        inset: "#E8E3E3"
+        text: "#11090A"
+        text_secondary: "#3C3134"
+        text_muted: "#5A4F52"
+        border: "#E8E3E3"
+        border_strong: "#BFB6B6"
+        accent: "#AB2832"
+        accent_hover: "#8E2129"
+        accent_pressed: "#6E1A20"
+        success: "#2E6F55"
+        warning: "#9E6418"
+        info: "#2A4E6E"
+      typography:
+        display: "'neue-haas-grotesk-display', 'Helvetica Neue', Helvetica, Arial, sans-serif"
+        body: "'neue-haas-grotesk-text', 'Helvetica Neue', Helvetica, Arial, sans-serif"
+        mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace"
+        display_tracking: "-0.022em"
+        body_tracking: "-0.005em"
+        eyebrow_tracking: "0.12em"
+      shape:
+        dominant_radius: "0px"
+        input_focus_radius: "2px"
+        card_radius: "0px"
+        pill_radius: "999px"
+      spacing:
+        base: "4px"
+        scale: [0, 4, 8, 12, 16, 20, 24, 32, 40, 56, 72, 96, 128]
+      motion:
+        standard: "cubic-bezier(0.2, 0, 0, 1)"
+        emphasized: "cubic-bezier(0.2, 0, 0.1, 1)"
+        durations: ["120ms", "200ms", "360ms"]
+    slide_translation:
+      use_for:
+        - executive_report
+        - financial_presentation
+        - safety_or_risk_review
+        - institutional_brand_deck
+        - engineering_strategy
+      patterns:
+        - square_cards
+        - hairline_tables
+        - red_top_rule
+        - warm_surface_stack
+        - large_serious_display_numbers
+      constraints:
+        - Do not add a second accent hue.
+        - Do not round cards, buttons, or inputs.
+        - Prefer borders and surface steps over shadows.
+        - Use red for decision, risk, CTA, and focus only.
+    absorbed_from: [redpine_ds_tokens, redpine_design_md, redpine_components_manifest]
+
+  - id: aiox_brandbook_cockpit
+    name: AIOX Brandbook Cockpit
+    pick_when:
+      - The deck should feel like AIOX: dark, technical, manifesto-grade, operational, and high-signal.
+      - The subject is AI orchestration, SINKRA, benchmark cockpit, product narrative, or movement building.
+    skip_when:
+      - The deck needs conservative finance/investor neutrality.
+      - The user wants a light editorial institutional surface.
+    historical_sources:
+      - ../../../../outputs/design-system/aiox-brandbook-gaps-bundle-2026-04-18/project/README.md
+      - ../../../../outputs/design-system/aiox-brandbook-gaps-bundle-2026-04-18/project/slides/index.html
+      - ../../../../outputs/design-system/aiox-brandbook-gaps-bundle-2026-04-18/project/ui_kits/brandbook/README.md
+    tokens:
+      colors:
+        canvas: "#050505"
+        surface: "#0F0F11"
+        surface_alt: "#1C1E19"
+        surface_panel: "#18181B"
+        text: "#F4F4E8"
+        muted: "#9C9C9C"
+        border: "rgba(156,156,156,0.15)"
+        accent: "#D1FF00"
+        secondary_blue: "#0099FF"
+        flare_orange: "#ED4609"
+        gold_variant: "#DDD1BB"
+      typography:
+        display: "TASA Orbiter Display Bold"
+        body: "Geist"
+        mono: "Geist Mono"
+        display_case: "uppercase"
+        display_tracking: "-0.05em"
+        label_case: "uppercase"
+      shape:
+        dominant_radius: "0px"
+        small_radius: "4px"
+        card_radius: "12px"
+        full_radius: "999px"
+      motion:
+        ease_expo: "cubic-bezier(0.16, 1, 0.3, 1)"
+        durations: ["200ms", "400ms", "700ms"]
+    slide_translation:
+      use_for:
+        - benchmark_observatory
+        - ai_product_strategy
+        - movement_manifesto
+        - technical_webinar
+        - internal_operating_system_deck
+      patterns:
+        - four_column_architectural_grid
+        - oversized_background_wordmark
+        - bracket_eyebrow
+        - lime_hud_corners
+        - bordered_stat_cells
+        - manifesto_quote_left_bar
+        - ticker_or_mono_footer
+      constraints:
+        - Never use emoji.
+        - Avoid photographic backgrounds.
+        - Use lime as the primary signal, not as decoration everywhere.
+        - Keep secondary blue/orange sparse for charts or destructive states.
+        - Prefer dense operational panels over marketing cards.
+    absorbed_from: [aiox_brandbook_bundle, aiox_brandbook_slides, aiox_marketing_ui_kit]
+

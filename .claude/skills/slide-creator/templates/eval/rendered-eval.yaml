@@ -1,0 +1,77 @@
+version: 1
+rendered_eval:
+  id: multimodal_rendered_slide_evaluation
+  pick_when:
+    - Key slides have been rendered as images or HTML screenshots.
+    - User asks why a deck feels weak, ugly, confusing, or below benchmark quality.
+    - Final artifact needs evidence that narrative and visual execution survived rendering.
+  absorbed_from:
+    - PPTAgent/pptagent/ppteval.py
+    - PPTAgent/pptagent/prompts/ppteval
+    - powerpoint-skill/check_overlaps.py
+  inputs:
+    - rendered_slide_images
+    - deck_spec
+    - story_arc
+    - audience
+  outputs:
+    - slide_descriptions
+    - category_scores
+    - overall_score
+    - failure_modes
+    - revision_actions
+
+evaluation_categories:
+  - id: vision
+    name: Visual appeal and rendered design
+    scale: 1-5
+    score_5: Harmonious, engaging, readable, and visually supports the message.
+    score_3: Adequate but generic, with minor hierarchy or composition weaknesses.
+    score_1: Unappealing, cluttered, broken, or visually confusing.
+  - id: content
+    name: Content clarity and slide focus
+    scale: 1-5
+    score_5: One clear focus; text and visuals complement each other.
+    score_3: Mostly understandable but contains extra or weakly connected material.
+    score_1: Unclear focus, missing context, or text/visual mismatch.
+  - id: logic
+    name: Narrative flow and coherence
+    scale: 1-5
+    score_5: Slide sequence feels organized, complete, and persuasive.
+    score_3: Flow is followable but transitions or proof are thin.
+    score_1: Sequence feels disconnected, repetitive, or unsupported.
+  - id: technical_render
+    name: Export and layout integrity
+    scale: 1-5
+    score_5: No clipping, overlap, illegible text, broken media, or unsafe margins.
+    score_3: Minor render issues that do not block comprehension.
+    score_1: Render artifacts materially damage the slide.
+
+process:
+  - render_or_collect_slide_images
+  - describe_each_slide_content
+  - describe_each_slide_style
+  - score_each_category
+  - average_category_scores
+  - identify_lowest_category_per_slide
+  - convert_failures_into_revision_actions
+  - rerun_eval_for_changed_key_slides
+
+blockers:
+  - key_slide_vision_score_below_4
+  - key_slide_content_score_below_4
+  - key_slide_logic_score_below_4
+  - any_slide_technical_render_score_below_4
+  - overall_score_below_4_for_final_delivery
+
+cache_contract:
+  file_name: rendered-eval.json
+  required_fields:
+    - slide_id
+    - content_description
+    - style_description
+    - scores
+    - revision_actions
+  rules:
+    - Cache is invalidated when slide image or deck spec changes.
+    - Final QA report must include category averages and unresolved blockers.

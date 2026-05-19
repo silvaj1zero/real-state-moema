@@ -1,0 +1,7 @@
+interface:
+  display_name: "Slide Creator"
+  short_description: "Narrative-first slide deck system"
+  brand_color: "#D7FF3F"
+  default_prompt: "Use $slide-creator to turn this briefing into a complete narrative-first deck with story arc, slide-function map, design direction, and QA."
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,93 @@
+version: 1
+runtime_jobs:
+  - id: full_deck_from_brief
+    mode: generation
+    pick_when:
+      - User gives topic, brief, rough notes, or objective and wants a new deck.
+    inputs: [briefing, audience, objective, constraints]
+    steps:
+      - normalize_briefing
+      - select_deck_template
+      - create_story_arc
+      - map_slide_functions
+      - select_visual_templates
+      - draft_deck_spec
+      - run_key_slide_gate
+      - revise
+      - package_outputs
+    outputs: [briefing_normalized, story_arc, slide_function_map, deck_spec, qa_report]
+    failure_policy:
+      continue_on_error: false
+      block_if_missing: [audience, objective, deck_template]
+    absorbed_from: [slide-deck-ai, banana-slides]
+
+  - id: deck_from_source_document
+    mode: ingestion
+    pick_when:
+      - User provides PDF, DOCX, PPTX, MD, transcript, process log, or research notes.
+    inputs: [source_document, objective, audience]
+    steps:
+      - extract_claims
+      - extract_evidence
+      - discard_source_order_if_weak
+      - select_deck_template
+      - map_claims_to_slide_functions
+      - produce_deck_spec
+    outputs: [claim_inventory, evidence_inventory, deck_spec, qa_report]
+    failure_policy:
+      continue_on_error: true
+      block_if_missing: [objective]
+    absorbed_from: [Presenton, banana-slides, slide-deck-ai]
+
+  - id: improve_bad_deck_or_process
+    mode: regression
+    pick_when:
+      - User provides a weak prior deck, process log, or says the previous output was bad.
+    inputs: [prior_deck_or_process, desired_outcome]
+    steps:
+      - diagnose_failure_modes
+      - create_forward_test
+      - select_replacement_templates
+      - rewrite_slide_function_map
+      - redesign_key_slides
+      - run_regression_gate
+    outputs: [diagnostic, forward_test, revised_slide_map, revised_deck_spec]
+    failure_policy:
+      continue_on_error: false
+      block_if_missing: [failure_modes]
+    absorbed_from: [powerpoint-skill, slide-deck-ai]
+
+  - id: prompt_to_edit_existing_deck
+    mode: edit
+    pick_when:
+      - User asks to change tone, layout, structure, narrative, or specific slides.
+    inputs: [existing_deck_spec, edit_prompt]
+    steps:
+      - classify_edit_intent
+      - preserve_locked_claims
+      - update_affected_slide_templates
+      - rerun_local_qa
+      - report_diffs
+    outputs: [changed_slides, revision_notes, qa_report]
+    failure_policy:
+      continue_on_error: true
+      block_if_missing: [edit_prompt]
+    absorbed_from: [Presenton, presentation-ai, banana-slides]
+
+  - id: batch_benchmark_generation
+    mode: batch
+    pick_when:
+      - Multiple benchmarks, personas, or scenarios must be generated consistently.
+    inputs: [jobs, shared_template_registry, export_policy]
+    steps:
+      - validate_jobs
+      - apply_shared_weights
+      - generate_each_deck_spec
+      - produce_comparative_index
+      - summarize_cross_job_learnings
+    outputs: [job_results, comparative_index, qa_report]
+    failure_policy:
+      continue_on_error: true
+      timeout_sec: 1800
+    absorbed_from: [banana-slides]
+

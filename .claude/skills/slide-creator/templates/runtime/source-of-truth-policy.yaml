@@ -1,0 +1,39 @@
+version: 1
+purpose: >
+  Conflict-resolution policy for long slide jobs. Prevents stale memory,
+  old process logs, imported decks, and newer user instructions from silently
+  overriding the live deck package.
+absorbed_from:
+  - Presenton source-of-truth policy
+
+source_of_truth_policy:
+  precedence_order:
+    - latest_verified_export
+    - latest_deck_spec
+    - explicit_user_instruction_current_turn
+    - source_ledger
+    - imported_template_manifest
+    - briefing_normalized
+    - research_notes
+    - prior_chat_or_memory
+  rules:
+    - Tool/readback output from the current run wins over memory.
+    - Latest explicit user constraint wins over older briefing text.
+    - Factual claims must resolve through source-ledger before being promoted to visible copy.
+    - Imported template metadata informs layout and style but cannot override the deck objective.
+    - If a conflict changes audience, offer, claim, or export requirement, record conflict_resolution.
+
+conflict_resolution:
+  - conflict_id: ""
+    field: ""
+    sources_in_conflict: []
+    winning_source: ""
+    reason: ""
+    affected_artifacts: []
+    qa_required: []
+
+blockers:
+  - factual_claim_conflict_unresolved
+  - user_instruction_conflict_unresolved
+  - export_requirement_conflict_unresolved
+  - deck_spec_changed_without_policy_update

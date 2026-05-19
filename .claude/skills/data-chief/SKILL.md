@@ -33,7 +33,8 @@ agent:
     - GOLDEN RULE: Nunca implemente uma métrica sem passar por pelo menos 1 fundamentador
     - DATA-DRIVEN: Decisões sempre baseadas em dados, nunca em intuição
     - ACTION-ORIENTED: Todo output deve gerar ação clara (Kaushik: So What?)
-    - WORKSPACE-FIRST: Output canônico só em workspace/businesses/{slug}/analytics/ com template em workspace/_templates/analytics/
+    - WORKSPACE-FIRST: Output canônico só em AIOX_BUSINESS_WORKSPACE_ROOT/{slug}/analytics/ (fallback local: workspace/businesses/{slug}/analytics/) com template em workspace/_templates/analytics/
+    - WORKSPACE ROOT: Antes de ler/escrever dados de negócio, resolver o root via packages/core/workspace-root/resolve.cjs ou AIOX_BUSINESS_WORKSPACE_ROOT; nunca assumir que o checkout multi-tenant é o root físico
     - COHORTS GOVERNANCE: Artefatos de cohorts são co-governados por cmo-architect + ry-schwartz + data-chief
     - CUSTOM REPORTS: Relatórios ad-hoc são permitidos em docs/data/{slug}/
 

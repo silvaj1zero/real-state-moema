@@ -1,0 +1,164 @@
+version: 1
+historical_sources:
+  - ../../../../apps/redpine-ds/src/design-system/tokens.json
+  - ../../../../apps/redpine-ds/src/design-system/components.manifest.json
+  - ../../../../apps/redpine-ds/src/design-system/components.map.json
+  - ../../../../apps/redpine-ds/src/styles/foundations.css
+  - ../../../../apps/redpine-ds/src/components/system/data.ts
+
+patterns:
+  - id: redpine_12_col_report_grid
+    category: layout_system
+    pick_when:
+      - The slide/deck needs disciplined editorial report layout with body text max width.
+    skip_when:
+      - The slide is a cinematic hero or full-screen visual.
+    structure:
+      grid: 12_columns_desktop
+      mobile_grid: 2_columns
+      gutters:
+        small: "16px"
+        desktop: "32px"
+      max_widths: [544, 704, 928, 1136, 1376]
+      recommended_body_span: 7
+    constraints:
+      body_text_max_span: 7
+      use_column_span_intentionally: true
+      section_spacing_desktop_px: 64
+    absorbed_from: [redpine_foundations_css]
+
+  - id: redpine_palette_surface_stack
+    category: theme_behavior
+    pick_when:
+      - The deck needs consistent light/dark surface transitions without inventing palettes.
+    skip_when:
+      - The requested brand requires colorful multi-accent surfaces.
+    palettes:
+      light: [snow, paper, bone]
+      dark: [ink, ink_elevated, ink_hover]
+    semantic_bindings:
+      bg: surface
+      fg: text
+      fg_2: secondary_text
+      fg_3: tertiary_text
+      border: hairline
+      accent: red
+    constraints:
+      components_consume_semantic_aliases: true
+      dark_palettes_override_shadcn_slots: true
+      do_not_add_glassmorphism: true
+    absorbed_from: [redpine_foundations_css, redpine_tokens]
+
+  - id: redpine_component_manifest_grid
+    category: component_audit
+    pick_when:
+      - A deck needs to show component maturity, production readiness, variants, or accessibility.
+    skip_when:
+      - The goal is pure marketing positioning with no component detail.
+    structure:
+      component_card_slots:
+        - name
+        - status
+        - file_or_import
+        - variants
+        - a11y_role
+        - keyboard_contract
+        - token_consumption
+      status_legend: [ready, beta, experimental, deprecated]
+    constraints:
+      status_required: true
+      accessibility_required: true
+      token_mapping_required: true
+      deprecated_components_must_be_marked: true
+    absorbed_from: [redpine_components_manifest, redpine_components_map]
+
+  - id: redpine_accessible_status_row
+    category: operational_table
+    pick_when:
+      - Risk, incidents, QA findings, or production statuses must be communicated without color-only semantics.
+    skip_when:
+      - The content is qualitative narrative.
+    structure:
+      row_slots: [id, site_or_scope, type, owner, status, reported, severity, risk_score]
+      status_values: [critical, review, open, resolved]
+      severity_values: [Critical, High, Medium, Low]
+    constraints:
+      status_text_required: true
+      severity_text_required: true
+      color_not_only_channel: true
+      sort_by_risk_desc: true
+      risk_score_visible: true
+    absorbed_from: [redpine_system_data, redpine_components_manifest]
+
+  - id: redpine_callout_left_rule
+    category: editorial_callout
+    pick_when:
+      - A report needs a restrained insight, benchmark note, warning, or decision rationale.
+    skip_when:
+      - The callout is a high-drama manifesto quote.
+    variants:
+      - info
+      - success
+      - warning
+      - danger
+      - decision
+    structure:
+      left_rule: semantic_color
+      title: display_font
+      body: concise_paragraph
+      source_or_owner: optional
+    constraints:
+      left_rule_not_only_signal: true
+      title_required: true
+      max_visible_words: 75
+      no_shadow_by_default: true
+    absorbed_from: [redpine_alert_component, redpine_blockquote_component]
+
+  - id: redpine_dialog_decision_panel
+    category: decision_panel
+    pick_when:
+      - A slide needs a focused decision, ask, or modal-like interrupt inside a dense report.
+    skip_when:
+      - The whole slide is already a hero decision slide.
+    structure:
+      container: elevated_surface
+      top_rule: red
+      slots: [decision_title, context, options, recommended_action, consequence]
+    constraints:
+      top_rule_can_not_replace_title: true
+      recommendation_required: true
+      consequence_required: true
+      shadow_allowed: "tokens.shadow.3 only"
+    absorbed_from: [redpine_dialog_component]
+
+  - id: redpine_tabs_appendix_nav
+    category: navigation
+    pick_when:
+      - Appendix or dashboard-like deck needs switchable sections or segmented comparison.
+    skip_when:
+      - The presentation is linear and live-delivered.
+    structure:
+      tablist: categories
+      active_indicator: red_bottom_rule
+      panels: content_sections
+    constraints:
+      active_tab_text_required: true
+      not_color_only: true
+      use_for_appendix_or_dashboards_only: true
+    absorbed_from: [redpine_tabs_component]
+
+  - id: redpine_form_field_briefing_slide
+    category: input_schema
+    pick_when:
+      - A deck needs to show required briefing inputs, survey fields, or implementation setup.
+    skip_when:
+      - The slide is not about process, form, intake, or configuration.
+    structure:
+      field_slots: [label, input_value, helper_text, error_or_disabled_state]
+      form_states: [default, focus, invalid, disabled]
+    constraints:
+      label_required: true
+      helper_text_for_complex_fields: true
+      invalid_state_must_include_text: true
+    absorbed_from: [redpine_form_field_component]
+

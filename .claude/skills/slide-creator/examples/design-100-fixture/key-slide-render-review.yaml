@@ -1,0 +1,57 @@
+key_slide_render_review:
+  deck_id: design-100-fixture
+  generated_at: "2026-05-18"
+  render_source: manual_preview
+  reviewed_slides:
+    - slide_id: s01
+      required_role: cover
+      screenshot_or_preview_path: previews/s01.png
+      score:
+        hierarchy: 98
+        scan_path: 96
+        whitespace: 96
+        contrast: 98
+        alignment: 96
+        crop_and_media_relevance: 95
+        title_claim_visibility: 99
+        body_text_fit: 96
+        chart_or_diagram_readability: 95
+        brand_fidelity: 97
+      average_score: 96.6
+      blockers: []
+      visual_patches:
+        - patch_type: spacing_fix
+          instruction: Increased top metadata gap to keep the action title dominant.
+          status: applied
+    - slide_id: s02
+      required_role: reframe
+      screenshot_or_preview_path: previews/s02.png
+      score: {hierarchy: 96, scan_path: 95, whitespace: 95, contrast: 97, alignment: 96, crop_and_media_relevance: 95, title_claim_visibility: 96, body_text_fit: 96, chart_or_diagram_readability: 95, brand_fidelity: 96}
+      average_score: 95.7
+      blockers: []
+      visual_patches: []
+    - slide_id: s03
+      required_role: mechanism
+      screenshot_or_preview_path: previews/s03.png
+      score: {hierarchy: 95, scan_path: 96, whitespace: 95, contrast: 97, alignment: 96, crop_and_media_relevance: 95, title_claim_visibility: 96, body_text_fit: 95, chart_or_diagram_readability: 96, brand_fidelity: 96}
+      average_score: 95.7
+      blockers: []
+      visual_patches: []
+    - slide_id: s04
+      required_role: proof_or_demo
+      screenshot_or_preview_path: previews/s04.png
+      score: {hierarchy: 96, scan_path: 95, whitespace: 95, contrast: 97, alignment: 95, crop_and_media_relevance: 95, title_claim_visibility: 96, body_text_fit: 95, chart_or_diagram_readability: 97, brand_fidelity: 96}
+      average_score: 95.7
+      blockers: []
+      visual_patches: []
+    - slide_id: s05
+      required_role: cta_or_decision
+      screenshot_or_preview_path: previews/s05.png
+      score: {hierarchy: 97, scan_path: 96, whitespace: 96, contrast: 98, alignment: 96, crop_and_media_relevance: 95, title_claim_visibility: 98, body_text_fit: 96, chart_or_diagram_readability: 95, brand_fidelity: 97}
+      average_score: 96.4
+      blockers: []
+      visual_patches: []
+  aggregate:
+    average_score: 96.02
+    lowest_slide_score: 95.7
+    verdict: pass

@@ -1,0 +1,131 @@
+version: 1
+source_principle: >
+  Chart selection is not enough. The chart data shape must be explicit so a
+  renderer, editor, or QA script can validate it before a slide is called ready.
+absorbed_from:
+  - ../../../../../../bench/presentation-ai/src/components/notebook/presentation/charts/chart-data-editor/types.ts
+  - ../../../../../../bench/presentation-ai/src/components/notebook/presentation/charts/chart-data-editor/use-chart-editor.ts
+
+chart_data_modes:
+  - id: label-value
+    editor_mode: xy
+    row_shape:
+      required: [label, value]
+      numeric: [value]
+    best_for: [pie, donut, bar, rank, kpi_distribution]
+  - id: xy
+    editor_mode: xy
+    row_shape:
+      required: [x, y]
+      numeric: [y]
+    best_for: [line, scatter, trend]
+  - id: xyz
+    editor_mode: xy
+    row_shape:
+      required: [x, y, z]
+      numeric: [y, z]
+    best_for: [bubble, 3d_scatter]
+  - id: multi-series
+    editor_mode: multi-series
+    row_shape:
+      required: [label]
+      dynamic_numeric_series: true
+    best_for: [grouped_bar, stacked_bar, multi_line, area]
+    default_series_chart_types: [bar, line, area]
+  - id: range
+    editor_mode: xy
+    row_shape:
+      required: [category, low, high]
+      numeric: [low, high]
+      constraints:
+        - high_greater_or_equal_low
+    best_for: [range_bar, confidence_interval, variance_band]
+  - id: waterfall
+    editor_mode: xy
+    row_shape:
+      required: [category, amount]
+      numeric: [amount]
+    best_for: [revenue_bridge, margin_bridge, before_after_delta]
+  - id: ohlc
+    editor_mode: multi-series
+    row_shape:
+      required: [date, open, high, low, close]
+      numeric: [open, high, low, close]
+      constraints:
+        - high_must_cover_open_low_close
+        - low_must_cover_open_high_close
+    best_for: [financial_market, stock_price, volatility]
+  - id: box-plot
+    editor_mode: multi-series
+    row_shape:
+      required: [category, min, q1, median, q3, max]
+      numeric: [min, q1, median, q3, max]
+      constraints:
+        - ordered_min_q1_median_q3_max
+    best_for: [distribution, benchmark_spread, cohort_variance]
+  - id: hierarchical
+    editor_mode: multi-series
+    row_shape:
+      required: [name]
+      optional: [value, children]
+      recursive_children: true
+    best_for: [treemap, sunburst, org_tree]
+  - id: flow
+    editor_mode: multi-series
+    row_shape:
+      required: [from, to, size]
+      numeric: [size]
+    best_for: [sankey, dependency_flow, source_to_destination]
+  - id: funnel
+    editor_mode: xy
+    row_shape:
+      required: [label, value]
+      numeric: [value]
+    best_for: [conversion_funnel, qualification_pipeline]
+  - id: heatmap
+    editor_mode: multi-series
+    row_shape:
+      required: [x, y, value]
+      numeric: [value]
+    best_for: [coverage_matrix, calendar_heatmap, risk_heatmap]
+  - id: histogram
+    editor_mode: xy
+    row_shape:
+      required: [value]
+      numeric: [value]
+    best_for: [frequency_distribution]
+  - id: gauge
+    editor_mode: xy
+    row_shape:
+      required: [value]
+      numeric: [value]
+    best_for: [single_metric_progress, readiness_score]
+
+chart_dataset_contract:
+  chart_dataset:
+    id: ""
+    mode: "label-value"
+    title: ""
+    source: ""
+    unit: ""
+    rows: []
+    notes:
+      assumptions: []
+      caveats: []
+
+selection_rules:
+  - Validate data mode before selecting visual style.
+  - A chart with invented or unsourced numbers must be labeled as illustrative or blocked.
+  - Multi-series charts require series names that survive export to PPTX and speaker notes.
+  - Use heatmap for large matrix coverage, but move cell rationale to a side panel or evidence ledger.
+  - Use gauge only for a single metric with known denominator and threshold.
+  - Use waterfall only when the sequence has a real start, signed changes, and end.
+
+qa_blockers:
+  - missing_required_fields
+  - non_numeric_numeric_fields
+  - invalid_range_order
+  - invalid_box_plot_order
+  - invalid_ohlc_bounds
+  - unlabeled_unit
+  - no_source_for_factual_chart

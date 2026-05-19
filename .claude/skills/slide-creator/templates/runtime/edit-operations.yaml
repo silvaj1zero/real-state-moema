@@ -1,0 +1,39 @@
+version: 1
+edit_operations:
+  - id: change_theme
+    user_intents: [change_visual_style, match_brand, make_more_premium]
+    requires: [theme_profile]
+    preserves: [story_arc, slide_functions, evidence]
+    qa_after: [contrast_gate, density_gate, brand_consistency_gate]
+    absorbed_from: [presentation-ai]
+  - id: regenerate_slide
+    user_intents: [rewrite_slide, make_clearer, improve_design, reduce_text]
+    requires: [slide_id, reason]
+    preserves: [deck_thesis, slide_function]
+    qa_after: [slide_function_gate, density_gate, visual_fit_gate]
+    absorbed_from: [presentation-ai, Presenton]
+  - id: replace_visual
+    user_intents: [change_image, replace_chart, use_better_diagram]
+    requires: [slide_id, visual_template_or_media]
+    preserves: [action_title, key_message]
+    qa_after: [media_relevance_gate, chart_selection_gate]
+    absorbed_from: [presentation-ai, banana-slides]
+  - id: split_slide
+    user_intents: [too_dense, too_many_messages, hard_to_read]
+    requires: [slide_id]
+    preserves: [evidence, sequence_position]
+    qa_after: [narrative_continuity_gate, density_gate]
+    absorbed_from: [powerpoint-skill]
+  - id: merge_slides
+    user_intents: [repetitive, too_long, duplicate_function]
+    requires: [slide_ids]
+    preserves: [strongest_claim, strongest_evidence]
+    qa_after: [slide_function_gate, repetition_gate]
+    absorbed_from: [slide-deck-ai]
+  - id: local_prompt_to_edit
+    user_intents: [vibe_edit, natural_language_edit, partial_redraw]
+    requires: [selected_slide_or_region, edit_prompt]
+    preserves: [unselected_regions, deck_thesis]
+    qa_after: [diff_gate, visual_integrity_gate]
+    absorbed_from: [banana-slides, Presenton]
+

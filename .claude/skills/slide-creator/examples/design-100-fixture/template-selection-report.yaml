@@ -1,0 +1,58 @@
+template_selection_report:
+  deck_id: design-100-fixture
+  generated_at: "2026-05-18"
+  selection_scope: slide
+  rules:
+    - Every key slide records selected template and at least two rejected runners-up.
+    - Rejected runners-up cite slide function, audience, evidence, or media constraints.
+  selections:
+    - slide_id: s01
+      key_slide: true
+      slide_function: cover
+      selected:
+        id: hero_claim
+        name: Claim-first cover
+        source_registry: visual/layout-families.yaml
+        source_quote: Editorial persuasive decks require action-title hierarchy and low-medium density.
+      selected_reason: The cover must establish the thesis instantly for an executive benchmark audience; hero_claim keeps the action title dominant and avoids decorative context.
+      fit_scores:
+        content_fit: 96
+        visual_fit: 97
+        evidence_fit: 92
+        audience_fit: 96
+        export_fit: 95
+      rejected_runners_up:
+        - id: executive_dense
+          name: Dense KPI cover
+          rejected_reason: Too much tabular density for the first belief-shift moment; it would make the thesis feel like a report index instead of a decision frame.
+        - id: visual_story
+          name: Full-bleed media cover
+          rejected_reason: The deck has no evidentiary product image for the opener, so a full-bleed media treatment would become atmospheric.
+      constraints_checked: [slot_count, text_length, media_area, evidence_visibility, pptx_editability]
+      final_confidence: high
+      qa_status: pass
+    - slide_id: s03
+      key_slide: true
+      slide_function: proof
+      selected:
+        id: evidence_matrix
+        name: Evidence matrix
+        source_registry: visual/layout-families.yaml
+        source_quote: Executive dense slides can use comparison tables when scanability is preserved.
+      selected_reason: The proof slide needs to compare Design gaps by microdimension while keeping source and score readable.
+      fit_scores:
+        content_fit: 97
+        visual_fit: 95
+        evidence_fit: 98
+        audience_fit: 94
+        export_fit: 95
+      rejected_runners_up:
+        - id: hero_claim
+          name: Single claim proof
+          rejected_reason: A single-claim proof layout hides the microdimension spread that makes the Design gap actionable.
+        - id: journey_map
+          name: Journey map
+          rejected_reason: The evidence is a capability matrix, not a time-based audience journey.
+      constraints_checked: [slot_count, text_length, media_area, evidence_visibility, pptx_editability]
+      final_confidence: high
+      qa_status: pass

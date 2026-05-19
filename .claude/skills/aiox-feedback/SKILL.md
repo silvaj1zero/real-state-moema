@@ -148,7 +148,7 @@ Store as `SESSION_CONTEXT`. The mode itself is not exposed in the issue body —
 
 ### 6. Redact sensitive info (v1.3.0 — deterministic runner)
 
-Apply redaction to `DESCRIPTION`, `ENV_BLOCK`, and `SESSION_CONTEXT` via the pure-function runner at `packages/core/redaction/redact.cjs`. The runner implements 15 pattern categories in a frozen, ordered registry — NO inline regex interpretation, NO LLM cognitive work.
+Apply redaction to `DESCRIPTION`, `ENV_BLOCK`, and `SESSION_CONTEXT` via the pure-function runner at `packages/core/redaction/redact.cjs`. The runner implements 19 pattern categories in a frozen, ordered registry — NO inline regex interpretation, NO LLM cognitive work.
 
 ```js
 // Resolve from skill runtime (project-root-relative path).
@@ -158,11 +158,20 @@ const path = require('node:path');
 const fs = require('node:fs');
 const { redact } = require('packages/core/redaction/redact.cjs');
 const { renderAuditBlock } = require('packages/core/redaction/render-audit.cjs');
+const { loadOperatorTerms, redactOperatorTerms } = require('packages/core/redaction/operator-context.cjs');
+const { detectBusinessScope, summarizeBusinessScope } = require('packages/core/redaction/business-scope.cjs');
 const { emit } = require('packages/core/telemetry/session-emitter.cjs');
 
-const descRes = redact(DESCRIPTION);
-const envRes = redact(ENV_BLOCK);
-const ctxRes = redact(SESSION_CONTEXT);
+const operatorTerms = loadOperatorTerms({ root: process.cwd() });
+
+const descRes = redactOperatorTerms(redact(DESCRIPTION).redacted, operatorTerms);
+const envRes = redactOperatorTerms(redact(ENV_BLOCK).redacted, operatorTerms);
+const ctxRes = redactOperatorTerms(redact(SESSION_CONTEXT).redacted, operatorTerms);
+
+// Preserve deterministic pattern metadata as well as context-term metadata.
+const descPatternRes = redact(DESCRIPTION);
+const envPatternRes = redact(ENV_BLOCK);
+const ctxPatternRes = redact(SESSION_CONTEXT);
 
 // Use redacted values downstream.
 DESCRIPTION = descRes.redacted;
@@ -170,8 +179,12 @@ ENV_BLOCK = envRes.redacted;
 SESSION_CONTEXT = ctxRes.redacted;
 
 // Aggregate metadata for telemetry (NEVER the content itself).
-const totalCount = descRes.count + envRes.count + ctxRes.count;
+const totalCount = descPatternRes.count + envPatternRes.count + ctxPatternRes.count
+  + descRes.count + envRes.count + ctxRes.count;
 const allTypes = [...new Set([
+  ...descPatternRes.types_detected,
+  ...envPatternRes.types_detected,
+  ...ctxPatternRes.types_detected,
   ...descRes.types_detected,
   ...envRes.types_detected,
   ...ctxRes.types_detected,
@@ -206,6 +219,30 @@ try {
 - The redacted OR original content NEVER enters telemetry — the emitter's `sanitizeData()` drops any non-whitelisted key as defense-in-depth.
 
 **When a new secret pattern is needed:** add it to `packages/core/redaction/patterns.cjs` (PATTERN_REGISTRY) with ordering consideration + positive/negative test — do NOT add ad-hoc regex here.
+
+### 6.5. Business-scope gate (v1.6.0+)
+
+Run the business-scope detector after deterministic redaction and operator-context redaction, before composing the issue body:
+
+```js
+const scopeFindings = detectBusinessScope(
+  [DESCRIPTION, ENV_BLOCK, SESSION_CONTEXT].join('\n'),
+  { root: process.cwd(), terms: operatorTerms },
+);
+const scopeSummary = summarizeBusinessScope(scopeFindings);
+```
+
+**Blocking findings:** if any finding has `severity === 'block'`, do NOT submit. Show only the sanitized summary lines (for example `block:operator_context_term=1`) and route the user to edit the description/context. Never print the raw match.
+
+**Warning findings:** if findings are warning-only (`business_scope_category`), show a warning before the preview and ask the user to choose:
+
+- `edit` — revise the feedback text
+- `proceed-anyway` — continue to the standard preview/confirmation
+- `cancel` — abort
+
+This catches category-only leaks such as customer lists, pricing strategy, private squads, custom apps, decision logs, and research outputs even when no path or secret pattern is present.
+
+Privacy boundary: telemetry may log only summary category IDs and counts, never raw text, raw paths, or raw matches.
 
 ### 7. Compose issue body
 
@@ -463,7 +500,7 @@ Introduced in v1.4.0 (STORY-FB-V2-06). The audit block surfaces redaction metada
 
 - **Redactions applied:** {count}
 - **PII types detected:** {types_detected.join(', ')}
-- **Redaction runner:** `packages/core/redaction` (15 pattern categories)
+- **Redaction runner:** `packages/core/redaction` (19 pattern categories)
 
 ```
 
@@ -474,7 +511,7 @@ Introduced in v1.4.0 (STORY-FB-V2-06). The audit block surfaces redaction metada
 
 - **Redactions applied:** 3
 - **PII types detected:** anthropic_key, aws_key, unix_path
-- **Redaction runner:** `packages/core/redaction` (15 pattern categories)
+- **Redaction runner:** `packages/core/redaction` (19 pattern categories)
 
 ```
 
@@ -529,7 +566,7 @@ Opções:
 **Telemetry event (v1.5.0, 4th additive extension of the emitter):**
 
 - Event: `spam_flagged` (added to VALID_EVENTS, now 12 entries; frozen)
-- Data key: `spam_signals` — CSV string of signal category names (added to ALLOWED_DATA_KEYS, now 15 entries; frozen)
+- Data key: `spam_signals` — CSV string of signal category names from the fixed allowlist
 - Privacy boundary: NEVER the flagged text. Only the 5 fixed category identifiers from the set above.
 - Emitted when: the warning fires (regardless of user's subsequent edit/proceed/cancel choice). This captures the detection signal itself, decoupled from the user's decision.
 
@@ -586,6 +623,7 @@ This table is **REFERENCE ONLY** — the runner in `packages/core/redaction/patt
 - Telemetry emitter: `packages/core/telemetry/session-emitter.cjs` (FB-V2-01)
 - Feedback queue: `packages/core/feedback-queue/queue.cjs` (FB-V2-03)
 - Spam heuristic: `packages/core/feedback-spam/check.cjs` + `profanity-list.cjs` (FB-V2-07, v1.5.0+)
+- Business-scope gate: `packages/core/redaction/business-scope.cjs` (Issue #78 V15)
 
 ---
 

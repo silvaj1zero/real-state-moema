@@ -1,0 +1,67 @@
+version: 1
+layout_families:
+  - id: executive_dense
+    pick_when:
+      - Board, finance, benchmark, or operating review with high information density.
+    skip_when:
+      - Marketing hero or emotional story opening.
+    patterns: [kpi_cards, harvey_balls_table, financial_statement_table, bullet_chart]
+    density: high
+    constraints:
+      min_font_px: 16
+      max_visible_words: 120
+      reserve_detail_for_appendix: true
+    absorbed_from: [ppt-master, powerpoint-skill]
+
+  - id: editorial_persuasive
+    pick_when:
+      - Sales, webinar, manifesto, pitch, or strategy deck where belief shift matters.
+    skip_when:
+      - Pure technical appendix or legal documentation.
+    patterns: [hero_claim, contrast, before_after, mechanism_layer]
+    density: medium
+    constraints:
+      max_visible_words: 55
+      action_title_required: true
+      no_generic_section_titles: true
+    absorbed_from: [slide-deck-ai, presentation-ai, Presenton]
+
+  - id: technical_system
+    pick_when:
+      - Architecture, API, agent workflow, runtime, or product system explanation.
+    skip_when:
+      - Simple customer journey with no system layers.
+    patterns: [layered_architecture, pipeline_with_stages, client_server_flow, module_composition]
+    density: medium_high
+    constraints:
+      label_every_arrow: true
+      explain_module_role: true
+      avoid_unlabeled_boxes: true
+    absorbed_from: [ppt-master, Presenton, PPTAgent]
+
+  - id: visual_story
+    pick_when:
+      - A demo, webinar, or product narrative benefits from visual scene, media, or transformation.
+    skip_when:
+      - Evidence is mostly numeric.
+    patterns: [full_bleed_image, image_left_text_right, before_after, journey_map]
+    density: low_medium
+    constraints:
+      image_must_carry_message: true
+      no_purely_atmospheric_stock: true
+      media_relevance_reason_required: true
+    absorbed_from: [Presenton, PPTAgent, banana-slides]
+
+  - id: academic_rigorous
+    pick_when:
+      - Research, thesis, training, or technical lecture needs rigorous hierarchy.
+    skip_when:
+      - Conversion-oriented sales or webinar deck.
+    patterns: [claim_evidence, table, equation_diagram, method_flow]
+    density: medium
+    constraints:
+      source_required: true
+      define_terms_before_use: true
+      worked_example_within_two_slides: true
+    absorbed_from: [powerpoint-skill, ppt-master]
+

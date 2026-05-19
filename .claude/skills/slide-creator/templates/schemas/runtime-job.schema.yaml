@@ -1,0 +1,36 @@
+type: object
+required:
+  - id
+  - mode
+  - pick_when
+  - inputs
+  - outputs
+  - failure_policy
+properties:
+  id:
+    type: string
+  mode:
+    type: string
+  pick_when:
+    type: array
+    items:
+      type: string
+  inputs:
+    type: array
+    items:
+      type: string
+  steps:
+    type: array
+    items:
+      type: string
+  outputs:
+    type: array
+    items:
+      type: string
+  failure_policy:
+    type: object
+  absorbed_from:
+    type: array
+    items:
+      type: string
+

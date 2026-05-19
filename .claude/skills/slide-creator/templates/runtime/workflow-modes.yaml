@@ -1,0 +1,131 @@
+version: 1
+name: workflow-modes
+purpose: >
+  Choose how much process to run for the user's actual need. This prevents the
+  skill from overproducing artifacts for quick work while preserving strict
+  gates for reusable or exportable decks.
+
+modes:
+  micro_reply:
+    use_when:
+      - User asks for a quick outline, slide list, critique, or direction.
+      - No files or export are requested.
+    max_user_questions: 3
+    required_outputs:
+      - thesis
+      - slide_list_with_function
+      - design_direction_summary
+      - top_risks
+    skip_outputs:
+      - job-state.yaml
+      - render-lock.yaml
+      - full_package_validation
+    gates:
+      - no_topic_dump
+      - action_titles_are_claims
+      - one_function_per_slide
+
+  standard_deck_spec:
+    use_when:
+      - User wants a usable deck plan or rewrite but not a file export.
+      - The deck will be reviewed before production.
+    required_outputs:
+      - briefing-normalized
+      - audience-belief-shift
+      - story-arc
+      - slide-function-map
+      - design-direction
+      - deck-spec
+      - speaker-notes
+      - qa-report
+    gates:
+      - story_arc_contract
+      - slide_function_map_contract
+      - design_direction_contract
+      - squad_quality_rubric
+
+  full_package:
+    use_when:
+      - User wants a reusable, shareable, or machine-readable deck package.
+      - The skill is being tested, benchmarked, or packaged.
+    required_outputs:
+      - all_required_outputs_from_SKILL_md
+      - package-validation-report
+    required_scripts:
+      - scripts/validate_runtime_contracts.py
+      - scripts/validate_deck_package.py
+    gates:
+      - no_killer_items
+      - package_validates
+      - source_of_truth_policy
+      - template_selection_report
+
+  repair_existing_deck:
+    use_when:
+      - User provides an existing weak deck, process log, screenshots, or prior output.
+      - User says the slides are bad, noisy, repetitive, or not persuasive.
+    required_outputs:
+      - failure_inventory
+      - forward-test
+      - revised_story_arc
+      - revised_slide_function_map
+      - revised_design_direction
+      - before_after_critique
+    gates:
+      - old_failure_modes_mapped_to_blockers
+      - key_slide_gate_before_full_rewrite
+      - regression_fixture_passed
+
+  benchmark_or_absorption:
+    use_when:
+      - The deck compares tools, competitors, repos, skills, agents, or products.
+      - User needs what to absorb, build, ignore, or roadmap.
+    required_outputs:
+      - comparison_scope
+      - category_split
+      - weighted_matrix
+      - evidence_ledger
+      - absorption_map
+      - roadmap
+      - decision
+    gates:
+      - players_are_comparable_or_split
+      - every_score_has_evidence_or_assumption
+      - matrix_cells_are_clean_not_repetitive
+      - documents_and_comparativo_preserved_when_useful
+
+  exportable_pptx_or_pdf:
+    use_when:
+      - User asks for PPTX, PDF, Google Slides, screenshots, or rendered assets.
+    required_outputs:
+      - render-lock
+      - export-contract
+      - editability-report
+      - rendered-eval
+      - verified_output_path
+    required_scripts:
+      - scripts/check_pptx_placeholders.py
+      - scripts/validate_rendered_eval.py
+      - scripts/validate_deck_package.py
+    gates:
+      - no_claimed_export_without_file
+      - no_text_clipping_or_overlap
+      - no_rasterized_action_titles_when_pptx_requested
+      - rendered_key_slides_reviewed
+
+selection_rules:
+  default_mode: standard_deck_spec
+  prefer_micro_when:
+    - user_asks_for_direction_only
+    - answer_in_chat_is_enough
+  prefer_full_when:
+    - user_says_shareable
+    - user_says_self_contained
+    - package_or_validation_requested
+    - benchmark_quality_is_being_improved
+  prefer_repair_when:
+    - process_log_or_bad_deck_provided
+    - user_mentions_previous_failure
+  prefer_export_when:
+    - output_file_requested
+    - pptx_or_pdf_requested

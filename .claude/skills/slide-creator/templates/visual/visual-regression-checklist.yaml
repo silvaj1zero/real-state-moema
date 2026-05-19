@@ -1,0 +1,50 @@
+version: 1
+name: visual-regression-checklist
+purpose: >
+  Prevent known bad deck patterns from returning after design improvements.
+
+visual_regression_checklist:
+  deck_id: ""
+  generated_at: ""
+  checks:
+    - id: no_identity_as_skin
+      question: "Does the deck use brand language beyond logo/colors?"
+      status: "pass | fail | n/a"
+      evidence: ""
+    - id: no_generic_stock_visual
+      question: "Does every meaningful image prove, demonstrate, or clarify a claim?"
+      status: "pass | fail | n/a"
+      evidence: ""
+    - id: no_repeated_layout_monotony
+      question: "Are there no more than two consecutive slides in the same layout family?"
+      status: "pass | fail | n/a"
+      evidence: ""
+    - id: no_dense_bullet_wall
+      question: "Are dense slides intentionally structured as tables, diagrams, or appendix?"
+      status: "pass | fail | n/a"
+      evidence: ""
+    - id: no_unmapped_theme_usage
+      question: "Do charts, diagrams, tables, and shapes use mapped theme tokens?"
+      status: "pass | fail | n/a"
+      evidence: ""
+    - id: no_unrendered_key_slides
+      question: "Were decisive slides reviewed in render or preview?"
+      status: "pass | fail | n/a"
+      evidence: ""
+    - id: no_weak_action_title_hierarchy
+      question: "Is the action title visually dominant on each decisive slide?"
+      status: "pass | fail | n/a"
+      evidence: ""
+    - id: no_unresolved_overlap_clipping
+      question: "Are overlap, clipping, and text-fit issues resolved?"
+      status: "pass | fail | n/a"
+      evidence: ""
+  verdict: "pass | warn | fail"
+  release_blockers:
+    - ""
+
+validation:
+  block_if:
+    - any_required_check_fails
+    - verdict_fail
+    - release_blockers_not_empty

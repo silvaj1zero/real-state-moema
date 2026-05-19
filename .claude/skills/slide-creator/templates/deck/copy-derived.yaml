@@ -1,0 +1,155 @@
+version: 1
+historical_sources:
+  - copy_hormozi_offer_systems
+  - copy_jon_benson_vsl_frameworks
+  - copy_ry_schwartz_course_launch_frameworks
+  - copy_mappings
+  - pitch_deck_matrix
+independence_note: >
+  These frameworks are absorbed into this file. Runtime use must not require
+  squads/copy, squads/pitch-deck, or any external squad path.
+
+deck_templates:
+  - id: grand_slam_offer_deck
+    name: Grand Slam Offer Deck
+    job: Present an offer that becomes hard to compare on price.
+    audience: [prospects, buyers, sales_team, launch_team]
+    pick_when:
+      - The deck must sell an offer, package, cohort, service, or program.
+      - The user needs value stack, guarantee, urgency, and clear CTA.
+    skip_when:
+      - There is no defined product or commercial next step.
+      - The audience is internal and not evaluating an offer.
+    default_slide_count: {min: 10, ideal: 16, max: 24}
+    narrative_arc:
+      - proof
+      - promise
+      - plan
+      - obstacles
+      - deliverables
+      - value_stack
+      - guarantee
+      - urgency
+      - decision
+    slide_sequence:
+      - {slot: proof_first, function: credibility, required: true, visual_family: proof_stack}
+      - {slot: dream_outcome, function: desire, required: true, visual_family: hero_claim}
+      - {slot: obstacles, function: diagnosis, required: true, visual_family: fishbone_diagram}
+      - {slot: solution_map, function: mechanism, required: true, visual_family: module_composition}
+      - {slot: deliverables, function: offer, required: true, visual_family: offer_stack}
+      - {slot: bonuses, function: value_stack, required: false, visual_family: comparison_columns}
+      - {slot: guarantee, function: risk_reversal, required: true, visual_family: decision_card}
+      - {slot: urgency_scarcity, function: urgency, required: false, visual_family: timeline}
+      - {slot: price_anchor, function: commercial, required: false, visual_family: waterfall_chart}
+      - {slot: cta, function: action, required: true, visual_family: decision_card}
+    evidence_policy:
+      - Start with proof if audience is skeptical.
+      - Every bonus must solve a real obstacle.
+      - Urgency and scarcity must be real, not decorative pressure.
+    qa_gates: [offer_clarity_gate, proof_gate, cta_gate, ethical_persuasion_gate]
+    absorbed_from: [copy_hormozi_offer_systems, copy_mappings]
+
+  - id: vsl_slide_sequence
+    name: VSL Slide Sequence
+    job: Convert a video sales letter into slide-by-slide spoken narrative.
+    audience: [cold_leads, warm_leads, product_aware_buyers]
+    pick_when:
+      - The deck is a VSL, recorded sales presentation, or high-conversion webinar.
+      - The user needs timed script beats, not just static slides.
+    skip_when:
+      - The deck is a board update, academic lecture, or neutral report.
+    default_slide_count: {min: 30, ideal: 55, max: 90}
+    narrative_arc:
+      - snap_suggestion_opening
+      - problem_amplification
+      - reluctant_hero_story
+      - solution_preview
+      - proof
+      - offer
+      - ethical_close
+    slide_sequence:
+      - {slot: snap_suggestion, function: hook, required: true, visual_family: hero_claim}
+      - {slot: usp_within_first_10, function: differentiation, required: true, visual_family: contrast}
+      - {slot: problem_amplification, function: tension, required: true, visual_family: diagnosis_fishbone}
+      - {slot: story_failure, function: empathy, required: true, visual_family: visual_story}
+      - {slot: discovery, function: mechanism_reveal, required: true, visual_family: mechanism_layered_system}
+      - {slot: transformation_preview, function: desire, required: true, visual_family: before_after}
+      - {slot: social_proof, function: proof, required: true, visual_family: proof_stack}
+      - {slot: offer_presentation, function: conversion, required: true, visual_family: offer_stack}
+      - {slot: guarantee, function: risk_reversal, required: true, visual_family: decision_card}
+      - {slot: close, function: action, required: true, visual_family: decision_card}
+    evidence_policy:
+      - First ten slides must include USP or reason to continue watching.
+      - Pain amplification must be empathetic, not manipulative.
+      - Close must include offer, guarantee, urgency, and a single CTA.
+    qa_gates: [belief_shift_gate, ethical_persuasion_gate, offer_clarity_gate, cta_gate]
+    absorbed_from: [copy_jon_benson_vsl_frameworks]
+
+  - id: cohort_launch_masterclass
+    name: Cohort Launch Masterclass
+    job: Help the prospect become ready to decide for or against a cohort offer.
+    audience: [course_buyers, high_ticket_leads, cohort_candidates]
+    pick_when:
+      - The deck is for course launch, cohort enrollment, masterclass, or application funnel.
+      - The sales motion should reduce pressure and facilitate decision.
+    skip_when:
+      - The offer is low-ticket impulse purchase with no transformation journey.
+    default_slide_count: {min: 20, ideal: 34, max: 50}
+    narrative_arc:
+      - avatar_language
+      - transformation_map
+      - objections
+      - decision_criteria
+      - method
+      - fit_filter
+      - enrollment_path
+    slide_sequence:
+      - {slot: mirror_language, function: empathy, required: true, visual_family: hero_claim}
+      - {slot: before_after_identity, function: transformation, required: true, visual_family: before_after}
+      - {slot: hidden_obstacles, function: diagnosis, required: true, visual_family: fishbone_diagram}
+      - {slot: method, function: teaching, required: true, visual_family: numbered_steps}
+      - {slot: objection_matrix, function: objection_handling, required: true, visual_family: comparison_table}
+      - {slot: who_is_for, function: qualification, required: true, visual_family: pros_cons_chart}
+      - {slot: pressure_release, function: trust, required: true, visual_family: decision_card}
+      - {slot: enrollment_path, function: action, required: true, visual_family: pipeline_with_stages}
+    evidence_policy:
+      - Use actual prospect language when available.
+      - State who the offer is not for.
+      - Objections must be handled before the close.
+    qa_gates: [avatar_language_gate, objection_gate, ethical_persuasion_gate, cta_gate]
+    absorbed_from: [copy_ry_schwartz_course_launch_frameworks]
+
+  - id: investor_pitch_deck
+    name: Investor Pitch Deck
+    job: Earn the next investor meeting with conviction and compression.
+    audience: [investors, angels, venture_capital, strategic_partners]
+    pick_when:
+      - The deck explains startup/product opportunity, market, traction, and ask.
+    skip_when:
+      - The deck is primarily customer sales or internal board review.
+    default_slide_count: {min: 10, ideal: 12, max: 16}
+    narrative_arc:
+      - shift
+      - problem
+      - promised_land
+      - solution
+      - market
+      - traction
+      - model
+      - team
+      - ask
+    slide_sequence:
+      - {slot: shift, function: why_now, required: true, visual_family: contrast}
+      - {slot: problem, function: diagnosis, required: true, visual_family: journey_map}
+      - {slot: promised_land, function: desire, required: true, visual_family: hero_claim}
+      - {slot: solution, function: mechanism, required: true, visual_family: module_composition}
+      - {slot: market, function: opportunity, required: true, visual_family: nested_market}
+      - {slot: traction, function: proof, required: true, visual_family: kpi_cards}
+      - {slot: model, function: economics, required: true, visual_family: unit_economics}
+      - {slot: team, function: credibility, required: true, visual_family: team_roster}
+      - {slot: ask, function: action, required: true, visual_family: decision_card}
+    evidence_policy:
+      - Use the deck to earn next meeting, not answer every diligence question.
+      - Traction must be specific or clearly labeled as pipeline/assumption.
+    qa_gates: [investor_clarity_gate, proof_gate, decision_gate]
+    absorbed_from: [pitch_deck_matrix, copy_mappings]
