@@ -1,0 +1,140 @@
+schema: 1
+story: '7.4'
+gate: CONCERNS
+status_reason: 'Implementacao tecnica solida e bem testada (38/38 parser tests + 432/432 full suite). Architecture limpa: shared parsers em app/src/lib/scrapers/mercadolivre/ com sync-on-build per ADR-EPIC7-006, JSON-LD-first + DOM fallback, classify+intelligence_feed wiring correto, Edge Functions Deno separadas (trigger 202 + webhook idempotent). Gate fica CONCERNS por: (1) DEPLOY GATE 7.10 (LIA counsel) pendente — telefone PF bloqueado em prod; (2) AC9 doc-only — fixtures sinteticas sem hits reais MercadoLivre, telemetria 200-OK >=85% nao validada; (3) trigger Edge Function falta CORS + body-shape validation; (4) webhook usa shared-secret simples no header em vez de HMAC computado sobre body (story declara HMAC).'
+reviewer: 'Quinn'
+updated: '2026-05-19T02:25:00Z'
+
+top_issues:
+  - id: 'BLOCK-001'
+    severity: critical
+    category: compliance
+    ac: AC1-AC8
+    finding: 'DEPLOY GATE: Story 7.10 (LGPD Foundation — LIA counsel + cifragem + opt-out + audit log) ainda nao Done. Story 7.4 captura telefone_anunciante (PF mascarado) + nome_anunciante e persiste em scraped_listings. Sem LIA aprovada e cifragem em repouso, deploy producao = violacao LGPD.'
+    suggested_action: 'NAO promover a producao ate Story 7.10 atingir Done. Implementacao + smoke staging permitidos com flag privacy-mock; producao bloqueada. Reforcar pre-push hook em @devops.'
+  - id: 'SEC-001'
+    severity: medium
+    category: security
+    ac: AC8
+    finding: 'webhook_mercadolivre_done valida secret via comparacao string simples em header x-webhook-secret (linhas 30-33). Story declara HMAC mas implementacao e shared-token. Vulneravel a timing attack + replay caso secret vaze em log/proxy.'
+    suggested_action: 'Wave A aceitavel (Apify confiavel + HTTPS). Antes de prod: implementar HMAC-SHA256 sobre body com `crypto.subtle.timingSafeEqual` (ou equivalent Deno) e header `x-apify-webhook-signature`. Adicionar a TODO/Tech Debt da story.'
+  - id: 'SEC-002'
+    severity: medium
+    category: security
+    ac: AC8
+    finding: 'trigger_mercadolivre_crawl nao valida autorizacao do caller (linha 42-46). Qualquer POST com env vars presentes dispara Apify run + cria crawl_runs row. Sem CORS, sem service-role check, sem rate-limit. Disparo abusivo = consumo CU Apify + crawl_runs lixo.'
+    suggested_action: 'Adicionar verificacao Authorization Bearer com service-role key OU IP allowlist pg_cron source antes de dispatch. Documentar como TODO para Story 7.6 quando cron entrar.'
+  - id: 'OBS-001'
+    severity: medium
+    category: requirements
+    ac: AC9
+    finding: 'AC9 (PoC 100 URLs reais, telemetria gravada, classify rodou, >=85% success rate) entregue como doc-only runbook. Fixtures sinteticas validam parsers mas nao validam: resiliencia anti-bot real, JSON-LD presente em ML producao, Cloudflare/DataDome detection, CU consumption real, browser-mode fallback.'
+    suggested_action: 'Executar smoke staging real antes de promover Wave A. Manter status InReview ate execucao; PoC real deve gravar crawl_runs row + stats Apify em docs/poc/7.4-mercadolivre-smoke-results.md.'
+  - id: 'LOGIC-001'
+    severity: medium
+    category: code
+    ac: AC2
+    finding: 'main.ts linha 206 — pagination check `detailsProcessed < input.max_listings_per_bairro` usa contador GLOBAL (acumulado de todos bairros), nao por-bairro. AC2 declara cap por bairro (default 500/bairro). Com 3 bairros x 2 tipos = 6 start URLs, cap global de 500 limita listagem do primeiro bairro processado, deixando outros sem paginacao.'
+    suggested_action: 'Trocar para Map<bairro, count> com chave extraida de userData.bairro (atualmente userData carrega bairroCount=0 mas nunca eh incrementado). Add unit test cobrindo cap por bairro.'
+  - id: 'LOGIC-002'
+    severity: low
+    category: code
+    ac: AC4
+    finding: 'persistListing (main.ts:82-105) usa upsert com classification=unknown na primeira insercao e UPDATE em seguida via updateClassification. Dois round-trips por listing (upsert + update). 500 listings = 1000 queries Supabase.'
+    suggested_action: 'Aceitavel Wave A. Wave B: classificar ANTES de persist e gravar resultado final no upsert (1 query). Padrao atual e funcional mas duplica I/O.'
+  - id: 'TEST-001'
+    severity: low
+    category: tests
+    ac: AC10
+    finding: 'Fixtures HTML sao sinteticas (construidas pelo dev a partir de entendimento da estrutura). Risco: se ML mudar selector ou estrutura JSON-LD em prod, parsers passam local + falham silencioso em runtime. Sem snapshot real ML, drift e invisivel.'
+    suggested_action: 'Capturar 3 fixtures REAIS one-shot (via curl em IP staging, salvar em __fixtures__/mercadolivre/real-*.html.gz, gitignored se necessario por compliance). Adicionar tests rodando contra elas marked .skip por default, ativar em CI semanal.'
+  - id: 'PERF-001'
+    severity: low
+    category: performance
+    ac: AC6
+    finding: 'createPortalCrawler override `maxRequestsPerMinute: 60` (main.ts:189). Wave A defensivo OK. Sem assertion sobre Crawlee `maxConcurrency` — default Crawlee pode usar concurrency alta que viola 1 req/s mesmo com rate cap.'
+    suggested_action: 'Adicionar maxConcurrency:2 no override ou documentar que portal-crawler.ts ja seta. Verificar no Story 7.2 codebase. Smoke real (OBS-001) confirma comportamento empirico.'
+  - id: 'MNT-001'
+    severity: low
+    category: code
+    ac: AC1
+    finding: 'main.ts:46-56 DEFAULT_INPUT.preco_max=0/area_max=0/quartos_min=0 usados como "sem teto" (per input_schema description) mas buildStartUrls nao filtra/incorpora filtros numericos nas URLs. Filtros do schema sao decorativos.'
+    suggested_action: 'Wave A aceitavel (default = 3 bairros venda casa+apto). Wave B: implementar filtros via query-string ML (`?price=*-1000000`) ou chunking de preco mencionado em Technical Notes.'
+  - id: 'MNT-002'
+    severity: low
+    category: code
+    ac: AC2
+    finding: 'main.ts linha 179 — start URL userData carrega bairroCount:0 mas nunca eh lido nem incrementado. Codigo morto (relacionado a LOGIC-001).'
+    suggested_action: 'Remover ou usar conforme LOGIC-001 fix.'
+
+waiver: { active: false }
+
+acceptance_criteria_review:
+  AC1: PASS  # Actor scaffold completo (actor.json + input_schema.json + Dockerfile + package.json + tsconfig.json), entrypoint main.ts consome createPortalCrawler shared.
+  AC2: CONCERNS  # URLs canonicas casas/apartamentos x 3 bairros = 6 starts OK. Pagination com cap GLOBAL nao por-bairro (LOGIC-001).
+  AC3: PASS  # Router LISTING_PAGE + DETAIL_PAGE separados, parseListingPage extrai detail URLs + nextPage, parseDetailPage extrai full set (JSON-LD first + DOM fallback + CRECI/CNPJ regex + telefone mascarado).
+  AC4: PASS  # toPropertyEpic7 mapeia para schema Story 7.1, persist em scraped_listings com colunas Epic 6 reusadas + novos campos Story 7.1 (classification, home_flags).
+  AC5: PASS  # classifyAdvertiser invocado (com CNAE async lookup Story 7.5), updateClassification UPDATE row, FISBO + confidence >=0.7 -> intelligence_feed insert com metadata correta.
+  AC6: CONCERNS  # Rate-limit 60/min override OK + retries 2. maxConcurrency nao verificado explicit (PERF-001). Anti-bot resilience real nao validado (PoC sintetico).
+  AC7: PASS  # Telemetry.startRun/finishRun integrado, crawler crash captura err e marca failed + Actor.exit no finally. Stats Apify dependem de portal-crawler.ts (Story 7.2).
+  AC8: CONCERNS  # Edge Functions implementadas (trigger 202 + webhook idempotent), cron schedule corretamente cedido a Story 7.6. Issues SEC-001 (HMAC nao implementado) + SEC-002 (trigger sem auth).
+  AC9: CONCERNS  # PoC doc-only — runbook completo em docs/poc/7.4-mercadolivre-smoke.md mas execucao real deferred. Justificavel (custo + risco IP block) mas validacao empirica obrigatoria pre-prod (OBS-001).
+  AC10: PASS  # 38 unit tests parsers (parseListing + parseDetail + toPropertyEpic7 + buildAdvertiserSignals) com 4 fixtures HTML __fixtures__/mercadolivre/. Sem rede. 38/38 passando.
+
+automated_checks:
+  tests: '38/38 mercadolivre-parsers passed (listing + detail JSON-LD + detail DOM-fallback + CRECI + CNPJ + telefone mascarado + toProperty + signals)'
+  full_suite: '432/432 passing — sem regressao'
+  typecheck: 'TS strict — interfaces ParsedDetail/ParsedListingPage/ToPropertyOptions exportadas; SupabaseClient tipado em Edge Functions Deno'
+  lint: 'OK'
+  regression: 'Nao detectado — Epic 6 ZAP/OLX/VivaReal + Stories 7.1/7.2/7.3/7.5 preservados'
+
+quality_review_findings:
+  architecture:
+    score: PASS
+    notes: 'Separacao limpa shared/app vs actor isolado (ADR-EPIC7-006) — parsers em app/src/lib/scrapers/mercadolivre/, sync-script copia para src/shared/ no build. Permite unit tests no contexto Next.js + isolamento producao Apify. Edge Functions trigger/webhook desacopladas, idempotencia documentada.'
+  parsers:
+    score: PASS
+    notes: 'JSON-LD primeiro (mais estavel que selector CSS), DOM fallback bem estruturado (cascata de selectors + regex). CRECI/CNPJ regex razoaveis. Telefone PHONE_RE aceita mascarado (correto Wave A). Pureza TS (sem next/* imports) verificavel.'
+  edge_functions:
+    score: CONCERNS
+    notes: 'trigger: 202 fast-path OK mas falta auth (SEC-002) e nao valida body shape antes do dispatch. webhook: idempotency via SELECT-then-UPDATE corretamente; auth via shared-token simples ao inves de HMAC (SEC-001).'
+  error_handling:
+    score: PASS
+    notes: 'Try/catch no crawler.run com telemetry.finishRun(failed) + Actor.exit no finally. lookupCNAE falha graceful (cnae=undefined). persistListing/updateClassification logam erro mas nao abortam run. Dry-run quando creds ausentes.'
+  rate_limit_compliance:
+    score: CONCERNS
+    notes: 'maxRequestsPerMinute=60 + retries=2 OK. Mas: respeita robots.txt + fingerprint rotation + session pool dependem 100% de portal-crawler.ts (Story 7.2) — assumido OK por Story 7.2 PASS. Tolerancia 200-OK >=85% (AC6) so validavel em PoC real (OBS-001).'
+  lgpd_compliance:
+    score: FAIL
+    notes: 'BLOCKER (BLOCK-001): captura telefone_anunciante/nome_anunciante PF persistido em scraped_listings sem cifragem em repouso (Story 7.10 ainda nao Done). Implementacao tecnica nao tem culpa — gate eh organizacional. Deploy producao BLOCKED ate 7.10.'
+  test_coverage:
+    score: CONCERNS
+    notes: '38 tests cobrem parsers determinsticos com 4 fixtures sinteticas (listing-moema, detail-fisbo, detail-creci, detail-cnpj). Cobertura logica solida. Falta: fixtures reais ML producao (TEST-001) + integration tests Edge Functions (Deno test) + E2E real (OBS-001).'
+  documentation:
+    score: PASS
+    notes: 'docs/poc/7.4-mercadolivre-smoke.md runbook completo (pre-requisitos, procedure, validation queries, rollback). Story File List preciso, Change Log rastreavel. Decisoes documentadas em Dev Agent Record.'
+
+ac_traceability:
+  parsers:
+    parseListingPage: app/src/lib/scrapers/mercadolivre/parseListing.ts (90 LOC) — fixtures listing-page-moema.html
+    parseDetailPage: app/src/lib/scrapers/mercadolivre/parseDetail.ts (347 LOC) — fixtures detail-page-fisbo/creci/cnpj.html
+    toPropertyEpic7: app/src/lib/scrapers/mercadolivre/toPropertyEpic7.ts (160 LOC)
+  actor:
+    entrypoint: apps/crawlers/mercadolivre-imoveis/src/main.ts (265 LOC)
+    sync: apps/crawlers/mercadolivre-imoveis/scripts/sync-shared.sh
+  edge_functions:
+    trigger: supabase/functions/trigger_mercadolivre_crawl/index.ts (124 LOC)
+    webhook: supabase/functions/webhook_mercadolivre_done/index.ts (94 LOC)
+  poc: docs/poc/7.4-mercadolivre-smoke.md (doc-only — OBS-001)
+  tests: app/src/lib/scrapers/__tests__/mercadolivre-parsers.test.ts (38 cases)
+
+deploy_readiness:
+  status: BLOCKED
+  reason: 'Story 7.10 (LGPD Foundation) deploy gate explicit. Mesmo com gate PASS aqui, producao requer: (a) 7.10 Done; (b) OBS-001 PoC real executado; (c) SEC-001 HMAC implementado; (d) LOGIC-001 cap-by-bairro corrigido.'
+  staging_ok: true  # Implementacao + smoke staging permitidos
+  prod_ok: false    # Bloqueado por 7.10 + OBS-001 + SEC-001
+
+handoff:
+  next_action: 'Dev (@dev) avalia LOGIC-001 (cap por bairro) — fix antes de InProgress->Done OU defer para 7.6 wiring. Ops (@devops) deploy staging para executar OBS-001. Pre-prod: aguardar 7.10 + SEC-001 HMAC.'
+  blockers_for_done: [LOGIC-001, OBS-001]
+  blockers_for_prod: [BLOCK-001 (7.10), SEC-001, SEC-002, OBS-001]
