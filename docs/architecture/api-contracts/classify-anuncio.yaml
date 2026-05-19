@@ -1,0 +1,102 @@
+openapi: 3.1.0
+info:
+  title: classify-anuncio
+  version: 1.0.0
+  description: |
+    Boundary contract for the classify-anuncio Supabase Edge Function (Story 7.6 AC6).
+
+    Wave A returns deterministic placeholders (nulls + `source: deterministic_v1`).
+    Wave B will return real urgency/motivation classifications with
+    `source: langgraph_subgraph_v1`. Consumers MUST switch on `source` rather
+    than assuming non-null fields — this is the versioning anchor.
+servers:
+  - url: https://{supabase_ref}.supabase.co/functions/v1
+    variables:
+      supabase_ref:
+        default: hculsnvpyccnekfyficu
+
+paths:
+  /classify-anuncio:
+    post:
+      summary: Classify a listing's text for urgency / motivation signals.
+      operationId: classifyAnuncio
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClassifyAnuncioInput'
+      responses:
+        '200':
+          description: Classification returned (nulls allowed in Wave A).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassifyAnuncioOutput'
+              examples:
+                wave_a:
+                  summary: Wave A response (deterministic placeholder)
+                  value:
+                    urgency_signal: null
+                    motivation_hint: null
+                    source: deterministic_v1
+                wave_b_future:
+                  summary: Wave B response (NLP, future)
+                  value:
+                    urgency_signal: high
+                    motivation_hint: vendedor cita mudanca urgente para o exterior
+                    source: langgraph_subgraph_v1
+        '400':
+          description: Invalid payload.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '405':
+          description: Method not allowed (POST required).
+
+components:
+  schemas:
+    ClassifyAnuncioInput:
+      type: object
+      required: [listing_id, text]
+      properties:
+        listing_id:
+          type: string
+          format: uuid
+          description: Foreign key to scraped_listings.id.
+        text:
+          type: string
+          description: Full listing description (title + body concatenated by caller).
+    ClassifyAnuncioOutput:
+      type: object
+      required: [urgency_signal, motivation_hint, source]
+      properties:
+        urgency_signal:
+          type:
+            - string
+            - 'null'
+          enum: [high, medium, low, null]
+          description: Wave A always null. Wave B classifies high/medium/low.
+        motivation_hint:
+          type:
+            - string
+            - 'null'
+          description: Wave A always null. Wave B returns short PT-BR phrase.
+        source:
+          type: string
+          enum: [deterministic_v1, langgraph_subgraph_v1]
+          description: |
+            Contract version anchor. Consumers branch on this value to know
+            whether classification fields are populated.
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+          examples:
+            - invalid_json
+            - listing_id_must_be_uuid
+            - text_must_be_string
+            - body_must_be_object
