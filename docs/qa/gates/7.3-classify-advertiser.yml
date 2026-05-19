@@ -1,0 +1,66 @@
+schema: 1
+story: '7.3'
+gate: PASS
+status_reason: 'All 7 ACs verified. classifyAdvertiser e funcao pura (zero I/O, deterministica), 4-rule cascade per ADR-EPIC7-004 implementado corretamente, lookupCNAE com cache TTL 5min injectable e SupabaseCNAELookupClient adapter. 46/46 testes passando (truth-table 13 cases + nameAppearsPersonal 19 cases + lookupCNAE 6 cases + adapter 3 cases + pureza). Barrel re-export confirmado. Modulo consolidado (vs split em 3 arquivos) alinhado com kiss-no-overengineering.'
+reviewer: 'Quinn'
+updated: '2026-05-18T02:20:00Z'
+
+top_issues:
+  - id: 'MNT-001'
+    severity: low
+    finding: 'Helpers _clearCNAECache e _cacheSize sao exportados como API publica (mesmo prefixados com _). Acessiveis em runtime de producao via barrel re-export.'
+    suggested_action: 'Aceitavel para Wave A (test-only helpers documentados como "NAO usar em producao"). Wave B: considerar mover para arquivo internal e expor apenas em test setup. Nao bloqueia.'
+  - id: 'PERF-001'
+    severity: low
+    finding: 'Cache CNAE e modulo-level (Map global). Em multi-tenant SSR sem reset, cache vaza entre requests teoricamente. Nao e issue real porque dados CNAE sao globais (CNPJ -> CNAE e publico/imutavel).'
+    suggested_action: 'N/A — cache global e correto para dados imutaveis. Documentar em Wave B caso migracao para Redis.'
+  - id: 'MNT-002'
+    severity: low
+    finding: 'Regex nameAppearsPersonal aceita "Joao da Silva" mas particles set usa lowercase apenas (`da`, `de`, `do`, `das`, `dos`, `e`). Particle "E" capitalizada (raro em nomes pt-BR) cairia no regex alfabetico normal e passaria.'
+    suggested_action: 'Edge nao critico; nenhuma producao real usa "E" capitalizado como particle. Story 7.9 (Luciana validation) capturara qualquer falso positivo. Nao bloqueia.'
+
+waiver: { active: false }
+
+acceptance_criteria_review:
+  AC1: PASS  # classifyAdvertiser e pura (sem I/O, sem Date.now, sem random). Teste "AC1: funcao e pura" confirma idempotencia.
+  AC2: PASS  # AdvertiserSignals tipado com todos 7 campos: hasCRECI, cnpj?, cnae?, phoneType?, phoneDDD?, listingCountByPhone?, nameAppearsPersonal.
+  AC3: PASS  # 4-rule cascade implementado: CNAE builder (0.95) -> CNAE broker (0.90) -> FISBO 4-signal (0.85) -> CRECI agent (0.80) -> unknown (0.0).
+  AC4: PASS  # lookupCNAE com cache TTL 5min via Map<cnpj, {cnae, expiresAt}>, fetcher injectable, cache MISS/HIT/expiry todos testados.
+  AC5: PASS  # nameAppearsPersonal regex: rejeita LTDA/ME/EIRELI/S.A./EPP/MEI + keywords PJ (Construtora, Imobiliaria, etc) + digitos + 1 ou >5 palavras + lowercase. 19 cases cobrindo PF/PJ/edge.
+  AC6: PASS  # 13 truth-table cases cobrem todos 4 paths + edges (CNPJ vs CRECI prioridade, CNAE sem CNPJ, FISBO com CRECI = agent).
+  AC7: PASS  # Sincrona, O(1) por construcao (Set.has + regex + Map lookup). Benchmark formal nao requerido — funcao pura sem hot path I/O.
+
+automated_checks:
+  tests: '46/46 passed (truth-table 13 + nameAppearsPersonal 19 + lookupCNAE cache 6 + SupabaseCNAELookupClient adapter 3 + pureza idempotencia)'
+  full_suite: '306/306 passing (260 baseline + 46 novos), +46 conforme story spec'
+  typecheck: 'TS estrita — interfaces CNAELookupClient/SupabaseLike + types AdvertiserSignals/ClassificationResult/ClassificationSignal corretamente exportados'
+  lint: 'Conforme padroes do projeto'
+  regression: 'Nao detectado — Epic 6 + Story 7.1/7.2 preservados'
+
+quality_review_findings:
+  purity:
+    score: PASS
+    notes: 'classifyAdvertiser e 100% pura: sem await, sem Date.now() interno, sem console.log. lookupCNAE e async mas isolado (caller resolve cnae ANTES de chamar classifyAdvertiser). Cache CNAE com `now: () => number` injetavel garante testabilidade deterministica.'
+  coverage:
+    score: PASS
+    notes: 'Truth-table cobre TODOS os 4 paths AC3 (CASE 1-4 builder/broker, CASE 5 FISBO+, CASE 6/6b FISBO-, CASE 7 agent, CASE 8 unknown, CASE 9-13 edges). Pureza testada (CASE AC1). lookupCNAE: miss, hit, TTL expira, CNPJ vazio, miss null cacheado, multi-CNPJ independentes. nameAppearsPersonal: 19 cases (6 PF + 9 PJ + 4 edge + null/undefined).'
+  injectability:
+    score: PASS
+    notes: 'CNAELookupClient interface segue mesmo padrao TelemetryClient (Story 7.2). SupabaseCNAELookupClient adapter testado isoladamente (mapeia query + null handling + error propagation).'
+  cache_design:
+    score: PASS
+    notes: 'TTL via timestamp absoluto (expiresAt) e correto. Miss (null) cacheado como "" para evitar N round-trips em CNPJ desconhecidos — decisao explicitada em Dev Decisions #6.'
+  regex_robustness:
+    score: PASS
+    notes: 'RAZAO_SOCIAL_PATTERNS + PJ_KEYWORDS cobrem todos casos do AC5. Particles pt-BR aceitas. Word boundaries (\b) previnem falso match em substrings.'
+  barrel_export:
+    score: PASS
+    notes: 'app/src/lib/scrapers/index.ts re-exporta classifyAdvertiser, nameAppearsPersonal, lookupCNAE, SupabaseCNAELookupClient, BUILDER_CNAES, BROKER_CNAES + 5 types. Story 7.4 podera importar via barrel limpo.'
+  adr_compliance:
+    score: PASS
+    notes: 'ADR-EPIC7-004 (4-rule cascade) implementado verbatim. ADR-EPIC7-006 (TS puro, sem next/*) respeitado. kiss-no-overengineering: modulo consolidado vs split 3 arquivos com Dev decision documentada.'
+
+history:
+  - date: '2026-05-18T02:20:00Z'
+    gate: PASS
+    reason: 'All 7 ACs verified, 46/46 tests passing, 4-rule cascade per ADR-EPIC7-004 correto, pureza confirmada, barrel re-export limpo.'
