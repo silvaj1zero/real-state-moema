@@ -1,0 +1,76 @@
+{
+  "title": "MercadoLivre Imoveis — Input",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "bairros": {
+      "title": "Bairros (slugs canonicos)",
+      "type": "array",
+      "description": "Bairros Zona Sul SP. Slug deve corresponder ao path canonico do MercadoLivre.",
+      "editor": "stringList",
+      "default": ["moema", "vila-olimpia", "itaim-bibi"],
+      "prefill": ["moema", "vila-olimpia", "itaim-bibi"]
+    },
+    "tipo_negocio": {
+      "title": "Tipo de negocio",
+      "type": "string",
+      "enum": ["venda", "aluguel"],
+      "enumTitles": ["Venda", "Aluguel"],
+      "default": "venda"
+    },
+    "preco_min": {
+      "title": "Preco minimo (BRL)",
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "preco_max": {
+      "title": "Preco maximo (BRL)",
+      "type": "integer",
+      "minimum": 0,
+      "default": 0,
+      "description": "0 = sem teto"
+    },
+    "area_min": {
+      "title": "Area minima (m2)",
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "area_max": {
+      "title": "Area maxima (m2)",
+      "type": "integer",
+      "minimum": 0,
+      "default": 0,
+      "description": "0 = sem teto"
+    },
+    "quartos_min": {
+      "title": "Quartos minimo",
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "max_listings_per_bairro": {
+      "title": "Cap por bairro/run",
+      "type": "integer",
+      "minimum": 1,
+      "default": 500,
+      "description": "Hard cap defensivo. MercadoLivre limita 200 itens/busca; ajustar via chunking de preco."
+    },
+    "supabase_url": {
+      "title": "Supabase URL (override)",
+      "type": "string",
+      "editor": "textfield",
+      "description": "Opcional — quando vazio, usa env SUPABASE_URL do Actor.",
+      "isSecret": false
+    },
+    "supabase_service_role_key": {
+      "title": "Supabase service-role key",
+      "type": "string",
+      "editor": "textfield",
+      "description": "Opcional — quando vazio, usa env SUPABASE_SERVICE_ROLE_KEY.",
+      "isSecret": true
+    }
+  },
+  "required": []
+}

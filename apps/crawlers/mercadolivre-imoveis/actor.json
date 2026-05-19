@@ -1,0 +1,14 @@
+{
+  "actorSpecification": 1,
+  "name": "mercadolivre-imoveis",
+  "title": "MercadoLivre Imoveis — Zona Sul SP",
+  "description": "Crawler diario para listings MercadoLivre Imoveis nas zonas Moema / Vila Olimpia / Itaim Bibi (Sao Paulo). Wave A do Epic 7.",
+  "version": "0.1",
+  "buildTag": "latest",
+  "input": "./input_schema.json",
+  "dockerfile": "./Dockerfile",
+  "categories": ["REAL_ESTATE", "SCRAPING"],
+  "minMemoryMbytes": 2048,
+  "maxMemoryMbytes": 4096,
+  "isPublic": false
+}
