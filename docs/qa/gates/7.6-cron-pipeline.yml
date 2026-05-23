@@ -1,11 +1,33 @@
 schema: 1
 story: '7.6'
 gate: PASS
-status_reason: 'Re-gate of commit cac7b9a against prior CONCERNS gate (fde1ca3, 2026-05-18). All 4 medium issues are RESOLVED in code via two new migrations (018 + 019), an in-place edit to 013, and a documentation expansion of the AC9 PoC. INFRA-001: pgmq is now pinned to VERSION ''1.5.1'' in migration 013 line 45 — exactly the version validated by @data-engineer in docs/poc/7.6-pgmq-availability-check.md. pg_cron VERSION pin in migration 012 was deliberately NOT applied because 012 was already merged/applied in a prior wave and is treated as immutable; the Dev decision is documented in the story Change Log (2026-05-19 entry) and is acceptable QA-side because pg_cron is not in the function-resolution path that pgmq is — pg_cron API surface is stable across 1.6.x and any drift would be observable in cron.job_run_details. SEC-001: migration 018 explicitly declares `security_invoker = true` on v_crawl_health, removing the implicit-RLS audit ambiguity. SEC-001 dashboard policy for `authenticated` role is intentionally left to a follow-up policy story (acknowledged in migration 018 header comment). INFRA-002: migration 019 implements the cron.timezone GUC guard as a non-fatal WARNING — matches the QA recommendation tone (fail-fast was reconsidered as fail-soft to avoid blocking unrelated migrations on a runtime concern, which is the correct architectural call). TEST-001: docs/poc/7.6-self-healing-smoke.md now contains a full 9-step local execution guide (Supabase CLI + psql) with sign-off block, closing the "no reproducible-locally path" gap. AC9 staging smoke E2E remains deferred (doc-only is acceptable for Wave A per gate scope). Tests: 455/455 PASS (no regression; +23 from baseline 432 across the project, consistent with concurrent Epic 7 work). Verdict upgraded to PASS.'
+status_reason: 'Re-gate 2026-05-23 against pre-deploy inline fix to migration 013 (uncommitted, applied by @db-sage Dara). Phase 1 deploy on Supabase branch `staging-epic7` (isolated, disposable) surfaced SQLSTATE 42809 on v_crawl_health.avg_duration_ms — parser bound FILTER clause to outer ROUND() (scalar) instead of inner AVG() (aggregate). Fix: re-nest FILTER inside ROUND() so it applies to AVG() before NUMERIC cast (lines 197-207). View column signature (avg_duration_ms) intact — migration 018 ALTER VIEW remains compatible. Justified exception to migration-immutability rule documented in inline CHANGELOG block at top of 013: migration NEVER applied successfully in any environment (parser aborted before DDL commit on first deploy attempt to isolated branch); zero production state to protect; Path B (new migration 020 with DROP/CREATE) technically infeasible because 013 parser error aborts the migration transaction, preventing 020 from ever executing — and migration 018 already depends on the view existing, so the dependency chain only works if 013 succeeds. Tests: 455/455 PASS (47 files, 49.70s) — no regression; fix is SQL-only, no app code touched. All 11 ACs remain PASS. Pre-deploy bug catch is a SUCCESS signal of the Phase 1 isolated-branch deploy protocol — bug surfaced safely in disposable environment before any prod-state risk. New issue FIX-DEPLOY-001 logged as RESOLVED. Verdict: PASS (maintained). Re-gate 2026-05-20 details retained below for audit trail. ORIGINAL 2026-05-20 RE-GATE: Re-gate of commit cac7b9a against prior CONCERNS gate (fde1ca3, 2026-05-18). All 4 medium issues are RESOLVED in code via two new migrations (018 + 019), an in-place edit to 013, and a documentation expansion of the AC9 PoC. INFRA-001: pgmq is now pinned to VERSION ''1.5.1'' in migration 013 line 45 — exactly the version validated by @data-engineer in docs/poc/7.6-pgmq-availability-check.md. pg_cron VERSION pin in migration 012 was deliberately NOT applied because 012 was already merged/applied in a prior wave and is treated as immutable; the Dev decision is documented in the story Change Log (2026-05-19 entry) and is acceptable QA-side because pg_cron is not in the function-resolution path that pgmq is — pg_cron API surface is stable across 1.6.x and any drift would be observable in cron.job_run_details. SEC-001: migration 018 explicitly declares `security_invoker = true` on v_crawl_health, removing the implicit-RLS audit ambiguity. SEC-001 dashboard policy for `authenticated` role is intentionally left to a follow-up policy story (acknowledged in migration 018 header comment). INFRA-002: migration 019 implements the cron.timezone GUC guard as a non-fatal WARNING — matches the QA recommendation tone (fail-fast was reconsidered as fail-soft to avoid blocking unrelated migrations on a runtime concern, which is the correct architectural call). TEST-001: docs/poc/7.6-self-healing-smoke.md now contains a full 9-step local execution guide (Supabase CLI + psql) with sign-off block, closing the "no reproducible-locally path" gap. AC9 staging smoke E2E remains deferred (doc-only is acceptable for Wave A per gate scope). Tests: 455/455 PASS (no regression; +23 from baseline 432 across the project, consistent with concurrent Epic 7 work). Verdict upgraded to PASS.'
 reviewer: 'Quinn'
-updated: '2026-05-20T15:05:00Z'
+updated: '2026-05-23T14:20:00Z'
+
+re_gates:
+  - date: '2026-05-18'
+    commit: 'fde1ca3'
+    verdict: 'CONCERNS'
+    note: 'Initial gate — 4 medium issues identified (INFRA-001, SEC-001, INFRA-002, TEST-001).'
+  - date: '2026-05-20'
+    commit: 'cac7b9a'
+    verdict: 'PASS'
+    note: 'All 4 medium issues RESOLVED via mig 013 inline pin, mig 018 (security_invoker), mig 019 (cron.timezone guard), and PoC local-execution guide. Tests 455/455.'
+  - date: '2026-05-23'
+    commit: 'uncommitted (Dara @db-sage inline fix)'
+    verdict: 'PASS'
+    note: 'Pre-deploy bug FIX-DEPLOY-001 caught on Supabase branch `staging-epic7` and fixed inline in mig 013 (FILTER placement on v_crawl_health.avg_duration_ms). Justified migration-immutability exception documented in mig 013 CHANGELOG. Tests 455/455. Verdict maintained.'
 
 top_issues:
+  - id: 'FIX-DEPLOY-001'
+    severity: medium
+    status: RESOLVED
+    resolution_commit: 'uncommitted (Dara @db-sage 2026-05-23)'
+    discovered_by: '@devops Gage (Phase 1 deploy on Supabase branch staging-epic7)'
+    finding: 'Migration 013 v_crawl_health.avg_duration_ms expression placed FILTER (WHERE finished_at IS NOT NULL) on the outer ROUND() scalar function, triggering Postgres SQLSTATE 42809: "FILTER specified, but round is not an aggregate function". Parser bound FILTER to ROUND instead of the inner AVG aggregate. Migration aborted at parse time on first apply attempt to Supabase branch staging-epic7 (isolated, disposable). Zero production state affected.'
+    resolution: 'Inline edit to migration 013 (lines 197-207): FILTER moved inside ROUND() so it applies to AVG() before NUMERIC cast. Expression now reads: `ROUND( AVG(...) FILTER (WHERE finished_at IS NOT NULL) ::NUMERIC, 0 )`. View column signature (avg_duration_ms) preserved — migration 018 (`ALTER VIEW v_crawl_health SET (security_invoker = true)`) remains compatible because column name and ordinal position are unchanged. Justified exception to migration-immutability rule documented inline at top of migration 013 (CHANGELOG block, lines 19-50): (1) migration never applied in any environment — no deployed state to protect, immutability spirit not violated; (2) Path B (new migration 020 with DROP/CREATE) technically infeasible — 013 parser failure aborts the migration transaction before 020 can execute, and migration 018 also depends on the view existing; (3) authority chain followed — @db-sage owns DDL/migrations, re-gate by @qa required and performed.'
+    suggested_action: 'Closed. Pre-deploy bug catch is a SUCCESS signal of the Phase 1 isolated-branch deploy protocol. Recommend: @devops retries Phase 1 (recreate Supabase branch, apply mig 008-019, run AC9 smoke, regenerate TypeScript types). Add to deploy-verification checklist: confirm v_crawl_health is queryable post-apply (`SELECT * FROM v_crawl_health LIMIT 1` returns expected columns without parse error).'
   - id: 'INFRA-001'
     severity: medium
     status: RESOLVED
@@ -76,9 +98,9 @@ test_summary:
   failing: 0
   new_tests: 0
   test_command: 'cd app && npm test -- --run'
-  duration_seconds: 28.67
-  delta_from_prior_gate: '+23 (432 -> 455, consistent with concurrent Epic 7 work; no regression introduced by commit cac7b9a)'
-  coverage_notes: '47 test files PASS. classify-anuncio contract tests (12) remain green. No new tests added in this re-gate cycle (resolution was migrations + docs only; no code-level test surface changed).'
+  duration_seconds: 49.70
+  delta_from_prior_gate: '0 (455 -> 455 — fix is SQL-only in migration 013, no application-code surface touched, no regression)'
+  coverage_notes: '47 test files PASS. classify-anuncio contract tests (12) remain green. No new tests added — the SQL fix is in a DDL view definition. Validation that the fix is correct comes from re-running migration 013 against a fresh Supabase branch (Phase 1 retry, @devops next action).'
 
 quality_dimensions:
   correctness: PASS    # SQL functions + Edge Function logic unchanged
@@ -119,6 +141,8 @@ verdict_rationale: |
   procedure (for sign-off), then @po transitions Status from InReview to Done.
 
 next_actions:
+  - actor: '@devops'
+    action: 'Retry Phase 1 deploy: drop and recreate Supabase branch `staging-epic7`, re-apply migrations 008-019 (now including the FIX-DEPLOY-001 inline fix in mig 013), run AC9 smoke procedure, regenerate TypeScript types from updated schema.'
   - actor: '@devops'
     action: 'Apply migrations 008-019 to staging Supabase branch via *deploy-story 7.6'
   - actor: '@devops'

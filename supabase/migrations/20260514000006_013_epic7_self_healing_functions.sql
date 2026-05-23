@@ -16,6 +16,39 @@
 -- Note (cross-story): Story 7.2 AC5 is hereby de facto rewritten to "consume
 -- fn_mark_stale_runs() defined in this migration". The function does NOT
 -- exist in 009; this is the canonical owner.
+--
+-- =============================================================================
+-- CHANGELOG
+-- =============================================================================
+-- 2026-05-23 — Dara (@db-sage) — INLINE FIX (justified exception to
+--   migration-immutability rule):
+--
+--   Bug: v_crawl_health avg_duration_ms expression placed FILTER on the
+--   outer ROUND() (scalar function), triggering Postgres SQLSTATE 42809:
+--   "FILTER specified, but round is not an aggregate function". Parser
+--   associated FILTER with ROUND instead of the inner AVG aggregate.
+--
+--   Fix: moved FILTER inside ROUND() so it applies to AVG() before cast.
+--
+--   Discovery: @devops Gage, Phase 1 deploy on Supabase branch
+--   `staging-epic7` (isolated, disposable). Bug aborted parser before
+--   any DDL was committed.
+--
+--   Production impact: ZERO. This migration NEVER applied successfully
+--   in any environment. No deployed state depends on the pre-fix DDL.
+--
+--   Why inline over new migration 020:
+--     - 013 failure aborts the entire migration transaction; a follow-up
+--       migration 020 attempting DROP/CREATE would never execute because
+--       Postgres halts the migration chain at the first parser error.
+--     - Migration 018 (ALTER VIEW v_crawl_health SET security_invoker)
+--       requires the view to exist — only reachable if 013 succeeds.
+--     - Immutability rule protects DEPLOYED state from drift; there is
+--       no deployed state here to protect.
+--
+--   Authority: @db-sage owns DDL/migrations (.claude/rules/agent-authority.md).
+--   Re-gate required: @qa on Story 7.6 against this fix.
+--   See: docs/stories/7.6.story.md Change Log 2026-05-23 entry.
 
 -- =============================================================================
 -- AC4 — crawl_runs.retry_count
@@ -166,9 +199,12 @@ SELECT
          / NULLIF(COUNT(*) FILTER (WHERE status IN ('completed','failed')), 0),
     2
   )                                                              AS success_rate_pct,
-  ROUND(AVG(
-    EXTRACT(EPOCH FROM (finished_at - started_at)) * 1000
-  )::NUMERIC, 0) FILTER (WHERE finished_at IS NOT NULL)           AS avg_duration_ms,
+  ROUND(
+    AVG(EXTRACT(EPOCH FROM (finished_at - started_at)) * 1000)
+      FILTER (WHERE finished_at IS NOT NULL)
+    ::NUMERIC,
+    0
+  )                                                              AS avg_duration_ms,
   SUM(retry_count)                                                AS total_retries,
   MAX(started_at)                                                 AS last_run_at
 FROM crawl_runs
