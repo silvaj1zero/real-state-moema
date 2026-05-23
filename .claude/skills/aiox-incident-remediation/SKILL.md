@@ -39,15 +39,30 @@ Use this skill when operator-private content may have reached a branch, PR, issu
      --commits <comma-separated-shas> \
      --issues <comma-separated-issues> \
      --diff-patch \
+     --issue-timeline \
+     --timeline-issues <affected-prs-and-issues> \
+     --forks \
      --traffic
    ```
 
-   The audit suppresses PR head branch names by default and reports diff/patch status plus byte counts without printing diff contents. Add `--include-head-refs` only for private Support evidence, not for multi-tenant issue comments.
+   The audit suppresses PR head branch names by default and reports diff/patch status plus byte counts without printing diff contents. `--issue-timeline` reports event counts only, not previous body/title text; use `--timeline-issues` to include affected PR numbers as well as tracker issues. `--forks` reports repository fork counters plus any fork fingerprints, owner type, visibility, and branch counts visible to the current token without printing fork owner or repository names; it flags token-limited lists and does not count fork presence as residue without owner review. Add `--include-head-refs` only for private Support evidence, not for multi-tenant issue comments.
+
+   For sensitive search-index closeout, pass private terms through an environment variable so they are not echoed in workflow commands:
+
+   ```bash
+   AIOX_INCIDENT_SEARCH_QUERIES="<sensitive-slug>" \
+     node scripts/aiox-incident-remediation.js audit \
+       --repo AIOXsquad/AIOX-enterprise \
+       --issues <comma-separated-issues> \
+       --search
+   ```
+
+   In GitHub Actions, configure repository secret or variable `AIOX_INCIDENT_SEARCH_QUERIES`; the residue watch workflow will include search counts automatically without printing the raw query.
 
 5. Remove active exposure that repo admins can mutate: close unsafe PRs, delete unsafe branches/tags after private backup, redact issue/PR bodies, delete or minimize comments where authorized, and remove revealing labels/milestones.
 6. File or update a GitHub Support request for support-only residue. Include counts and refs from the audit, not raw private content.
 7. Track all remaining support-only blockers in one issue until Support confirms cleanup or the owner explicitly dispositions the residue.
-8. Before closing the parent incident, re-run the audit with `--fail-on-residue` and confirm every affected surface is cleaned or explicitly dispositioned.
+8. Before closing the parent incident, re-run the audit with `--fail-on-residue`, `--issue-timeline`, and any private search terms needed for the case; confirm every affected surface is cleaned or explicitly dispositioned.
 
 ## Evidence Format
 

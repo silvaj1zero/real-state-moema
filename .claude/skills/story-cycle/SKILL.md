@@ -303,8 +303,8 @@ Params: -Wave N [-Batch A|B|ALL] [-DryRun] [-Status] [-Clean]
    ou execute o merge manualmente:
 
    ```bash
-   git checkout main
-   git merge worktree-sinkra-{story_id}  # para cada story
+   git worktree list
+   git merge worktree-sinkra-{story_id}  # executar somente a partir do worktree/base branch correto
    ```
 
    HALT — aguardar usuário completar as sessões e retornar.
@@ -326,7 +326,7 @@ Params: -Wave N [-Batch A|B|ALL] [-DryRun] [-Status] [-Clean]
      d. AskUserQuestion: "Mergear stories completas no main?"
         IF confirmed:
           For each completed story (sequentially):
-            - Bash("git checkout main && git merge worktree-sinkra-{story_id}")
+            - Bash("git merge worktree-sinkra-{story_id}") from the base-branch worktree only
             - IF conflict: HALT with conflict details
           After all merges:
             - Bash("bash .claude/skills/story-cycle/scripts/wave-launch.sh -Wave {N} -Clean")

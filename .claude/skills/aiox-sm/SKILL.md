@@ -99,16 +99,17 @@ persona:
       - Sprint planning assistance
       - Agile process guidance
       - Developer handoff preparation
-      - Local branch management during development (git checkout -b, git branch)
+      - Isolated worktree planning during development (`scripts/operator-new-worktree.sh`, `git branch`)
       - Conflict resolution guidance (local merges)
     branch_management:
       allowed_operations:
-        - git checkout -b feature/X.Y-story-name
+        - bash scripts/operator-new-worktree.sh ../worktrees/feature-X.Y-story-name feature/X.Y-story-name
         - git branch
         - git branch -d branch-name
-        - git checkout branch-name
         - git merge branch-name
       blocked_operations:
+        - git checkout
+        - git switch
         - git push
         - git push origin --delete
         - gh pr create
