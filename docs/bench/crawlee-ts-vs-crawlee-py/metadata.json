@@ -1,0 +1,44 @@
+{
+  "bench_id": "BENCH-01-crawlee-ts-vs-crawlee-py",
+  "comparison_type": "technology",
+  "generated_at": "2026-05-14",
+  "analyst": "spy-bench-analyst",
+  "subjects": {
+    "a": {
+      "id": "crawlee-ts",
+      "name": "Crawlee for JavaScript / TypeScript",
+      "version": "current (master @ 2026-05-13)",
+      "homepage": "https://crawlee.dev/",
+      "repo": "https://github.com/apify/crawlee"
+    },
+    "b": {
+      "id": "crawlee-py",
+      "name": "Crawlee for Python",
+      "version": "1.x (v1.0 GA in 2025-09; master @ 2026-05-13)",
+      "homepage": "https://crawlee.dev/python/",
+      "repo": "https://github.com/apify/crawlee-python"
+    }
+  },
+  "context": {
+    "project": "Epic 7 Real-State-Moema lead prospecting",
+    "stack": "Next.js 15 + Supabase + Mapbox + Apify",
+    "target_sites": ["MercadoLivre", "ImovelWeb", "ZAP", "OLX", "VivaReal"],
+    "volume_target": "10k-50k pages/month, expandable",
+    "wave_2_suggested_winner": "crawlee-ts"
+  },
+  "dimensions": [
+    {"id": "maturity", "weight": 0.15},
+    {"id": "developer_experience", "weight": 0.10},
+    {"id": "stack_fit_typescript_nextjs", "weight": 0.15},
+    {"id": "ecosystem_npm_vs_pip", "weight": 0.10},
+    {"id": "hybrid_http_browser_pattern", "weight": 0.10},
+    {"id": "integration_python_cnpj_sqlite", "weight": 0.10},
+    {"id": "deploy_footprint", "weight": 0.10},
+    {"id": "anti_bot_capability", "weight": 0.10},
+    {"id": "community_velocity", "weight": 0.10}
+  ],
+  "scoring_method": "0-100 per dimension, weighted average; evidence + source URL required",
+  "confidence": "High (live GitHub metadata + Wave 1/2 sources)",
+  "sources_consulted": 12,
+  "wave_sources_reused": 5
+}

@@ -1,0 +1,86 @@
+{
+  "bench_id": "BENCH-01-crawlee-ts-vs-crawlee-py",
+  "gaps_ts_to_py": [
+    {
+      "id": "gap-ts-1",
+      "description": "Crawlee TS has no first-party AWS Lambda deployment docs",
+      "severity": "low",
+      "context_for_project": "Epic 7 will run on Hetzner / Cloud Run, not Lambda; gap is non-blocking",
+      "mitigation": "Use community Lambda recipes if needed; or keep TS workers on long-running VPS",
+      "source": "https://crawlee.dev/python/docs/deployment/aws-lambda"
+    },
+    {
+      "id": "gap-ts-2",
+      "description": "Crawlee TS requires IPC or DB view to talk to rictom/cnpj-sqlite (Python lib)",
+      "severity": "medium",
+      "context_for_project": "Real for the CNPJ subsystem only",
+      "mitigation": "Keep CNPJ ETL in its own Python container, expose via Supabase materialized views (Wave 2 decision)",
+      "source": "https://github.com/rictom/cnpj-sqlite"
+    },
+    {
+      "id": "gap-ts-3",
+      "description": "Data-science adjacency (pandas, polars, scikit-learn) requires either Python service or JS equivalents (Danfo.js, etc.)",
+      "severity": "low",
+      "context_for_project": "Wave A is heuristic determinístico, ML é Wave B — pode rodar em Python isolado",
+      "mitigation": "Same container split as CNPJ; ML lives in Python",
+      "source": "Wave 2 strategy"
+    }
+  ],
+  "gaps_py_to_ts": [
+    {
+      "id": "gap-py-1",
+      "description": "Crawlee Python has no StagehandCrawler (AI natural-language CSS selectors)",
+      "severity": "medium",
+      "context_for_project": "Useful for sites that change CSS frequently (ImovelWeb, MercadoLivre)",
+      "mitigation": "Wait for Python port (Apify roadmap mentions cross-pollination) or build crawler-specific selectors",
+      "source": "https://crawlee.dev/blog (Stagehand announcement, JS-only)"
+    },
+    {
+      "id": "gap-py-2",
+      "description": "AdaptivePlaywrightCrawler less mature in Python (v0.5 era, still feature-incomplete vs JS reference)",
+      "severity": "medium",
+      "context_for_project": "Hybrid pattern is the primary cost lever for MercadoLivre/ImovelWeb (avoid browser when HTTP works)",
+      "mitigation": "Use Python only for sites where HTTP path is sufficient; reach for JS adaptive for harder targets",
+      "source": "https://crawlee.dev/blog/crawlee-for-python-v05"
+    },
+    {
+      "id": "gap-py-3",
+      "description": "Python smaller community + fewer first-party templates + fewer SO answers",
+      "severity": "medium",
+      "context_for_project": "Time-to-resolve issues impacts Wave A timeline",
+      "mitigation": "Lean on Apify Discord; budget more time for novel issues",
+      "source": "GitHub API community metrics + Apify Discord"
+    },
+    {
+      "id": "gap-py-4",
+      "description": "Cannot share TypeScript domain types with Next.js (Real-State-Moema main app)",
+      "severity": "high",
+      "context_for_project": "Major friction for a project where the rest of the codebase is TS-first",
+      "mitigation": "Generate Python pydantic models from a shared schema (e.g., openapi-typescript + datamodel-code-generator) — extra tooling",
+      "source": "project tsconfig.json"
+    },
+    {
+      "id": "gap-py-5",
+      "description": "Two-runtime deploy = two CI lanes, two base images, two dependency lifecycles",
+      "severity": "high",
+      "context_for_project": "Operational overhead small team (founder + Luciana) cannot absorb",
+      "mitigation": "Isolate Python only where it pays for itself (CNPJ ETL)",
+      "source": "implicit from project Dockerfile + Vercel deploy"
+    },
+    {
+      "id": "gap-py-6",
+      "description": "GIL caveat for CPU-bound parsing in single-process; multi-process is doable but Operatable cost is higher",
+      "severity": "low",
+      "context_for_project": "Volume ~10-50k pgs/mês cabe em single-process JS",
+      "mitigation": "Use Python multiprocess pool only for ETL CNPJ batch",
+      "source": "https://crawlee.dev/python/docs/guides/scaling-crawlers"
+    }
+  ],
+  "summary": {
+    "gaps_ts_to_py": 3,
+    "gaps_py_to_ts": 6,
+    "high_severity_ts_to_py": 0,
+    "high_severity_py_to_ts": 2,
+    "interpretation": "Both gaps with HIGH severity against Python are STACK-LEVEL (type sharing, runtime count). Gaps against TS are ALL contained in the CNPJ subsystem which already lives in Python."
+  }
+}

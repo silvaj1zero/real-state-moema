@@ -1,0 +1,43 @@
+{
+  "subject_id": "apify-cloud",
+  "snapshot_at": "2026-05-14",
+  "components": {
+    "compute_units": {
+      "model": "CU = 1 GB-hour memory equivalent",
+      "tiered_pricing": {
+        "free": "$5 monthly credit, $0.40/CU above",
+        "starter": "$49/mo, $0.30-0.40/CU depending on memory tier",
+        "creator": "$50/mo, $0.20/CU, 32 GB memory, 32 concurrent runs",
+        "scale": "scale plan ~$249/mo, $0.16/CU",
+        "business": "$0.20-0.25/CU, custom-negotiated"
+      },
+      "page_throughput": "~3000 pages/CU on CheerioCrawler (HTTP); ~300 pages/CU on browser/Playwright",
+      "source": "https://use-apify.com/docs/what-is-apify/apify-pricing + https://use-apify.com/docs/what-is-apify/apify-compute-units"
+    },
+    "proxy": {
+      "residential": "$8/GB (most expensive component)",
+      "datacenter": "$8/GB + $1/IP above bundle of 30",
+      "serps": "$2.5/1000 SERPs",
+      "bundled_with_plan": "varies by plan",
+      "source": "https://use-apify.com/docs/what-is-apify/apify-pricing"
+    },
+    "scheduler": "first-class (Actor schedules cron-style, retries, webhook callbacks)",
+    "observability": "Apify Console — logs, datasets, statistics, alerts, integrations with Slack/email",
+    "actor_marketplace": "1500+ Actors (incl. brasil-scrapers/quinto-andar-api already used by Epic 6 candidate set)",
+    "anti_bot": "Apify Proxy + fingerprinting; ImovelWeb (DataDome) is HARD on this surface — same problem self-hosted faces"
+  },
+  "operational_realities": [
+    "Setup: minutes (pre-built Actors) to hours (custom)",
+    "Maintenance: vendor-managed Actor SDK upgrades, runtime patches",
+    "Lock-in: Actor format is Apify-specific, BUT Crawlee code under the hood is portable",
+    "Per-page cost dominated by CU + proxy, not seat license"
+  ],
+  "sources": [
+    "https://apify.com/pricing",
+    "https://use-apify.com/docs/what-is-apify/apify-pricing",
+    "https://use-apify.com/docs/what-is-apify/apify-compute-units",
+    "https://apify.com/pricing/creator-plan",
+    "https://prospeo.io/s/apify-vs-firecrawl",
+    "https://checkthat.ai/brands/apify/pricing"
+  ]
+}

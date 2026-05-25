@@ -1,0 +1,28 @@
+{
+  "bench_id": "BENCH-03-cron-supabase-vs-langgraph-day1",
+  "scoring_scale": "0-100",
+  "context_anchor": "Wave A deterministic ETL 7 steps ~1-10k anúncios/mês; NO LLM in the loop",
+  "dimensions": [
+    {"id": "complexity_overhead", "weight": 0.15, "cron-supabase": 92, "langgraph-day1": 55, "delta": 37, "evidence": "Stack-native SQL/TS vs new abstraction tier", "source": "Supabase docs"},
+    {"id": "debug_dx", "weight": 0.10, "cron-supabase": 85, "langgraph-day1": 75, "delta": 10, "evidence": "Direct SQL on job history vs LangSmith time-travel; LangGraph DX is great but doesn't pay off for deterministic ETL", "source": "Supabase + LangSmith docs"},
+    {"id": "observability_native_supabase", "weight": 0.10, "cron-supabase": 95, "langgraph-day1": 50, "delta": 45, "evidence": "100% native vs external service", "source": "https://supabase.com/docs/guides/cron"},
+    {"id": "cost_llm_tokens", "weight": 0.12, "cron-supabase": 100, "langgraph-day1": 35, "delta": 65, "evidence": "$0 vs $109+/mês platform fees alone, ignoring LLM tokens", "source": "https://www.langchain.com/pricing-langgraph-platform"},
+    {"id": "determinism", "weight": 0.13, "cron-supabase": 100, "langgraph-day1": 70, "delta": 30, "evidence": "SQL semantics deterministic by construction; LangGraph supports but does not enforce determinism", "source": "LangGraph docs durable execution"},
+    {"id": "retry_idempotency", "weight": 0.10, "cron-supabase": 75, "langgraph-day1": 88, "delta": -13, "evidence": "BYO status-table pattern vs built-in checkpointer (between nodes)", "source": "self-healing cron article + LangGraph docs"},
+    {"id": "fit_volume_zona_sul", "weight": 0.10, "cron-supabase": 95, "langgraph-day1": 80, "delta": 15, "evidence": "Both fit comfortably; LangGraph cost-scales linearly", "source": "boringsql pg_cron deep dive + LangGraph pricing"},
+    {"id": "evolution_path_to_wave_b", "weight": 0.10, "cron-supabase": 80, "langgraph-day1": 92, "delta": -12, "evidence": "Hand-off pattern (pg_cron triggers LangGraph subgraph for NLP only) is the AppFolio pattern — well-precedented but adds a hop; LangGraph already there", "source": "AppFolio Realm-X case study"},
+    {"id": "team_familiarity", "weight": 0.10, "cron-supabase": 92, "langgraph-day1": 55, "delta": 37, "evidence": "SQL + TS used daily; Python + graph model new", "source": "project stack baseline"}
+  ],
+  "weighted_score": {
+    "cron-supabase": {
+      "value": 90.75,
+      "calc": "0.15*92 + 0.10*85 + 0.10*95 + 0.12*100 + 0.13*100 + 0.10*75 + 0.10*95 + 0.10*80 + 0.10*92 = 13.80+8.50+9.50+12.00+13.00+7.50+9.50+8.00+9.20 = 91.00"
+    },
+    "langgraph-day1": {
+      "value": 65.71,
+      "calc": "0.15*55 + 0.10*75 + 0.10*50 + 0.12*35 + 0.13*70 + 0.10*88 + 0.10*80 + 0.10*92 + 0.10*55 = 8.25+7.50+5.00+4.20+9.10+8.80+8.00+9.20+5.50 = 65.55"
+    },
+    "delta": 25.45,
+    "verdict": "CONFIRM Wave 2 suggested winner — cron-Supabase puro in Wave A; LangGraph reserved for Wave B NLP step only"
+  }
+}

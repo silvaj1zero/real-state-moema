@@ -1,0 +1,133 @@
+{
+  "bench_id": "BENCH-01-crawlee-ts-vs-crawlee-py",
+  "matrix": [
+    {
+      "capability": "Project age",
+      "crawlee-ts": "since 2016-08 (~9.7 years)",
+      "crawlee-py": "since 2024-01 (~2.3 years)",
+      "advantage": "crawlee-ts",
+      "delta": "7.4 years more battle-testing",
+      "evidence": "GitHub API created_at"
+    },
+    {
+      "capability": "GitHub stars",
+      "crawlee-ts": 23258,
+      "crawlee-py": 9042,
+      "advantage": "crawlee-ts",
+      "delta": "2.57x",
+      "evidence": "GitHub API 2026-05-14"
+    },
+    {
+      "capability": "Open issues / stars ratio",
+      "crawlee-ts": "176 / 23258 = 0.76%",
+      "crawlee-py": "77 / 9042 = 0.85%",
+      "advantage": "≈ tie (both healthy)",
+      "delta": "negligible",
+      "evidence": "GitHub API 2026-05-14"
+    },
+    {
+      "capability": "Last commit recency",
+      "crawlee-ts": "2026-05-13",
+      "crawlee-py": "2026-05-13",
+      "advantage": "tie",
+      "delta": "same day",
+      "evidence": "GitHub API"
+    },
+    {
+      "capability": "License",
+      "crawlee-ts": "Apache-2.0",
+      "crawlee-py": "Apache-2.0",
+      "advantage": "tie",
+      "delta": "—",
+      "evidence": "LICENSE in both repos"
+    },
+    {
+      "capability": "Hybrid HTTP→Browser pattern",
+      "crawlee-ts": "AdaptivePlaywrightCrawler GA, primary blog pattern",
+      "crawlee-py": "AdaptivePlaywrightCrawler added v0.5, still maturing",
+      "advantage": "crawlee-ts",
+      "delta": "JS is canonical reference",
+      "evidence": "https://crawlee.dev/blog/scrapy-vs-crawlee + https://crawlee.dev/blog/crawlee-for-python-v05"
+    },
+    {
+      "capability": "AI selector layer",
+      "crawlee-ts": "StagehandCrawler (natural-language CSS)",
+      "crawlee-py": "not available",
+      "advantage": "crawlee-ts",
+      "delta": "unique JS feature",
+      "evidence": "https://crawlee.dev/blog (Stagehand announcement)"
+    },
+    {
+      "capability": "AWS Lambda deployment",
+      "crawlee-ts": "community recipes only",
+      "crawlee-py": "FIRST-PARTY docs",
+      "advantage": "crawlee-py",
+      "delta": "only deployment Crawlee officially documents on Lambda",
+      "evidence": "https://crawlee.dev/python/docs/deployment/aws-lambda"
+    },
+    {
+      "capability": "Stack fit for Real-State-Moema (Next.js 15 TS)",
+      "crawlee-ts": "native — same language and module system",
+      "crawlee-py": "second runtime — requires IPC or DB views",
+      "advantage": "crawlee-ts",
+      "delta": "shares domain types, single deploy pipeline",
+      "evidence": "package.json + tsconfig.json of the project (Next.js 15 + TS)"
+    },
+    {
+      "capability": "Integration with cnpj-sqlite (Python)",
+      "crawlee-ts": "must call out to Python subprocess or DB view",
+      "crawlee-py": "in-process — same import space",
+      "advantage": "crawlee-py",
+      "delta": "natural code reuse for CNPJ ETL",
+      "evidence": "https://github.com/rictom/cnpj-sqlite (Python only)"
+    },
+    {
+      "capability": "Anti-bot tooling depth",
+      "crawlee-ts": "fingerprint rotation + got-scraping + session pool",
+      "crawlee-py": "session pool + curl_cffi TLS fingerprint",
+      "advantage": "crawlee-ts (mild)",
+      "delta": "JS has the more battle-tested fingerprinting stack",
+      "evidence": "Wave-1 source comparison; webscraping.ai FAQ"
+    },
+    {
+      "capability": "Concurrency model",
+      "crawlee-ts": "Node event loop + AutoscaledPool — high throughput single-process",
+      "crawlee-py": "asyncio + AutoscaledPool — high throughput but GIL caveats with CPU-bound parsing",
+      "advantage": "crawlee-ts (mild)",
+      "delta": "no GIL for I/O-bound, BUT Python beats it once you go multi-process; in single-process JS is faster for I/O fan-out",
+      "evidence": "https://crawlee.dev/python/docs/guides/scaling-crawlers"
+    },
+    {
+      "capability": "Ecosystem npm vs pip",
+      "crawlee-ts": "npm — Cheerio, Playwright, Got, JSDOM, all first-class",
+      "crawlee-py": "pip — Parsel, BS4, httpx, curl_cffi",
+      "advantage": "≈ tie",
+      "delta": "both rich, Python wins in data-science adjacency",
+      "evidence": "package registries"
+    },
+    {
+      "capability": "Feature parity in production-grade browser scraping",
+      "crawlee-ts": "100%",
+      "crawlee-py": "~80% catching up — JS is recommended for max perf/concurrency",
+      "advantage": "crawlee-ts",
+      "delta": "Apify themselves recommend JS for max throughput",
+      "evidence": "https://webscraping.ai/faq/crawlee/what-are-the-differences-between-crawlee-for-python-and-crawlee-for-javascript"
+    },
+    {
+      "capability": "Community velocity (subscribers + forks)",
+      "crawlee-ts": "129 subscribers + 1366 forks",
+      "crawlee-py": "45 subscribers + 738 forks",
+      "advantage": "crawlee-ts",
+      "delta": "~2.5x community engagement",
+      "evidence": "GitHub API 2026-05-14"
+    },
+    {
+      "capability": "Deploy footprint (single runtime stack)",
+      "crawlee-ts": "Node only — same as Next.js → one Dockerfile, one CI lane",
+      "crawlee-py": "Python container alongside Node — two CI lanes, two base images",
+      "advantage": "crawlee-ts",
+      "delta": "less infra to operate",
+      "evidence": "implicit from current project Dockerfile + Vercel deploy"
+    }
+  ]
+}

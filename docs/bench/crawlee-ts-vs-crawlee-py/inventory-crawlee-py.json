@@ -1,0 +1,57 @@
+{
+  "subject_id": "crawlee-py",
+  "snapshot_at": "2026-05-14",
+  "github_metadata": {
+    "stars": 9042,
+    "forks": 738,
+    "open_issues": 77,
+    "watchers": 9042,
+    "contributors_visible": "45 subscribers + 738 forks",
+    "created_at": "2024-01-10",
+    "last_push": "2026-05-13T16:58:27Z",
+    "default_branch": "master",
+    "license": "Apache-2.0",
+    "primary_language": "Python",
+    "size_kb": 36345,
+    "archived": false,
+    "owning_team": "Apify (tooling)",
+    "source_api": "GitHub API repos/apify/crawlee-python 2026-05-14"
+  },
+  "capabilities": {
+    "http_clients": ["httpx (async)", "curl_cffi (TLS fingerprint)", "BeautifulSoup", "Parsel"],
+    "browser_engines": ["Playwright"],
+    "crawler_classes": [
+      "HttpCrawler",
+      "BeautifulSoupCrawler",
+      "ParselCrawler",
+      "PlaywrightCrawler",
+      "AdaptivePlaywrightCrawler (added v0.5 / Q4-2024, parity track)"
+    ],
+    "anti_bot": ["session pool", "proxy rotation", "fingerprint via curl_cffi"],
+    "storage": ["RequestQueue", "Dataset", "KeyValueStore"],
+    "deploy_targets": ["Apify cloud", "Docker", "AWS Lambda (FIRST-PARTY DOCS)", "any Python host"],
+    "type_safety": "Python type hints (mypy/pyright compatible)",
+    "concurrency_model": "asyncio + AutoscaledPool"
+  },
+  "ecosystem": {
+    "package_manager": "pip / uv / poetry",
+    "downloads_pypi_monthly_2026": "estimated tens of thousands (pypi stats)",
+    "typings_published": true,
+    "first_party_starter_templates": "3-5 via Apify CLI"
+  },
+  "operational_notes": [
+    "v1.0 GA in 2025-09 (per Crawlee blog) — mature for HTTP/parsel; Playwright/adaptive still catching up vs JS",
+    "First-party AWS Lambda deployment docs — unique in the Crawlee family",
+    "Natural fit for ETL stacks already in Python (pandas, sqlite, polars, requests)",
+    "StagehandCrawler NOT yet available for Python (JS-only)",
+    "Plays naturally with rictom/cnpj-sqlite (Python native) — no inter-runtime IPC needed"
+  ],
+  "sources": [
+    "https://github.com/apify/crawlee-python",
+    "https://crawlee.dev/python/",
+    "https://crawlee.dev/python/docs/deployment/aws-lambda",
+    "https://crawlee.dev/blog/crawlee-for-python-v05",
+    "https://dev.to/crawlee/announcing-crawlee-python-now-you-can-use-python-to-build-reliable-web-crawlers-3dab",
+    "https://webscraping.ai/faq/crawlee/what-are-the-differences-between-crawlee-for-python-and-crawlee-for-javascript"
+  ]
+}

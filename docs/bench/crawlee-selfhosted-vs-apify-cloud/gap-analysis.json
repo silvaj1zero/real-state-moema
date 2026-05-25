@@ -1,0 +1,20 @@
+{
+  "bench_id": "BENCH-02-crawlee-selfhosted-vs-apify-cloud",
+  "gaps_selfhosted_to_apify": [
+    {"id": "gap-sh-1", "description": "No managed scheduler with retries+webhooks out-of-box", "severity": "medium", "mitigation": "pg_cron + Edge Function with idempotency keys", "source": "https://supabase.com/docs/guides/cron"},
+    {"id": "gap-sh-2", "description": "No managed observability console", "severity": "medium", "mitigation": "Sentry (already in stack) + structured pino logs + Better Stack dashboards", "source": "project package.json"},
+    {"id": "gap-sh-3", "description": "Setup cost 3-5 eng-days + ongoing 6h/mês maintenance", "severity": "high", "mitigation": "Only invest above 30-50k pgs/mês trigger; defer self-hosting to Wave B", "source": "TCO model"},
+    {"id": "gap-sh-4", "description": "No Actor marketplace shortcuts (e.g. brasil-scrapers/quinto-andar-api commoditized)", "severity": "medium", "mitigation": "Apify+self-hosted hybrid: keep marketplace Actors on Apify, self-host only custom MercadoLivre/ImovelWeb workers", "source": "https://apify.com/brasil-scrapers/quinto-andar-api"},
+    {"id": "gap-sh-5", "description": "DataDome / Cloudflare on ImovelWeb hard either way, but Apify has more aggregate empirical tuning", "severity": "low", "mitigation": "Wave A keep ImovelWeb deferred; Camoufox plan B if self-hosted in Wave B", "source": "Wave 1 anti-bot research"}
+  ],
+  "gaps_apify_to_selfhosted": [
+    {"id": "gap-ap-1", "description": "Proxy locked to Apify Proxy at $8/GB (premium)", "severity": "medium", "mitigation": "Above 50k pgs/mês, residential cost dominates — switch to self-hosted with multi-vendor proxy ($1.75-5/GB)", "source": "https://use-apify.com/blog/best-residential-proxies-2026"},
+    {"id": "gap-ap-2", "description": "Per-CU compute scales linearly (no efficiency from owning the VPS)", "severity": "medium", "mitigation": "Trigger migration when monthly CU spend > ~R$ 1.000", "source": "TCO model"},
+    {"id": "gap-ap-3", "description": "Actor packaging format coupling (lock-in soft)", "severity": "low", "mitigation": "Code under Actors is Crawlee TS already; refactor is mechanical", "source": "https://use-apify.com/blog/self-hosting-web-scrapers-guide"},
+    {"id": "gap-ap-4", "description": "Concurrent runs capped by plan tier (32 on Creator)", "severity": "low", "mitigation": "Sufficient for Zona Sul volumes; upgrade or self-host if cap is hit", "source": "https://apify.com/pricing/creator-plan"},
+    {"id": "gap-ap-5", "description": "Vendor risk — Apify pricing or terms can change unilaterally", "severity": "medium", "mitigation": "Keep Crawlee code portable (already TS) so migration path stays open", "source": "vendor-risk general principle"}
+  ],
+  "summary": {
+    "interpretation": "Apify wins on TODAY'S volumes via managed-services premium. Self-hosted wins on FUTURE volumes via marginal cost. The two are NOT mutually exclusive — they should be a SEQUENCE keyed to volume."
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "subject_id": "crawlee-selfhosted",
+  "snapshot_at": "2026-05-14",
+  "components": {
+    "compute": {
+      "vendor": "Hetzner Cloud",
+      "plan": "CPX31",
+      "specs": "4 vCPU AMD, 8 GB RAM, 160 GB NVMe, 20 TB egress EU",
+      "price_eur_month_current": "€16.49 (pre-2026-04-01)",
+      "price_eur_month_post_apr_2026": "€21-24 (price adjustment announced)",
+      "source": "https://www.hetzner.com/cloud/regular-performance + https://docs.hetzner.com/general/infrastructure-and-availability/price-adjustment/"
+    },
+    "proxy": {
+      "vendor": "IPRoyal",
+      "plan": "Residential pay-as-you-go (entry tier)",
+      "unit_price": "$7/GB entry; scales to $1.75/GB at high committed volume",
+      "model": "non-expiring traffic; no monthly minimum",
+      "source": "https://iproyal.com/pricing/residential-proxies/ + https://use-apify.com/blog/iproyal-pricing-plans-2026"
+    },
+    "scheduler": {
+      "options": ["node-cron in-process", "systemd timers", "BullMQ (Redis)", "Supabase pg_cron + HTTP trigger"],
+      "recommended": "Supabase pg_cron + Edge Function trigger (already in stack)",
+      "source": "https://supabase.com/docs/guides/cron"
+    },
+    "observability": {
+      "options": ["pino + Grafana Cloud", "Better Stack", "Sentry"],
+      "recommended": "Sentry (already used in project) + log aggregation",
+      "source": "project package.json"
+    },
+    "anti_bot": {
+      "approach": "Crawlee fingerprint-injector + got-scraping + Playwright stealth + IPRoyal residential rotation"
+    }
+  },
+  "operational_realities": [
+    "Engineer-day cost ~R$ 800-1.200/day in BR (mid-senior) for setup + maintenance",
+    "Initial setup: ~3-5 dias (Docker compose, CI, secrets, alerting)",
+    "Monthly maintenance: ~4-8h (dep updates, proxy retune, blocked-site fixes)",
+    "DataDome / Cloudflare Bot Management bypass = harder — may need Camoufox (Firefox patched) for ImovelWeb"
+  ],
+  "sources": [
+    "https://www.hetzner.com/cloud/regular-performance",
+    "https://iproyal.com/pricing/residential-proxies/",
+    "https://use-apify.com/blog/iproyal-pricing-plans-2026",
+    "https://use-apify.com/blog/self-hosting-web-scrapers-guide",
+    "https://supabase.com/docs/guides/cron"
+  ]
+}
