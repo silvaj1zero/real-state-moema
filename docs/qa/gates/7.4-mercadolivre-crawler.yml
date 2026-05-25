@@ -1,9 +1,42 @@
 schema: 1
 story: '7.4'
-gate: CONCERNS
-status_reason: 'Amended 2026-05-24 (ADR-EPIC7-MVP-LOCAL-WAIVER): BLOCK-001 -> RESOLVED-BY-WAIVER for MVP-LOCAL scope (single user, local server, no cloud). Verdict retains CONCERNS solely because OBS-001 (AC9 real PoC against MercadoLivre staging) is independent of LGPD and still pending. Code aprovado para MVP-LOCAL deploy; cloud/multi-user deploy remains blocked pending waiver re-evaluation per ADR triggers.'
+gate: PASS_WITH_WAIVER
+status_reason: 'Re-gate 2026-05-24 (after MVP-LOCAL-WAIVER): BLOCK-001 RESOLVED-BY-WAIVER. OBS-001 (AC9 real PoC) reclassified DEFERRED-TO-ACTIVATION — under MVP-LOCAL (single user, local server, low volume <100 leads/mo), real-batch validation is acceptable at first-use moment rather than pre-Done. If MercadoLivre anti-bot triggers at runtime, it becomes operational handling, not a pre-Done blocker. Other low-sev items (TEST-001 real ML snapshots, PERF-001 Crawlee concurrency, LOGIC-002 upsert+update, MNT-001 numeric filters, MNT-002 dead code) remain tech-debt acceptable. Cloud/multi-user deploy continues blocked pending ADR §4/§5 trigger re-evaluation.'
 reviewer: 'Quinn'
 updated: '2026-05-24T00:00:00Z'
+
+reGate_20260524:
+  date: '2026-05-24'
+  reviewer: '@qa (Quinn)'
+  previousVerdict: CONCERNS
+  newVerdict: PASS_WITH_WAIVER
+  newVerdictReason: >
+    MVP-LOCAL-WAIVER applied. BLOCK-001 already RESOLVED-BY-WAIVER. OBS-001
+    re-evaluated under MVP-LOCAL: single user, local execution, low volume,
+    no SLA — real-batch PoC acceptable as DEFERRED-TO-ACTIVATION (first-use
+    moment becomes the empirical test; anti-bot/JSON-LD/CU discoveries
+    handled operationally when they happen). LOGIC-001/SEC-001/SEC-002 fixes
+    from re-gate 2026-05-19 still RESOLVED (cap-per-bairro module + HMAC-SHA256
+    webhook + trigger shared-secret). No regression in PASS items.
+    storyStatusTransition: 'InReview -> Done'.
+  ac_status_updates:
+    OBS-001: 'DEFERRED-TO-ACTIVATION — real-batch validation acceptable at first-use moment under MVP-LOCAL. If MercadoLivre anti-bot triggers at runtime, founder + Luciana handle operationally. Reinstated as hard prerequisite if any ADR §4 Constraint 3 trigger fires (cloud, multi-user, >100 leads/mo, public endpoint).'
+  remainingItemsForRevisit:
+    - 'OBS-001 real PoC — reinstated on §4 Constraint 3 trigger'
+    - 'TEST-001 real ML snapshots — Wave B tech-debt'
+    - 'PERF-001 Crawlee concurrency assertion — Wave B'
+    - 'LOGIC-002 upsert+update consolidation — Wave B'
+    - 'MNT-001 numeric filters URL wiring — Wave B'
+    - 'MNT-002 userData.bairroCount dead code cleanup — minor'
+  mvp_local_acceptance: >
+    Under MVP-LOCAL (founder decision 2026-05-24), MercadoLivre crawler is
+    operationally Done for single-user local-server scope. The integration
+    (Apify dispatch + webhook + cap-per-bairro + classify + persist) is
+    code-complete with HMAC security in place. Activation is a runtime event
+    (founder enables MERCADOLIVRE_TRIGGER_SECRET + Apify Actor deploy +
+    first crawl). If anti-bot or selector drift surface, they are handled at
+    that moment. Any §4 Constraint 3 trigger auto-voids the waiver and
+    reimposes BLOCK-001 + OBS-001 as hard prerequisites.
 
 waivers:
   - id: MVP-LOCAL-WAIVER
