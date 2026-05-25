@@ -1,13 +1,29 @@
 storyId: STORY-7.10
-verdict: CONCERNS
+verdict: WAIVED
 verdictReason: >
-  Code/test/security layers PASS with high confidence; deployment is GATED on
-  AC1 LIA counsel signature (external SLA 15-25d) — explicitly WAIVED for this
-  review per Dev Agent Record + mission brief. Two security/process concerns
-  documented for follow-up (cross-story coupling with scraped_listings PII in
-  apify*.ts / contact-enrichment.ts, retention cron unscheduled). None block
-  story closure to InReview, but ALL crawler-PF deploys must wait for AC1
-  signature + AC11 real smoke execution.
+  Verdict moved from CONCERNS -> WAIVED on 2026-05-24 by founder decision
+  (ADR-EPIC7-MVP-LOCAL-WAIVER). AC1 (LIA counsel signature) is WAIVED for
+  MVP-LOCAL scope only: single end-user (Luciana Borba), local server, no
+  public IP, no external data sharing. The LGPD obligations themselves are
+  NOT waived; implemented controls (vault, audit, opt-out, anonymize)
+  continue in force. Code/test/security layers PASS with high confidence;
+  cross-story concerns (scraped_listings plaintext PII coupling, retention
+  cron unscheduled) remain tracked for follow-up. Production / cloud / multi-
+  user deploys remain blocked and require waiver re-evaluation per the
+  triggers in the ADR.
+
+waivers:
+  - id: MVP-LOCAL-WAIVER
+    date: '2026-05-24'
+    authorized_by: 'Founder (Zero)'
+    ac_affected: AC1
+    scope: 'MVP-local single-user'
+    constraints:
+      - 'Local server only — no public IP, no cloud deploy'
+      - 'No external data sharing'
+      - 'Re-evaluation mandatory before prod/multi-user/cloud/>100 leads/month'
+    references:
+      - 'docs/architecture/adrs/ADR-EPIC7-MVP-LOCAL-WAIVER.md'
 reviewedAt: 2026-05-19
 reviewer: "@qa (Quinn)"
 commit: 9786e5b

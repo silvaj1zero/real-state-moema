@@ -1,9 +1,24 @@
 schema: 1
 story: '7.4'
 gate: CONCERNS
-status_reason: 'Re-gate 2026-05-19: 3 fixes do gate anterior (LOGIC-001/SEC-001/SEC-002) RESOLVED com tests dedicados (23 novos, 455/455 full). Verdict permanece CONCERNS apenas por blockers externos pendentes: BLOCK-001 (Story 7.10 LGPD external counsel) + OBS-001 (AC9 PoC real execution em staging — @devops). Codigo aprovado; deploy producao continua BLOCKED organizacionalmente ate 7.10 Done.'
+status_reason: 'Amended 2026-05-24 (ADR-EPIC7-MVP-LOCAL-WAIVER): BLOCK-001 -> RESOLVED-BY-WAIVER for MVP-LOCAL scope (single user, local server, no cloud). Verdict retains CONCERNS solely because OBS-001 (AC9 real PoC against MercadoLivre staging) is independent of LGPD and still pending. Code aprovado para MVP-LOCAL deploy; cloud/multi-user deploy remains blocked pending waiver re-evaluation per ADR triggers.'
 reviewer: 'Quinn'
-updated: '2026-05-19T04:35:00Z'
+updated: '2026-05-24T00:00:00Z'
+
+waivers:
+  - id: MVP-LOCAL-WAIVER
+    date: '2026-05-24'
+    authorized_by: 'Founder (Zero)'
+    ac_affected: AC1-AC8
+    scope: 'MVP-local single-user'
+    constraints:
+      - 'Local server only — no public IP, no cloud deploy'
+      - 'No external data sharing'
+      - 'Re-evaluation mandatory before prod/multi-user/cloud/>100 leads/month'
+    references:
+      - 'docs/architecture/adrs/ADR-EPIC7-MVP-LOCAL-WAIVER.md'
+      - 'docs/qa/gates/7.10-lgpd-foundation.yml'
+    resolves: ['BLOCK-001']
 
 reGate:
   date: '2026-05-19'
@@ -35,8 +50,10 @@ top_issues:
     severity: critical
     category: compliance
     ac: AC1-AC8
+    status: RESOLVED-BY-WAIVER
     finding: 'DEPLOY GATE: Story 7.10 (LGPD Foundation — LIA counsel + cifragem + opt-out + audit log) ainda nao Done. Story 7.4 captura telefone_anunciante (PF mascarado) + nome_anunciante e persiste em scraped_listings. Sem LIA aprovada e cifragem em repouso, deploy producao = violacao LGPD.'
     suggested_action: 'NAO promover a producao ate Story 7.10 atingir Done. Implementacao + smoke staging permitidos com flag privacy-mock; producao bloqueada. Reforcar pre-push hook em @devops.'
+    resolution: 'RESOLVED-BY-WAIVER 2026-05-24 — MVP-LOCAL-WAIVER (ADR-EPIC7-MVP-LOCAL-WAIVER). Single-user / local-server scope. Cloud/multi-user deploy permanece bloqueado per ADR triggers; LGPD obligations themselves remain in force (controles 7.10 ativos: vault, audit log, opt-out, anonymize).'
   - id: 'SEC-001'
     severity: medium
     category: security
