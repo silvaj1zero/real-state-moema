@@ -72,3 +72,12 @@ infrastructure/cnpj-etl/**/__pycache__/
 supabase/.temp/
 # Stray nested workspace from accidental `supabase init` inside supabase/ dir
 supabase/supabase/
+
+# Crawler local artifacts (per-machine, not source)
+apps/crawlers/*/storage/
+apps/crawlers/*/src/shared/
+apps/crawlers/*/package-lock.json
+
+# Test admin script (contains hardcoded test creds)
+app/create-test-admin.mjs
+
