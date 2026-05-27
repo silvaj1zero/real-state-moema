@@ -1,0 +1,21 @@
+{
+  "bench_id": "BENCH-03-cron-supabase-vs-langgraph-day1",
+  "gaps_cron_to_langgraph": [
+    {"id": "gap-cs-1", "description": "No built-in checkpointer; retry/idempotency are BYO via status table", "severity": "medium", "mitigation": "Adopt documented self-healing pattern with execution IDs", "source": "https://dev.to/domoniqueluchin/building-a-self-healing-cron-system-with-pgcron-and-supabase-edge-functions-5420"},
+    {"id": "gap-cs-2", "description": "5000 ms Edge Function timeout via Supabase Cron UI", "severity": "low", "mitigation": "Use pgmq queue for jobs > 5s; cron enqueues, worker drains", "source": "https://supabase.com/blog/processing-large-jobs-with-edge-functions"},
+    {"id": "gap-cs-3", "description": "No native human-in-the-loop / pause-resume", "severity": "low", "mitigation": "Status-table state machine; sufficient for deterministic ETL", "source": "self-healing cron article"},
+    {"id": "gap-cs-4", "description": "Single Postgres cluster — no cross-cluster orchestration", "severity": "low", "mitigation": "Not relevant for Zona Sul scope; revisit if multi-region", "source": "pg_cron docs"},
+    {"id": "gap-cs-5", "description": "Hand-off pattern adds a hop when Wave B NLP node lives in LangGraph subgraph", "severity": "low", "mitigation": "AppFolio Realm-X uses exactly this pattern in production — well-precedented", "source": "https://blog.langchain.com/customers-appfolio/"}
+  ],
+  "gaps_langgraph_to_cron": [
+    {"id": "gap-lg-1", "description": "$70+/mês platform fees for 10k×7=70k node execs on Plus (after free 100k tier)", "severity": "medium", "mitigation": "Don't use LangGraph for deterministic ETL — restrict to LLM nodes", "source": "https://www.langchain.com/pricing-langgraph-platform"},
+    {"id": "gap-lg-2", "description": "LangSmith Plus $39/user/mês minimum required", "severity": "medium", "mitigation": "Same as above", "source": "LangChain pricing"},
+    {"id": "gap-lg-3", "description": "Adds Python runtime to TS-first stack (or use less mature langgraph-js)", "severity": "high", "mitigation": "Reserve Python container for ML/NLP only; not for ETL", "source": "Stack inspection"},
+    {"id": "gap-lg-4", "description": "Checkpointer saves state BETWEEN nodes, not INSIDE long-running nodes", "severity": "medium", "mitigation": "For deterministic ETL, decompose to small nodes (~< 1 min each); for crash-survival of long ops, pair with Temporal", "source": "https://docs.langchain.com/oss/python/langgraph/durable-execution"},
+    {"id": "gap-lg-5", "description": "Non-determinism is supported by design — not the right tool for deterministic ETL", "severity": "high", "mitigation": "Match tool to problem class: deterministic→cron-Supabase, agentic→LangGraph", "source": "LangGraph durable execution docs"},
+    {"id": "gap-lg-6", "description": "New mental model + observability vendor for the team", "severity": "medium", "mitigation": "Adopt only when LLM steps justify it (Wave B)", "source": "Stack baseline"}
+  ],
+  "summary": {
+    "interpretation": "Both tools are excellent at their proper job class. cron-Supabase fits deterministic ETL of Wave A; LangGraph fits agentic/LLM reasoning of Wave B. Mixing them HAPPENS, but only at the boundary."
+  }
+}

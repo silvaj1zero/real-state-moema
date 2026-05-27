@@ -1,70 +1,65 @@
 ---
 name: compare
-description: "Architectural Modernization Pipeline — compara dois repositorios com deep scan 5P, quality scoring 12D, verdict engine e surgical merge via SDC"
-version: "3.0.0"
+description: "DEPRECATED - Legacy /compare pipeline was removed; route repo architecture comparisons to /code-anatomist and benchmark comparisons to /spy-bench-analyst."
+version: "3.0.1"
 owner_squad: sinkra-squad
 sinkra_tier: Tier2
 context: conversation
 agent: general-purpose
 user-invocable: true
 argument-hint: "[repo_a_path] [repo_b_path]"
+status: deprecated
+deprecated_reason: "The old /compare skill referenced removed .claude/commands and compare-pipeline artifacts."
+replacement: "/code-anatomist for repository architecture analysis; /spy-bench-analyst for benchmark comparisons"
 ---
 
-# /compare — Architectural Modernization Pipeline
+# /compare - Deprecated Router
 
-> **Auto-Trigger:** When user mentions "compare repos", "merge repos", "architectural modernization", "codebase comparison"
-> **Keywords:** "compare", "merge", "repos", "modernization", "delta", "scoring", "verdict"
-> **Prioridade:** ALTA
-> **Tools:** Read, Glob, Grep, Bash, Write, Edit
+This skill is intentionally kept as an invocation-safe migration shim. Do not execute the removed legacy compare pipeline.
 
-## Purpose
+## Why It Is Deprecated
 
-Execute a structured 9-phase pipeline to compare, score, and surgically merge two repositories. Produces AUDIT.md, KNOWLEDGE.md, SCORING.md (12 dimensions), DELTA.md, TAXONOMY.md, MERGE_LOG.md, and ADRs.
+The previous `/compare` implementation referenced local artifacts that are no longer present in this repository:
 
-## Usage
+- a legacy Claude command catalog
+- a framework-level compare pipeline
+- a directory of compare phase task files
 
-```
-/compare [repo_a_path] [repo_b_path]
-```
+Invoking the old flow led to a missing-file dead end. This router preserves the user-facing entry point while directing work to supported workflows that exist in the repository.
 
-## Pipeline Phases
+## Routing
 
-| Phase | Name | Agent | Output |
-|-------|------|-------|--------|
-| 0 | Setup | Claude | 7 artifacts created |
-| 1 | Deep Scan Repo A | @architect | AUDIT.md + KNOWLEDGE.md (Repo A) |
-| 2 | Deep Scan Repo B | @architect | AUDIT.md + KNOWLEDGE.md (Repo B) |
-| 3 | Delta Analysis | Claude | DELTA.md |
-| 4 | Quality Scoring 12D | @qa + @architect | SCORING.md |
-| 5 | Verdict Engine | @architect + @qa | KEEP/MIGRATE/REPLACE/TRANSCEND |
-| 6 | Architectural Evolution | @architect | TAXONOMY.md |
-| 7 | Surgical Merge | @dev via SDC | MERGE_LOG.md |
-| 8 | Audit Trail | @qa | ADRs + Brownfield Check |
+For repository reverse engineering, architecture comparison, modernization planning, or adoption analysis:
 
-## Execution
+Use `/code-anatomist`.
 
-1. Read the full protocol: `.claude/commands/COMPARE-PROTOCOL-v3.md`
-2. Load workflow definition: `.aiox-core/development/workflows/compare-pipeline.yaml`
-3. Execute each phase sequentially with mandatory checkpoints between phases
-4. Output directory: `outputs/compare/{slug}-{date}/`
+Supported artifacts:
 
-## Key Rules
+- `.agents/skills/code-anatomist/SKILL.md`
+- `.claude/skills/code-anatomist/SKILL.md`
+- `squads/code-anatomist/tasks/compare.md`
+- `squads/code-anatomist/tasks/multi-compare.md`
+- `squads/code-anatomist/workflows/wf-multi-compare.yaml`
 
-- NEVER skip a phase or checkpoint
-- UNKNOWN is valid; inventing is not
-- Brownfield honest > pretty map
-- TRANSCEND must win >=9/12 dimensions or it is a badly justified REPLACE
-- Each merge item = 1 commit (atomic)
+For framework, product, market, or competitor benchmarking:
 
-## Quando NAO Ativar
+Use `/spy-bench-analyst`.
 
-- Simple persona comparison (use `/compare` command directly for that — the persona comparison variant)
-- Single-repo analysis (use brownfield discovery workflow instead)
-- When user asks to "compare prices" or "compare products" — this is for repository architecture only
+Supported artifacts:
 
-## Related Files
+- `.agents/skills/spy-bench-analyst/SKILL.md`
+- `.claude/skills/spy-bench-analyst/SKILL.md`
+- `squads/spy/tasks/bench-quick-compare.md`
+- `squads/research/tasks/bench-quick-compare.md`
 
-- `.claude/commands/compare.md` — Simple persona comparison command
-- `.claude/commands/COMPARE-PROTOCOL-v3.md` — Full protocol documentation
-- `.aiox-core/development/workflows/compare-pipeline.yaml` — Workflow definition
-- `.aiox-core/development/tasks/compare/` — 8 task files
+## Execution Contract
+
+1. Acknowledge that `/compare` is deprecated.
+2. Classify the request as repository architecture comparison or benchmark comparison.
+3. Route to the replacement skill above.
+4. Do not reference or load removed command-catalog artifacts.
+5. Do not promise the old 9-phase compare pipeline unless it is reintroduced as real files in the repository.
+
+## Validation
+
+`npm run validate:compare-skill` checks that this shim does not point back to removed local artifacts and that all supported replacement paths exist.

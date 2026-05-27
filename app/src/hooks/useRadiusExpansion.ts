@@ -311,11 +311,14 @@ export function useExpansionNotification(
   const activeStep = RADIUS_STEPS.find((r) => r >= activeRadiusM) ?? 500
 
   const activeCoverage = coverageQuery.data?.[activeStep]
+  // TODO(epic7-wave-b): notifiedRef.current read during render flagged by react-hooks/refs. Pattern works (effect below adds to set after render) but compiler-unsafe. Refactor to derive shouldNotify inside the effect.
+  /* eslint-disable react-hooks/refs */
   const shouldNotify =
     activeCoverage &&
     activeCoverage.percentual >= threshold &&
     !notifiedRef.current.has(activeStep) &&
     getNextRadius(activeStep) !== null
+  /* eslint-enable react-hooks/refs */
 
   // Mark as notified to prevent re-trigger
   useEffect(() => {

@@ -4,7 +4,7 @@ import {
   ReviewDecisionSchema,
   BulkReviewDecisionSchema,
   RevealPhoneInputSchema,
-} from '../actions'
+} from '../schemas'
 
 // =============================================================================
 // Pure schema validation tests (no Supabase mock needed)

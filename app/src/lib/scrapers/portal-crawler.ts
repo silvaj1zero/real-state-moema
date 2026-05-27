@@ -79,7 +79,7 @@ export interface PortalCrawlerOptions {
    * Tipamos como `unknown` aqui para nao forcar import de Playwright
    * em consumidores HTTP-only — cada portal cast para o tipo correto.
    */
-  requestHandler: AdaptivePlaywrightCrawlerOptions['requestHandler']
+  requestHandler: NonNullable<AdaptivePlaywrightCrawlerOptions['requestHandler']>
 
   /** Proxy pool (Apify-managed Wave A; IPRoyal Wave B). */
   proxyConfiguration?: ProxyConfiguration

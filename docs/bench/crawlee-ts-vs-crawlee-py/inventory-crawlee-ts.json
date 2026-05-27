@@ -1,0 +1,57 @@
+{
+  "subject_id": "crawlee-ts",
+  "snapshot_at": "2026-05-14",
+  "github_metadata": {
+    "stars": 23258,
+    "forks": 1366,
+    "open_issues": 176,
+    "watchers": 23258,
+    "contributors_visible": "129 subscribers + 1366 forks",
+    "created_at": "2016-08-26",
+    "last_push": "2026-05-13T16:33:35Z",
+    "default_branch": "master",
+    "license": "Apache-2.0",
+    "primary_language": "TypeScript",
+    "size_kb": 160082,
+    "archived": false,
+    "owning_team": "Apify (tooling)",
+    "source_api": "GitHub API repos/apify/crawlee 2026-05-14"
+  },
+  "capabilities": {
+    "http_clients": ["got-scraping", "fetch", "Cheerio (lightweight DOM)", "JSDOM"],
+    "browser_engines": ["Playwright", "Puppeteer"],
+    "crawler_classes": [
+      "CheerioCrawler",
+      "JSDOMCrawler",
+      "HttpCrawler",
+      "PlaywrightCrawler",
+      "PuppeteerCrawler",
+      "AdaptivePlaywrightCrawler (hybrid HTTP->browser, native, GA)",
+      "StagehandCrawler (AI natural-language selectors, JS-only)"
+    ],
+    "anti_bot": ["fingerprint rotation", "header rotation", "session pool", "proxy rotation", "sticky sessions"],
+    "storage": ["RequestQueue", "Dataset", "KeyValueStore", "RequestList"],
+    "deploy_targets": ["Apify cloud", "Docker", "AWS Lambda (community)", "Cloud Run", "any Node.js host"],
+    "type_safety": "First-class TypeScript types end-to-end",
+    "concurrency_model": "Node.js event loop + AutoscaledPool"
+  },
+  "ecosystem": {
+    "package_manager": "npm/pnpm/yarn",
+    "downloads_npm_monthly_2026": "~120-150k weekly (npm trends; reused from Wave 1)",
+    "typings_published": true,
+    "first_party_starter_templates": "10+ via @apify/cli (cheerio, playwright, puppeteer, ts-starter)"
+  },
+  "operational_notes": [
+    "AdaptivePlaywrightCrawler routes pages between HTTP and browser automatically — the hybrid pattern documented as primary in Crawlee blog",
+    "Apify cloud is the canonical PaaS but Crawlee is fully decoupled from Apify infra",
+    "Plays naturally with Next.js domain types since both are TS",
+    "Camoufox can be plugged via Playwright but is documented mostly in Python ecosystem"
+  ],
+  "sources": [
+    "https://github.com/apify/crawlee",
+    "https://crawlee.dev/",
+    "https://crawlee.dev/blog/scrapy-vs-crawlee",
+    "https://webscraping.ai/faq/crawlee/what-are-the-differences-between-crawlee-for-python-and-crawlee-for-javascript",
+    "https://use-apify.com/blog/self-hosting-web-scrapers-guide"
+  ]
+}

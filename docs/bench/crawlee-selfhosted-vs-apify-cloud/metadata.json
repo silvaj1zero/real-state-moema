@@ -1,0 +1,41 @@
+{
+  "bench_id": "BENCH-02-crawlee-selfhosted-vs-apify-cloud",
+  "comparison_type": "product",
+  "generated_at": "2026-05-14",
+  "analyst": "spy-bench-analyst",
+  "subjects": {
+    "a": {
+      "id": "crawlee-selfhosted",
+      "name": "Crawlee TS self-hosted on Hetzner CPX31 + IPRoyal residential proxy",
+      "model": "OSS Crawlee TS + commodity VPS + pay-as-you-go residential proxy"
+    },
+    "b": {
+      "id": "apify-cloud",
+      "name": "Apify cloud (managed PaaS — Actors + Apify Proxy)",
+      "model": "managed compute units + bundled proxy + scheduler"
+    }
+  },
+  "context": {
+    "project": "Epic 7 Real-State-Moema lead prospecting (new portals: MercadoLivre, ImovelWeb)",
+    "epic_6_status": "already in production on Apify cloud (ZAP, OLX, VivaReal — kept untouched)",
+    "volume_scenarios": ["10k pgs/mês", "50k pgs/mês", "100k pgs/mês"],
+    "wave_2_suggested_winner": "self-hosted ABOVE 10k pgs/mês; Apify still wins ≤10k pgs/mês",
+    "currency_basis": "BRL R$, USD-BRL ≈ 5.10 (2026-05), EUR-BRL ≈ 5.50"
+  },
+  "dimensions": [
+    {"id": "cost_10k_pgs", "weight": 0.12},
+    {"id": "cost_50k_pgs", "weight": 0.18},
+    {"id": "cost_100k_pgs", "weight": 0.10},
+    {"id": "proxy_rotation_quality", "weight": 0.10},
+    {"id": "anti_bot_bypass", "weight": 0.10},
+    {"id": "scheduler_native", "weight": 0.08},
+    {"id": "monitoring_observability", "weight": 0.08},
+    {"id": "time_to_first_scrape", "weight": 0.08},
+    {"id": "operational_overhead", "weight": 0.08},
+    {"id": "vendor_lock_in", "weight": 0.08}
+  ],
+  "scoring_method": "0-100 per dimension, weighted average; TCO modeled with explicit assumptions",
+  "confidence": "Medium-High (concrete vendor pricing + Wave 2 H-005 CONFIRMED)",
+  "sources_consulted": 14,
+  "wave_sources_reused": 4
+}

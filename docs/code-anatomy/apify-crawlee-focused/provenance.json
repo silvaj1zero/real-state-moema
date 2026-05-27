@@ -1,0 +1,60 @@
+{
+  "repo_url": "https://github.com/apify/crawlee",
+  "commit_sha": "d3a29d9623bfd3b9b75c496a1c48134532c824e5",
+  "commit_message": "feat(adaptive-crawler): add shouldPropagateError callback to prevent browser fallback (#3635)",
+  "commit_date": "2026-05-11T15:30:58Z",
+  "default_branch": "master",
+  "analysis_date": "2026-05-13",
+  "analyst": "code-anatomist--decoder-chief",
+  "license": "Apache-2.0",
+  "license_verified_via": "gh api repos/apify/crawlee --jq '.license.spdx_id'",
+  "maintainer": "Apify Technologies s.r.o.",
+  "stars": 23260,
+  "forks": 1366,
+  "language": "TypeScript",
+  "default_branch_active_today": true,
+  "analysis_scope": "FOCUSED — packages/playwright-crawler + packages/core/autoscaling + selected utils",
+  "files_analyzed": [
+    "packages/playwright-crawler/src/internals/playwright-crawler.ts (first 200 lines)",
+    "packages/playwright-crawler/src/internals/adaptive-playwright-crawler.ts (first 400 lines including class signature, options interface, _runRequestHandler logic)",
+    "packages/playwright-crawler/src/internals/ — file listing (utils/, enqueue-links/, playwright-launcher.ts)",
+    "packages/core/src/autoscaling/autoscaled_pool.ts (first 250 lines: options interface + AutoscaledPool class header)",
+    "packages/core/src/autoscaling/ — file listing (snapshotter.ts, system_status.ts, load signals)",
+    "packages/core/src/ — file listing (configuration, crawlers, enqueue_links, errors, events, http_clients, proxy_configuration, request, router, session_pool, storages)",
+    "packages/utils/src/internals/ — file listing (gotScraping, social, robots, sitemap, extract-urls)"
+  ],
+  "files_intentionally_not_analyzed": [
+    "packages/browser-pool/ — fingerprint logic is in apify/fingerprint-suite (separate repo)",
+    "packages/cheerio/ — substituted by Adaptive HTTP mode",
+    "packages/puppeteer/ — redundant with Playwright",
+    "packages/jsdom/, packages/linkedom/ — used internally by Adaptive",
+    "packages/memory-storage/ — dev only",
+    "packages/playwright-crawler/src/internals/utils/rendering-type-prediction.ts — algorithm internals not needed (use as black box)"
+  ],
+  "extraction_method": "gh api (REST GitHub) — git clone blocked in sandbox",
+  "key_classes_identified": [
+    "PlaywrightCrawler extends BrowserCrawler",
+    "AdaptivePlaywrightCrawler extends PlaywrightCrawler",
+    "AutoscaledPool",
+    "Snapshotter",
+    "SystemStatus",
+    "RenderingTypePredictor (referenced)",
+    "Statistics (extended by AdaptivePlaywrightCrawlerStatistics)"
+  ],
+  "key_findings": [
+    "AdaptivePlaywrightCrawler is THE killer feature — HTTP-first with browser fallback yields 3-4x speedup expected on portal listing pages (mostly SSR).",
+    "shouldPropagateError callback (added in commit d3a29d96, 2026-05-11) is critical: lets us bypass browser fallback for 403/429/Cloudflare — exactly what we need for portal anti-bot.",
+    "AutoscaledPool's default maxConcurrency=200 is WAY too aggressive for BR portals — must override to 20.",
+    "taskTimeoutSecs default = 0 (Infinity) is dangerous — must always set explicit (60s).",
+    "parseWithCheerio() in context is the abstraction that makes user handler portable between HTTP-only and browser modes.",
+    "Statistics subclass tracks httpOnlyRequestHandlerRuns, browserRequestHandlerRuns, renderingTypeMispredictions — directly observable as SLOs."
+  ],
+  "transferability_to_epic7": "DIRECT — Crawlee is THE framework decision from Wave 2",
+  "epic7_actions_recommended": [
+    "Implement packages/scrapers/lib/portal-crawler.ts wrapper enforcing safe defaults",
+    "Implement Telemetry layer pushing to Supabase tables crawl_runs / crawl_requests / crawl_failures",
+    "Use AdaptivePlaywrightCrawler with renderingTypeDetectionRatio=0.1, shouldPropagateError for 403/429/CF",
+    "Use Apify Platform Storage in Wave A (default), evaluate Supabase storage adapter for Wave B",
+    "Pin crawlee version exact in package.json (AdaptivePlaywrightCrawler is @experimental)"
+  ]
+}

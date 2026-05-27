@@ -1,0 +1,47 @@
+{
+  "bench_id": "BENCH-03-cron-supabase-vs-langgraph-day1",
+  "comparison_type": "technology",
+  "generated_at": "2026-05-14",
+  "analyst": "spy-bench-analyst",
+  "subjects": {
+    "a": {
+      "id": "cron-supabase",
+      "name": "pg_cron + Supabase Edge Functions (deterministic ETL)",
+      "model": "Native Supabase orchestration: pg_cron triggers SQL or pg_net→Edge Function; no LLM in the loop"
+    },
+    "b": {
+      "id": "langgraph-day1",
+      "name": "LangGraph from day 1 (full agent graph, all steps)",
+      "model": "LangGraph orchestrating entire Epic 7 pipeline including deterministic ETL steps"
+    }
+  },
+  "context": {
+    "project": "Epic 7 Real-State-Moema lead prospecting Wave A pipeline",
+    "wave_a_pipeline_steps": [
+      "1. Apify Actor scrape (ZAP/OLX/VivaReal/MercadoLivre)",
+      "2. Dedup against existing anuncios table",
+      "3. Heuristic classification (FISBO vs Imobiliária via CRECI lookup + telefone pattern)",
+      "4. Geocoding + bairro/edifício link via GeoSampa SQL",
+      "5. Δ-preço vs ITBI bairro/rua calc",
+      "6. Lead scoring (initial: rule-based, Wave B: ML)",
+      "7. Insert into leads table + notify Luciana"
+    ],
+    "characteristics": "Deterministic ETL. No NLP in Wave A. Volume estimated 1k-10k anúncios/mês (CQ-004 BLOCKED but conservative estimate)",
+    "wave_2_suggested_winner": "cron-Supabase puro Wave A; LangGraph enters Wave B only for NLP classifier"
+  },
+  "dimensions": [
+    {"id": "complexity_overhead", "weight": 0.15},
+    {"id": "debug_dx", "weight": 0.10},
+    {"id": "observability_native_supabase", "weight": 0.10},
+    {"id": "cost_llm_tokens", "weight": 0.12},
+    {"id": "determinism", "weight": 0.13},
+    {"id": "retry_idempotency", "weight": 0.10},
+    {"id": "fit_volume_zona_sul", "weight": 0.10},
+    {"id": "evolution_path_to_wave_b", "weight": 0.10},
+    {"id": "team_familiarity", "weight": 0.10}
+  ],
+  "scoring_method": "0-100 per dimension, weighted average; LangGraph costed at $0.001/node",
+  "confidence": "High (concrete LangGraph pricing + Wave 2 CQ-009 RESOLVED + AppFolio precedent)",
+  "sources_consulted": 10,
+  "wave_sources_reused": 6
+}

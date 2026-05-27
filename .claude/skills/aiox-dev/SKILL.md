@@ -458,9 +458,11 @@ dependencies:
       - git diff
       - git log
       - git branch
-      - git checkout
+      - bash scripts/operator-new-worktree.sh
       - git merge
     blocked_operations:
+      - git checkout
+      - git switch
       - git push
       - git push --force
       - gh pr create

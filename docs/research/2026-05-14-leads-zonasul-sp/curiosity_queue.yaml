@@ -1,0 +1,323 @@
+# Curiosity Queue — Wave 2 closed
+# Versão pós-Wave 2 com resolved/partial/blocked status e verdicts de hipóteses
+# Para o histórico Wave 1 completo, ver git history
+
+version: 2
+generated_at: '2026-05-14'
+wave_completed: 2
+status: ready_for_phase_3_bench
+
+# Resoluções humanas pre-Wave 2 (mantidas — founder Zero, 2026-05-14)
+human_resolutions:
+  - id: CQ-008
+    resolution: |
+      Política RE/MAX corporativa: NÃO restritiva para este caso.
+      Luciana atuará como agente independente para a feature.
+      Scraping de QuintoAndar, Loft, ImovelWeb LIBERADO no escopo da Wave 2 e Epic 7.
+    decided_by: founder
+    decided_at: '2026-05-14'
+
+  - id: CQ-006
+    resolution: |
+      Schema `edificios` JÁ EXISTE em supabase/migrations/20260318000002_001_base_foundation.sql
+      com campos GeoSampa (total_units, area_construida, ano_construcao, padrao_iptu,
+      tipo_uso_iptu, num_pavimentos, sql_lote) e tabela `edificios_qualificacoes`
+      com `is_fisbo_detected`. Decisão: NÃO importar lista pré-existente da Luciana.
+      Pipeline Epic 7 popula automaticamente via GeoSampa + ITBI + scraping + cadastro mobile.
+    decided_by: founder
+    decided_at: '2026-05-14'
+    artifact_evidence: supabase/migrations/20260318000002_001_base_foundation.sql:46-96
+
+# Resolved items (movidos de items[] para resolved[] após Wave 2)
+resolved:
+  - id: CQ-001
+    sq: SQ-2
+    type: data_schema
+    priority: P0
+    status: RESOLVED
+    resolved_at: '2026-05-14'
+    resolved_in: wave-2
+    question: |
+      Qual é o schema exato do dataset ITBI SP 2026? CPF/CNPJ adquirente público?
+    finding: |
+      Receita Municipal SP explicitamente OMITE CPF/CNPJ adquirente/transmitente
+      por sigilo fiscal. Campos disponíveis: SQL, endereço, valor de transação declarado,
+      data da transação, cartório de registro. Cobertura 2019-presente. Formatos XLSX e ODS.
+      Não cobre rurais nem ITBI parcelado PPI. Implicação: feature L3 fica
+      como Δ-preço-por-bairro/rua (forte sinal), SEM grafo-por-pessoa/holding.
+    sources:
+      - https://prefeitura.sp.gov.br/web/fazenda/w/acesso_a_informacao/31501
+      - https://prefeitura.sp.gov.br/web/fazenda/w/noticias/31551
+      - https://www.itbimap.com.br/metodologia
+    confidence: High
+    decision: |
+      Manter ingest ITBI no Epic 7 com escopo reduzido (sem grafo-por-pessoa).
+      Atalho operacional: ITBI Map como fonte de validação durante POC.
+
+  - id: CQ-002
+    sq: SQ-2
+    type: data_schema
+    priority: P0
+    status: PARTIAL
+    resolved_at: '2026-05-14'
+    resolved_in: wave-2
+    question: |
+      GeoSampa IPTU contém: ano construção, padrão construtivo, identificador proprietário?
+    finding: |
+      Dataset TPCL (Cadastro de Contribuinte Imobiliário) público desde 2016 via GeoSampa,
+      3M+ registros, 120MB, formato OGC 9.3 PostGIS. Campos confirmados via WebSearch:
+      SQL, área total, área construída, endereço, tipo de uso, padrão construtivo + uso
+      do solo (categorias IPTU-EG), geometria do lote. Identificador proprietário PF
+      provavelmente ausente ou anonimizado (TPCL é fiscal por SQL, não por PF).
+      Nomes verbatim dos campos pendentes de download de Dicionario_dados_IPTU.xlsx.
+      MAS: schema já modelado em supabase/migrations (ver human_resolutions CQ-006).
+    sources:
+      - https://gestaourbana.prefeitura.sp.gov.br/noticias/prefeitura-disponibiliza-base-do-iptu-em-formato-aberto-no-geosampa/
+      - https://metadados.geosampa.prefeitura.sp.gov.br/geonetwork/srv/api/records/b971efa1-aad5-42f3-ad28-18f1f4efe270
+      - https://basedosdados.org/dataset/05f1b96d-883b-4202-a4bd-40379c5d326a
+    confidence: Medium-High
+    decision: |
+      Não bloqueia PRD. @data-engineer baixa amostra GeoSampa + dicionário
+      e produz mapping table (campo GeoSampa → campo Supabase) em Phase 3/4.
+
+  - id: CQ-003
+    sq: SQ-3
+    type: tech_decision
+    priority: P0
+    status: RESOLVED
+    resolved_at: '2026-05-14'
+    resolved_in: wave-2
+    question: Crawlee TypeScript vs Crawlee Python no contexto Next.js + Supabase?
+    finding: |
+      Crawlee TS vence em maturidade (23k⭐ desde 2018), stack do projeto (Next.js TS),
+      hybrid pattern HTTP→browser (documentação primária), tipagem compartilhada com
+      domain models. Python só vence em integração nativa cnpj-sqlite.
+    sources:
+      - https://crawlee.dev/blog/scrapy-vs-crawlee
+      - https://webscraping.ai/faq/crawlee/what-are-the-differences-between-crawlee-for-python-and-crawlee-for-javascript
+      - https://crawlee.dev/python/docs/deployment/aws-lambda
+      - https://use-apify.com/blog/self-hosting-web-scrapers-guide
+      - https://github.com/apify/crawlee
+    confidence: High
+    decision: |
+      Crawlee TypeScript para crawlers Wave A/B Epic 7.
+      Python isolado em container só para subsistema CNPJ (rictom/cnpj-sqlite).
+      Comunicação via DB views, dois runtimes não se cruzam em código.
+
+  - id: CQ-005
+    sq: SQ-7
+    type: legal
+    priority: P0
+    status: RESOLVED
+    resolved_at: '2026-05-14'
+    resolved_in: wave-2
+    question: Jurisprudência LGPD 2025-2026 captação imobiliária + scraping pós Radar Tec nº3?
+    finding: |
+      NENHUMA SANÇÃO PÚBLICA contra imobiliária ou martech imobiliária encontrada em 2024-2026.
+      ANPD escalou drasticamente: 27 fiscalizações abertas em 2025 (mais que 2020-2024 somadas),
+      mas alvos prioritários foram Meta/WhatsApp e big tech de IA generativa.
+      MP 1.317/2025 transformou ANPD em agência reguladora oficial. Data scraping/aggregators
+      são prioridade explícita da agenda 2025-2026 (Mattos Filho).
+      Risco: MÉDIO-BAIXO operacional, ESCALANDO regulatoriamente.
+    sources:
+      - https://www.gov.br/anpd/pt-br/assuntos/noticias/anpd-divulga-lista-de-processos-sancionatorios
+      - https://www.gov.br/anpd/pt-br/assuntos/noticias/sei_00261-000489_2022_62_decisao_telekall_inforservice.pdf
+      - https://www.mattosfilho.com.br/en/unico/data-privacy-protection-day/
+      - https://www.migalhas.com.br/depeso/447221/protecao-de-dados-pessoais-em-2025-avancos-desafios-e-perspectivas
+      - https://www.lhlaw.com.br/publicacoes/anpd-aplica-sancao-e-reforca-sua-intencao-de-se-firmar-como-orgao-regulador-de-ia-no-brasil/
+    confidence: High
+    decision: |
+      LIA obrigatória antes do 1º scrape PF (Wave 1 mantida).
+      Counsel padrão RE/MAX serve para Wave A. Counsel especialista reservado
+      para Wave B se volume passar 10k leads/mês. Configurar Google Alert
+      "ANPD imobiliária sanção" como escalation trigger.
+
+  - id: CQ-007
+    sq: SQ-1
+    type: heuristic_validation
+    priority: P1
+    status: PARTIAL
+    resolved_at: '2026-05-14'
+    resolved_in: wave-2
+    question: |
+      Taxa de acerto esperada da heurística determinística em Zona Sul SP?
+    finding: |
+      Sem benchmark BR publicado. Literatura US (REDX, Vulcan7, Espresso, Mojo, FSBO Town,
+      ForSaleByOwner.com) opera comercialmente sobre heurística similar (telefone + ausência
+      licença + anúncio direto) — modelos rentáveis. CRECI público no BR (consulta via
+      cofeci.gov.br ou OSS 19950512/buscacreci) garante alta especificidade.
+      Estimativa defensável: 70-85% lower bound, +5-10% com feature Δ vs ITBI.
+    sources:
+      - https://www.redx.com/
+      - https://www.vulcan7.com/
+      - https://www.fsbotown.com/
+      - https://www.espressoagent.com/fsbos
+      - https://github.com/19950512/buscacreci
+    confidence: Medium
+    decision: |
+      Manter heurística determinística Wave A. Validação empírica em batch
+      200 anúncios + Luciana valida 30 estratificados (Phase 3/4).
+
+  - id: CQ-009
+    sq: SQ-5
+    type: arch_validation
+    priority: P1
+    status: RESOLVED
+    resolved_at: '2026-05-14'
+    resolved_in: wave-2
+    question: Stack híbrida tem precedente em produção real estate?
+    finding: |
+      Precedente FORTE: AppFolio Realm-X (property management AI copilot) usa LangGraph
+      + LangChain + LangSmith na MESMA arquitetura proposta. Resultado em produção:
+      10h+ economia por property manager/semana. Padrão híbrido canonizado em 2026
+      por Anubhav, Cordum, Anup.io. Outros adopters: Uber, LinkedIn, Replit, Klarna.
+    sources:
+      - https://blog.langchain.com/customers-appfolio/
+      - https://www.zenml.io/llmops-database/building-a-property-management-ai-copilot-with-langgraph-and-langsmith
+      - https://www.langchain.com/blog/top-5-langgraph-agents-in-production-2024
+      - https://medium.com/data-science-collective/langgraph-vs-temporal-for-ai-agents-durable-execution-architecture-beyond-for-loops-a1f640d35f02
+      - https://cordum.io/blog/temporal-vs-langgraph
+      - https://www.anup.io/temporal-langgraph-a-two-layer-architecture-for-multi-agent-coordination/
+    confidence: High
+    decision: |
+      Confirmar stack híbrida Wave 1. cron-Supabase em Wave A (zero token cost),
+      LangGraph entra em Wave B apenas para classificador NLP + geração de mensagem.
+
+  - id: CQ-010
+    sq: SQ-4
+    type: oss_alternative
+    priority: P2
+    status: RESOLVED
+    resolved_at: '2026-05-14'
+    resolved_in: wave-2
+    question: OSS BR-focado em grafo imobiliário?
+    finding: |
+      Sem projeto BR-acadêmico exato encontrado, MAS 3 repos relevantes:
+      - 19950512/buscacreci (15⭐, ativo 2026-05-08, PHP, API CRECI BR) — feed direto
+        para detecção FISBO via ausência CRECI
+      - marco-jardim/niteroi-itbi-heatmap (ativo 2026-05-12, Python, heatmap ITBI Niterói)
+        — padrão arquitetural transferível
+      - lfreitasdm/itbi-consulta (ativo 2026-04-13, Python) — parser ITBI SP referência
+      - opastorello/creci-sp-api (Glama MCP) — quando MCP habilitado, integração direta
+    sources:
+      - https://github.com/19950512/buscacreci
+      - https://github.com/marco-jardim/niteroi-itbi-heatmap
+      - https://github.com/lfreitasdm/itbi-consulta
+      - https://glama.ai/mcp/servers/opastorello/creci-sp-api
+    confidence: High
+    decision: |
+      Incorporar 19950512/buscacreci ou similar como serviço de validação CRECI
+      em Phase 4. Adicionar como segundo alvo de code-anatomy (com HomeHarvest).
+
+  - id: CQ-011
+    sq: SQ-6
+    type: ml_methodology
+    priority: P2
+    status: RESOLVED
+    resolved_at: '2026-05-14'
+    resolved_in: wave-2
+    question: Platt vs isotonic calibration para XGBoost lead scoring?
+    finding: |
+      Regra de bolso: Platt (sigmoid) para < 1k calibration samples; isotonic para ≥ 1k.
+      Isotonic é +22% melhor em ECE em média (MDPI 2025 lead generation paper) mas
+      pode overfittar com poucos dados. Imbalanced classes: ambos funcionam, com pequena
+      vantagem sigmoid pela flexibilidade de intercept.
+    sources:
+      - https://scikit-learn.org/stable/modules/calibration.html
+      - https://www.blog.trainindata.com/complete-guide-to-platt-scaling/
+      - https://machinelearningmastery.com/probability-calibration-for-imbalanced-classification/
+      - https://www.mdpi.com/2227-7390/13/13/2183
+    confidence: High
+    decision: |
+      Wave B Epic 7: começar com Platt (sigmoid), migrar para isotonic
+      quando calibration set ≥ 1k leads anotados.
+
+  - id: CQ-012
+    sq: SQ-3
+    type: technical_unknown
+    priority: P2
+    status: RESOLVED
+    resolved_at: '2026-05-14'
+    resolved_in: wave-2
+    question: QuintoAndar API/mobile reverse-engineerable?
+    finding: |
+      Reverse-engineering commoditizado: Apify Store já tem actor `brasil-scrapers/quinto-andar-api`
+      pronto para uso. Não vale fazer in-house.
+    sources:
+      - https://apify.com/brasil-scrapers/quinto-andar-api
+      - https://github.com/brightdata/real-estate-ai-agent
+    confidence: High
+    decision: |
+      Adicionar QuintoAndar (e Loft, se actor similar existir) ao Wave B Epic 7
+      via Apify (modelo Epic 6). Crawlee TS NÃO precisa cobrir QuintoAndar.
+
+# Items que permanecem em aberto após Wave 2
+items:
+  - id: CQ-004
+    sq: SQ-3
+    type: volume_estimation
+    priority: P1
+    status: BLOCKED
+    blocked_reason: |
+      Requer SQL contra Supabase ao vivo. Fora do escopo de pesquisa textual.
+      Founder ou @data-engineer executa.
+    question: |
+      Volume estimado de anúncios FISBO por mês em Moema + Vila Olímpia + Itaim
+      (a partir dos portais cobertos pelo Epic 6)?
+    why_matters: |
+      Determina se Prefect/Temporal é necessário ou se cron-Supabase basta.
+      Estimativa conservadora (50-750/mês) já cabe em cron-Supabase.
+    attack_plan: |
+      Founder ou @data-engineer SQL one-off: COUNT(*) por bairro + heurística determinística
+      sobre tabela Epic 6 últimos 60 dias.
+    impact_if_unresolved: Baixo — estimativa conservadora cabe em cron-Supabase qualquer modo.
+
+hypotheses_verdict:
+  - id: H-001
+    statement: |
+      Heurística determinística identifica FISBO com precisão > 80% em Zona Sul SP.
+    verdict: INCONCLUSIVE
+    evidence_for: |
+      Literatura US (REDX, Vulcan7) opera comercialmente sobre heurística similar;
+      CRECI BR público garante alta especificidade.
+    evidence_against: |
+      Sem benchmark publicado BR; corretores autônomos com CPF + telefone pessoal
+      são falsos positivos clássicos.
+    next_test: amostra 200 anúncios + Luciana valida 30 (Phase 3/4)
+    confidence: Medium
+
+  - id: H-002
+    statement: Δ preço (% redução) é a feature single mais preditiva.
+    verdict: DEFERRED
+    wave: B (pós Epic 7.1)
+    next_test: correlação com outcome após 100 leads abordados
+
+  - id: H-003
+    statement: |
+      Stack híbrida (cron-Supabase + LangGraph) é mais barata e mais simples
+      que LangGraph puro para volume Zona Sul.
+    verdict: CONFIRMED
+    evidence: |
+      1. Custo direto: LangGraph $0.001-0.01/step vs pg_cron zero.
+      2. Padrão canonizado 2026 (Anubhav, Cordum, Anup.io).
+      3. Precedente AppFolio Realm-X: LangGraph só onde há decisão LLM real.
+    confidence: High
+
+  - id: H-004
+    statement: |
+      LIA + cifragem + opt-out + audit log é compliance suficiente para boutique.
+    verdict: DEFERRED
+    wave: 5 (PRD entrega)
+    next_test: revisão por counsel especializado privacy
+
+  - id: H-005
+    statement: |
+      Crawlee custa < R$ 500/mês de infra vs > R$ 2k de Apify para
+      volume MercadoLivre + ImovelWeb Zona Sul.
+    verdict: CONFIRMED
+    evidence: |
+      Self-hosted Crawlee TS Hetzner CPX31 (€21/mês) + proxy IPRoyal committed
+      ($52/mês) = ~R$ 430/mês para 50k pgs/mês. Apify cloud equivalente
+      = R$ 1.160-2.320. ~9-12x mais barato. CAVEAT: < 10k pgs/mês Apify
+      ainda vence pelo overhead operacional self-hosted.
+    confidence: High

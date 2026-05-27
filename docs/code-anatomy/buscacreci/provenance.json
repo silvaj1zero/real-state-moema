@@ -1,0 +1,86 @@
+{
+  "repo_url": "https://github.com/19950512/buscacreci",
+  "commit_sha": "ddd5d66c38b45be00b9604501f362f228d1e6efe",
+  "commit_message": "Adapts CRECI integrations for new CAPTCHA challenges (Conselho Nacional Turnstile + CRECI SP reCAPTCHA Enterprise refactor)",
+  "commit_date": "2026-03-02T23:26:44Z",
+  "default_branch": "main",
+  "analysis_date": "2026-05-13",
+  "analyst": "code-anatomist--decoder-chief",
+  "license": null,
+  "license_status": "MISSING — flag critical",
+  "license_implication": "Default copyright: all rights reserved by maintainer. Cannot legally copy code verbatim. Pattern transcription in different language (TypeScript) is acceptable as transformative work, but literal copy of PHP source is prohibited until license is declared or explicit authorization obtained.",
+  "license_verified_via": "gh api repos/19950512/buscacreci --jq '.license' (returns null) + tree listing has no LICENSE file at root",
+  "maintainer": "Matheus Maydana <mattmaydana@gmail.com>",
+  "stars": 15,
+  "forks": 10,
+  "language": "PHP",
+  "php_version_required": "8+ (likely 8.1+ given match expressions and readonly)",
+  "key_dependencies_php": {
+    "php-di/php-di": "^7.0",
+    "symfony/dom-crawler": "^6.0|^7.0",
+    "symfony/css-selector": "^6.0|^7.0",
+    "guzzlehttp/guzzle": "^7.0",
+    "predis/predis": "^2.2",
+    "firebase/php-jwt": "^6.11",
+    "php-amqplib/php-amqplib": "^3.7"
+  },
+  "auxiliary_runtime": {
+    "creci_sp_scraper.js": "Node.js + puppeteer-core (for CRECI SP reCAPTCHA Enterprise fallback)"
+  },
+  "files_analyzed": [
+    "README.md",
+    "composer.json (verified license field empty)",
+    "src/Aplicacao/CasosDeUso/PlataformaCreci.php (interface)",
+    "src/Infraestrutura/Adaptadores/PlataformasCreci/Conselho/CreciConselhoPlataformaImplementacao.php (full file)",
+    "src/Infraestrutura/Adaptadores/PlataformasCreci/SP/CreciSPPlataformaImplementacao.php (partial — first 150 lines)",
+    "src/Infraestrutura/Adaptadores/PlataformasCreci/Robots.php (full file)",
+    "src/Dominio/ObjetoValor/Creci.php (value object)",
+    "File tree listing (all files inventoried)"
+  ],
+  "files_intentionally_not_analyzed": [
+    "creci_sp_scraper.js — only referenced as auxiliary fallback; pattern is well-known (Puppeteer + reCAPTCHA)",
+    "Workers/ConsultaCreci/index.php — queue consumer; not relevant for Epic 7 (uses Supabase queues)",
+    "Repositorios/CreciRepositorioImplementacao.php — Postgres persistence layer; not transferable to Supabase",
+    "ConselhoNacionalCRECI/ConselhoNacionalCRECI.php + MembroDoConselho.php — domain entities, internal naming",
+    "Tests — assertion shape can be inferred from code"
+  ],
+  "extraction_method": "gh api (REST GitHub) — git clone blocked in sandbox",
+  "supported_states_in_v2026_03": {
+    "via_conselho_nacional": ["AL","AM","AP","BA","CE","DF","GO","MA","MS","MT","PA","PB","PE","PI","PR","RJ","RN","RO","RR","SC","SE"],
+    "via_scraper_dedicated_active": ["RS","ES"],
+    "via_scraper_dedicated_temporarily_disabled": ["SP"],
+    "not_supported": ["MG","TO"]
+  },
+  "captcha_services_used": {
+    "conselho_nacional_turnstile": {
+      "service": "2Captcha",
+      "sitekey": "0x4AAAAAAB5EssxvqmsTJ5Wx",
+      "cost_approx": "$1.45/1000"
+    },
+    "crecisp_recaptcha_v3_enterprise": {
+      "service": "2Captcha",
+      "sitekey": "6LfUMMgqAAAAABG4tjE8VkT2wKZlqmAvV2YsId7a",
+      "pageAction": "submit_broker_search",
+      "cost_approx": "$2.99/1000",
+      "status_mar2026": "Server-side validation failing — scraper disabled"
+    }
+  },
+  "key_findings": [
+    "License is missing — legal blocker for code copy. Transcription in different language is allowed.",
+    "21 UFs covered by ONE implementation (CreciConselhoPlataformaImplementacao) — pattern transcribable directly.",
+    "CRECI SP scraper is TEMPORARILY DISABLED (mar/2026) — major blocker for Epic 7 Wave A (Zona Sul SP)",
+    "Sitekeys Turnstile (0x4AAAAAAB5EssxvqmsTJ5Wx) and reCAPTCHA Enterprise (6LfUMMgqAAAAABG4tjE8VkT2wKZlqmAvV2YsId7a) are public facts (embedded in HTML/JS of the sites).",
+    "HTML response structure of Conselho Nacional uses Quasar/Vue.js tables with 6 columns (avatar, nome, inscricao, situacao, certidao, telefone).",
+    "Robots.txt compliance check is implemented (good practice — replicate)."
+  ],
+  "transferability_to_epic7": "HIGH for concepts, NULL for code (license blocker)",
+  "epic7_actions_recommended": [
+    "Write CreciValidator interface + 4 implementations in TypeScript (autoral, NOT copy of PHP)",
+    "Implement CachedCreciValidator wrapper with 30-day TTL on Supabase creci_cache table",
+    "Use 2Captcha (via 2captcha-ts npm) for both Turnstile and reCAPTCHA Enterprise — same patterns as PHP code",
+    "Add observability: log every CRECI lookup to creci_lookup_logs table with cost tracking",
+    "Strategy for CRECI SP: hybrid — try HTTP first (cheap), fallback to Puppeteer (expensive) only on reCAPTCHA validation failure",
+    "Rate limit: 30 req/min via AutoscaledPool taskTimeoutSecs=60",
+    "Contact maintainer (mattmaydana@gmail.com) to request MIT/Apache 2.0 license declaration"
+  ]
+}

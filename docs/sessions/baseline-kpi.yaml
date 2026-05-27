@@ -1,0 +1,29 @@
+# Baseline KPIs — Real State Moema handoff quality
+# Auto-maintained by /handoff skill (ATM-011)
+# Baseline established after 5+ handoffs (statistically representative)
+
+baseline:
+  total_handoffs: 1
+  avg_score: 10.0
+  avg_word_count: 3100
+  avg_sections: 14
+  score_distribution:
+    "10": 1
+    "9": 0
+    "8": 0
+    "7": 0
+    "<7": 0
+  scope_distribution:
+    intra_processo: 1
+    self_continuation: 0
+    intra_bu: 0
+    inter_bu: 0
+  type_distribution:
+    session: 1
+    agent_transfer: 0
+    phase_transition: 0
+    roundtable_summary: 0
+    self_continuation: 0
+  last_updated: "2026-05-19"
+  baseline_established: false
+  baseline_threshold: 5

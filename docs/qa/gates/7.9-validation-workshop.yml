@@ -1,0 +1,233 @@
+schema: 1
+story: '7.9'
+gate: PASS
+status_reason: 'Initial gate — scope is AC1 (stratified SQL seeder) + AC2 (workshop UI scaffolding) + Migration 020. AC3-AC8 explicitly deferred (require Luciana 2h presencial + 14d real data accumulation post Story 7.4 deploy) and tracked in Dev Agent Record as DEFERRED with rationale. PASS means scaffolding is solid and ready for workshop execution — NOT that the workshop has run. Story may transition InReview → Done as "scaffolding-done" with the explicit understanding that the workshop itself is a downstream PM/founder activity (Morgan + Zero + Luciana).'
+reviewer: 'Quinn'
+updated: '2026-05-26T00:00:00Z'
+
+scope_clarification:
+  in_scope: ['AC1', 'AC2', 'Migration 020']
+  deferred: ['AC3', 'AC4', 'AC5', 'AC6', 'AC7', 'AC8']
+  deferred_reason: 'AC3-AC8 require Luciana 2h workshop + 14d real data via Story 7.4 deploy + downstream PM/founder coordination. Scaffolding (AC1+AC2+migration) is the @dev-deliverable portion; the rest is operational execution by @pm + founder.'
+  done_definition_for_this_story: |
+    "Scaffolding-Done" — the SQL seeder, Workshop UI, and validation_batch_001
+    schema are correct, idempotent, secured, and ready to receive data and
+    decisions. The workshop execution itself (and the AC3-AC8 artifacts that
+    follow) is a separate operational task owned by @pm (Morgan) coordinating
+    with the founder (Zero) and Luciana. Closing this story unblocks Story 7.4
+    deployment and the eventual workshop without keeping the story open as a
+    rolling milestone that depends on calendar availability.
+
+files_reviewed:
+  - 'scripts/epic7/build-validation-batch.sql'
+  - 'supabase/migrations/20260524000001_020_epic7_validation_batch.sql'
+  - 'app/src/app/admin/validation-workshop/page.tsx'
+  - 'app/src/app/admin/validation-workshop/actions.ts'
+  - 'app/src/components/WorkshopCard.tsx'
+  - 'app/src/hooks/useValidationBatch.ts'
+
+ac_review:
+  AC1_stratified_sampling:
+    file: 'scripts/epic7/build-validation-batch.sql'
+    findings: |
+      Four CTEs (fisbo_high / fisbo_mid / fisbo_low / control_group) each LIMIT 50
+      via ORDER BY random() with bairro ILIKE Moema|Vila Olimpia|Vila Olímpia|Itaim
+      (accents both variants — defensive). Confidence band thresholds correct:
+      >= 0.85, 0.70..0.85, 0.50..0.70. Control band uses classification IN
+      ('agent','broker','builder'). is_active=true filter prevents stale rows.
+      UNION ALL into INSERT with ON CONFLICT (scraped_listing_id) DO NOTHING —
+      idempotent re-run preserves Luciana decisions. DO $$ block writes NOTICE
+      counts per band + WARNING if total<200. TRUNCATE deliberately excluded
+      (correct call — destroying decisions would be dangerous).
+    verdict: PASS
+  AC2_workshop_ui:
+    files: ['page.tsx', 'WorkshopCard.tsx', 'actions.ts', 'useValidationBatch.ts']
+    findings: |
+      RSC page (force-dynamic, revalidate=0) with admin-only guard via
+      app_metadata.role || user_metadata.role pattern matching /admin/lgpd
+      precedent. Server Action saveDecision repeats the guard (defense-in-depth).
+      Zod validation on action input (uuid + enum + max(500)). 3 decision buttons
+      (is_fisbo / not_fisbo / unknown) with keyboard shortcuts (S/N/?) and arrow
+      navigation (←/→) — keyboard handler ignores events when target is INPUT
+      or TEXTAREA (correct behavior — won't trigger save while typing notes).
+      Touch targets min-h-11 (44px) per NFR-001. Counter "Anuncio N/total ·
+      X decididos" with aria-live=polite. Deeplink ?i=N for pause/resume.
+      Auto-advance after decision (only if not last). Empty-state handled with
+      explicit message pointing to the seeder script. Hook uses useTransition +
+      router.refresh() — appropriate for 200-row admin dataset without
+      TanStack Query.
+    verdict: PASS
+  AC3_report:
+    verdict: DEFERRED
+    blocker: 'Requires 200 Luciana decisions — cannot compute precision/recall before workshop.'
+  AC4_threshold_recommendation:
+    verdict: DEFERRED
+    blocker: 'Depends on AC3.'
+  AC5_adr:
+    verdict: DEFERRED
+    blocker: 'Depends on AC3/AC4.'
+  AC6_workshop_materials:
+    verdict: DEFERRED
+    blocker: '@pm (Morgan) + founder task — slide deck + calendar with Luciana.'
+  AC7_threshold_applied:
+    verdict: DEFERRED
+    blocker: 'Depends on AC4; env var REVIEW_CONFIDENCE_THRESHOLD machinery already exists via Story 7.8.'
+  AC8_curiosity_queue_verdict:
+    verdict: DEFERRED
+    blocker: 'Depends on AC3 verdict (CONFIRMED|REFUTED).'
+
+migration_020_review:
+  file: 'supabase/migrations/20260524000001_020_epic7_validation_batch.sql'
+  findings: |
+    Schema correct: id UUID PK, scraped_listing_id UUID NOT NULL FK CASCADE,
+    hypothesis_classification TEXT, confidence NUMERIC(3,2) with CHECK 0..1,
+    luciana_decision with CHECK IN (is_fisbo|not_fisbo|unknown), luciana_notes,
+    decided_at, created_at default now(). UNIQUE constraint on
+    scraped_listing_id enforces idempotency of the AC1 seeder.
+
+    Indexes:
+      - idx_validation_batch_001_pending: partial index ON (created_at)
+        WHERE luciana_decision IS NULL — optimal for "next pending" lookup.
+      - idx_validation_batch_001_scraped_listing: btree on scraped_listing_id
+        for AC3 report join.
+
+    RLS enabled with three policies:
+      - service_role ALL (seed via psql + reports)
+      - authenticated SELECT (workshop list)
+      - authenticated UPDATE (workshop decisions)
+      App-layer guard role=admin layered on top (defense-in-depth — RSC page
+      + Server Action both check role). Acceptable for the admin-only UX.
+
+    Numbering: 020 (not 016) is correct — 016 was consumed by Story 7.8
+    review_status. Documented in story Dev Agent Record. File List in story
+    body shows the OLD number 016 (cosmetic inconsistency — actual file is 020;
+    Dev Agent Record explains the swap).
+
+    COMMENT ON TABLE + COMMENT ON COLUMN entries document intent.
+  verdict: PASS
+
+quality_dimensions:
+  code_review:
+    score: PASS
+    notes: |
+      RSC + Server Action pattern is canonical Next.js 15 App Router style.
+      Zod validation, error envelopes (ActionResult<T>), defense-in-depth
+      admin guard, useTransition for optimistic UX. WorkshopCard handles
+      empty state, error state, and prior decision display. TypeScript types
+      explicit (WorkshopBatchItem, LucianaDecision). Tailwind classes
+      consistent. ARIA attributes present (aria-live, aria-labelledby,
+      aria-keyshortcuts, role=alert). Code is clean enough that the only
+      micro-nit is `// eslint-disable-next-line react-hooks/exhaustive-deps`
+      on the keyboard handler effect — intentional but could carry a 1-line
+      rationale comment; non-blocking.
+  unit_tests:
+    score: TEST_DEBT
+    notes: |
+      No tests found for WorkshopCard, useValidationBatch, saveDecision, or
+      the SQL seeder. Acceptable for scaffolding gate — UI behavior will be
+      validated empirically during the workshop dry-run (Morgan with 20
+      listings, per Testing Strategy). Flag as low-severity test-debt for
+      Wave B backfill if the workshop UX needs to be re-used for multi-
+      consultor scaling.
+  acceptance_criteria:
+    score: PASS_WITH_DEFERRED
+    notes: '2/8 in-scope ACs PASS; 6/8 DEFERRED with documented rationale. No invented features (Article IV compliant). Out-of-scope items match the story Dev Agent Record DEFERRED table.'
+  regressions:
+    score: PASS
+    notes: |
+      Migration 020 is additive (CREATE TABLE IF NOT EXISTS + new policies on
+      new table). No modifications to scraped_listings, review_status (7.8),
+      or any existing RLS policy. New Next.js route is isolated under
+      /admin/validation-workshop. New hook + component imports are local.
+      Server Action is new (saveDecision) — no shared mutation surface.
+  performance:
+    score: PASS
+    notes: |
+      Partial index on (created_at) WHERE luciana_decision IS NULL is the
+      correct optimization for the "next pending" workflow. 200-row dataset
+      is small enough that the page-level full fetch (no pagination) is
+      acceptable — Total payload ~50KB max. No N+1 risk: single supabase
+      query with relational select() pulls listing JOIN inline.
+  security:
+    score: PASS
+    notes: |
+      Admin guard at TWO layers (RSC page + Server Action — defense-in-depth).
+      Zod validates input shape + length (uuid format, decision enum,
+      notes max 500 chars). RLS policies present (service_role ALL,
+      authenticated SELECT/UPDATE on validation_batch_001) — note that
+      authenticated UPDATE is broad (USING true) and relies on the app-layer
+      admin guard. Acceptable for an admin-only page, but worth noting:
+      a non-admin authenticated user CAN technically UPDATE this table at
+      the RLS level if they bypass the app guard (e.g., direct API call).
+      For Wave B / multi-consultor scaling, tighten to
+      `USING (auth.jwt() ->> 'role' = 'admin')` or equivalent. Low severity
+      for current scope (admin-only single-user workshop). No SQL injection
+      risk (parameterized via supabase-js). No PII leaks (no socios/raw_data
+      involved here). No console.log of sensitive fields.
+  documentation:
+    score: PASS
+    notes: |
+      Migration 020 has table + per-column COMMENT statements. SQL seeder
+      carries a 30-line header with PURPOSE / STRATA / GEOGRAPHIC COVERAGE
+      / IDEMPOTENCY / USAGE sections. WorkshopCard has JSDoc explaining
+      shortcuts + touch targets + WAVE B deferred items. useValidationBatch
+      explains the no-TanStack rationale. Server Action explains the RSC
+      tight-coupling + CSRF benefit. Story Dev Agent Record clearly labels
+      DEFERRED items and the rationale for each.
+
+issues:
+  - id: 'SEC-001'
+    severity: low
+    finding: |
+      RLS policy validation_batch_001_authenticated_update has
+      USING (true) WITH CHECK (true). This means any authenticated user
+      (not just admin) could UPDATE rows via direct API call, bypassing
+      the app-layer admin guard. The app guard is defense-in-depth, not a
+      bypass-protection.
+    recommendation: |
+      Acceptable for current scope (admin-only single-user). If Wave B
+      scales to multi-consultor or if the schema gets exposed to non-admin
+      authenticated routes, tighten RLS to enforce admin role at DB level
+      (e.g., USING (auth.jwt() ->> 'role' = 'admin')). Non-blocking for
+      this gate.
+  - id: 'DOCS-001'
+    severity: low
+    finding: |
+      Story File List references the old migration name
+      20260514000009_016_epic7_validation_batch.sql (line 77 of story).
+      Actual file is 20260524000001_020_epic7_validation_batch.sql.
+      Dev Agent Record correctly explains the swap (016 → 020 because
+      016 was consumed by Story 7.8 review_status).
+    recommendation: |
+      Cosmetic — story body File List could be updated to match the
+      actual file, but the Dev Agent Record already documents the
+      rationale, so this is non-blocking.
+  - id: 'TEST-001'
+    severity: low
+    finding: |
+      No targeted unit tests for WorkshopCard, useValidationBatch,
+      saveDecision, or the SQL seeder.
+    recommendation: |
+      Acceptable for scaffolding gate. Empirical dry-run by Morgan with
+      20 listings (per Testing Strategy) substitutes for unit tests at
+      this scale. Backfill if Wave B extends the UX.
+
+verdict: PASS
+verdict_rationale: |
+  Scaffolding scope (AC1 + AC2 + Migration 020) is complete, secure,
+  documented, idempotent, and ready to receive workshop data. The 6
+  deferred ACs (AC3-AC8) all have explicit external prerequisites
+  (Luciana availability, Story 7.4 deploy + 14d data accumulation,
+  PM/founder coordination) that are correctly out of @dev scope. RLS
+  could be tightened (SEC-001) but the app-layer guard + the admin-only
+  nature of the UX make it acceptable for this scope. The story may
+  transition InReview → Done as "scaffolding-done" — keeping it open
+  pending Luciana's calendar would be wrong because the implementation
+  work IS finished. The workshop execution itself becomes a separate
+  follow-up tracked by @pm.
+
+next_steps:
+  - 'Story may transition InReview → Done (scaffolding-done).'
+  - '@pm (Morgan) + founder: schedule Luciana 2h workshop after Story 7.4 deploy + ~14d data accumulation.'
+  - 'Post-workshop: AC3 report → AC4 threshold → AC5 ADR → AC7 env var update → AC8 curiosity_queue update (separate follow-up).'
+  - 'Optional Wave B: tighten RLS UPDATE policy to enforce admin role at DB layer (SEC-001).'

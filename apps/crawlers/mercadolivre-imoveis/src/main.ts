@@ -10,7 +10,7 @@
  */
 
 import { Actor, log } from 'apify'
-import { Dataset, RequestQueue } from 'crawlee'
+import { Dataset } from 'crawlee'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 
 import {
@@ -179,7 +179,7 @@ if (telemetry) {
 const startUrls = buildStartUrls(input)
 log.info('Start URLs', { count: startUrls.length, sample: startUrls.slice(0, 2) })
 
-const requestQueue = await RequestQueue.open()
+const requestQueue = await Actor.openRequestQueue()
 
 // Seed requestQueue userData.bairro from start URLs (LOGIC-001 fix).
 // Bairro helper + cap logic shared via app/src/lib/scrapers/mercadolivre/cap-per-bairro.ts
@@ -199,6 +199,7 @@ const crawler = createPortalCrawler({
   overrides: {
     maxRequestsPerMinute: 60,
     maxRequestRetries: 2,
+    requestQueue,
   },
   requestHandler: async (ctx) => {
     const { request, body } = ctx as unknown as {

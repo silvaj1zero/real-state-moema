@@ -13,6 +13,16 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  // Test files: relax rules that produce false positives in test scaffolding
+  // - react/display-name: RTL wrapper components don't need display names
+  // - no-explicit-any: mocks/stubs frequently use `any` for ergonomics
+  {
+    files: ["**/*.test.ts", "**/*.test.tsx", "**/__tests__/**/*.ts", "**/__tests__/**/*.tsx"],
+    rules: {
+      "react/display-name": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;
