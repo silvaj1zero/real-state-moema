@@ -6,62 +6,24 @@
  * Server Actions over API Routes: chosen for tighter coupling to RSC page,
  * automatic CSRF protection, and zero extra fetch boilerplate from client.
  * UPDATEs run under the user's auth session — RLS enforces row visibility.
+ *
+ * Next.js 15 constraint: `'use server'` files may only export async functions.
+ * Zod schemas and types live in `./schemas.ts` and are imported here.
  */
 
 import { revalidatePath } from 'next/cache'
-import { z } from 'zod'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { logLGPDAccess } from '@/lib/lgpd-audit'
-
-// =============================================================================
-// Zod schemas (AC6)
-// =============================================================================
-
-export const ReviewActionSchema = z.enum([
-  'confirmed_fisbo',
-  'confirmed_other',
-  'rejected_is_broker',
-  'rejected_is_construtora',
-  'discarded',
-  'skipped',
-])
-
-export type ReviewAction = z.infer<typeof ReviewActionSchema>
-
-export const ReviewDecisionSchema = z.object({
-  listingId: z.string().uuid({ message: 'listingId deve ser UUID' }),
-  action: ReviewActionSchema,
-  notes: z.string().max(500).optional(),
-})
-
-export type ReviewDecision = z.infer<typeof ReviewDecisionSchema>
-
-export const BulkReviewDecisionSchema = z.object({
-  listingIds: z
-    .array(z.string().uuid())
-    .min(1, 'Selecione ao menos 1 anúncio')
-    .max(50, 'Máximo 50 por batch'),
-  action: ReviewActionSchema,
-})
-
-export type BulkReviewDecision = z.infer<typeof BulkReviewDecisionSchema>
-
-export const RevealPhoneInputSchema = z.object({
-  listingId: z.string().uuid(),
-  consent: z.literal(true, {
-    message: 'É preciso confirmar o consentimento LGPD para revelar telefone.',
-  }),
-})
-
-export type RevealPhoneInput = z.infer<typeof RevealPhoneInputSchema>
-
-// =============================================================================
-// Action result envelope
-// =============================================================================
-
-export type ActionResult<T = unknown> =
-  | { ok: true; data: T }
-  | { ok: false; error: string }
+import {
+  ReviewDecisionSchema,
+  BulkReviewDecisionSchema,
+  RevealPhoneInputSchema,
+  type ReviewAction,
+  type ReviewDecision,
+  type BulkReviewDecision,
+  type RevealPhoneInput,
+  type ActionResult,
+} from './schemas'
 
 // =============================================================================
 // submitReviewDecision — single card decision (AC4)
