@@ -69,15 +69,17 @@ Recomendação inicial do esboço: **(A)** para laudo/resumo/deck/didático comp
 
 ## 3. Stories
 
-| Story | Título | Camada | Prioridade |
-|-------|--------|--------|------------|
-| 8.1 | Modelo de dados da metodologia ACM (construído×terreno, Score, SQL, ask-vs-close) | Dados | Must |
-| 8.2 | Camada de cálculo ACM (Score, aderência 50/20/30, efeito-escala, valor residual, sensibilidade) | Cálculo | Must |
-| 8.3 | ADR + geração de Resumo Executivo e Laudo técnico (PDF) | Renderização | Must |
-| 8.4 | Geração de Deck comercial RE/MAX + Material didático | Renderização | Should |
-| 8.5 | Orquestração app ↔ engine `acm-imobiliario` (pipeline de 1 clique) | Integração | Could |
+| Story | Título | Camada | Prioridade | Status (pós-validação PO) |
+|-------|--------|--------|------------|---------------------------|
+| 8.0 | **Spike — ADR de renderização (engine vs nativo)** | Arquitetura | Must | **Ready** (pedra angular) |
+| 8.1 | Modelo de dados da metodologia ACM (construído×terreno, Score, SQL, ask-vs-close) | Dados | Must | Ready (após AC0) |
+| 8.2 | Camada de cálculo ACM (Score, aderência 50/20/30, efeito-escala, valor residual, sensibilidade) | Cálculo | Must | Ready |
+| 8.3 | Geração de Resumo Executivo e Laudo técnico (PDF) | Renderização | Must | Draft (bloqueada por 8.0) |
+| 8.4 | Geração de Deck comercial RE/MAX + Material didático | Renderização | Should | Draft (bloqueada por 8.0) |
+| 8.5 | Orquestração app ↔ engine `acm-imobiliario` (pipeline de 1 clique) | Integração | Could | Draft (parqueada — contingente ao 8.0) |
 
-> Stories detalhadas em `docs/stories/8.1.story.md` … `8.5.story.md` (status **Draft** — pendente validação `@po`).
+> Stories detalhadas em `docs/stories/8.0.story.md` … `8.5.story.md`.
+> **Validação PO (2026-06-15, Pax):** 8.0/8.2 Ready · 8.1 Ready após AC0 (spike de dados ITBI) · 8.3 split + ADR extraída para 8.0 · 8.4/8.5 bloqueadas/parqueadas até 8.0. Sequência recomendada: **8.0 + 8.1·AC0 (paralelo) → 8.1 → 8.2 → 8.3 → 8.4 → 8.5**.
 
 ---
 
