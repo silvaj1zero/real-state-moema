@@ -425,6 +425,8 @@ export interface ScrapedListing {
   external_id: string
   url: string | null
   tipo_anunciante: TipoAnunciante
+  /** Story 7.13 — publisherType nativo (ZAP/VivaReal). NULL se ausente. */
+  publisher_type: 'owner' | 'agency' | 'developer' | null
   endereco: string | null
   endereco_normalizado: string | null
   coordinates: string | null

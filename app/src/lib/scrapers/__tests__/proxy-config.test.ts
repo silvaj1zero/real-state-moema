@@ -12,6 +12,7 @@ import {
   resolveProxySpec,
   readProxyEnv,
   buildProxyConfiguration,
+  resolveApifyInputProxy,
   PORTAL_PROXY_TIER,
   RESIDENTIAL_GROUP,
   DATACENTER_GROUP,
@@ -167,5 +168,43 @@ describe('buildProxyConfiguration — factory injetavel (AC7)', () => {
     const logger = vi.fn()
     await buildProxyConfiguration('zap', factory, FULL_ENV, logger)
     expect(logger).not.toHaveBeenCalled()
+  })
+})
+
+// ---------------------------------------------------------------------------
+// resolveApifyInputProxy — Story 7.13 (input do actor parametrico)
+// ---------------------------------------------------------------------------
+
+describe('resolveApifyInputProxy — Story 7.13 (AC3/AC6)', () => {
+  it('ZAP -> useApifyProxy + RESIDENTIAL + countryCode BR', () => {
+    expect(resolveApifyInputProxy('zap', FULL_ENV)).toEqual({
+      useApifyProxy: true,
+      apifyProxyGroups: [RESIDENTIAL_GROUP],
+      apifyProxyCountryCode: 'BR',
+    })
+  })
+
+  it('VivaReal -> RESIDENTIAL', () => {
+    expect(resolveApifyInputProxy('vivareal', FULL_ENV)?.apifyProxyGroups).toEqual([
+      RESIDENTIAL_GROUP,
+    ])
+  })
+
+  it('OLX -> datacenter (DATACENTER group)', () => {
+    const proxy = resolveApifyInputProxy('olx', FULL_ENV)
+    expect(proxy?.useApifyProxy).toBe(true)
+    expect(proxy?.apifyProxyGroups).toEqual([DATACENTER_GROUP])
+  })
+
+  it('AC6 fallback: ZAP com residencial indisponivel -> datacenter', () => {
+    const proxy = resolveApifyInputProxy('zap', NO_RESIDENTIAL_ENV)
+    expect(proxy?.apifyProxyGroups).toEqual([DATACENTER_GROUP])
+    expect(proxy?.apifyProxyGroups).not.toContain(RESIDENTIAL_GROUP)
+  })
+
+  it('grupos omitidos quando nenhum disponivel (datacenter default Apify)', () => {
+    const proxy = resolveApifyInputProxy('olx', { availableGroups: [], country: 'BR' })
+    expect(proxy).toEqual({ useApifyProxy: true, apifyProxyCountryCode: 'BR' })
+    expect(proxy).not.toHaveProperty('apifyProxyGroups')
   })
 })

@@ -9,6 +9,7 @@ import {
   normalizePublisherType,
   type PublisherType,
 } from '@/lib/scrapers/classify-advertiser'
+import { resolveApifyInputProxy } from '@/lib/scrapers/proxy-config'
 
 const APIFY_BASE = 'https://api.apify.com/v2'
 
@@ -281,6 +282,10 @@ export function buildParametricSearchInput(
   maxItems = 200
 ): Record<string, unknown> {
   const transactionType = params.tipo_transacao === 'aluguel' ? 'rent' : 'sale'
+  // Story 7.13 (AC3) — proxy residencial por alvo: zap/vivareal recebem
+  // RESIDENTIAL+BR (Cloudflare); olx fica datacenter. Fallback gracioso
+  // herdado de resolveProxySpec (7.12).
+  const proxyConfiguration = resolveApifyInputProxy(portal)
   return {
     sources: portal,
     state: 'sp',
@@ -289,6 +294,7 @@ export function buildParametricSearchInput(
     maxListings: maxItems,
     propertyType: 'all',
     includeDescription: false,
+    ...(proxyConfiguration && { proxyConfiguration }),
     ...(params.preco_min != null && { minPrice: params.preco_min }),
     ...(params.preco_max != null && { maxPrice: params.preco_max }),
     ...(params.area_min != null && { minArea: params.area_min }),

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { normalizeListing } from './apify'
+import { normalizeListing, buildParametricSearchInput } from './apify'
 
 describe('normalizeListing', () => {
   it('should normalize a ZAP listing with all fields', () => {
@@ -147,5 +147,45 @@ describe('normalizeListing', () => {
       expect(result!.publisher_type).toBeNull()
       expect(result!.tipo_anunciante).toBe('corretor')
     })
+  })
+})
+
+// Story 7.13 (AC3) — proxy tiering injetado no INPUT do actor parametrico
+describe('buildParametricSearchInput — proxy por alvo (Story 7.13)', () => {
+  it('ZAP recebe proxyConfiguration residencial BR', () => {
+    const input = buildParametricSearchInput('zap', { tipo_transacao: 'venda' })
+    expect(input.proxyConfiguration).toEqual({
+      useApifyProxy: true,
+      apifyProxyGroups: ['RESIDENTIAL'],
+      apifyProxyCountryCode: 'BR',
+    })
+  })
+
+  it('VivaReal recebe proxy residencial', () => {
+    const input = buildParametricSearchInput('vivareal', {})
+    expect((input.proxyConfiguration as { apifyProxyGroups: string[] }).apifyProxyGroups).toEqual([
+      'RESIDENTIAL',
+    ])
+  })
+
+  it('OLX recebe proxy datacenter (nao residencial)', () => {
+    const input = buildParametricSearchInput('olx', {})
+    const proxy = input.proxyConfiguration as { apifyProxyGroups?: string[] }
+    expect(proxy.apifyProxyGroups).not.toContain('RESIDENTIAL')
+  })
+
+  it('preserva os filtros existentes ao lado do proxy', () => {
+    const input = buildParametricSearchInput('zap', {
+      preco_min: 500000,
+      area_min: 80,
+      quartos_min: 2,
+    })
+    expect(input).toMatchObject({
+      sources: 'zap',
+      minPrice: 500000,
+      minArea: 80,
+      minBedrooms: 2,
+    })
+    expect(input.proxyConfiguration).toBeDefined()
   })
 })

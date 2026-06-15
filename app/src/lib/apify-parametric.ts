@@ -182,6 +182,8 @@ async function upsertListing(
         ...(listing.email_anunciante && { email_anunciante: listing.email_anunciante }),
         ...(listing.whatsapp_anunciante && { whatsapp_anunciante: listing.whatsapp_anunciante }),
         ...(listing.nome_anunciante && { lgpd_consent_origin: 'portal_publico' }),
+        // Story 7.13 (AC2) — sinal nativo deterministico (ZAP/VivaReal).
+        ...(listing.publisher_type && { publisher_type: listing.publisher_type }),
       })
       .eq('id', existing.id)
 
@@ -194,6 +196,8 @@ async function upsertListing(
     external_id: listing.external_id,
     url: listing.url,
     tipo_anunciante: listing.tipo_anunciante,
+    // Story 7.13 (AC2) — sinal nativo deterministico (null se ausente).
+    publisher_type: listing.publisher_type,
     endereco: listing.endereco,
     bairro: listing.bairro,
     preco: listing.preco,

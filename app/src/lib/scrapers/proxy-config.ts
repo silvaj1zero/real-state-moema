@@ -201,3 +201,50 @@ export async function buildProxyConfiguration(
     countryCode: spec.apifyProxyCountry,
   })
 }
+
+// ---------------------------------------------------------------------------
+// Apify actor INPUT proxy (Story 7.13 — caminho parametrico Epic 6)
+// ---------------------------------------------------------------------------
+
+/**
+ * Shape do `proxyConfiguration` no INPUT de um Apify Actor pre-construido
+ * (ex.: `viralanalyzer/brazil-real-estate-scraper`). Convencao padrao da
+ * plataforma Apify (Art. IV: nao inventado).
+ */
+export interface ApifyInputProxy {
+  useApifyProxy: true
+  /** Omitido para datacenter default (sem grupos). */
+  apifyProxyGroups?: string[]
+  apifyProxyCountryCode?: string
+}
+
+/**
+ * Story 7.13 (AC3/AC6) — resolve o `proxyConfiguration` para o INPUT do
+ * actor parametrico, por alvo. Diferente de `buildProxyConfiguration`
+ * (que materializa um `ProxyConfiguration` Crawlee): aqui retornamos o
+ * objeto plain que vai no INPUT JSON do actor.
+ *
+ *  - residential -> `{ useApifyProxy, apifyProxyGroups: ['RESIDENTIAL'], apifyProxyCountryCode }`
+ *  - datacenter  -> `{ useApifyProxy, apifyProxyGroups?: ['DATACENTER'], apifyProxyCountryCode }`
+ *    (grupos omitidos se nao disponiveis -> datacenter default Apify)
+ *  - none        -> `undefined` (caller nao envia proxyConfiguration)
+ *
+ * Fallback gracioso herdado de `resolveProxySpec` (residencial
+ * indisponivel degrada para datacenter).
+ */
+export function resolveApifyInputProxy(
+  portal: Portal,
+  env: ProxyEnv = readProxyEnv(),
+): ApifyInputProxy | undefined {
+  const spec = resolveProxySpec(portal, env)
+  if (spec.tier === 'none') return undefined
+
+  const proxy: ApifyInputProxy = { useApifyProxy: true }
+  if (spec.apifyProxyGroups.length > 0) {
+    proxy.apifyProxyGroups = spec.apifyProxyGroups
+  }
+  if (spec.apifyProxyCountry) {
+    proxy.apifyProxyCountryCode = spec.apifyProxyCountry
+  }
+  return proxy
+}
