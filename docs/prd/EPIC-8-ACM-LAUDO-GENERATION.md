@@ -38,14 +38,13 @@ Os 5 materiais analisados (Rua Honduras, Jardim América — emitidos 09/06/2026
 2. **Camada de cálculo** — ausentes: Score (régua R$/m²), índice de aderência 50/20/30, R$/m² de terreno por faixa de lote (efeito-escala), valor residual do incorporador, cenários de sensibilidade (todos/Top 5/Top 3), fatores de liquidez/condição, grau NBR 14653.
 3. **Camada de renderização** — não há nenhum gerador de PDF/deck (nem `jsPDF`/template de laudo). Só `Blob` CSV + clipboard.
 
-### Decisão de arquitetura em aberto (proposta de ADR)
+### Decisão de arquitetura — RESOLVIDA (ADR-EPIC8-001, 2026-06-15)
 
-Há dois caminhos para a camada de renderização, a serem decididos por `@architect` na Story 8.3:
+**Decisão:** renderização **nativa em TS (`@react-pdf/renderer`)** no app Next.js; o engine `acm-imobiliario` é retido **só como produtor dos dados ITBI** (push para `acm_comparaveis`), nunca invocado para renderizar.
 
-- **(A) App orquestra o engine** — o app chama o pipeline `acm-imobiliario` (que já produz os 4 PDFs com qualidade comprovada), passando o imóvel-alvo. **Reaproveita** o método; menor risco; alinhado ao Roadmap Fase 3.1. Acoplamento a repo externo + execução Python.
-- **(B) Renderização nativa TS no app** — reimplementa cálculos + templates de laudo/deck em TypeScript dentro do Next.js. 100% nativo e self-contained; esforço maior e risco de divergir do método validado.
+Reenquadramento: a metodologia mora nos **cálculos** (Story 8.2, já nativa, com regressão Honduras), não na renderização; o pipeline de dados do engine **já está integrado** (Epic 7). Logo a fronteira é **dado (engine) × compute+render (app nativo)**. A recomendação inicial do esboço ((A) p/ laudo) foi **refutada** — não há cálculo exclusivo do engine que justifique o acoplamento + infra Python no Vercel serverless.
 
-Recomendação inicial do esboço: **(A)** para laudo/resumo/deck/didático completos; **(B)** apenas para um "resumo executivo light" gerável offline no app. ADR decide.
+Detalhes, alternativas e consequências: `docs/architecture/adrs/ADR-EPIC8-001-acm-rendering-engine-vs-native.md`.
 
 ### Referências (fontes da metodologia — versionadas em `docs/reference/acm-honduras/`)
 
@@ -69,17 +68,19 @@ Recomendação inicial do esboço: **(A)** para laudo/resumo/deck/didático comp
 
 ## 3. Stories
 
-| Story | Título | Camada | Prioridade | Status (pós-validação PO) |
-|-------|--------|--------|------------|---------------------------|
-| 8.0 | **Spike — ADR de renderização (engine vs nativo)** | Arquitetura | Must | **Ready** (pedra angular) |
+| Story | Título | Camada | Prioridade | Status |
+|-------|--------|--------|------------|--------|
+| 8.0 | Spike — ADR de renderização (engine vs nativo) | Arquitetura | Must | **Done** (ADR-EPIC8-001 Accepted) |
 | 8.1 | Modelo de dados da metodologia ACM (construído×terreno, Score, SQL, ask-vs-close) | Dados | Must | Ready (após AC0) |
 | 8.2 | Camada de cálculo ACM (Score, aderência 50/20/30, efeito-escala, valor residual, sensibilidade) | Cálculo | Must | Ready |
-| 8.3 | Geração de Resumo Executivo e Laudo técnico (PDF) | Renderização | Must | Draft (bloqueada por 8.0) |
-| 8.4 | Geração de Deck comercial RE/MAX + Material didático | Renderização | Should | Draft (bloqueada por 8.0) |
-| 8.5 | Orquestração app ↔ engine `acm-imobiliario` (pipeline de 1 clique) | Integração | Could | Draft (parqueada — contingente ao 8.0) |
+| 8.3 | Geração de Resumo Executivo e Laudo técnico (PDF) | Renderização | Must | Draft → split 8.3a/8.3b |
+| 8.4 | Geração de Deck comercial RE/MAX + Material didático | Renderização | Should | Draft (desbloqueada) |
+| ~~8.5~~ | ~~Orquestração app ↔ engine~~ | Integração | — | **Descoped** (ADR-EPIC8-001 → funde no Epic 7) |
 
 > Stories detalhadas em `docs/stories/8.0.story.md` … `8.5.story.md`.
-> **Validação PO (2026-06-15, Pax):** 8.0/8.2 Ready · 8.1 Ready após AC0 (spike de dados ITBI) · 8.3 split + ADR extraída para 8.0 · 8.4/8.5 bloqueadas/parqueadas até 8.0. Sequência recomendada: **8.0 + 8.1·AC0 (paralelo) → 8.1 → 8.2 → 8.3 → 8.4 → 8.5**.
+> **Validação PO (2026-06-15, Pax):** 8.0/8.2 Ready · 8.1 Ready após AC0 · 8.3 split · 8.4 desbloqueada · 8.5 contingente.
+> **ADR-EPIC8-001 (2026-06-15, Aria) — Accepted:** render **nativo TS (`@react-pdf/renderer`)**; engine = só fonte de dados ITBI. **8.5 descopada.**
+> **Sequência recomendada:** ~~8.0~~ ✓ + **8.1·AC0** → 8.1 → 8.2 → 8.3a/8.3b → 8.4. Camada de dados (8.1) é de `@data-engineer`.
 
 ---
 
