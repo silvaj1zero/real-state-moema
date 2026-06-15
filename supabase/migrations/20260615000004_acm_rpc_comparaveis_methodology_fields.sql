@@ -9,10 +9,15 @@
 --
 -- NOTA: aplicar via SQL Editor (scaffold Supabase dessincronizado — mesmo
 -- bloqueio das migrations ITBI). A RPC alimenta a tela ACM em produção;
--- por ser CREATE OR REPLACE com a mesma assinatura, o swap é atômico e
--- retrocompatível (consumidores que ignoram as colunas novas seguem OK).
+-- o swap roda numa transação (DROP+CREATE) — se o CREATE falhar, o DROP
+-- reverte e a função antiga permanece.
+--
+-- DROP obrigatório: CREATE OR REPLACE não altera o RETURNS TABLE de uma
+-- função existente (PostgreSQL 42P13). Mesma assinatura → DROP seguro.
 
-CREATE OR REPLACE FUNCTION public.fn_comparaveis_no_raio(
+DROP FUNCTION IF EXISTS public.fn_comparaveis_no_raio(double precision, double precision, uuid, integer);
+
+CREATE FUNCTION public.fn_comparaveis_no_raio(
   p_lat double precision,
   p_lng double precision,
   p_consultant_id uuid,
@@ -60,6 +65,11 @@ BEGIN
   ORDER BY ST_Distance(ac.coordinates, ST_SetSRID(ST_MakePoint(p_lng, p_lat), 4326)::geography);
 END;
 $function$;
+
+-- Restaura permissões de execução (DROP removeu os grants). PostgREST chama
+-- a RPC como `authenticated`; `service_role` para chamadas server-side.
+GRANT EXECUTE ON FUNCTION public.fn_comparaveis_no_raio(double precision, double precision, uuid, integer)
+  TO authenticated, service_role;
 
 COMMENT ON FUNCTION public.fn_comparaveis_no_raio(double precision, double precision, uuid, integer) IS
   'Comparáveis ACM dentro de p_raio_metros de (p_lat,p_lng) do consultor. Story 8.1: retorna os campos da metodologia (construído×terreno, score, SQL cadastral, pedido/deságio). Lógica PostGIS preservada da versão viva.';
