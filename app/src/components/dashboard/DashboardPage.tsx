@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react'
 import { useAuthStore } from '@/store/auth'
 import { useDashboardKPIs, type DashboardPeriod } from '@/hooks/useDashboard'
+import { DashboardQuickActions } from './DashboardQuickActions'
 import { TerritorialSection } from './TerritorialSection'
 import { FunnelSection } from './FunnelSection'
 import { MetaDiaria } from './MetaDiaria'
@@ -68,6 +69,9 @@ export function DashboardPage() {
 
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 pb-24">
+        {/* Atalhos rápidos (ACM em destaque) */}
+        <DashboardQuickActions />
+
         {/* Meta diária */}
         <MetaDiaria kpis={dashboard.metaDiaria} />
 
