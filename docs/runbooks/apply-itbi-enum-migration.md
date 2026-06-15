@@ -89,3 +89,16 @@ ORDER BY e.enumsortorder;
 ```
 
 Depois disso, o engine pode rodar `python push_acm_supabase.py --bairro moema --apply` com `ACM_FONTE=itbi` (handoff Sec. 4). Sem a migration, usar `ACM_FONTE=cartorio` como fallback.
+
+---
+
+## Migration irmã — campos da metodologia (Story 8.1)
+
+`supabase/migrations/20260615000002_acm_methodology_fields.sql` (só `ADD COLUMN IF NOT EXISTS` + backfill — idempotente, seguro) deve ser aplicada na **mesma janela** (mesmo bloqueio de credencial). Aplicar direto via psql com a mesma `ACM_DB_URL`:
+
+```powershell
+& $psql $env:ACM_DB_URL -v ON_ERROR_STOP=1 -f "supabase/migrations/20260615000002_acm_methodology_fields.sql"
+```
+
+> ⚠️ As colunas novas só recebem dado quando o **sink do engine** for atualizado para mapeá-las (ver Story 8.1 — "Mudança de sink"). Até lá, ficam NULL (sem quebrar a UI/CSV atuais).
+
