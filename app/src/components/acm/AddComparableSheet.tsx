@@ -33,6 +33,14 @@ export function AddComparableSheet({
     new Date().toISOString().split('T')[0],
   )
   const [notas, setNotas] = useState('')
+  // Story 8.1 (AC5) — campos da metodologia ACM (opcionais).
+  const [areaTerreno, setAreaTerreno] = useState('')
+  const [dormitorios, setDormitorios] = useState('')
+  const [suites, setSuites] = useState('')
+  const [vagas, setVagas] = useState('')
+  const [sqlCadastral, setSqlCadastral] = useState('')
+  const [anoReferencia, setAnoReferencia] = useState('')
+  const [precoPedido, setPrecoPedido] = useState('')
 
   function resetForm() {
     setEndereco('')
@@ -41,6 +49,20 @@ export function AddComparableSheet({
     setIsVendaReal(false)
     setDataReferencia(new Date().toISOString().split('T')[0])
     setNotas('')
+    setAreaTerreno('')
+    setDormitorios('')
+    setSuites('')
+    setVagas('')
+    setSqlCadastral('')
+    setAnoReferencia('')
+    setPrecoPedido('')
+  }
+
+  /** Parse "" → undefined; senão número (NaN vira undefined). */
+  function numOrUndef(v: string): number | undefined {
+    if (!v.trim()) return undefined
+    const n = parseFloat(v)
+    return Number.isFinite(n) ? n : undefined
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -57,6 +79,14 @@ export function AddComparableSheet({
       is_venda_real: isVendaReal,
       data_referencia: dataReferencia,
       notas: notas || undefined,
+      // Story 8.1 (AC5) — metodologia (opcionais).
+      area_terreno_m2: numOrUndef(areaTerreno),
+      dormitorios: numOrUndef(dormitorios),
+      suites: numOrUndef(suites),
+      vagas: numOrUndef(vagas),
+      sql_cadastral: sqlCadastral.trim() || undefined,
+      ano_referencia: numOrUndef(anoReferencia),
+      preco_pedido: numOrUndef(precoPedido),
     }
 
     await createComparavel.mutateAsync(input)
@@ -108,7 +138,7 @@ export function AddComparableSheet({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-xs font-medium text-gray-600 mb-1 block">
-                Área m²
+                Área construída m²
               </label>
               <Input
                 type="number"
@@ -169,6 +199,121 @@ export function AddComparableSheet({
               onChange={(e) => setDataReferencia(e.target.value)}
             />
           </div>
+
+          {/* Story 8.1 — Detalhes da metodologia ACM (opcionais) */}
+          <details className="rounded-lg border border-gray-200 px-3 py-2">
+            <summary className="text-xs font-medium text-gray-600 cursor-pointer select-none">
+              Detalhes da metodologia (opcional)
+            </summary>
+            <div className="mt-3 space-y-3">
+              {/* Área terreno + preço pedido */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-gray-600 mb-1 block">
+                    Área terreno m²
+                  </label>
+                  <Input
+                    type="number"
+                    inputMode="decimal"
+                    value={areaTerreno}
+                    onChange={(e) => setAreaTerreno(e.target.value)}
+                    placeholder="250"
+                    min={0}
+                    step="0.01"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-gray-600 mb-1 block">
+                    Preço pedido R$
+                  </label>
+                  <Input
+                    type="number"
+                    inputMode="decimal"
+                    value={precoPedido}
+                    onChange={(e) => setPrecoPedido(e.target.value)}
+                    placeholder="950000"
+                    min={0}
+                    step="0.01"
+                  />
+                </div>
+              </div>
+
+              {/* Dormitórios / Suítes / Vagas */}
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-gray-600 mb-1 block">
+                    Dorms
+                  </label>
+                  <Input
+                    type="number"
+                    inputMode="numeric"
+                    value={dormitorios}
+                    onChange={(e) => setDormitorios(e.target.value)}
+                    placeholder="3"
+                    min={0}
+                    step="1"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-gray-600 mb-1 block">
+                    Suítes
+                  </label>
+                  <Input
+                    type="number"
+                    inputMode="numeric"
+                    value={suites}
+                    onChange={(e) => setSuites(e.target.value)}
+                    placeholder="1"
+                    min={0}
+                    step="1"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-gray-600 mb-1 block">
+                    Vagas
+                  </label>
+                  <Input
+                    type="number"
+                    inputMode="numeric"
+                    value={vagas}
+                    onChange={(e) => setVagas(e.target.value)}
+                    placeholder="2"
+                    min={0}
+                    step="1"
+                  />
+                </div>
+              </div>
+
+              {/* SQL cadastral + ano referência */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-gray-600 mb-1 block">
+                    SQL cadastral
+                  </label>
+                  <Input
+                    value={sqlCadastral}
+                    onChange={(e) => setSqlCadastral(e.target.value)}
+                    placeholder="123.456.0001-2"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-gray-600 mb-1 block">
+                    Ano referência
+                  </label>
+                  <Input
+                    type="number"
+                    inputMode="numeric"
+                    value={anoReferencia}
+                    onChange={(e) => setAnoReferencia(e.target.value)}
+                    placeholder="2025"
+                    min={1900}
+                    max={2100}
+                    step="1"
+                  />
+                </div>
+              </div>
+            </div>
+          </details>
 
           {/* Notas */}
           <div>

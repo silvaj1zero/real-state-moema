@@ -12,6 +12,50 @@ interface AcmExportMenuProps {
   onIncluirDossie?: () => void
 }
 
+/**
+ * Story 8.1 (AC7) — constrói o CSV de comparáveis (pura, testável sem DOM).
+ * Os 7 campos originais ficam no início (cabeçalho preservado); os campos da
+ * metodologia são anexados ao final (NULL/ausente → célula vazia).
+ */
+export function buildComparaveisCsv(comparaveis: ComparavelNoRaio[]): string {
+  const num = (v: number | null | undefined, d = 2) =>
+    v == null ? '' : v.toFixed(d)
+  const txt = (v: string | number | null | undefined) =>
+    v == null ? '' : String(v)
+
+  const headers = [
+    'Endereço', 'Área m²', 'Preço', 'Preço/m²', 'Tipo', 'Fonte', 'Distância (m)',
+    // Story 8.1 — metodologia
+    'Área constr. m²', 'Área terreno m²', 'R$/m² terreno',
+    'Dorms', 'Suítes', 'Vagas', 'Score', 'SQL cadastral', 'Ano ref.',
+    'Preço pedido', 'Deságio %', 'Status anúncio',
+  ]
+  const rows = comparaveis.map((c) => [
+    `"${c.endereco}"`,
+    c.area_m2.toFixed(2),
+    c.preco.toFixed(2),
+    c.preco_m2.toFixed(2),
+    c.is_venda_real ? 'Venda Real' : 'Anúncio',
+    c.fonte,
+    c.distancia_m.toFixed(1),
+    // Story 8.1 — metodologia
+    num(c.area_construida_m2),
+    num(c.area_terreno_m2),
+    num(c.preco_m2_terreno),
+    txt(c.dormitorios),
+    txt(c.suites),
+    txt(c.vagas),
+    txt(c.score),
+    `"${txt(c.sql_cadastral)}"`,
+    txt(c.ano_referencia),
+    num(c.preco_pedido),
+    num(c.desagio_percent),
+    txt(c.status_anuncio),
+  ])
+
+  return [headers.join(','), ...rows.map((r) => r.join(','))].join('\n')
+}
+
 export function AcmExportMenu({ comparaveis, stats, onIncluirDossie }: AcmExportMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
@@ -49,18 +93,7 @@ export function AcmExportMenu({ comparaveis, stats, onIncluirDossie }: AcmExport
   }
 
   function handleExportCSV() {
-    const headers = ['Endereço', 'Área m²', 'Preço', 'Preço/m²', 'Tipo', 'Fonte', 'Distância (m)']
-    const rows = comparaveis.map((c) => [
-      `"${c.endereco}"`,
-      c.area_m2.toFixed(2),
-      c.preco.toFixed(2),
-      c.preco_m2.toFixed(2),
-      c.is_venda_real ? 'Venda Real' : 'Anúncio',
-      c.fonte,
-      c.distancia_m.toFixed(1),
-    ])
-
-    const csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n')
+    const csv = buildComparaveisCsv(comparaveis)
     const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')

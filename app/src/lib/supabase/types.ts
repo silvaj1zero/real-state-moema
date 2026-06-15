@@ -249,6 +249,16 @@ export type PortalScraping = 'zap' | 'olx' | 'vivareal' | 'quintoandar' | 'outro
 
 export type TipoAnunciante = 'proprietario' | 'corretor' | 'imobiliaria' | 'desconhecido'
 
+/** Story 8.1 — Score da metodologia ACM (calculado na 8.2, persistido opcional). */
+export type AcmScore = 'AAA' | 'AA' | 'A' | 'B'
+
+/** Story 8.1 — status de recuperação do anúncio (pedido vs. fechado). */
+export type AcmStatusAnuncio =
+  | 'confirmado'
+  | 'parcial'
+  | 'off_market'
+  | 'nao_recuperavel'
+
 // Interfaces
 
 export interface AcmComparavel {
@@ -257,6 +267,7 @@ export interface AcmComparavel {
   edificio_referencia_id: string | null
   endereco: string
   coordinates: string | null // PostGIS geography as WKT
+  /** @deprecated Story 8.1 — usar `area_construida_m2`. Coluna legada por 1 release. */
   area_m2: number
   preco: number
   preco_m2: number | null
@@ -265,6 +276,25 @@ export interface AcmComparavel {
   scraped_listing_id: string | null
   data_referencia: string | null
   notas: string | null
+  // Story 8.1 — campos da metodologia ACM (migration 20260615000002).
+  // Todos nullable: linhas legadas / fontes sem o dado ficam NULL.
+  area_construida_m2?: number | null
+  area_terreno_m2?: number | null
+  preco_m2_terreno?: number | null
+  testada_m?: number | null
+  ano_construcao?: number | null
+  ano_referencia?: number | null
+  padrao_iptu?: number | null
+  valor_venal?: number | null
+  tipo?: string | null
+  sql_cadastral?: string | null
+  dormitorios?: number | null
+  suites?: number | null
+  vagas?: number | null
+  score?: AcmScore | null
+  preco_pedido?: number | null
+  desagio_percent?: number | null
+  status_anuncio?: AcmStatusAnuncio | null
   created_at: string
   updated_at: string
 }
@@ -273,16 +303,37 @@ export interface AcmComparavelComDistancia extends AcmComparavel {
   distancia_m: number
 }
 
-/** Result from fn_comparaveis_no_raio RPC */
+/**
+ * Result from fn_comparaveis_no_raio RPC.
+ *
+ * Story 8.1 (AC2) — campos da metodologia adicionados como opcionais: a RPC
+ * passa a retorná-los após o `CREATE OR REPLACE`, mas o tipo permanece
+ * tolerante para não quebrar consumidores enquanto a função não é atualizada
+ * (graceful — o adapter cai para `area_m2` quando `area_construida_m2` ausente).
+ */
 export interface ComparavelNoRaio {
   comparavel_id: string
   endereco: string
+  /** @deprecated Story 8.1 — preferir `area_construida_m2`. */
   area_m2: number
   preco: number
   preco_m2: number
   is_venda_real: boolean
   fonte: FonteComparavel
   distancia_m: number
+  // Story 8.1 — campos da metodologia (RPC pós-CREATE OR REPLACE).
+  area_construida_m2?: number | null
+  area_terreno_m2?: number | null
+  preco_m2_terreno?: number | null
+  dormitorios?: number | null
+  suites?: number | null
+  vagas?: number | null
+  score?: AcmScore | null
+  sql_cadastral?: string | null
+  ano_referencia?: number | null
+  preco_pedido?: number | null
+  desagio_percent?: number | null
+  status_anuncio?: AcmStatusAnuncio | null
 }
 
 // =============================================================================

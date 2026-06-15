@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
 import type {
   AcmComparavel,
+  AcmStatusAnuncio,
   ComparavelNoRaio,
   FonteComparavel,
   ScrapedListing,
@@ -111,11 +112,21 @@ export interface CreateComparavelInput {
   endereco: string
   coordinates_lat?: number
   coordinates_lng?: number
+  /** Área construída (m²). Mapeada também para o legado `area_m2`. */
   area_m2: number
   preco: number
   is_venda_real: boolean
   data_referencia?: string
   notas?: string
+  // Story 8.1 (AC5) — campos da metodologia ACM (opcionais).
+  area_terreno_m2?: number
+  dormitorios?: number
+  suites?: number
+  vagas?: number
+  sql_cadastral?: string
+  ano_referencia?: number
+  preco_pedido?: number
+  status_anuncio?: AcmStatusAnuncio
 }
 
 export function useCreateComparavel() {
@@ -133,6 +144,17 @@ export function useCreateComparavel() {
         coordinatesValue = `SRID=4326;POINT(${input.coordinates_lng} ${input.coordinates_lat})`
       }
 
+      // Story 8.1 — R$/m² de terreno derivado (efeito-escala na 8.2).
+      const preco_m2_terreno =
+        input.area_terreno_m2 && input.area_terreno_m2 > 0
+          ? Math.round((input.preco / input.area_terreno_m2) * 100) / 100
+          : null
+      // Deságio medido quando há pedido e é venda real.
+      const desagio_percent =
+        input.preco_pedido && input.preco_pedido > 0 && input.is_venda_real
+          ? Math.round(((input.preco - input.preco_pedido) / input.preco_pedido) * 10000) / 100
+          : null
+
       const insertData = {
         consultant_id: input.consultant_id,
         edificio_referencia_id: input.edificio_referencia_id || null,
@@ -145,6 +167,18 @@ export function useCreateComparavel() {
         fonte: 'manual' as FonteComparavel,
         data_referencia: input.data_referencia || new Date().toISOString().split('T')[0],
         notas: input.notas || null,
+        // Story 8.1 (AC5) — campos da metodologia (NULL quando não informados).
+        area_construida_m2: input.area_m2,
+        area_terreno_m2: input.area_terreno_m2 ?? null,
+        preco_m2_terreno,
+        dormitorios: input.dormitorios ?? null,
+        suites: input.suites ?? null,
+        vagas: input.vagas ?? null,
+        sql_cadastral: input.sql_cadastral || null,
+        ano_referencia: input.ano_referencia ?? null,
+        preco_pedido: input.preco_pedido ?? null,
+        desagio_percent,
+        status_anuncio: input.status_anuncio ?? null,
       }
 
       const { data, error } = await supabase
