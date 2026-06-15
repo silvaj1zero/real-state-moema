@@ -13,6 +13,7 @@ import { AcmMiniMap } from './AcmMiniMap'
 import { AcmFilterToggle, AcmFilterBadge } from './AcmFilterToggle'
 import { AcmRadiusSelector } from './AcmRadiusSelector'
 import { AcmSummaryCards } from './AcmSummaryCards'
+import { AcmSimilarPanel } from './AcmSimilarPanel'
 import { AcmTable } from './AcmTable'
 import { AcmExportMenu } from './AcmExportMenu'
 import { AcmImportScraping } from './AcmImportScraping'
@@ -167,6 +168,11 @@ export function AcmScreen({
           </div>
         ) : (
           <AcmSummaryCards stats={stats} />
+        )}
+
+        {/* Story 8.2 (AC4): Comparáveis mais parecidos + valor indicativo */}
+        {!isLoading && filteredComparaveis.length > 0 && (
+          <AcmSimilarPanel comparaveis={filteredComparaveis} raio={effectiveRadius} />
         )}
 
         {/* AC9: VETO PV #3 — Suggestion when few comparables */}
