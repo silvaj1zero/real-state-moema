@@ -120,4 +120,32 @@ describe('normalizeListing', () => {
     expect(result!.tipo_anunciante).toBe('proprietario')
     expect(result!.is_fisbo).toBe(true)
   })
+
+  // Story 7.11 (AC3) — mapeamento determinístico do publisherType nativo
+  describe('publisher_type (Story 7.11 AC3)', () => {
+    it.each([
+      ['owner', 'owner'],
+      ['OWNER', 'owner'],
+      ['agency', 'agency'],
+      ['AGENCY', 'agency'],
+      ['developer', 'developer'],
+      ['DEVELOPER', 'developer'],
+    ])('maps native advertiserType "%s" -> publisher_type "%s"', (raw, expected) => {
+      const result = normalizeListing({ externalId: 'pt-1', advertiserType: raw }, 'zap')
+      expect(result!.publisher_type).toBe(expected)
+    })
+
+    it('sets publisher_type=null when advertiserType absent (ex.: MercadoLivre)', () => {
+      const result = normalizeListing({ externalId: 'pt-2' }, 'vivareal')
+      expect(result!.publisher_type).toBeNull()
+    })
+
+    it('sets publisher_type=null for non-canonical values (ex.: "Corretor João")', () => {
+      // tipo_anunciante ainda infere via heuristica fuzzy, mas o sinal
+      // determinístico só dispara com OWNER/AGENCY/DEVELOPER exatos.
+      const result = normalizeListing({ externalId: 'pt-3', advertiserType: 'Corretor João' }, 'vivareal')
+      expect(result!.publisher_type).toBeNull()
+      expect(result!.tipo_anunciante).toBe('corretor')
+    })
+  })
 })

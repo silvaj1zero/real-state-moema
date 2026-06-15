@@ -15,6 +15,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import {
   classifyAdvertiser,
   nameAppearsPersonal,
+  normalizePublisherType,
   lookupCNAE,
   SupabaseCNAELookupClient,
   type CNAELookupClient,
@@ -211,6 +212,124 @@ describe('classifyAdvertiser — AC3 truth table', () => {
     const r1 = classifyAdvertiser(sig)
     const r2 = classifyAdvertiser(sig)
     expect(r1).toEqual(r2)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Story 7.11 — Passo 0 deterministico via publisherType
+// ---------------------------------------------------------------------------
+
+describe('classifyAdvertiser — Passo 0 publisherType (Story 7.11)', () => {
+  it('AC2: owner -> for_sale_by_owner confidence 0.95', () => {
+    const r = classifyAdvertiser(makeSignals({ publisherType: 'owner' }))
+    expect(r.classification).toBe('for_sale_by_owner')
+    expect(r.confidence).toBe(0.95)
+    expect(r.signals).toEqual(['publisher_type_owner'])
+  })
+
+  it('AC2: agency -> broker confidence 0.95', () => {
+    const r = classifyAdvertiser(makeSignals({ publisherType: 'agency' }))
+    expect(r.classification).toBe('broker')
+    expect(r.confidence).toBe(0.95)
+    expect(r.signals).toEqual(['publisher_type_agency'])
+  })
+
+  it('AC2: developer -> builder confidence 0.95', () => {
+    const r = classifyAdvertiser(makeSignals({ publisherType: 'developer' }))
+    expect(r.classification).toBe('builder')
+    expect(r.confidence).toBe(0.95)
+    expect(r.signals).toEqual(['publisher_type_developer'])
+  })
+
+  it('AC2: publisherType precede a heuristica — owner vence apesar de sinais nao-FISBO', () => {
+    // phoneType landline + multiplos anuncios romperiam FISBO na heuristica,
+    // mas o publisherType deterministico vence antes.
+    const r = classifyAdvertiser(
+      makeSignals({
+        publisherType: 'owner',
+        phoneType: 'landline',
+        listingCountByPhone: 9,
+        nameAppearsPersonal: false,
+      }),
+    )
+    expect(r.classification).toBe('for_sale_by_owner')
+    expect(r.confidence).toBe(0.95)
+  })
+
+  it('AC2: publisherType precede CNPJ/CNAE — agency vence sobre CNAE construtora', () => {
+    const r = classifyAdvertiser(
+      makeSignals({ publisherType: 'agency', cnpj: '12345678000100', cnae: '4110700' }),
+    )
+    expect(r.classification).toBe('broker')
+    expect(r.signals).toEqual(['publisher_type_agency'])
+  })
+
+  it('AC5: conflito owner + CRECI -> owner vence, signal de conflito registrado', () => {
+    const r = classifyAdvertiser(
+      makeSignals({ publisherType: 'owner', hasCRECI: true }),
+    )
+    expect(r.classification).toBe('for_sale_by_owner')
+    expect(r.confidence).toBe(0.95)
+    expect(r.signals).toEqual([
+      'publisher_type_owner',
+      'publisher_type_creci_conflict',
+    ])
+  })
+
+  it('AC5: agency + CRECI NAO gera signal de conflito (so owner+CRECI e suspeito)', () => {
+    const r = classifyAdvertiser(
+      makeSignals({ publisherType: 'agency', hasCRECI: true }),
+    )
+    expect(r.classification).toBe('broker')
+    expect(r.signals).toEqual(['publisher_type_agency'])
+  })
+
+  it('AC2: ausencia de publisherType -> heuristica 4-signal preservada (regressao)', () => {
+    // Sem publisherType, FISBO 4-signal deve classificar como antes (0.85).
+    const r = classifyAdvertiser(
+      makeSignals({
+        publisherType: undefined,
+        hasCRECI: false,
+        phoneType: 'mobile',
+        listingCountByPhone: 1,
+        nameAppearsPersonal: true,
+      }),
+    )
+    expect(r.classification).toBe('for_sale_by_owner')
+    expect(r.confidence).toBe(0.85)
+    expect(r.signals).toEqual([
+      'no_creci_match',
+      'ddd_mobile',
+      'single_listing',
+      'name_appears_personal',
+    ])
+  })
+})
+
+describe('normalizePublisherType — AC3 (Story 7.11)', () => {
+  it.each([
+    ['OWNER', 'owner'],
+    ['owner', 'owner'],
+    ['  Owner  ', 'owner'],
+    ['AGENCY', 'agency'],
+    ['agency', 'agency'],
+    ['DEVELOPER', 'developer'],
+    ['developer', 'developer'],
+  ])('normaliza "%s" -> %s', (raw, expected) => {
+    expect(normalizePublisherType(raw)).toBe(expected)
+  })
+
+  it.each([
+    [null],
+    [undefined],
+    [''],
+    ['  '],
+    ['Corretor'],
+    ['imobiliaria'],
+    ['proprietario'],
+    ['seller'],
+  ])('retorna undefined para valor nao-canonico: %s', (raw) => {
+    expect(normalizePublisherType(raw)).toBeUndefined()
   })
 })
 

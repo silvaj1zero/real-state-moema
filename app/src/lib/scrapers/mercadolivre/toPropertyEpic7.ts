@@ -8,7 +8,11 @@
  */
 
 import type { PropertyEpic7 } from '../../schemas/epic7/property-epic7'
-import type { AdvertiserSignals, PhoneType } from '../classify-advertiser'
+import type {
+  AdvertiserSignals,
+  PhoneType,
+  PublisherType,
+} from '../classify-advertiser'
 import { nameAppearsPersonal } from '../classify-advertiser'
 
 import type { ParsedDetail } from './parseDetail'
@@ -23,6 +27,11 @@ export interface ToPropertyOptions {
   listingCountByPhone?: number
   /** Override fixo para testes — geralmente nao usado em prod. */
   phoneType?: PhoneType
+  /**
+   * Story 7.11 — publisherType nativo, se a fonte expuser. MercadoLivre
+   * NAO expoe -> caller ML deixa undefined (segue heuristica 4-signal).
+   */
+  publisherType?: PublisherType
 }
 
 const MOBILE_DIGIT9_RE = /^\(\d{2}\)\s+9/
@@ -97,6 +106,9 @@ export function toPropertyEpic7(
       classification: 'unknown',
       classification_confidence: 0,
       classification_signals: [],
+      // Story 7.11 — MercadoLivre nao expoe publisherType nativo -> null
+      // (segue heuristica 4-signal).
+      publisher_type: null,
     },
     home_flags: {
       is_pending: false,
@@ -142,6 +154,8 @@ export function buildAdvertiserSignals(
     phoneDDD: extractDDD(parsed.telefone_anunciante),
     listingCountByPhone: opts.listingCountByPhone ?? 1,
     nameAppearsPersonal: nameAppearsPersonal(parsed.nome_anunciante),
+    // Story 7.11 — passthrough; undefined para ML (sem publisherType nativo).
+    publisherType: opts.publisherType,
   }
 }
 

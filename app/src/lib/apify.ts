@@ -5,6 +5,11 @@
  * Results are processed and inserted into scraped_listings.
  */
 
+import {
+  normalizePublisherType,
+  type PublisherType,
+} from '@/lib/scrapers/classify-advertiser'
+
 const APIFY_BASE = 'https://api.apify.com/v2'
 
 interface ApifyRunResult {
@@ -64,6 +69,13 @@ export interface NormalizedListing {
   quartos: number | null
   descricao: string | null
   is_fisbo: boolean
+  /**
+   * Story 7.11 — `publisherType` nativo do feed (ZAP/VivaReal), normalizado
+   * para `owner | agency | developer`. `null` quando ausente/desconhecido
+   * (ex.: OLX/MercadoLivre sem o campo). Sinal deterministico que supera a
+   * heuristica 4-signal no `classifyAdvertiser`.
+   */
+  publisher_type: PublisherType | null
   lat: number | null
   lng: number | null
   // Epic 6 — Contact data from portal
@@ -212,6 +224,8 @@ export function normalizeListing(raw: ApifyListingRaw, portal: 'zap' | 'olx' | '
     quartos: quartos && quartos > 0 ? quartos : null,
     descricao: raw.title?.slice(0, 500) || raw.description?.slice(0, 500) || null,
     is_fisbo: tipo === 'proprietario',
+    // Story 7.11 — campo nativo deterministico (ZAP/VivaReal). null se ausente.
+    publisher_type: normalizePublisherType(raw.advertiserType) ?? null,
     lat: raw.latitude ?? null,
     lng: raw.longitude ?? null,
     // Epic 6 — Contact data (extracted from raw if available)

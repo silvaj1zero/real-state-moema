@@ -13,6 +13,7 @@ import {
   AdvertisersSchema,
   AdvertiserClassificationSchema,
   ClassificationSignalSchema,
+  PublisherTypeSchema,
 } from '@/lib/schemas/epic7/advertisers'
 
 describe('AdvertiserClassification enum', () => {
@@ -37,6 +38,46 @@ describe('ClassificationSignal enum', () => {
 
   it('rejects unknown signal', () => {
     expect(ClassificationSignalSchema.safeParse('telefone_sp').success).toBe(false)
+  })
+
+  it('accepts Story 7.11 publisher_type signals', () => {
+    for (const s of [
+      'publisher_type_owner',
+      'publisher_type_agency',
+      'publisher_type_developer',
+      'publisher_type_creci_conflict',
+    ] as const) {
+      expect(ClassificationSignalSchema.safeParse(s).success).toBe(true)
+    }
+  })
+})
+
+describe('PublisherType enum (Story 7.11 AC1)', () => {
+  it('accepts owner/agency/developer', () => {
+    for (const v of ['owner', 'agency', 'developer'] as const) {
+      expect(PublisherTypeSchema.safeParse(v).success).toBe(true)
+    }
+  })
+
+  it('rejects out-of-enum value', () => {
+    expect(PublisherTypeSchema.safeParse('OWNER').success).toBe(false)
+    expect(PublisherTypeSchema.safeParse('proprietario').success).toBe(false)
+  })
+
+  it('AdvertisersSchema accepts publisher_type field (and null)', () => {
+    const base = {
+      agent: null,
+      broker: null,
+      builder: null,
+      office: null,
+      classification: 'for_sale_by_owner',
+      classification_confidence: 0.95,
+      classification_signals: ['publisher_type_owner'],
+    }
+    expect(AdvertisersSchema.safeParse({ ...base, publisher_type: 'owner' }).success).toBe(true)
+    expect(AdvertisersSchema.safeParse({ ...base, publisher_type: null }).success).toBe(true)
+    // omitido (optional) tambem valido — fontes legadas
+    expect(AdvertisersSchema.safeParse(base).success).toBe(true)
   })
 })
 

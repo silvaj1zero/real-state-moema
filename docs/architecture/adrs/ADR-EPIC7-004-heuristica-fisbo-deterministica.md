@@ -129,4 +129,28 @@ function classifyAdvertiser(s: AdvertiserSignals): {
 
 ---
 
+## Anotação — Story 7.11 (Passo 0 deterministico via `publisherType`)
+
+**Date:** 2026-06-15 · **Status:** Accepted (amendment)
+
+A pesquisa FISBO (`docs/research/2026-06-15-fisbo-captacao-ingestao/report.md`, achado **F1**, confiança alta 3-0) **corrige parcialmente** a premissa da alternativa rejeitada *"Adopta `advertiser.type` já existente"* (linha 100): os feeds de **ZAP/VivaReal** (backend Glue API da OLX) **expõem nativamente** `publisherType ∈ {OWNER, AGENCY, DEVELOPER}` + presença de CRECI. Onde a plataforma entrega o tipo tipificado, temos um sinal **deterministico** que supera a heuristica 4-signal.
+
+**Decisão (amendment):** `classifyAdvertiser` ganha um **Passo 0** que **precede** a heuristica — **não a remove**. A heuristica 4-signal permanece como **fallback** para fontes que não expõem o campo (ex.: MercadoLivre → `publisher_type=null`).
+
+Mapeamento (Art. IV — vem do schema real dos actors, não inventado):
+
+| `publisherType` nativo | `classification` | confidence | signal |
+|---|---|---|---|
+| `owner` | `for_sale_by_owner` | 0.95 | `publisher_type_owner` |
+| `agency` | `broker` | 0.95 | `publisher_type_agency` |
+| `developer` | `builder` | 0.95 | `publisher_type_developer` |
+
+**Conflito `owner` + CRECI:** `publisherType` vence (sinal da plataforma), mas registra `publisher_type_creci_conflict` para auditoria (um "OWNER" com CRECI pode ser corretor anunciando como PF).
+
+**Telemetria (AC4):** a presença de um signal `publisher_type_*` em `classification_signals` marca a classificação como deterministica vs heuristica — auditável para medir cobertura.
+
+*Anotação 7.11 — Dex (@dev) — 2026-06-15*
+
+---
+
 *ADR-EPIC7-004 — Aria (@architect) + Morgan (@pm) — 2026-05-14*
