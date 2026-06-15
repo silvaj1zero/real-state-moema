@@ -33,6 +33,7 @@ import {
 import {
   antiBotDetectionHook,
   loginWallDetectionHook,
+  AntiBotDetectedError,
   type PostNavHook,
 } from './hooks/postNavigationHooks'
 import {
@@ -154,7 +155,8 @@ export function createPortalCrawler(
         if (tel) {
           const msg = err instanceof Error ? err.message : String(err)
           const stack = err instanceof Error ? err.stack ?? null : null
-          tel.recordFailure(url, msg, stack)
+          // Story 7.12 AC4 — anti-bot (Cloudflare) conta como bloqueio.
+          tel.recordFailure(url, msg, stack, { blocked: isBlockError(err) })
         }
         throw err
       }
@@ -188,7 +190,8 @@ export function createPortalCrawler(
       const msg = error instanceof Error ? error.message : String(error)
       if (tel) {
         const stack = error instanceof Error ? error.stack ?? null : null
-        tel.recordFailure(request.url, msg, stack)
+        // Story 7.12 AC4 — anti-bot (Cloudflare) conta como bloqueio.
+        tel.recordFailure(request.url, msg, stack, { blocked: isBlockError(error) })
       }
       // shouldPropagateError = true → no point in retry; we rely on Crawlee
       // already exhausted maxRequestRetries before reaching here.
@@ -222,6 +225,20 @@ function readStatusCode(ctx: unknown): number | null {
   } catch {
     return null
   }
+}
+
+/**
+ * Story 7.12 AC4 — true se o erro for um bloqueio anti-bot (Cloudflare).
+ * Detecta a `AntiBotDetectedError` direta e, defensivamente, o erro
+ * re-empacotado pelo Crawlee (por nome/mensagem) antes do
+ * `failedRequestHandler`.
+ */
+function isBlockError(err: unknown): boolean {
+  if (err instanceof AntiBotDetectedError) return true
+  if (err instanceof Error) {
+    return err.name === 'AntiBotDetectedError' || /anti-bot detected/i.test(err.message)
+  }
+  return false
 }
 
 // Re-export public types so consumers can `import { PortalCrawlerOptions }`

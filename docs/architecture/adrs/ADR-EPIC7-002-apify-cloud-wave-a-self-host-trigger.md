@@ -68,4 +68,18 @@ Quando gatilho disparar:
 
 ---
 
+## Anotação — Story 7.12 (Proxy residencial por alvo + nota de custo)
+
+**Date:** 2026-06-15 · **Status:** Accepted (amendment)
+
+A pesquisa FISBO (`docs/research/2026-06-15-fisbo-captacao-ingestao/report.md`, F5 média 2-1 / F6 alta 3-0) confirmou: ZAP/VivaReal estão atrás de Cloudflare e bloqueiam **datacenter por reputação de ASN** (403/503); **residencial BR** atinge 85-99% de sucesso. A Story 7.12 implementa **tiering por alvo** (`proxy-config.ts`): residencial só para ZAP/VivaReal; datacenter para MercadoLivre/OLX (custo menor). Isso usa a **exceção** já prevista nesta ADR (`ProxyConfiguration` com `useApifyProxy`, linha 36) — sem `Actor.init`.
+
+**Nota de custo (AC6):** o proxy **residencial** Apify tem custo/GB **substancialmente maior** que datacenter (datacenter é quase grátis no plano Creator; residencial é cobrado por GB de tráfego). Por isso o tiering é **por alvo**, não global — aplica residencial apenas onde há bloqueio comprovado. Estimativa Wave A (Zona Sul, 10-30k págs/mês) mantém o volume residencial baixo (só 2 dos 4 portais, e só nas páginas que passam pelo crawler protegido).
+
+**Gatilho de migração para IPRoyal self-host (Wave B):** inalterado — **≥ 50.000 págs/mês por 60 dias** OU **bill Apify > R$ 1.500 por 2 meses** (ver Decision acima). O custo residencial Apify é o principal vetor que pode disparar o gatilho de bill; a **telemetria de block-rate por portal** (Story 7.12 AC4, meta < 15%) serve de input para decidir a migração e detectar regressão de bloqueio (Cloudflare é alvo móvel).
+
+*Anotação 7.12 — Dex (@dev) — 2026-06-15*
+
+---
+
 *ADR-EPIC7-002 — Aria (@architect) + Morgan (@pm) — 2026-05-14*
