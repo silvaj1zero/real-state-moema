@@ -1,5 +1,8 @@
 -- Story 8.7 (mapa + revisão humana) — fn_comparaveis_no_raio expõe coordenadas e
--- link do anúncio.
+-- link do anúncio. TAMBÉM CORRIGE BUG DE PRODUÇÃO: a versão viva da RPC referencia
+-- `ac.ano_referencia` (coluna inexistente — a tabela tem `data_referencia`), o que
+-- quebrava a tela ACM ("column ac.ano_referencia does not exist"). Aqui mapeamos
+-- ano_referencia := EXTRACT(YEAR FROM ac.data_referencia).
 --
 -- POR QUÊ:
 --   1) MAPA: o app precisa de lat/lng por comparável para plotar os pins reais do
@@ -70,7 +73,8 @@ BEGIN
     -- Story 8.1
     ac.area_construida_m2, ac.area_terreno_m2, ac.preco_m2_terreno,
     ac.dormitorios, ac.suites, ac.vagas,
-    ac.score, ac.sql_cadastral, ac.ano_referencia,
+    -- FIX: ano_referencia derivado de data_referencia (coluna ano_referencia não existe)
+    ac.score, ac.sql_cadastral, EXTRACT(YEAR FROM ac.data_referencia)::smallint,
     ac.preco_pedido, ac.desagio_percent, ac.status_anuncio,
     -- Story 8.7 — coords (NULL-safe via ::geometry) + url do anúncio (LEFT JOIN)
     ST_Y(ac.coordinates::geometry) AS latitude,
