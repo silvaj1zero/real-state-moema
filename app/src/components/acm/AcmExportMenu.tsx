@@ -3,10 +3,11 @@
 import { useState, useRef, useEffect } from 'react'
 import type { ComparavelNoRaio } from '@/lib/supabase/types'
 import type { AcmCalculations } from '@/hooks/useAcm'
-import { Download, Copy, FileSpreadsheet, BookOpen, ChevronDown, FileText, FileBarChart2 } from 'lucide-react'
+import { Download, Copy, FileSpreadsheet, BookOpen, ChevronDown, FileText, FileBarChart2, Presentation, GraduationCap } from 'lucide-react'
 import { formatBRL } from '@/lib/format'
 import { ResumoExportSheet } from './ResumoExportSheet'
 import { LaudoExportSheet } from './LaudoExportSheet'
+import { EntregavelExportSheet } from './EntregavelExportSheet'
 
 interface AcmExportMenuProps {
   comparaveis: ComparavelNoRaio[]
@@ -76,6 +77,8 @@ export function AcmExportMenu({
   const [toast, setToast] = useState<string | null>(null)
   const [resumoOpen, setResumoOpen] = useState(false)
   const [laudoOpen, setLaudoOpen] = useState(false)
+  const [deckOpen, setDeckOpen] = useState(false)
+  const [didaticoOpen, setDidaticoOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
   const canResumo = lat != null && lng != null && radiusMeters != null
@@ -182,6 +185,30 @@ export function AcmExportMenu({
               Gerar Laudo (PDF)
             </button>
           )}
+          {canResumo && (
+            <button
+              onClick={() => {
+                setDeckOpen(true)
+                setIsOpen(false)
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              <Presentation className="size-3.5 text-gray-400" />
+              Gerar Deck (PDF)
+            </button>
+          )}
+          {canResumo && (
+            <button
+              onClick={() => {
+                setDidaticoOpen(true)
+                setIsOpen(false)
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              <GraduationCap className="size-3.5 text-gray-400" />
+              Gerar Didático (PDF)
+            </button>
+          )}
           <button
             onClick={handleExportCSV}
             className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
@@ -208,6 +235,32 @@ export function AcmExportMenu({
         <LaudoExportSheet
           open={laudoOpen}
           onClose={() => setLaudoOpen(false)}
+          comparaveis={comparaveis}
+          lat={lat as number}
+          lng={lng as number}
+          enderecoAlvo={enderecoAlvo ?? ''}
+          radiusMeters={radiusMeters as number}
+        />
+      )}
+
+      {canResumo && (
+        <EntregavelExportSheet
+          kind="deck"
+          open={deckOpen}
+          onClose={() => setDeckOpen(false)}
+          comparaveis={comparaveis}
+          lat={lat as number}
+          lng={lng as number}
+          enderecoAlvo={enderecoAlvo ?? ''}
+          radiusMeters={radiusMeters as number}
+        />
+      )}
+
+      {canResumo && (
+        <EntregavelExportSheet
+          kind="didatico"
+          open={didaticoOpen}
+          onClose={() => setDidaticoOpen(false)}
           comparaveis={comparaveis}
           lat={lat as number}
           lng={lng as number}
