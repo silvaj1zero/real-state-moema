@@ -1,0 +1,114 @@
+storyId: STORY-8.7
+verdict: CONCERNS
+verdictReason: >
+  Polish dos entregáveis ACM: branding oficial RE/MAX, cabeçalho redesenhado e
+  integridade de dados (Art. IV — dorms/suítes/vagas e links de anúncio só quando
+  confirmados no DB, nunca inventados). AC1–AC8 atendidos (validação real abaixo).
+  Destaque AC7: bug de PRODUÇÃO na RPC `fn_comparaveis_no_raio` (referência a
+  `ac.ano_referencia` inexistente) encontrado e corrigido na migration, já APLICADA
+  em PROD. Novo `comparavelAdapter.ts` centraliza o mapeamento RPC→source (antes
+  duplicado em 3 sheets) + pins coloridos do mapa. Aprovado com observações
+  (nenhuma bloqueante): (1) DURANTE esta sessão descobriu-se que os logos PNG
+  embutidos (balão/wordmark) NÃO embutem de forma confiável pelo pipeline de imagem
+  do React-PDF (geram stream zlib corrompido no render node; comportamento no browser
+  não verificado nesta sessão) — o DECK foi endurecido para branding VETORIAL (barras
+  RE/MAX + wordmark tipográfico), que renderiza idêntico e crisp em browser e node;
+  recomenda-se estender o mesmo lockup aos outros 3 docs (Resumo/Laudo/Didático), que
+  seguem usando o logo raster; (2) migration staged + tipos TS editados à mão —
+  @data-engineer validar colunas e regenerar tipos; (3) textos institucionais/
+  qualitativos seguem seeds Honduras (herdado de 8.3b/8.4) — revisar por caso.
+  Status InReview → Done autorizado.
+
+reviewedAt: 2026-06-16
+reviewer: "@qa (Quinn)"
+splitContext: "Polish de branding/cabeçalho/integridade sobre os entregáveis do Epic 8 (8.3a/8.3b/8.4/8.6)."
+
+testsScope:
+  acmFull: "124/124 (13 arquivos) — inclui 7 novos do comparavelAdapter"
+  novos: "comparavelAdapter.test.ts: 4 comparavelToLaudoSource + 3 buildAcmMapMarkers"
+  typecheck: "0 erros em src/ (filtro ^src/)"
+  lint: "0 (eslint src/lib/acm + src/components/acm)"
+  notaInfra: "smokes de PDF com --no-file-parallelism (renderToBuffer pesados sob contenção)"
+
+qualityChecks:
+  codeReview:
+    status: PASS
+    notes: >
+      `brandAssets.ts` isola os logos base64; `theme.ts` re-exporta (fonte única).
+      `comparavelAdapter.ts` é adapter PURO que removeu de fato a duplicação de
+      mapeamento das 3 sheets (LaudoExportSheet/EntregavelExportSheet/PacoteExportSheet
+      importam-no). Migration é CREATE OR REPLACE fiel preservando a lógica PostGIS.
+      Cabeçalho/régua vermelha presentes nos 4 documentos. DECK (redesign desta sessão):
+      lockup RE/MAX vetorial, layout de corpo flexível (corrige subutilização vertical),
+      stat-cards com lineHeight/altura explícitas (corrige sobreposição valor/rótulo),
+      régua de acento reposicionada (não cruza glifos), capa/encerramento como momentos.
+  unitTests:
+    status: PASS
+    coverage: "7 testes novos (comparavelAdapter) + smokes de render"
+    notes: >
+      Os 7 novos provam o comportamento Art. IV (dado ausente → null/off-market, nunca
+      inventado) e a montagem dos pins (alvo vermelho + Top 3 dourado + Top 4-5 laranja +
+      demais azuis). Renders pesados verificados via renderToBuffer (%PDF-). Deck redesenhado
+      re-renderizado e auditado slide-a-slide (20 slides) sem sobreposição e sem erros de
+      imagem (zlib) após a troca para branding vetorial.
+  acceptanceCriteria:
+    status: PASS
+    met: 8
+    partial: 0
+    failed: 0
+    notes: >
+      AC1 logos nos 4 docs (DECK agora vetorial; raster nos demais — ver issue medium).
+      AC2 cabeçalho redesenhado + régua. AC3 integridade (S/V/D só do DB). AC4 links de
+      anúncio clicáveis + "não recuperável" honesto. AC5 migration coords/anuncio_url
+      (staged). AC6 124/124 · 0 tsc · 0 lint. AC7 bug RPC corrigido + APLICADO em PROD.
+      AC8 mapeamento lat/lng/anuncio_url + pins (validado em preview real Moema: 28 markers).
+  noRegressions:
+    status: PASS
+    notes: "124/124 verdes; assinaturas das sheets inalteradas; lib de metodologia intocada."
+  performance:
+    status: PASS
+    notes: "Logos sem GET de rede (base64 / agora vetor no deck); pins limitados por maxOutros."
+  security:
+    status: PASS
+    notes: "Art. IV provado em teste; sem PII além do input da consultora; token Mapbox não vaza."
+  documentation:
+    status: PASS
+    notes: "File List, ACs, Change Log e JSDoc presentes; QA Results adicionado."
+
+issues:
+  - severity: medium
+    category: code
+    description: >
+      Os logos PNG embutidos (REMAX_BALLOON_PNG/REMAX_WORDMARK_PNG) não são embutidos
+      de forma confiável pelo React-PDF: no render node geram stream zlib corrompido
+      ("incorrect header check") e não aparecem (wordmark = caixa fantasma; balão = quadro
+      vazio). O DECK foi corrigido para branding VETORIAL (renderiza em browser e node).
+      Resumo/Laudo/Didático ainda usam o logo raster.
+    recommendation: >
+      Extrair o lockup vetorial (`RemaxBars` + wordmark) para um módulo compartilhado e
+      aplicá-lo aos 4 documentos; verificar no browser (toBlob) se o raster realmente
+      falha lá antes de descartar os PNGs. Fast-follow não-bloqueante.
+  - severity: low
+    category: requirements
+    description: >
+      Migration 20260616000001 aplicada manualmente em PROD (SQL Editor); campos
+      latitude/longitude/anuncio_url adicionados a mão em types.ts.
+    recommendation: "@data-engineer validar nomes de coluna e regenerar tipos TS do schema."
+  - severity: low
+    category: requirements
+    status: INHERITED
+    description: >
+      Conteúdo institucional/explicativo do deck/didático segue seed Honduras (herdado de 8.3b/8.4).
+    recommendation: "Consultora revisa/sobrescreve por caso antes da emissão (campos overridable)."
+
+dependencies:
+  dependsOn:
+    - "8.3a/8.3b/8.4/8.6 Done (infra de PDF dos entregáveis); migration RPC (8.1)."
+  blocks: []
+
+nextSteps:
+  - "@devops: commit do redesign do deck — style(epic8): branding vetorial + balanço do deck [Story 8.7]."
+  - "@dev (fast-follow): estender lockup vetorial a Resumo/Laudo/Didático (issue medium)."
+  - "@data-engineer: validar colunas da RPC + regenerar tipos TS."
+
+storyStatusTransition: "InReview -> Done (CONCERNS-approved)"
