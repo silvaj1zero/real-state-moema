@@ -3,9 +3,10 @@
 import { useState, useRef, useEffect } from 'react'
 import type { ComparavelNoRaio } from '@/lib/supabase/types'
 import type { AcmCalculations } from '@/hooks/useAcm'
-import { Download, Copy, FileSpreadsheet, BookOpen, ChevronDown, FileText } from 'lucide-react'
+import { Download, Copy, FileSpreadsheet, BookOpen, ChevronDown, FileText, FileBarChart2 } from 'lucide-react'
 import { formatBRL } from '@/lib/format'
 import { ResumoExportSheet } from './ResumoExportSheet'
+import { LaudoExportSheet } from './LaudoExportSheet'
 
 interface AcmExportMenuProps {
   comparaveis: ComparavelNoRaio[]
@@ -74,6 +75,7 @@ export function AcmExportMenu({
   const [isOpen, setIsOpen] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
   const [resumoOpen, setResumoOpen] = useState(false)
+  const [laudoOpen, setLaudoOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
   const canResumo = lat != null && lng != null && radiusMeters != null
@@ -168,6 +170,18 @@ export function AcmExportMenu({
               Gerar Resumo (PDF)
             </button>
           )}
+          {canResumo && (
+            <button
+              onClick={() => {
+                setLaudoOpen(true)
+                setIsOpen(false)
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              <FileBarChart2 className="size-3.5 text-gray-400" />
+              Gerar Laudo (PDF)
+            </button>
+          )}
           <button
             onClick={handleExportCSV}
             className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
@@ -182,6 +196,18 @@ export function AcmExportMenu({
         <ResumoExportSheet
           open={resumoOpen}
           onClose={() => setResumoOpen(false)}
+          comparaveis={comparaveis}
+          lat={lat as number}
+          lng={lng as number}
+          enderecoAlvo={enderecoAlvo ?? ''}
+          radiusMeters={radiusMeters as number}
+        />
+      )}
+
+      {canResumo && (
+        <LaudoExportSheet
+          open={laudoOpen}
+          onClose={() => setLaudoOpen(false)}
           comparaveis={comparaveis}
           lat={lat as number}
           lng={lng as number}

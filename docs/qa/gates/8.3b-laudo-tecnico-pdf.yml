@@ -1,0 +1,165 @@
+storyId: STORY-8.3b
+verdict: CONCERNS
+verdictReason: >
+  Laudo Técnico ACM completo (PDF nativo React-PDF, ~18 págs) implementado de
+  ponta a ponta e fiel às 10 seções do `LAUDO_ACM_Rua_Honduras_RE-MAX_v4_NOVO.pdf`
+  (texto-fonte extraído via `pdftotext -layout` — Art. IV). Reusa os primitivos da
+  8.3a (theme.ts, staticMap.ts, tipos/padrão de view-model) e consome o
+  `AcmLaudoComputation` (8.2) sem recálculo de metodologia (ADR-EPIC8-001). Separa
+  view-model puro (`buildLaudoModel`) de render (`LaudoDocument`): snapshot
+  estrutural das 10 seções sem gerar PDF + 2 smokes reais via `renderToBuffer`
+  (`%PDF-`). AC1–AC7 atendidos. Aprovado com observações (nenhuma bloqueante):
+  (1) os defaults de TEXTO das seções qualitativas (4/6/10 + eixos/critérios) são
+  templates factuais sobre os números — fiéis ao caso Honduras, mas devem ser
+  revisados/sobrescritos pela consultora por caso antes da entrega ao proprietário;
+  (2) AC5 herda da 8.3a o logo tipográfico (não o PNG oficial); (3) percentis de
+  terreno, ticket mediano por faixa e o breakdown do residual são agregações de
+  view-model fora da camada 8.2 — display-only sobre os MESMOS dados, mas com risco
+  de drift se a fórmula do residual mudar em methodology.ts. Status InReview → Done
+  autorizado (commit/push pendente @devops).
+
+reviewedAt: 2026-06-16
+reviewer: "@qa (Quinn)"
+splitContext: "Fatia Laudo da Story 8.3 (8.3b). Reusa theme/staticMap/tipos de view-model da 8.3a."
+
+testsScope:
+  acmFull: "104/104 (80 da 8.3a/8.2 + 24 novos)"
+  novos: "laudoModel 22 + LaudoDocument render 2 = 24"
+  typecheck: "0 erros em src/ (filtro ^src/; devtools-protocol vendored fora do escopo)"
+  lint: "0 (eslint src/lib/acm/pdf + src/components/acm alterados)"
+
+qualityChecks:
+  codeReview:
+    status: PASS
+    notes: >
+      Mesma arquitetura limpa da 8.3a em `app/src/lib/acm/pdf/`: laudoModel.ts
+      (view-model PURO das 10 seções, zero deps de render) → LaudoDocument.tsx (só
+      layout React-PDF, subcomponentes TopTable/ComparaveisTable/ConcorrenciaTable
+      reutilizáveis) → LaudoExportSheet.tsx (orquestra o pipeline na borda da UI).
+      Imports absolutos (@/). JSDoc por arquivo traça à referência/ADR (Art. IV).
+      `buildLaudoModel` determinístico (data injetada). Reuso real dos tipos da
+      8.3a (ResumoFaixaItem/ResumoInput/ResumoSourceComparable via extends) e dos
+      primitivos theme/staticMap — sem duplicar branding nem gerador de mapa.
+      Números 100% do `computeLaudo`; total do residual ancorado em
+      `computation.coAncoraTerreno` (single source p/ a co-âncora).
+  unitTests:
+    status: PASS
+    coverage: "24 testes novos"
+    notes: >
+      laudoModel: header/programa/score, faixa(5), números da 8.2 (Sec.1/9/10),
+      Top N + rastreabilidade 7.1 (SQL/status/fonte), Sec.5 completa (★★★/★ e
+      R$/m² derivado), Sec.8 (breakdown residual fecha na co-âncora; 3 faixas de
+      efeito-escala; métricas min/p25/med/p75/máx), presença das 10 seções, e
+      robustez (n=2, terreno NULL, sem residual → sem breakdown, programa ausente,
+      meta default = faixaFechamento). LaudoDocument: renderToBuffer real do caso
+      Honduras completo E do n=2/NULL/sem-mapa/sem-residual → ambos `%PDF-`.
+  acceptanceCriteria:
+    status: PASS
+    met: 7
+    partial: 0
+    failed: 0
+    notes: >
+      AC1 PASS (LaudoDocument 10 seções, render verde). AC2 PASS (AcmLaudoComputation
+      consumido; efeitoEscalaTerreno + coAncoraTerreno detalhados; zero recálculo de
+      metodologia). AC3 PASS (Sec.5 código/ref por linha; Sec.7.1 traça Top 5 a
+      SQL cadastral + status + fonte/anúncio). AC4 PASS (reuso theme/staticMap +
+      tipos da 8.3a, sem duplicação). AC5 PASS-com-nota (branding via theme.ts/
+      CONSULTORA/BrandLockup; logo tipográfico herdado da 8.3a — follow-up de asset).
+      AC6 PASS (item "Gerar Laudo (PDF)" + LaudoExportSheet com loading/erro; route
+      handler server-side avaliado e descartado — toBlob cliente basta). AC7 PASS
+      (robustez n<5/NULL + snapshot 10 seções + smoke render).
+  noRegressions:
+    status: PASS
+    notes: >
+      104/104 ACM verdes (80 anteriores intactos). AcmExportMenu só ganhou estado
+      laudoOpen + item sob a mesma guarda canResumo + render do LaudoExportSheet;
+      Resumo/CSV/Copiar/Dossiê e a lib 8.2 inalterados. AcmExportMenu.test
+      (buildComparaveisCsv puro) e AcmScreen.test passam.
+  performance:
+    status: PASS
+    notes: >
+      Render cliente de ~18 págs via toBlob com fontes nativas (Helvetica). Smoke
+      do caso completo conclui dentro do timeout de 30s no node/vitest (sob carga
+      de ambiente). Único custo de rede é 1 GET da imagem estática do mapa,
+      pré-buscado e embutido como data URL. computeLaudo O(N log N) sobre N<100.
+  security:
+    status: PASS
+    notes: >
+      Token Mapbox NEXT_PUBLIC (já público, mesmo do AcmMiniMap); pré-fetch embute
+      os BYTES da imagem — o token não chega ao PDF final. Inputs do form
+      coagidos por numOrUndef (sem injeção). Geração 100% cliente, sem novo
+      endpoint. Sem PII além do que a consultora digita.
+  documentation:
+    status: PASS
+    notes: >
+      Story com File List completa, checkboxes de AC com notas de desvio, Change
+      Log atualizado. JSDoc citando referência/ADR/Art. IV em cada arquivo.
+      Mapeamento seção→fonte da story confirmado contra o PDF.
+
+issues:
+  - severity: medium
+    category: requirements
+    description: >
+      Os defaults de texto das seções qualitativas (Sec. 4 critérios, Sec. 6
+      concorrência, Sec. 10 estratégia/condicionantes, eixos de argumentação) são
+      templates factuais derivados do caso Honduras. Embora tracem à referência
+      (Art. IV) e interpolem os números computados, são SEEDS — não texto legal
+      final. Entregues como estão a outro imóvel, descrevem fielmente a estrutura
+      mas podem citar argumentos calibrados ao caso Honduras.
+    recommendation: >
+      Antes da entrega ao proprietário, a consultora deve revisar/sobrescrever os
+      campos de texto via LaudoInput (já suportado — todos os defaults são
+      overridable). Considerar expor esses campos no LaudoExportSheet numa fase
+      seguinte (8.4) ou um aviso "revisar antes de emitir".
+  - severity: low
+    category: code
+    description: >
+      Percentis de terreno (Sec. 8a), ticket mediano por faixa e o breakdown de
+      linhas do residual (Sec. 8b) são computados no view-model (laudoModel.ts),
+      fora da camada de metodologia (8.2). São display-only sobre os mesmos dados,
+      mas o breakdown recomputa as linhas da fórmula de `residualLandValue` — se a
+      fórmula mudar, as linhas podem divergir (o TOTAL já está ancorado em
+      computation.coAncoraTerreno, então a co-âncora nunca diverge).
+    recommendation: >
+      Numa refatoração, promover percentis/ticket/breakdown para methodology.ts
+      (ex.: computeLaudo expor `terrenoMetrics` e `residualBreakdown`) para
+      single-source e testes de regressão na própria lib.
+  - severity: low
+    category: requirements
+    status: INHERITED
+    description: >
+      AC5 — logo RE/MAX é lockup tipográfico (RE/[MAX]/GALERIA), não o balão
+      oficial em PNG. Herdado da 8.3a (mesmo BrandLockup/theme).
+    recommendation: >
+      Dropar o asset oficial em `public/` e trocar por <Image> quando a franquia
+      fornecer o logo aprovado — fecha simultaneamente 8.3a e 8.3b.
+  - severity: low
+    category: requirements
+    description: >
+      O valor de fechamento exibido (computado pela 8.2, ex.: R$ 10.217.539 no
+      caso Honduras) difere por arredondamento do número impresso no PDF de
+      referência (R$ 10.202.000). A 8.2 é a fonte de verdade; não é bug.
+    recommendation: >
+      Nenhuma ação — comportamento correto (zero recálculo significa exibir o que a
+      8.2 produz). Documentado para evitar falso-positivo em revisão de fidelidade.
+  - severity: low
+    category: code
+    description: >
+      Mapa não plota pins dos comparáveis (Top N) — a RPC fn_comparaveis_no_raio
+      retorna apenas distancia_m, sem lat/lng. Herdado da 8.3a.
+    recommendation: >
+      @data-engineer estender a RPC com lat/lng para habilitar os pins ❶❷❸/★.
+
+dependencies:
+  dependsOn:
+    - "8.3a (theme/staticMap/tipos de view-model) Done, 8.1 (dados) Done, 8.2 (cálculo) Done/CONCERNS."
+  blocks:
+    - "8.4 (deck comercial / material didático) pode reusar laudoModel/LaudoDocument."
+
+nextSteps:
+  - "@devops: commit + push da 8.3b (5 novos + 1 alterado) — feat(epic8): Laudo Técnico ACM em PDF nativo [Story 8.3b]."
+  - "@dev (fase seguinte): expor campos de texto qualitativos no sheet ou aviso de revisão (issue medium)."
+  - "@data-engineer: lat/lng na RPC p/ pins do Top N (fecha 8.3a + 8.3b)."
+  - "Asset: logo RE/MAX oficial PNG (fecha AC5 das duas stories)."
+
+storyStatusTransition: "InReview -> Done (CONCERNS-approved; commit/push pendente @devops)"
