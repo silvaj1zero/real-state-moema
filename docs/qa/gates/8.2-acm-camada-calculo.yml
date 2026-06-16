@@ -1,0 +1,142 @@
+storyId: STORY-8.2
+verdict: CONCERNS
+verdictReason: >
+  Camada de cálculo ACM (lib pura `methodology.ts`) reproduz fielmente a
+  metodologia do laudo Honduras e está travada por testes de regressão
+  determinísticos. AC1, AC2, AC3, AC5, AC6 PASS com alta confiança. AC4
+  (exibição na UI) foi PARCIALMENTE atendido por um DESVIO deliberado de
+  realização: em vez de estender `AcmSummaryCards`/`AcmTable` com Score +
+  índice por linha, foi adicionado um painel dedicado `AcmSimilarPanel`
+  ("Comparáveis mais parecidos") que expõe o índice de aderência + valor
+  indicativo e foi validado AO VIVO com a end-user (Luciana, 113 m² Rua
+  Alvorada → ~R$ 1,25M). O **Score** não é exibido em lugar nenhum da UI —
+  decisão correta sob o estado atual: os comparáveis ITBI ainda não trazem
+  programa (suítes/vagas/dorms), então `classifyScore` rodaria sobre proxy de
+  área e produziria Score de baixa confiança. Score-na-UI fica DEFERIDO até o
+  sink do engine entregar programa (Story 8.1 AC3). Sem bloqueio de merge:
+  lib correta, regressão verde, 0 regressões. Recomenda-se @po reconciliar o
+  texto do AC4 com a realização em painel OU manter AC4 aberto para a iteração
+  de Score pós-sink. Story autorizada InReview -> Done (código já commitado e
+  no remoto).
+
+reviewedAt: 2026-06-15
+reviewer: "@qa (Quinn)"
+commits:
+  - "944d466 — lib methodology.ts + regressão Honduras"
+  - "1a5e623 — adapter fn_comparaveis_no_raio -> AcmComparable"
+  - "df75872 — AC4 painel 'mais parecidos' + valor indicativo"
+remoteStatus: "Os 3 commits já estão em origin/fix/epic7-v-crawl-health (HEAD == origin)."
+
+testsScope:
+  acmLib: "34/34 (methodology + similar + adapter)"
+  acmComponents: "10/10 (AcmScreen + AcmExportMenu — sem regressão)"
+  typecheck: "0 erros em src/ (vendored devtools-protocol pré-existente filtrado)"
+  lint: "0 (eslint src/lib/acm src/components/acm)"
+
+qualityChecks:
+  codeReview:
+    status: PASS
+    notes: >
+      `methodology.ts` é PURA (zero deps Next/React), determinística e
+      testável isolada — reusável por edge function e engine. Cada constante
+      traça à seção do material de referência em JSDoc (Art. IV — No
+      Invention): pesos 50/20/30 (Didático 1.3), réguas de Score (Didático
+      1.2), faixas de lote <500/500-800/>800 (Laudo 8a), CAPEX_BY_SCORE
+      derivado por reconciliação explícita (18.264 × 800 × 0,85 = 12.419.520,
+      Laudo Sec. 9). Fatores de liquidez aplicados de forma COMPOSTA
+      (multiplicativa) e tratados como INPUTS por imóvel (não constantes) —
+      correto conforme refino do PO. `similaridade`/`median` com clamp e
+      null-safety. Adapter tolerante a schema (area_construida_m2 ?? area_m2)
+      mantém a lib desacoplada do tipo do DB. Painel reusa `selectMostSimilar`
+      (mesma fonte de cálculo) — sem duplicação de regra.
+  unitTests:
+    status: PASS
+    coverage: "34 testes ACM-lib + 10 componentes"
+    notes: >
+      Regressão Honduras travada com tolerância documentada: mediana R$/m²
+      ≈ 18.264, valor de mercado = 12.419.520, faixa de fechamento
+      10,0–12,5M (min 10.217.539), Top 3 = {Chiaffarelli 86, Bitencourt 101,
+      Torres Homem 399}, deságio medido ≈ -12,7%. Componentes de aderência do
+      #1 (Chiaffarelli) checados (simAreaTerreno 0,942; proximidade 0,834).
+      Adapter e similar com testes próprios.
+  acceptanceCriteria:
+    status: CONCERNS
+    met: 5
+    partial: 1
+    failed: 0
+    notes: >
+      AC1 PASS — lib pura com classifyScore, adherenceIndex, landPriceByLotSize,
+      residualLandValue, sensitivityScenarios, liquidityAdjustment (fatores
+      como input). AC2 PASS — rankByAdherence ordena com o índice. AC3 PASS —
+      `AcmLaudoComputation` tipado completo (valor mercado, faixa fechamento,
+      Top N, R$/m² mediano, efeito-escala, co-âncora de terreno, deságio via
+      preco_pedido). AC4 PARTIAL — índice de aderência exposto em painel
+      dedicado `AcmSimilarPanel` (validado ao vivo) em vez de
+      SummaryCards/Table; Score NÃO exibido na UI (deferido até o sink trazer
+      programa — 8.1 AC3). AC5 PASS — regressão Honduras travada. AC6 PASS —
+      `calculateAcmStats` legado intacto; AcmExportMenu/AcmScreen.test verdes.
+  noRegressions:
+    status: PASS
+    notes: >
+      44 testes ACM verdes (34 lib + 10 componentes). AcmScreen apenas estende
+      a árvore com o painel sob guarda (!isLoading && filteredComparaveis>0);
+      `calculateAcmStats` e AcmExportMenu inalterados.
+  performance:
+    status: PASS
+    notes: >
+      Cálculo O(N log N) (sort de aderência) sobre N comparáveis no raio
+      (tipicamente <100). Painel memoiza via useMemo nas deps corretas
+      (área-alvo, topN, raio, comparáveis). Sem N+1; tudo client-side puro.
+  security:
+    status: PASS
+    notes: >
+      Lib pura sem I/O, sem PII, sem SQL. Painel apenas lê comparáveis já
+      carregados (RLS aplicada na RPC a montante). Input de área é
+      Number()-coagido com guarda > 0.
+  documentation:
+    status: PASS
+    notes: >
+      JSDoc por função citando a seção do PDF de referência. Story atualizada
+      com nota de implementação + decisão de desvio AC4. Caveat de "programa
+      via área como proxy" explícito no rodapé do painel e na story.
+
+issues:
+  - severity: low
+    category: requirements
+    description: >
+      AC4 escrito como "AcmSummaryCards e AcmTable passam a exibir Score e
+      índice de aderência"; a realização entregou um painel dedicado
+      `AcmSimilarPanel` (índice + valor indicativo) e NÃO exibe Score em
+      nenhum ponto da UI.
+    recommendation: >
+      @po: reconciliar o texto do AC4 com a realização em painel (preferível —
+      validada ao vivo com a end-user) OU manter um item de follow-up para
+      surfacar um badge de Score quando o sink do engine entregar programa
+      (suítes/vagas/dorms), removendo o proxy de área. Enquanto o programa não
+      chega, expor Score induziria classificação de baixa confiança.
+
+  - severity: low
+    category: code
+    description: >
+      `AcmSimilarPanel` faz cast `comparaveis as unknown as AcmRpcRow[]` para
+      reusar o adapter. Funciona porque `ComparavelNoRaio` é superset do shape
+      permissivo do adapter, mas o cast duplo silencia o checker.
+    recommendation: >
+      Quando a regen de tipos (8.1 AC6, `supabase gen types`) estabilizar o
+      shape de `fn_comparaveis_no_raio`, trocar por um mapeamento tipado
+      explícito (ou estreitar `AcmRpcRow` para `Pick<ComparavelNoRaio, ...>`)
+      e remover o cast duplo.
+
+dependencies:
+  dependsOn:
+    - "Story 8.1 (campos construído/terreno, Score, ask-vs-close) — Done; RPC entrega area_terreno_m2/preco_pedido consumidos aqui."
+  blocks:
+    - "8.3 e 8.4 (renderização consome AcmLaudoComputation)."
+  crossStory:
+    - "8.1 AC3 (sink `montar_registros` mapear area_construida/terreno separados, programa) — enquanto NULL, comparáveis ITBI usam área como proxy; Score-na-UI fica deferido a isso."
+
+nextSteps:
+  - "@po: decidir reconciliação do AC4 (amend texto p/ painel OU follow-up Score-badge pós-sink)."
+  - "Story 8.1 AC3: implementar mapeamento do sink (programa + áreas separadas) p/ destravar Score de alta confiança."
+  - "Iniciar 8.3/8.4 (renderização) — AcmLaudoComputation pronto e tipado."
+  - "Limpeza técnica (low): remover cast duplo em AcmSimilarPanel após regen de tipos (8.1 AC6)."
