@@ -3,11 +3,12 @@
 import { useState, useRef, useEffect } from 'react'
 import type { ComparavelNoRaio } from '@/lib/supabase/types'
 import type { AcmCalculations } from '@/hooks/useAcm'
-import { Download, Copy, FileSpreadsheet, BookOpen, ChevronDown, FileText, FileBarChart2, Presentation, GraduationCap } from 'lucide-react'
+import { Download, Copy, FileSpreadsheet, BookOpen, ChevronDown, FileText, FileBarChart2, Presentation, GraduationCap, PackageCheck } from 'lucide-react'
 import { formatBRL } from '@/lib/format'
 import { ResumoExportSheet } from './ResumoExportSheet'
 import { LaudoExportSheet } from './LaudoExportSheet'
 import { EntregavelExportSheet } from './EntregavelExportSheet'
+import { PacoteExportSheet } from './PacoteExportSheet'
 
 interface AcmExportMenuProps {
   comparaveis: ComparavelNoRaio[]
@@ -79,6 +80,7 @@ export function AcmExportMenu({
   const [laudoOpen, setLaudoOpen] = useState(false)
   const [deckOpen, setDeckOpen] = useState(false)
   const [didaticoOpen, setDidaticoOpen] = useState(false)
+  const [pacoteOpen, setPacoteOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
   const canResumo = lat != null && lng != null && radiusMeters != null
@@ -161,6 +163,18 @@ export function AcmExportMenu({
             <BookOpen className="size-3.5 text-gray-400" />
             Incluir no Dossiê
           </button>
+          {canResumo && (
+            <button
+              onClick={() => {
+                setPacoteOpen(true)
+                setIsOpen(false)
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-[#003DA5] hover:bg-blue-50 transition-colors border-b border-gray-100"
+            >
+              <PackageCheck className="size-3.5 text-[#003DA5]" />
+              Gerar pacote completo (PDF)
+            </button>
+          )}
           {canResumo && (
             <button
               onClick={() => {
@@ -261,6 +275,18 @@ export function AcmExportMenu({
           kind="didatico"
           open={didaticoOpen}
           onClose={() => setDidaticoOpen(false)}
+          comparaveis={comparaveis}
+          lat={lat as number}
+          lng={lng as number}
+          enderecoAlvo={enderecoAlvo ?? ''}
+          radiusMeters={radiusMeters as number}
+        />
+      )}
+
+      {canResumo && (
+        <PacoteExportSheet
+          open={pacoteOpen}
+          onClose={() => setPacoteOpen(false)}
           comparaveis={comparaveis}
           lat={lat as number}
           lng={lng as number}
