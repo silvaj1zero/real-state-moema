@@ -36,20 +36,24 @@ const s = StyleSheet.create({
   kickerLight: { flex: 1, paddingRight: 8, fontSize: 8, color: '#9DB2D9', textTransform: 'uppercase', letterSpacing: 1 },
   h1: { fontFamily: FONTS.heading, fontSize: 26, color: COLORS.azulEscuro, marginTop: 6 },
   h1Light: { fontFamily: FONTS.heading, fontSize: 30, color: COLORS.branco, marginTop: 6 },
-  h2: { fontFamily: FONTS.heading, fontSize: 20, color: COLORS.azulEscuro, marginTop: 2, marginBottom: 8 },
-  lead: { fontSize: 12, color: COLORS.corpo, marginBottom: 10, maxWidth: 620 },
-  leadLight: { fontSize: 13, color: '#D6E0F2', marginTop: 10, maxWidth: 620 },
+  h2: { fontFamily: FONTS.heading, fontSize: 25, color: COLORS.azulEscuro, marginTop: 4 },
+  titleRule: { borderBottomWidth: 3, borderBottomColor: COLORS.vermelho, width: 46, marginTop: 7, marginBottom: 12 },
+  lead: { fontSize: 12, color: COLORS.corpo, marginBottom: 10, maxWidth: 640, lineHeight: 1.5 },
+  leadLight: { fontSize: 13, color: '#D6E0F2', marginTop: 10, maxWidth: 640, lineHeight: 1.5 },
   rule: { borderBottomWidth: 2, borderBottomColor: COLORS.vermelho, width: 60, marginVertical: 8 },
   // brand
   brandLockup: { flexDirection: 'row', alignItems: 'center', flexShrink: 0 },
   brandWordmark: { width: 116, height: 29, objectFit: 'contain' },
   brandBalloon: { width: 22, height: 26, objectFit: 'contain', marginRight: 6 },
   brandGaleriaLight: { fontFamily: FONTS.heading, fontSize: 13, color: COLORS.branco, letterSpacing: 0.5 },
-  // stats
-  statRow: { flexDirection: 'row', gap: 14, marginTop: 10 },
-  statCard: { flex: 1, borderWidth: 1, borderColor: COLORS.cinzaBorda, borderRadius: 8, padding: 14 },
-  statValor: { fontFamily: FONTS.heading, fontSize: 24, color: COLORS.azul },
-  statRotulo: { fontSize: 9.5, color: COLORS.corpo, marginTop: 6 },
+  // stats — card com barra de acento no topo
+  statRow: { flexDirection: 'row', gap: 14, marginTop: 12 },
+  statCard: {
+    flex: 1, borderWidth: 1, borderColor: COLORS.cinzaBorda, borderTopWidth: 3, borderTopColor: COLORS.vermelho,
+    borderRadius: 8, paddingHorizontal: 14, paddingTop: 12, paddingBottom: 14, backgroundColor: COLORS.branco,
+  },
+  statValor: { fontFamily: FONTS.heading, fontSize: 32, color: COLORS.azulEscuro },
+  statRotulo: { fontSize: 9.5, color: COLORS.corpo, marginTop: 8, lineHeight: 1.4 },
   // cards genéricos
   cardRow: { flexDirection: 'row', gap: 12, marginTop: 8, flexWrap: 'wrap' },
   card: { flexBasis: '47%', flexGrow: 1, borderWidth: 1, borderColor: COLORS.cinzaBorda, borderRadius: 8, padding: 12 },
@@ -74,11 +78,12 @@ const s = StyleSheet.create({
     backgroundColor: COLORS.fundoSuave, alignItems: 'center', justifyContent: 'center',
   },
   legend: { fontSize: 8.5, color: COLORS.cinzaClaro, marginTop: 6 },
-  // tabela
-  table: { marginTop: 8 },
-  tr: { flexDirection: 'row', borderBottomWidth: 0.5, borderBottomColor: COLORS.cinzaBorda, paddingVertical: 5 },
-  trHead: { borderBottomWidth: 1, borderBottomColor: COLORS.corpo },
-  th: { fontSize: 8, color: COLORS.cinzaClaro, textTransform: 'uppercase', letterSpacing: 0.3 },
+  // tabela — faixa de cabeçalho escura + zebra
+  table: { marginTop: 10, borderWidth: 1, borderColor: COLORS.cinzaBorda, borderRadius: 6 },
+  tr: { flexDirection: 'row', paddingVertical: 6, paddingHorizontal: 8 },
+  trAlt: { backgroundColor: COLORS.fundoSuave },
+  trHead: { backgroundColor: COLORS.azulEscuro, paddingVertical: 7, paddingHorizontal: 8 },
+  th: { fontSize: 7.5, color: COLORS.branco, textTransform: 'uppercase', letterSpacing: 0.4, fontFamily: FONTS.bodyMedium },
   td: { fontSize: 9.5 },
   tdStrong: { fontSize: 9.5, fontFamily: FONTS.bodyMedium, color: COLORS.azulEscuro },
   // rodapé
@@ -127,6 +132,7 @@ function SlideHead({ kicker, titulo }: { kicker: string; titulo: string }) {
         <BrandLockup />
       </View>
       <Text style={s.h2}>{titulo}</Text>
+      <View style={s.titleRule} />
     </>
   )
 }
@@ -169,8 +175,8 @@ function TopTable({ rows }: { rows: LaudoTopRow[] }) {
         <Text style={[s.th, { width: TOP_W.m2t, textAlign: 'right' }]}>R$/m² terreno</Text>
         <Text style={[s.th, { width: TOP_W.m2c, textAlign: 'right' }]}>R$/m² constr.</Text>
       </View>
-      {rows.map((r) => (
-        <View key={r.rank} style={s.tr} wrap={false}>
+      {rows.map((r, i) => (
+        <View key={r.rank} style={[s.tr, ...(i % 2 ? [s.trAlt] : [])]} wrap={false}>
           <Text style={[s.tdStrong, { width: TOP_W.rank, color: COLORS.dourado }]}>{r.rank}</Text>
           <Text style={[s.td, { width: TOP_W.end }]}>{r.endereco}</Text>
           <Text style={[s.td, { width: TOP_W.constr, textAlign: 'right' }]}>{intM(r.construido)}</Text>
@@ -403,7 +409,7 @@ export function DeckDocument({ model }: { model: DeckModel }) {
             <Text style={[s.th, { width: '22%', textAlign: 'right' }]}>Valor de fechamento</Text>
           </View>
           {model.sensibilidade.cenarios.map((c, i) => (
-            <View key={i} style={s.tr} wrap={false}>
+            <View key={i} style={[s.tr, ...(i % 2 ? [s.trAlt] : [])]} wrap={false}>
               <Text style={[s.td, { width: '46%' }]}>{c.cenario}</Text>
               <Text style={[s.td, { width: '10%', textAlign: 'right' }]}>{c.n}</Text>
               <Text style={[s.td, { width: '22%', textAlign: 'right' }]}>{fmt(c.valorMercado)}</Text>
