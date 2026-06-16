@@ -20,6 +20,7 @@ import { computeLaudo, type ResidualLandParams } from '@/lib/acm/methodology'
 import type { LaudoInput, LaudoSourceComparable } from '@/lib/acm/pdf/laudoModel'
 import { buildAcmPackage } from '@/lib/acm/pdf/acmPackage'
 import { buildStaticMapUrl, resolveStaticMapImage } from '@/lib/acm/pdf/staticMap'
+import { comparavelToLaudoSource, buildAcmMapMarkers } from '@/lib/acm/comparavelAdapter'
 
 interface PacoteExportSheetProps {
   open: boolean
@@ -41,17 +42,6 @@ const RESIDUAL_DEFAULTS: ResidualLandParams = {
   comercializacaoPct: 0.08,
   custoFinanceiroPct: 0.05,
   margemPct: 0.2,
-}
-
-function fonteLabel(fonte: string): string {
-  const map: Record<string, string> = {
-    itbi: 'ITBImap',
-    manual: 'Manual',
-    scraping: 'Portal',
-    captei: 'Captei',
-    cartorio: 'Cartório',
-  }
-  return map[fonte] ?? (fonte ? fonte.charAt(0).toUpperCase() + fonte.slice(1) : '—')
 }
 
 function numOrUndef(v: string): number | undefined {
@@ -123,32 +113,15 @@ export function PacoteExportSheet({
         residual,
       })
 
-      // 2) Fonte rica (mesma dos entregáveis individuais)
-      const source: LaudoSourceComparable[] = comparaveis.map((c) => ({
-        endereco: c.endereco,
-        areaConstruida: c.area_construida_m2 ?? c.area_m2 ?? 0,
-        areaTerreno: c.area_terreno_m2 ?? null,
-        preco: c.preco,
-        precoM2Terreno: c.preco_m2_terreno ?? null,
-        distancia: c.distancia_m,
-        fonte: fonteLabel(c.fonte),
-        fonteRef: c.sql_cadastral ?? null,
-        codigoRef: c.sql_cadastral ?? null,
-        dormitorios: c.dormitorios ?? null,
-        suites: c.suites ?? null,
-        vagas: c.vagas ?? null,
-        sqlCadastral: c.sql_cadastral ?? null,
-        statusAnuncio: c.status_anuncio ?? (c.is_venda_real ? 'off-market' : null),
-        fonteAnuncio: c.sql_cadastral ? `${fonteLabel(c.fonte)} (SQL ${c.sql_cadastral})` : fonteLabel(c.fonte),
-        isVendaReal: c.is_venda_real,
-      }))
+      // 2) Fonte rica (mesma dos entregáveis individuais; inclui lat/lng + anuncio_url)
+      const source: LaudoSourceComparable[] = comparaveis.map(comparavelToLaudoSource)
 
-      // 3) Mapa estático (pré-buscado; degrada p/ null)
+      // 3) Mapa estático com pins por comparável (Top3 dourado/Top4-5 laranja/demais azuis)
       const rawMapUrl = buildStaticMapUrl({
         token: MAPBOX_TOKEN,
         center: { lat, lng },
         radiusMeters,
-        markers: [{ lat, lng, color: '#DC1431', size: 'l' }],
+        markers: buildAcmMapMarkers({ lat, lng }, computation.ranking, source),
       })
       const mapaUrl = await resolveStaticMapImage(rawMapUrl)
 

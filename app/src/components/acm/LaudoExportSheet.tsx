@@ -22,6 +22,7 @@ import { toAcmComparables, type AcmRpcRow } from '@/lib/acm/adapter'
 import { computeLaudo, type ResidualLandParams } from '@/lib/acm/methodology'
 import { buildLaudoModel, type LaudoSourceComparable, type LaudoInput } from '@/lib/acm/pdf/laudoModel'
 import { buildStaticMapUrl, resolveStaticMapImage } from '@/lib/acm/pdf/staticMap'
+import { comparavelToLaudoSource, buildAcmMapMarkers } from '@/lib/acm/comparavelAdapter'
 import { LaudoDocument } from '@/lib/acm/pdf/LaudoDocument'
 
 interface LaudoExportSheetProps {
@@ -45,18 +46,6 @@ const RESIDUAL_DEFAULTS: ResidualLandParams = {
   comercializacaoPct: 0.08,
   custoFinanceiroPct: 0.05,
   margemPct: 0.2,
-}
-
-/** Rótulo de exibição da fonte (tolerante a 'itbi' do DB fora do union TS). */
-function fonteLabel(fonte: string): string {
-  const map: Record<string, string> = {
-    itbi: 'ITBImap',
-    manual: 'Manual',
-    scraping: 'Portal',
-    captei: 'Captei',
-    cartorio: 'Cartório',
-  }
-  return map[fonte] ?? (fonte ? fonte.charAt(0).toUpperCase() + fonte.slice(1) : '—')
 }
 
 /** "" → undefined; senão número (NaN → undefined). Aceita vírgula decimal. */
@@ -138,35 +127,16 @@ export function LaudoExportSheet({
         residual,
       })
 
-      // 2) Fonte rica do Top N / Sec. 5 / Sec. 7.1 (ComparavelNoRaio → LaudoSourceComparable)
-      const source: LaudoSourceComparable[] = comparaveis.map((c) => ({
-        endereco: c.endereco,
-        areaConstruida: c.area_construida_m2 ?? c.area_m2 ?? 0,
-        areaTerreno: c.area_terreno_m2 ?? null,
-        preco: c.preco,
-        precoM2Terreno: c.preco_m2_terreno ?? null,
-        distancia: c.distancia_m,
-        fonte: fonteLabel(c.fonte),
-        fonteRef: c.sql_cadastral ?? null,
-        codigoRef: c.sql_cadastral ?? null,
-        dormitorios: c.dormitorios ?? null,
-        suites: c.suites ?? null,
-        vagas: c.vagas ?? null,
-        sqlCadastral: c.sql_cadastral ?? null,
-        statusAnuncio: c.status_anuncio ?? (c.is_venda_real ? 'off-market' : null),
-        fonteAnuncio: c.sql_cadastral
-          ? `${fonteLabel(c.fonte)} (SQL ${c.sql_cadastral})`
-          : fonteLabel(c.fonte),
-        isVendaReal: c.is_venda_real,
-      }))
+      // 2) Fonte rica do Top N / Sec. 5 / Sec. 7.1 (inclui lat/lng + anuncio_url)
+      const source: LaudoSourceComparable[] = comparaveis.map(comparavelToLaudoSource)
 
-      // 3) Mapa estático (alvo + raio). Pré-buscado e embutido como data URL; degrada
-      //    para null em qualquer falha, sem abortar o PDF (token fora do documento).
+      // 3) Mapa estático: alvo (vermelho) + Top3 dourado/Top4-5 laranja/demais azuis
+      //    (pins por comparável quando há coords). Pré-buscado e embutido como data URL.
       const rawMapUrl = buildStaticMapUrl({
         token: MAPBOX_TOKEN,
         center: { lat, lng },
         radiusMeters,
-        markers: [{ lat, lng, color: '#DC1431', size: 'l' }],
+        markers: buildAcmMapMarkers({ lat, lng }, computation.ranking, source),
       })
       const mapaUrl = await resolveStaticMapImage(rawMapUrl)
 

@@ -334,6 +334,11 @@ export interface ComparavelNoRaio {
   preco_pedido?: number | null
   desagio_percent?: number | null
   status_anuncio?: AcmStatusAnuncio | null
+  // Story 8.7 — RPC fn_comparaveis_no_raio (migration 20260616000001): coords p/ pins
+  // do mapa + link do anúncio (revisão humana via scraped_listings).
+  latitude?: number | null
+  longitude?: number | null
+  anuncio_url?: string | null
 }
 
 // =============================================================================
