@@ -24,11 +24,12 @@ const s = StyleSheet.create({
     color: COLORS.corpo,
     lineHeight: 1.45,
   },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 },
+  headerLeft: { flex: 1, paddingRight: 8 },
   eyebrow: { fontSize: 7, color: COLORS.cinzaClaro, textTransform: 'uppercase', letterSpacing: 0.5 },
-  title: { fontFamily: FONTS.heading, fontSize: 17, color: COLORS.azulEscuro, marginTop: 2, maxWidth: 360 },
+  title: { fontFamily: FONTS.heading, fontSize: 15, color: COLORS.azulEscuro, marginTop: 3, lineHeight: 1.15 },
   estudo: { fontSize: 8.5, color: COLORS.cinzaClaro, marginTop: 3 },
-  brandBox: { alignItems: 'flex-end' },
+  brandBox: { alignItems: 'flex-end', flexShrink: 0, width: 120 },
   brandLogo: { width: 96, height: 24, objectFit: 'contain' },
   brandGaleria: { fontSize: 7.5, fontFamily: FONTS.heading, color: COLORS.azulEscuro, letterSpacing: 1, marginTop: 2 },
   rule: { borderBottomWidth: 1.5, borderBottomColor: COLORS.vermelho, marginTop: 8, marginBottom: 10 },
@@ -109,7 +110,7 @@ export function DidaticoDocument({ model }: { model: DidaticoModel }) {
     >
       <Page size="A4" style={s.page} wrap>
         <View style={s.header}>
-          <View>
+          <View style={s.headerLeft}>
             <Text style={s.eyebrow}>Material Didático ACM</Text>
             <Text style={s.title}>{m.header.titulo}</Text>
             <Text style={s.estudo}>{m.header.estudo} · {m.header.dataEmissao}</Text>

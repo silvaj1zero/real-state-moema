@@ -31,9 +31,9 @@ const s = StyleSheet.create({
   },
   pageDark: { backgroundColor: COLORS.azulEscuro },
   // topo do slide
-  slideTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
-  kicker: { fontSize: 8, color: COLORS.cinzaClaro, textTransform: 'uppercase', letterSpacing: 1 },
-  kickerLight: { fontSize: 8, color: '#9DB2D9', textTransform: 'uppercase', letterSpacing: 1 },
+  slideTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4, gap: 16 },
+  kicker: { flex: 1, paddingRight: 8, fontSize: 8, color: COLORS.cinzaClaro, textTransform: 'uppercase', letterSpacing: 1 },
+  kickerLight: { flex: 1, paddingRight: 8, fontSize: 8, color: '#9DB2D9', textTransform: 'uppercase', letterSpacing: 1 },
   h1: { fontFamily: FONTS.heading, fontSize: 26, color: COLORS.azulEscuro, marginTop: 6 },
   h1Light: { fontFamily: FONTS.heading, fontSize: 30, color: COLORS.branco, marginTop: 6 },
   h2: { fontFamily: FONTS.heading, fontSize: 20, color: COLORS.azulEscuro, marginTop: 2, marginBottom: 8 },
@@ -41,7 +41,7 @@ const s = StyleSheet.create({
   leadLight: { fontSize: 13, color: '#D6E0F2', marginTop: 10, maxWidth: 620 },
   rule: { borderBottomWidth: 2, borderBottomColor: COLORS.vermelho, width: 60, marginVertical: 8 },
   // brand
-  brandLockup: { flexDirection: 'row', alignItems: 'center' },
+  brandLockup: { flexDirection: 'row', alignItems: 'center', flexShrink: 0 },
   brandWordmark: { width: 116, height: 29, objectFit: 'contain' },
   brandBalloon: { width: 22, height: 26, objectFit: 'contain', marginRight: 6 },
   brandGaleriaLight: { fontFamily: FONTS.heading, fontSize: 13, color: COLORS.branco, letterSpacing: 0.5 },

@@ -45,11 +45,12 @@ const s = StyleSheet.create({
     lineHeight: 1.4,
   },
   // Header (pág. 1)
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 },
+  headerLeft: { flex: 1, paddingRight: 8 },
   eyebrow: { fontSize: 7, color: COLORS.cinzaClaro, textTransform: 'uppercase', letterSpacing: 0.5 },
-  title: { fontFamily: FONTS.heading, fontSize: 22, color: COLORS.azulEscuro, marginTop: 2 },
-  subtitle: { fontSize: 8, color: COLORS.cinzaClaro, marginTop: 2, maxWidth: 280 },
-  brandBox: { alignItems: 'flex-end' },
+  title: { fontFamily: FONTS.heading, fontSize: 20, color: COLORS.azulEscuro, marginTop: 3, lineHeight: 1.15 },
+  subtitle: { fontSize: 8, color: COLORS.cinzaClaro, marginTop: 3 },
+  brandBox: { alignItems: 'flex-end', flexShrink: 0, width: 132 },
   brandLogo: { width: 104, height: 26, objectFit: 'contain' },
   brandGaleria: { fontSize: 8, fontFamily: FONTS.heading, color: COLORS.azulEscuro, letterSpacing: 1, marginTop: 3 },
   consultora: { fontSize: 8, color: COLORS.corpo, marginTop: 3, fontFamily: FONTS.bodyMedium },
@@ -197,7 +198,7 @@ export function ResumoDocument({ model }: { model: ResumoModel }) {
       {/* ============================ PÁGINA 1 ============================ */}
       <Page size="A4" style={s.page}>
         <View style={s.header}>
-          <View>
+          <View style={s.headerLeft}>
             <Text style={s.eyebrow}>Resumo Executivo — Análise Comparativa de Mercado</Text>
             <Text style={s.title}>{model.header.titulo}</Text>
             <Text style={s.subtitle}>{model.header.subtitulo}</Text>
