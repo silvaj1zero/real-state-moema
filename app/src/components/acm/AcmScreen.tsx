@@ -119,6 +119,10 @@ export function AcmScreen({
             comparaveis={filteredComparaveis}
             stats={stats}
             onIncluirDossie={handleIncluirDossie}
+            lat={lat}
+            lng={lng}
+            enderecoAlvo={edificioEndereco}
+            radiusMeters={effectiveRadius}
           />
         </div>
       </div>

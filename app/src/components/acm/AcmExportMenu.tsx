@@ -3,13 +3,19 @@
 import { useState, useRef, useEffect } from 'react'
 import type { ComparavelNoRaio } from '@/lib/supabase/types'
 import type { AcmCalculations } from '@/hooks/useAcm'
-import { Download, Copy, FileSpreadsheet, BookOpen, ChevronDown } from 'lucide-react'
+import { Download, Copy, FileSpreadsheet, BookOpen, ChevronDown, FileText } from 'lucide-react'
 import { formatBRL } from '@/lib/format'
+import { ResumoExportSheet } from './ResumoExportSheet'
 
 interface AcmExportMenuProps {
   comparaveis: ComparavelNoRaio[]
   stats: AcmCalculations
   onIncluirDossie?: () => void
+  /** Story 8.3a — contexto p/ gerar o Resumo PDF (coordenadas/raio/endereço do alvo). */
+  lat?: number
+  lng?: number
+  enderecoAlvo?: string
+  radiusMeters?: number
 }
 
 /**
@@ -56,10 +62,21 @@ export function buildComparaveisCsv(comparaveis: ComparavelNoRaio[]): string {
   return [headers.join(','), ...rows.map((r) => r.join(','))].join('\n')
 }
 
-export function AcmExportMenu({ comparaveis, stats, onIncluirDossie }: AcmExportMenuProps) {
+export function AcmExportMenu({
+  comparaveis,
+  stats,
+  onIncluirDossie,
+  lat,
+  lng,
+  enderecoAlvo,
+  radiusMeters,
+}: AcmExportMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
+  const [resumoOpen, setResumoOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
+
+  const canResumo = lat != null && lng != null && radiusMeters != null
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -139,6 +156,18 @@ export function AcmExportMenu({ comparaveis, stats, onIncluirDossie }: AcmExport
             <BookOpen className="size-3.5 text-gray-400" />
             Incluir no Dossiê
           </button>
+          {canResumo && (
+            <button
+              onClick={() => {
+                setResumoOpen(true)
+                setIsOpen(false)
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              <FileText className="size-3.5 text-gray-400" />
+              Gerar Resumo (PDF)
+            </button>
+          )}
           <button
             onClick={handleExportCSV}
             className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
@@ -147,6 +176,18 @@ export function AcmExportMenu({ comparaveis, stats, onIncluirDossie }: AcmExport
             CSV
           </button>
         </div>
+      )}
+
+      {canResumo && (
+        <ResumoExportSheet
+          open={resumoOpen}
+          onClose={() => setResumoOpen(false)}
+          comparaveis={comparaveis}
+          lat={lat as number}
+          lng={lng as number}
+          enderecoAlvo={enderecoAlvo ?? ''}
+          radiusMeters={radiusMeters as number}
+        />
       )}
 
       {/* Toast */}
