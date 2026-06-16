@@ -45,8 +45,13 @@ export interface LaudoSourceComparable extends ResumoSourceComparable {
   sqlCadastral?: string | null
   /** Status do anúncio (ex.: "off-market", "anúncio confirmado"). */
   statusAnuncio?: string | null
-  /** Fonte/anúncio com link textual (ex.: "ITBImap (consulta SQL)"). */
+  /** Fonte/anúncio com label textual (ex.: "ITBImap (consulta SQL)"). */
   fonteAnuncio?: string | null
+  /** URL real do anúncio para revisão humana (quando ainda disponível). null = não recuperável. */
+  anuncioUrl?: string | null
+  /** Coordenadas reais (para pins do mapa). Ausentes até a RPC expor lat/lng. */
+  lat?: number | null
+  lng?: number | null
   isVendaReal?: boolean
 }
 
@@ -185,6 +190,8 @@ export interface LaudoRastreabilidadeRow {
   sql: string
   status: string
   fonte: string
+  /** Link real do anúncio (revisão humana) ou null = não recuperável. */
+  anuncioUrl: string | null
 }
 
 export interface LaudoMetricaTerrenoRow {
@@ -491,12 +498,15 @@ export function buildLaudoModel(
   // --- Rastreabilidade (Sec. 7.1) — Top 5 com SQL/status/fonte -----------
   const rastreabilidade: LaudoRastreabilidadeRow[] = computation.top5.map((t, i) => {
     const src = byEndereco.get(t.endereco)
+    const anuncioUrl = src?.anuncioUrl ?? null
     return {
       rank: i + 1,
       endereco: t.endereco,
       sql: src?.sqlCadastral ?? '—',
-      status: src?.statusAnuncio ?? (src?.isVendaReal ? 'off-market' : '—'),
+      // Só dado confirmado: sem URL recuperável → "off-market / não recuperável" (nunca inventado).
+      status: src?.statusAnuncio ?? (anuncioUrl ? 'anúncio confirmado' : 'off-market / não recuperável'),
       fonte: src?.fonteAnuncio ?? src?.fonte ?? '—',
+      anuncioUrl,
     }
   })
 

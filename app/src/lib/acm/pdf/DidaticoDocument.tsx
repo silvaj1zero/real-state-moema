@@ -5,9 +5,9 @@
  * recebe um `DidaticoModel` já computado por `buildDidaticoModel` (zero recálculo —
  * consistência com o laudo 8.3b, AC3). Branding via `theme.ts`.
  */
-import { Document, Page, View, Text, StyleSheet } from '@react-pdf/renderer'
+import { Document, Page, View, Text, Image, Link, StyleSheet } from '@react-pdf/renderer'
 import { formatBRL } from '@/lib/format'
-import { COLORS, FONTS, CONSULTORA } from './theme'
+import { COLORS, FONTS, CONSULTORA, REMAX_WORDMARK_PNG } from './theme'
 import type { DidaticoModel } from './didaticoModel'
 
 const DASH = '—'
@@ -28,11 +28,10 @@ const s = StyleSheet.create({
   eyebrow: { fontSize: 7, color: COLORS.cinzaClaro, textTransform: 'uppercase', letterSpacing: 0.5 },
   title: { fontFamily: FONTS.heading, fontSize: 17, color: COLORS.azulEscuro, marginTop: 2, maxWidth: 360 },
   estudo: { fontSize: 8.5, color: COLORS.cinzaClaro, marginTop: 3 },
-  brandLockup: { flexDirection: 'row', alignItems: 'center' },
-  remaxRe: { fontFamily: FONTS.heading, fontSize: 12, color: COLORS.azulEscuro },
-  remaxMax: { fontFamily: FONTS.heading, fontSize: 12, color: COLORS.branco, backgroundColor: COLORS.vermelho, paddingHorizontal: 3 },
-  remaxGaleria: { fontFamily: FONTS.heading, fontSize: 12, color: COLORS.azulEscuro, marginLeft: 3 },
-  rule: { borderBottomWidth: 1.5, borderBottomColor: COLORS.azulEscuro, marginTop: 8, marginBottom: 10 },
+  brandBox: { alignItems: 'flex-end' },
+  brandLogo: { width: 96, height: 24, objectFit: 'contain' },
+  brandGaleria: { fontSize: 7.5, fontFamily: FONTS.heading, color: COLORS.azulEscuro, letterSpacing: 1, marginTop: 2 },
+  rule: { borderBottomWidth: 1.5, borderBottomColor: COLORS.vermelho, marginTop: 8, marginBottom: 10 },
   objetivoBox: {
     borderWidth: 1, borderColor: COLORS.cinzaBorda, backgroundColor: COLORS.fundoSuave,
     borderRadius: 6, padding: 10, marginBottom: 6,
@@ -69,10 +68,10 @@ const s = StyleSheet.create({
 
 function BrandLockup() {
   return (
-    <View style={s.brandLockup}>
-      <Text style={s.remaxRe}>RE/</Text>
-      <Text style={s.remaxMax}>MAX</Text>
-      <Text style={s.remaxGaleria}>GALERIA</Text>
+    <View style={s.brandBox}>
+      {/* eslint-disable-next-line jsx-a11y/alt-text */}
+      <Image src={REMAX_WORDMARK_PNG} style={s.brandLogo} />
+      <Text style={s.brandGaleria}>GALERIA · MOEMA</Text>
     </View>
   )
 }
@@ -264,7 +263,16 @@ export function DidaticoDocument({ model }: { model: DidaticoModel }) {
               <Text style={[s.td, { width: '26%' }]}>{t.endereco}</Text>
               <Text style={[s.td, { width: '15%' }]}>{t.sql}</Text>
               <Text style={[s.td, { width: '30%' }]}>{t.itbi}</Text>
-              <Text style={[s.td, { width: '24%', color: COLORS.azulMoema }]}>{t.status} · {t.fonte}</Text>
+              <View style={{ width: '24%' }}>
+                <Text style={[s.td, { color: COLORS.corpo }]}>{t.status}</Text>
+                {t.anuncioUrl ? (
+                  <Link src={t.anuncioUrl} style={[s.td, { color: COLORS.azulMoema, fontSize: 7 }]}>
+                    {t.fonte} ↗
+                  </Link>
+                ) : (
+                  <Text style={[s.td, { color: COLORS.cinzaClaro, fontSize: 7 }]}>{t.fonte}</Text>
+                )}
+              </View>
             </View>
           ))}
         </View>

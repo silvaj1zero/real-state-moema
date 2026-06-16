@@ -104,6 +104,12 @@ export const CONSULTORA = {
   nome: 'Luciana Borba',
   cargo: 'Consultora Imobiliária',
   imobiliaria: 'RE/MAX Galeria',
+  unidade: 'RE/MAX Galeria · Moema',
   creci: 'CRECI 045063-J',
-  rodape: '© 2026 Luciana Borba — RE/MAX Galeria',
+  telefone: '(11) 99995-2014',
+  email: 'lucianaborba@remax.com.br',
+  rodape: '© 2026 Luciana Borba — RE/MAX Galeria · Moema',
 } as const
+
+// Re-export dos assets de marca (logos oficiais embutidos) — ver brandAssets.ts.
+export { REMAX_BALLOON_PNG, REMAX_WORDMARK_PNG } from './brandAssets'

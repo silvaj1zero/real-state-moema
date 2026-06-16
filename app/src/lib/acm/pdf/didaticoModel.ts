@@ -68,6 +68,8 @@ export interface DidaticoTopRow {
   itbi: string
   status: string
   fonte: string
+  /** Link real do anúncio (revisão humana) ou null = não recuperável. */
+  anuncioUrl: string | null
 }
 
 export interface DidaticoModel {
@@ -215,13 +217,16 @@ export function buildDidaticoModel(
       src ? `vendida ${milhoesCompact(src.preco)}` : null,
       src?.distancia != null ? `${Math.round(src.distancia)} m do alvo` : null,
     ].filter(Boolean)
+    const anuncioUrl = src?.anuncioUrl ?? null
     return {
       rank: i + 1,
       endereco: r.endereco,
       sql: src?.sqlCadastral ?? '—',
       itbi: itbiPartes.length ? itbiPartes.join(' / ') : '—',
-      status: src?.statusAnuncio ?? (src?.isVendaReal ? 'off-market' : '—'),
+      // Só dado confirmado: sem link recuperável → "off-market / não recuperável".
+      status: src?.statusAnuncio ?? (anuncioUrl ? 'anúncio confirmado' : 'off-market / não recuperável'),
       fonte: src?.fonteAnuncio ?? src?.fonte ?? '—',
+      anuncioUrl,
     }
   })
 

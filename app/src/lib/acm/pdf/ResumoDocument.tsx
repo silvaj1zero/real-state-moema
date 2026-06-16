@@ -8,7 +8,7 @@
  */
 import { Document, Page, View, Text, Image, StyleSheet } from '@react-pdf/renderer'
 import { formatBRL } from '@/lib/format'
-import { COLORS, FONTS, CONSULTORA } from './theme'
+import { COLORS, FONTS, CONSULTORA, REMAX_WORDMARK_PNG } from './theme'
 import type { ResumoModel } from './resumoModel'
 
 // ---------------------------------------------------------------------------
@@ -50,23 +50,12 @@ const s = StyleSheet.create({
   title: { fontFamily: FONTS.heading, fontSize: 22, color: COLORS.azulEscuro, marginTop: 2 },
   subtitle: { fontSize: 8, color: COLORS.cinzaClaro, marginTop: 2, maxWidth: 280 },
   brandBox: { alignItems: 'flex-end' },
-  brandLockup: { flexDirection: 'row', alignItems: 'center' },
-  remaxRe: {
-    fontFamily: FONTS.heading,
-    fontSize: 13,
-    color: COLORS.azulEscuro,
-  },
-  remaxMax: {
-    fontFamily: FONTS.heading,
-    fontSize: 13,
-    color: COLORS.branco,
-    backgroundColor: COLORS.vermelho,
-    paddingHorizontal: 3,
-  },
-  remaxGaleria: { fontFamily: FONTS.heading, fontSize: 13, color: COLORS.azulEscuro, marginLeft: 3 },
-  consultora: { fontSize: 8, color: COLORS.corpo, marginTop: 4, fontFamily: FONTS.bodyMedium },
+  brandLogo: { width: 104, height: 26, objectFit: 'contain' },
+  brandGaleria: { fontSize: 8, fontFamily: FONTS.heading, color: COLORS.azulEscuro, letterSpacing: 1, marginTop: 3 },
+  consultora: { fontSize: 8, color: COLORS.corpo, marginTop: 3, fontFamily: FONTS.bodyMedium },
+  consultoraContato: { fontSize: 6.5, color: COLORS.cinzaClaro, marginTop: 1 },
   emissao: { fontSize: 7, color: COLORS.cinzaClaro, marginTop: 1 },
-  rule: { borderBottomWidth: 1.5, borderBottomColor: COLORS.azulEscuro, marginTop: 10, marginBottom: 12 },
+  rule: { borderBottomWidth: 1.5, borderBottomColor: COLORS.vermelho, marginTop: 10, marginBottom: 12 },
   // Ficha
   fichaBox: {
     flexDirection: 'row',
@@ -164,13 +153,14 @@ const s = StyleSheet.create({
 function BrandLockup() {
   return (
     <View style={s.brandBox}>
-      <View style={s.brandLockup}>
-        <Text style={s.remaxRe}>RE/</Text>
-        <Text style={s.remaxMax}>MAX</Text>
-        <Text style={s.remaxGaleria}>GALERIA</Text>
-      </View>
+      {/* eslint-disable-next-line jsx-a11y/alt-text */}
+      <Image src={REMAX_WORDMARK_PNG} style={s.brandLogo} />
+      <Text style={s.brandGaleria}>GALERIA · MOEMA</Text>
       <Text style={s.consultora}>
         {CONSULTORA.nome} · {CONSULTORA.creci}
+      </Text>
+      <Text style={s.consultoraContato}>
+        {CONSULTORA.telefone} · {CONSULTORA.email}
       </Text>
     </View>
   )

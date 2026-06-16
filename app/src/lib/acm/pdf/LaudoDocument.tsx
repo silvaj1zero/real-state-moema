@@ -10,9 +10,9 @@
  * flui as 10 seções por múltiplas páginas impressas. Linhas de tabela `wrap={false}`
  * (não quebram no meio); rodapé `fixed` repetido por página.
  */
-import { Document, Page, View, Text, Image, StyleSheet } from '@react-pdf/renderer'
+import { Document, Page, View, Text, Image, Link, StyleSheet } from '@react-pdf/renderer'
 import { formatBRL } from '@/lib/format'
-import { COLORS, FONTS, CONSULTORA } from './theme'
+import { COLORS, FONTS, CONSULTORA, REMAX_WORDMARK_PNG } from './theme'
 import type {
   LaudoModel,
   LaudoTopRow,
@@ -55,19 +55,12 @@ const s = StyleSheet.create({
   title: { fontFamily: FONTS.heading, fontSize: 20, color: COLORS.azulEscuro, marginTop: 2, maxWidth: 320 },
   subtitle: { fontSize: 8, color: COLORS.cinzaClaro, marginTop: 2, maxWidth: 320 },
   brandBox: { alignItems: 'flex-end' },
-  brandLockup: { flexDirection: 'row', alignItems: 'center' },
-  remaxRe: { fontFamily: FONTS.heading, fontSize: 13, color: COLORS.azulEscuro },
-  remaxMax: {
-    fontFamily: FONTS.heading,
-    fontSize: 13,
-    color: COLORS.branco,
-    backgroundColor: COLORS.vermelho,
-    paddingHorizontal: 3,
-  },
-  remaxGaleria: { fontFamily: FONTS.heading, fontSize: 13, color: COLORS.azulEscuro, marginLeft: 3 },
-  consultora: { fontSize: 8, color: COLORS.corpo, marginTop: 4, fontFamily: FONTS.bodyMedium },
+  brandLogo: { width: 104, height: 26, objectFit: 'contain' },
+  brandGaleria: { fontSize: 8, fontFamily: FONTS.heading, color: COLORS.azulEscuro, letterSpacing: 1, marginTop: 3 },
+  consultora: { fontSize: 8, color: COLORS.corpo, marginTop: 3, fontFamily: FONTS.bodyMedium },
+  consultoraContato: { fontSize: 6.5, color: COLORS.cinzaClaro, marginTop: 1 },
   emissao: { fontSize: 7, color: COLORS.cinzaClaro, marginTop: 1 },
-  rule: { borderBottomWidth: 1.5, borderBottomColor: COLORS.azulEscuro, marginTop: 10, marginBottom: 12 },
+  rule: { borderBottomWidth: 1.5, borderBottomColor: COLORS.vermelho, marginTop: 10, marginBottom: 12 },
   // Ficha (dados do imóvel)
   fichaBox: {
     borderWidth: 1,
@@ -197,13 +190,14 @@ const s = StyleSheet.create({
 function BrandLockup() {
   return (
     <View style={s.brandBox}>
-      <View style={s.brandLockup}>
-        <Text style={s.remaxRe}>RE/</Text>
-        <Text style={s.remaxMax}>MAX</Text>
-        <Text style={s.remaxGaleria}>GALERIA</Text>
-      </View>
+      {/* eslint-disable-next-line jsx-a11y/alt-text */}
+      <Image src={REMAX_WORDMARK_PNG} style={s.brandLogo} />
+      <Text style={s.brandGaleria}>GALERIA · MOEMA</Text>
       <Text style={s.consultora}>
         {CONSULTORA.nome} · {CONSULTORA.creci}
+      </Text>
+      <Text style={s.consultoraContato}>
+        {CONSULTORA.telefone} · {CONSULTORA.email}
       </Text>
     </View>
   )
@@ -620,7 +614,16 @@ export function LaudoDocument({ model }: { model: LaudoModel }) {
               <Text style={[s.td, { width: '33%' }]}>{r.endereco}</Text>
               <Text style={[s.td, { width: '18%' }]}>{r.sql}</Text>
               <Text style={[s.td, { width: '18%' }]}>{r.status}</Text>
-              <Text style={[s.td, { width: '24%', color: COLORS.azulMoema }]}>{r.fonte}</Text>
+              <View style={{ width: '24%' }}>
+                <Text style={[s.td, { color: COLORS.corpo }]}>{r.fonte}</Text>
+                {r.anuncioUrl ? (
+                  <Link src={r.anuncioUrl} style={[s.td, { color: COLORS.azulMoema, fontSize: 6.5 }]}>
+                    ver anúncio ↗
+                  </Link>
+                ) : (
+                  <Text style={[s.td, { color: COLORS.cinzaClaro, fontSize: 6.5 }]}>sem link público</Text>
+                )}
+              </View>
             </View>
           ))}
         </View>

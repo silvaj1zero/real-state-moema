@@ -7,7 +7,7 @@
  */
 import { Document, Page, View, Text, Image, StyleSheet } from '@react-pdf/renderer'
 import { formatBRL } from '@/lib/format'
-import { COLORS, FONTS, CONSULTORA } from './theme'
+import { COLORS, FONTS, CONSULTORA, REMAX_WORDMARK_PNG, REMAX_BALLOON_PNG } from './theme'
 import type { DeckModel, DeckStat } from './deckModel'
 import type { LaudoTopRow } from './laudoModel'
 
@@ -42,10 +42,9 @@ const s = StyleSheet.create({
   rule: { borderBottomWidth: 2, borderBottomColor: COLORS.vermelho, width: 60, marginVertical: 8 },
   // brand
   brandLockup: { flexDirection: 'row', alignItems: 'center' },
-  remaxRe: { fontFamily: FONTS.heading, fontSize: 14, color: COLORS.azulEscuro },
-  remaxReLight: { fontFamily: FONTS.heading, fontSize: 14, color: COLORS.branco },
-  remaxMax: { fontFamily: FONTS.heading, fontSize: 14, color: COLORS.branco, backgroundColor: COLORS.vermelho, paddingHorizontal: 3 },
-  remaxGaleria: { fontFamily: FONTS.heading, fontSize: 14, marginLeft: 3 },
+  brandWordmark: { width: 116, height: 29, objectFit: 'contain' },
+  brandBalloon: { width: 22, height: 26, objectFit: 'contain', marginRight: 6 },
+  brandGaleriaLight: { fontFamily: FONTS.heading, fontSize: 13, color: COLORS.branco, letterSpacing: 0.5 },
   // stats
   statRow: { flexDirection: 'row', gap: 14, marginTop: 10 },
   statCard: { flex: 1, borderWidth: 1, borderColor: COLORS.cinzaBorda, borderRadius: 8, padding: 14 },
@@ -92,11 +91,21 @@ const s = StyleSheet.create({
 })
 
 function BrandLockup({ light }: { light?: boolean }) {
+  // Slides escuros (capa/encerramento): balão + texto branco (o wordmark é preto).
+  // Slides claros: wordmark oficial.
+  if (light) {
+    return (
+      <View style={s.brandLockup}>
+        {/* eslint-disable-next-line jsx-a11y/alt-text */}
+        <Image src={REMAX_BALLOON_PNG} style={s.brandBalloon} />
+        <Text style={s.brandGaleriaLight}>RE/MAX GALERIA · MOEMA</Text>
+      </View>
+    )
+  }
   return (
     <View style={s.brandLockup}>
-      <Text style={light ? s.remaxReLight : s.remaxRe}>RE/</Text>
-      <Text style={s.remaxMax}>MAX</Text>
-      <Text style={[s.remaxGaleria, { color: light ? COLORS.branco : COLORS.azulEscuro }]}>GALERIA · MOEMA</Text>
+      {/* eslint-disable-next-line jsx-a11y/alt-text */}
+      <Image src={REMAX_WORDMARK_PNG} style={s.brandWordmark} />
     </View>
   )
 }
