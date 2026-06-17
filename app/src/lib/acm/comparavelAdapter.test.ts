@@ -71,4 +71,14 @@ describe('buildAcmMapMarkers — pins por Top N', () => {
     const m = buildAcmMapMarkers(target, [], many as never, { maxOutros: 10 })
     expect(m.filter((x) => x.color === '2563EB')).toHaveLength(10)
   })
+  it('n<5: ranking curto numera só o que existe, sem Top 4-5 (Story 9.3)', () => {
+    const shortRanking = [{ endereco: 'A' }, { endereco: 'B' }]
+    const shortSrc = shortRanking.map((r, i) => ({
+      endereco: r.endereco, areaConstruida: 400, preco: 5e6, lat: -23.6 + i / 1000, lng: -46.67 + i / 1000,
+    }))
+    const m = buildAcmMapMarkers(target, shortRanking, shortSrc as never)
+    expect(m.filter((x) => x.color === 'D4A843').map((x) => x.label)).toEqual([1, 2]) // Top 3 (só 2)
+    expect(m.filter((x) => x.color === 'F97316')).toHaveLength(0) // sem Top 4-5
+    expect(m[0]).toMatchObject({ color: '#DC1431', size: 'l' }) // alvo presente
+  })
 })

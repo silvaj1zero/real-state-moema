@@ -1,0 +1,92 @@
+storyId: STORY-9.3
+verdict: PASS
+verdictReason: >
+  Mapa do laudo/resumo com raio + alvo + Top 5 numerado + pins de comparáveis.
+  A maior parte da capacidade já havia sido entregue na Story 8.7
+  (`buildAcmMapMarkers` com cores por faixa, rótulos 1–5, omissão de coords NULL
+  e cap `maxOutros`; wiring no Laudo/Deck/Pacote; legendas por faixa nos
+  Documents). O delta desta story foi cirúrgico e correto: wirar os pins no
+  **Resumo** (`ResumoExportSheet`), que ainda plotava só o alvo, reusando a
+  função pura já testada (sem duplicar regra), e adicionar o caso de teste n<5.
+  8/8 AC atendidos; 124/124 testes ACM verdes; 0 erros tsc em src/; 0 lint.
+  Degradação graciosa preservada (sem token → null; sem coords → só alvo).
+  Aprovado para Done (commit/push pendente @devops).
+
+reviewedAt: 2026-06-17
+reviewer: "@qa (Quinn)"
+
+filesChanged:
+  - "app/src/components/acm/ResumoExportSheet.tsx — wiring de markers (alvo + Top N + demais) no mapa do Resumo + comentário atualizado"
+  - "app/src/lib/acm/comparavelAdapter.test.ts — caso de teste n<5 (AC7)"
+
+testsScope:
+  acm: "124/124 (src/lib/acm + src/components/acm, --no-file-parallelism)"
+  adapter: "8/8 (comparavelAdapter.test.ts, inclui n<5 novo)"
+  typecheck: "0 erros em src/ (vendored devtools-protocol pré-existente filtrado)"
+  lint: "0 (ResumoExportSheet.tsx + comparavelAdapter.ts)"
+
+qualityChecks:
+  codeReview:
+    status: PASS
+    notes: >
+      Mudança mínima e idiomática: reusa `buildAcmMapMarkers` (8.7) em vez de
+      duplicar a regra de pins; `comparaveis.map(comparavelToLaudoSource)` provê
+      {endereco,lat,lng}. Comentário desatualizado ("comparáveis sem coords na
+      RPC") corrigido. `buildMapMarkers` do Build Plan resolvido como reuso de
+      `buildAcmMapMarkers` (decisão correta — DRY).
+  unitTests:
+    status: PASS
+    coverage: "124 ACM + caso n<5 novo no adapter"
+    notes: >
+      `buildAcmMapMarkers` (puro) cobre cor/label/ordem por faixa, omissão de
+      NULL, teto `maxOutros` e agora n<5. "Sem token" coberto em
+      staticMap.test.ts (buildStaticMapUrl → null).
+  acceptanceCriteria:
+    status: PASS
+    met: 8
+    partial: 0
+    failed: 0
+    notes: >
+      AC1 (alvo+Top3+Top4-5+demais+raio) — Laudo/Deck/Pacote via 8.7 + Resumo
+      agora. AC2 (labels 1–5 pela ordem do ranking). AC3 (legendas por faixa nos
+      3 Documents). AC4 (coords da RPC; omite NULL; cap 22). AC5 (degradação
+      graciosa). AC6 (124 verdes, 0 regressão). AC7 (testes puros + n<5). AC8
+      (mapa idêntico apto/casa, sem dependência de propertyType).
+  noRegressions:
+    status: PASS
+    notes: "124/124 ACM verdes; mudança isolada no ResumoExportSheet (não toca Documents/models/staticMap)."
+  performance:
+    status: PASS
+    notes: "Markers limitados por maxOutros=22; montagem O(N). Sem impacto no peso do PDF."
+  security:
+    status: PASS
+    notes: >
+      Sem novos segredos. Token Mapbox permanece fora do PDF (consumido só em
+      resolveStaticMapImage → data URL embutido). Coords são dados já carregados
+      via RPC (RLS a montante).
+  documentation:
+    status: PASS
+    notes: "Story com Completion Notes claras (delta vs 8.7), File List e Change Log atualizados."
+
+issues:
+  - severity: low
+    category: code
+    description: >
+      A chamada de `buildAcmMapMarkers` está repetida em cada sheet (Resumo,
+      Laudo, Deck, Pacote). Funciona e é DRY na regra (função compartilhada),
+      mas o bloco de montagem da URL do mapa poderia ser extraído para um helper
+      único `buildAcmMapImage(token, center, radius, ranking, source)`.
+    recommendation: >
+      Follow-up opcional (não bloqueia): extrair um helper de mapa compartilhado
+      pelas 4 sheets para remover a repetição do trio buildStaticMapUrl +
+      buildAcmMapMarkers + resolveStaticMapImage.
+
+dependencies:
+  dependsOn:
+    - "9.0 (confirmou lat/lng vivos na RPC), 8.7 (buildAcmMapMarkers + wiring), 8.2 (ranking)"
+  blocks: []
+
+nextSteps:
+  - "@devops: commit/push da 9.3 quando autorizado → Status Done."
+  - "Seguir SDC do Epic 9: 9.4 (gargalo, cross-repo) e 9.1 + 9.2 (consomem dado da 9.4)."
+  - "Follow-up low: helper de mapa compartilhado pelas 4 sheets (remover repetição)."

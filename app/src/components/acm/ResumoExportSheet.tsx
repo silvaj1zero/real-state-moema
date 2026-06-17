@@ -19,6 +19,7 @@ import { toAcmComparables, type AcmRpcRow } from '@/lib/acm/adapter'
 import { computeLaudo } from '@/lib/acm/methodology'
 import { buildResumoModel, type ResumoSourceComparable, type ResumoInput } from '@/lib/acm/pdf/resumoModel'
 import { buildStaticMapUrl, resolveStaticMapImage } from '@/lib/acm/pdf/staticMap'
+import { buildAcmMapMarkers, comparavelToLaudoSource } from '@/lib/acm/comparavelAdapter'
 import { ResumoDocument } from '@/lib/acm/pdf/ResumoDocument'
 
 interface ResumoExportSheetProps {
@@ -126,14 +127,16 @@ export function ResumoExportSheet({
         fonteRef: c.sql_cadastral ?? (c.is_venda_real ? 'consulta SQL' : null),
       }))
 
-      // 3) Mapa estático (alvo + raio; comparáveis sem coords na RPC). Pré-buscado e
-      //    embutido como data URL — degrada para null em qualquer falha de fetch,
-      //    nunca aborta o PDF; o token Mapbox não chega ao documento final.
+      // 3) Mapa estático: alvo (vermelho) + Top3 dourado/Top4-5 laranja (1–5)/demais
+      //    azuis — pins por comparável com coords da RPC (Story 9.3; lat/lng vivos
+      //    confirmados no spike 9.0). Pré-buscado e embutido como data URL: degrada
+      //    para null em qualquer falha de fetch, nunca aborta o PDF; o token Mapbox
+      //    não chega ao documento final.
       const rawMapUrl = buildStaticMapUrl({
         token: MAPBOX_TOKEN,
         center: { lat, lng },
         radiusMeters,
-        markers: [{ lat, lng, color: '#DC1431', size: 'l' }],
+        markers: buildAcmMapMarkers({ lat, lng }, computation.ranking, comparaveis.map(comparavelToLaudoSource)),
       })
       const mapaUrl = await resolveStaticMapImage(rawMapUrl)
 
