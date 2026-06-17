@@ -9,6 +9,7 @@ import { ResumoExportSheet } from './ResumoExportSheet'
 import { LaudoExportSheet } from './LaudoExportSheet'
 import { EntregavelExportSheet } from './EntregavelExportSheet'
 import { PacoteExportSheet } from './PacoteExportSheet'
+import { PlanilhaExportSheet } from './PlanilhaExportSheet'
 
 interface AcmExportMenuProps {
   comparaveis: ComparavelNoRaio[]
@@ -81,6 +82,7 @@ export function AcmExportMenu({
   const [deckOpen, setDeckOpen] = useState(false)
   const [didaticoOpen, setDidaticoOpen] = useState(false)
   const [pacoteOpen, setPacoteOpen] = useState(false)
+  const [planilhaOpen, setPlanilhaOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
   const canResumo = lat != null && lng != null && radiusMeters != null
@@ -223,6 +225,18 @@ export function AcmExportMenu({
               Gerar Didático (PDF)
             </button>
           )}
+          {comparaveis.length > 0 && (
+            <button
+              onClick={() => {
+                setPlanilhaOpen(true)
+                setIsOpen(false)
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              <FileSpreadsheet className="size-3.5 text-gray-400" />
+              Gerar Planilha (XLSX)
+            </button>
+          )}
           <button
             onClick={handleExportCSV}
             className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
@@ -292,6 +306,16 @@ export function AcmExportMenu({
           lng={lng as number}
           enderecoAlvo={enderecoAlvo ?? ''}
           radiusMeters={radiusMeters as number}
+        />
+      )}
+
+      {planilhaOpen && (
+        <PlanilhaExportSheet
+          open={planilhaOpen}
+          onClose={() => setPlanilhaOpen(false)}
+          comparaveis={comparaveis}
+          enderecoAlvo={enderecoAlvo ?? ''}
+          radiusMeters={radiusMeters ?? 1000}
         />
       )}
 
