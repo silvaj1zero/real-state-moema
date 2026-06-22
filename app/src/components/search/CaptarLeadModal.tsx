@@ -34,11 +34,12 @@ export function CaptarLeadModal({
   const checkDuplicate = useCheckDuplicate()
 
   const handleCaptar = async (force = false) => {
-    // Check for duplicates first (AC6)
-    if (!force && (telefone || listing.matched_edificio_id)) {
+    // Check for duplicates first (AC6) — pelo anúncio de origem ou edifício.
+    // Não dedupa por telefone: em PROD a PII do lead é cifrada (sem coluna em claro).
+    if (!force) {
       const dupCheck = await checkDuplicate.mutateAsync({
         consultantId,
-        telefone: telefone || null,
+        scrapedListingId: listing.id || null,
         edificioId: listing.matched_edificio_id || null,
       })
 
