@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { Users, DollarSign, Trophy, FileUp, Building2, Shield, Calendar, FileText } from 'lucide-react'
+import { Users, DollarSign, Trophy, FileUp, Building2, Shield, Calendar, FileText, PhoneCall } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 interface MenuItemDef {
@@ -14,6 +14,14 @@ interface MenuItemDef {
 }
 
 const MENU_ITEMS: MenuItemDef[] = [
+  {
+    label: 'Call list FISBO',
+    description: 'Ligações de particulares',
+    path: '/agenda',
+    Icon: PhoneCall,
+    color: '#0EA5E9',
+    epic: 10,
+  },
   {
     label: 'Parceiros',
     description: 'Referrals e indicações',

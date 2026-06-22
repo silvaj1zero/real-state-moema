@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Phone, MessageCircle, Mail, Shield, UserSearch, Loader2 } from 'lucide-react'
 import type { ScrapedListing } from '@/lib/supabase/types'
 import { cn } from '@/lib/utils'
+import { maskPhone, formatPhone, telLink, whatsappLink } from '@/lib/contact-links'
 
 // =============================================================================
 // Types
@@ -13,46 +14,6 @@ interface ContactDataCardProps {
   listing: ScrapedListing
   onEnrich?: () => void
   isEnriching?: boolean
-}
-
-// =============================================================================
-// Helpers
-// =============================================================================
-
-/** Mask phone: (11) 9****-1234 */
-function maskPhone(phone: string): string {
-  const digits = phone.replace(/\D/g, '')
-  if (digits.length === 11) {
-    return `(${digits.slice(0, 2)}) ${digits[2]}****-${digits.slice(7)}`
-  }
-  if (digits.length === 10) {
-    return `(${digits.slice(0, 2)}) ****-${digits.slice(6)}`
-  }
-  return phone.slice(0, 4) + '****' + phone.slice(-4)
-}
-
-/** Format phone for display: (11) 91234-5678 */
-function formatPhone(phone: string): string {
-  const digits = phone.replace(/\D/g, '')
-  if (digits.length === 11) {
-    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`
-  }
-  if (digits.length === 10) {
-    return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`
-  }
-  return phone
-}
-
-/** Format phone digits for tel: link */
-function telLink(phone: string): string {
-  const digits = phone.replace(/\D/g, '')
-  return `tel:+55${digits}`
-}
-
-/** Format phone digits for wa.me link */
-function whatsappLink(phone: string): string {
-  const digits = phone.replace(/\D/g, '')
-  return `https://wa.me/55${digits}`
 }
 
 // =============================================================================

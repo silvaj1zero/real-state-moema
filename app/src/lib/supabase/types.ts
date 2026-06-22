@@ -107,6 +107,15 @@ export type CategoriaScript =
 
 export type TipoChecklist = 'preparacao_v2' | 'home_staging' | 'pre_safari'
 
+/** Story 10.1 — resultado da tentativa de contato na call list FISBO. */
+export type ContatoStatus =
+  | 'nao_contatado'
+  | 'atendeu'
+  | 'nao_atendeu'
+  | 'retornar'
+  | 'agendado'
+  | 'descartado'
+
 // Interfaces
 
 export interface Lead {
@@ -130,6 +139,11 @@ export interface Lead {
   notas: string | null
   is_fisbo: boolean
   referral_id: string | null
+  // Story 10.1 (Epic 10) — status de tentativa de contato (migration 022).
+  contato_status: ContatoStatus
+  contato_status_at: string | null
+  contato_notas: string | null
+  scraped_listing_id: string | null
   created_at: string
   updated_at: string
 }
