@@ -36,7 +36,6 @@ interface ListingRow {
 
 interface LeadRow {
   id: string
-  telefone: string | null
   etapa_funil: string
   contato_status: ContatoStatus
   contato_notas: string | null
@@ -47,28 +46,21 @@ interface LeadRow {
 // Merge puro: scraped_listings (FISBO) + leads do consultor → CallListItem[]
 //
 // Casa cada anúncio ao lead materializado por `scraped_listing_id` (vínculo
-// determinístico) e, como fallback p/ leads antigos sem o vínculo, por telefone
-// normalizado. Anúncios sem lead entram como `nao_contatado`.
+// determinístico). Anúncios sem lead entram como `nao_contatado`.
+//
+// NOTA: NÃO casa por telefone — em PROD a PII do lead é cifrada
+// (`telefone_encrypted bytea`), não há `leads.telefone` em claro. O contato
+// exibido na call list vem de `scraped_listings` (dado público do portal).
 // ---------------------------------------------------------------------------
-
-function digits(phone: string | null): string {
-  return (phone ?? '').replace(/\D/g, '')
-}
 
 export function buildCallListItems(listings: ListingRow[], leads: LeadRow[]): CallListItem[] {
   const byListingId = new Map<string, LeadRow>()
-  const byPhone = new Map<string, LeadRow>()
   for (const lead of leads) {
     if (lead.scraped_listing_id) byListingId.set(lead.scraped_listing_id, lead)
-    const d = digits(lead.telefone)
-    if (d && !byPhone.has(d)) byPhone.set(d, lead)
   }
 
   return listings.map((l): CallListItem => {
-    const lead =
-      byListingId.get(l.id) ??
-      (digits(l.telefone_anunciante) ? byPhone.get(digits(l.telefone_anunciante)) : undefined) ??
-      null
+    const lead = byListingId.get(l.id) ?? null
 
     const coords = parseCoordinates(l.coordinates)
     const semContato = !l.telefone_anunciante && !l.whatsapp_anunciante
@@ -124,7 +116,7 @@ export function useFisboCallList(consultantId: string | null, filters: CallListF
           .limit(1000),
         supabase
           .from('leads')
-          .select('id, telefone, etapa_funil, contato_status, contato_notas, scraped_listing_id')
+          .select('id, etapa_funil, contato_status, contato_notas, scraped_listing_id')
           .eq('consultant_id', consultantId),
       ])
 
@@ -215,10 +207,11 @@ export function useRegisterContatoStatus() {
       }
 
       // Sem lead → captar (materializar) com o vínculo determinístico.
+      // NÃO grava telefone/email: em PROD são cifrados (`*_encrypted bytea`); o
+      // contato exibido vem de `scraped_listings`. O lead só carrega o status.
       const insert = {
         consultant_id: consultantId,
         nome: item.nome || `Proprietário - ${item.endereco?.split(',')[0] || 'Sem endereço'}`,
-        telefone: item.telefone || null,
         edificio_id: item.edificioId ?? null,
         origem: 'fisbo_scraping' as const,
         etapa_funil: 'contato' as const,
@@ -227,7 +220,6 @@ export function useRegisterContatoStatus() {
         contato_status: status,
         contato_status_at: nowIso,
         contato_notas: notasValue ?? null,
-        notas: 'Captado via call list FISBO (Epic 10).',
       }
 
       const { data, error } = await supabase.from('leads').insert(insert).select('id').single()
