@@ -41,6 +41,21 @@ export interface AcmComparable {
 export interface AcmTarget {
   areaConstruida: number
   areaTerreno: number
+  /** Endereço do alvo — habilita o guard-rail anti-auto-referência. */
+  endereco?: string | null
+  vagas?: number | null
+  /**
+   * Preço pedido/pretendido pela proprietária. NUNCA entra como evidência de
+   * mercado (Story 9.8 / incidente Honduras 639) — usado apenas para detectar
+   * anúncios do próprio alvo disfarçados de comparável.
+   */
+  precoPretendido?: number | null
+}
+
+/** Comparável excluído pelo guard-rail anti-auto-referência, com motivos. */
+export interface SelfReferenceFinding {
+  endereco: string
+  motivos: string[]
 }
 
 export interface AdherenceBreakdown {
@@ -83,6 +98,18 @@ export interface SensitivityScenario {
   precoM2Fechamento: number
 }
 
+/**
+ * Envelope min/max entre os cenários de sensibilidade (Todos/Top5/Top3).
+ * Base de dado para reportar FAIXA em vez de ponto único — o headline não deve
+ * ser o cenário de maior valor sem justificativa (auditoria 03-Jul-2026, §3.1).
+ */
+export interface SensitivityRange {
+  mercadoMin: number
+  mercadoMax: number
+  fechamentoMin: number
+  fechamentoMax: number
+}
+
 export interface AcmLaudoComputation {
   target: AcmTarget
   totalComparaveis: number
@@ -98,7 +125,10 @@ export interface AcmLaudoComputation {
   efeitoEscalaTerreno: LotSizeBand[]
   coAncoraTerreno: number | null
   sensibilidade: SensitivityScenario[]
+  faixaSensibilidade: SensitivityRange
   desagioMedidoPercent: number | null
+  /** Comparáveis rejeitados por serem o próprio alvo (guard-rail Story 9.8). */
+  autoReferenciasExcluidas: SelfReferenceFinding[]
 }
 
 // ---------------------------------------------------------------------------
@@ -146,6 +176,91 @@ export function median(values: number[]): number {
 function similaridade(valor: number, alvo: number): number {
   if (alvo <= 0) return 0
   return Math.max(0, Math.min(1, 1 - Math.abs(valor - alvo) / alvo))
+}
+
+// ---------------------------------------------------------------------------
+// Guard-rail anti-auto-referência — Story 9.8 (incidente Honduras 639)
+// ---------------------------------------------------------------------------
+
+/** Tolerâncias do fingerprint de auto-referência (Story 9.8). */
+export const SELF_REFERENCE_TOLERANCE = {
+  /** Distância máxima ao alvo (m) para considerar "mesmo ponto" na mesma rua. */
+  distanciaM: 50,
+  /** Desvio relativo máximo de área construída. */
+  areaPct: 0.02,
+  /** Desvio relativo máximo entre preço do item e preço pretendido do alvo. */
+  precoPct: 0.05,
+} as const
+
+const STREET_PREFIX_RE =
+  /^(rua|r\.?|avenida|av\.?|alameda|al\.?|travessa|tv\.?|praca|pc\.?|estrada|est\.?)\s+/
+
+/** Nome da via normalizado: sem acentos, sem prefixo de logradouro, sem número. */
+function normalizeStreet(endereco: string): string {
+  return endereco
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
+    .split(',')[0]
+    .trim()
+    .replace(STREET_PREFIX_RE, '')
+    .trim()
+}
+
+/**
+ * Detecta se um comparável/oferta é (provavelmente) o PRÓPRIO imóvel-alvo —
+ * a auto-referência circular que quase contaminou o laudo Honduras v4
+ * (anúncio "Honduras 639" = alvo 629). Regras, qualquer uma basta:
+ *   R1: mesma rua E distância < 50 m.
+ *   R2: fingerprint raro — área ±2% E vagas iguais E preço ±5% do pretendido.
+ *   R3: mesma rua E área ±2% E (vagas iguais OU preço ±5% do pretendido).
+ * Sem `target.endereco`/`vagas`/`precoPretendido`, as regras dependentes ficam
+ * inertes (guard-rail opt-in — não altera casos legados).
+ */
+export function isSelfReference(
+  target: AcmTarget,
+  comp: AcmComparable,
+): SelfReferenceFinding | null {
+  const tol = SELF_REFERENCE_TOLERANCE
+  const motivos: string[] = []
+
+  const mesmaRua =
+    target.endereco != null && normalizeStreet(comp.endereco) === normalizeStreet(target.endereco)
+  const perto = comp.distancia != null && comp.distancia < tol.distanciaM
+  const areaIgual =
+    target.areaConstruida > 0 &&
+    Math.abs(comp.areaConstruida - target.areaConstruida) / target.areaConstruida <= tol.areaPct
+  const vagasIguais = target.vagas != null && comp.vagas != null && comp.vagas === target.vagas
+  const precoAlvo = target.precoPretendido
+  const precoIgual =
+    precoAlvo != null &&
+    precoAlvo > 0 &&
+    [comp.preco, comp.precoPedido].some(
+      (p) => p != null && p > 0 && Math.abs(p - precoAlvo) / precoAlvo <= tol.precoPct,
+    )
+
+  if (mesmaRua && perto) motivos.push(`mesma rua a <${tol.distanciaM}m do alvo`)
+  if (areaIgual && vagasIguais && precoIgual)
+    motivos.push('fingerprint raro: área, vagas e preço batem com o alvo')
+  if (mesmaRua && areaIgual && (vagasIguais || precoIgual))
+    motivos.push('mesma rua com área e vagas/preço batendo com o alvo')
+
+  return motivos.length > 0 ? { endereco: comp.endereco, motivos } : null
+}
+
+/** Separa comparáveis legítimos das auto-referências detectadas. */
+export function screenSelfReferences(
+  target: AcmTarget,
+  comparaveis: AcmComparable[],
+): { aceitos: AcmComparable[]; excluidos: SelfReferenceFinding[] } {
+  const aceitos: AcmComparable[] = []
+  const excluidos: SelfReferenceFinding[] = []
+  for (const comp of comparaveis) {
+    const finding = isSelfReference(target, comp)
+    if (finding) excluidos.push(finding)
+    else aceitos.push(comp)
+  }
+  return { aceitos, excluidos }
 }
 
 // ---------------------------------------------------------------------------
@@ -342,9 +457,15 @@ export interface ComputeLaudoOptions {
 
 /** Computa o pacote completo do laudo a partir dos comparáveis. */
 export function computeLaudo(opts: ComputeLaudoOptions): AcmLaudoComputation {
-  const { target, comparaveis } = opts
+  const { target } = opts
   const raio = opts.raio ?? RAIO_PADRAO_M
   const fatores = opts.fatoresLiquidez ?? []
+
+  // Guard-rail Story 9.8: auto-referências saem ANTES de qualquer estatística.
+  const { aceitos: comparaveis, excluidos: autoReferenciasExcluidas } = screenSelfReferences(
+    target,
+    opts.comparaveis,
+  )
 
   const precosM2 = comparaveis.map((c) => c.preco / c.areaConstruida)
   const medianaPrecoM2 = Math.round(median(precosM2) * 100) / 100
@@ -356,6 +477,12 @@ export function computeLaudo(opts: ComputeLaudoOptions): AcmLaudoComputation {
   const ranking = rankByAdherence(target, comparaveis, raio)
   const sensibilidade = sensitivityScenarios(target, comparaveis, scoreAlvo, fatores, raio)
   const coAncoraTerreno = opts.residual ? residualLandValue(opts.residual) : null
+  const faixaSensibilidade: SensitivityRange = {
+    mercadoMin: Math.min(...sensibilidade.map((s) => s.valorMercado)),
+    mercadoMax: Math.max(...sensibilidade.map((s) => s.valorMercado)),
+    fechamentoMin: Math.min(...sensibilidade.map((s) => s.valorFechamento)),
+    fechamentoMax: Math.max(...sensibilidade.map((s) => s.valorFechamento)),
+  }
 
   return {
     target,
@@ -371,6 +498,8 @@ export function computeLaudo(opts: ComputeLaudoOptions): AcmLaudoComputation {
     efeitoEscalaTerreno: landPriceByLotSize(comparaveis),
     coAncoraTerreno,
     sensibilidade,
+    faixaSensibilidade,
     desagioMedidoPercent: desagioMedido(comparaveis),
+    autoReferenciasExcluidas,
   }
 }

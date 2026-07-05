@@ -9,6 +9,8 @@ import {
   liquidityAdjustment,
   median,
   computeLaudo,
+  isSelfReference,
+  screenSelfReferences,
 } from './methodology'
 import {
   HONDURAS_TARGET,
@@ -122,5 +124,99 @@ describe('computeLaudo — regressão integrada Honduras', () => {
     expect(r.desagioMedidoPercent).not.toBeNull()
     expect(r.desagioMedidoPercent!).toBeLessThan(0)
     expect(within(r.desagioMedidoPercent!, -12.7, 0.1)).toBe(true)
+  })
+  it('nenhuma auto-referência no caso legado (guard-rail inerte sem endereco do alvo)', () =>
+    expect(r.autoReferenciasExcluidas).toEqual([]))
+  it('faixaSensibilidade = envelope min/max dos cenários', () => {
+    const mercados = r.sensibilidade.map((s) => s.valorMercado)
+    expect(r.faixaSensibilidade.mercadoMin).toBe(Math.min(...mercados))
+    expect(r.faixaSensibilidade.mercadoMax).toBe(Math.max(...mercados))
+    expect(r.faixaSensibilidade.fechamentoMin).toBeLessThanOrEqual(r.faixaSensibilidade.fechamentoMax)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Guard-rail anti-auto-referência — Story 9.8 (incidente Honduras 639)
+// ---------------------------------------------------------------------------
+
+describe('isSelfReference / screenSelfReferences (Story 9.8)', () => {
+  // Alvo com identidade completa (o fixture legado não tem esses campos).
+  const targetHonduras = {
+    ...HONDURAS_TARGET,
+    endereco: 'Rua Honduras, 629',
+    vagas: 10,
+    precoPretendido: 12_000_000,
+  }
+
+  // O caso real: anúncio "Honduras 639" = o próprio alvo (handoff 28-Jun-2026).
+  const anuncio639 = {
+    endereco: 'R. Honduras, 639',
+    areaConstruida: 800,
+    areaTerreno: null,
+    preco: 12_000_000,
+    precoPedido: 12_000_000,
+    distancia: 10,
+    vagas: 10,
+  }
+
+  // Oferta legítima da MESMA rua (laudo: 418 m² / R$ 22,5M / 736 m — outro imóvel).
+  const hondurasSemNumero = {
+    endereco: 'Rua Honduras s/nº',
+    areaConstruida: 418,
+    areaTerreno: null,
+    preco: 22_500_000,
+    distancia: 736,
+    vagas: null,
+  }
+
+  it('detecta o anúncio 639 como auto-referência (com motivos)', () => {
+    const finding = isSelfReference(targetHonduras, anuncio639)
+    expect(finding).not.toBeNull()
+    expect(finding!.motivos.length).toBeGreaterThan(0)
+  })
+
+  it('detecta pelo fingerprint mesmo sem distância (área+vagas+preço)', () => {
+    const finding = isSelfReference(targetHonduras, { ...anuncio639, distancia: null })
+    expect(finding).not.toBeNull()
+  })
+
+  it('NÃO rejeita oferta legítima da mesma rua com atributos distintos', () =>
+    expect(isSelfReference(targetHonduras, hondurasSemNumero)).toBeNull())
+
+  it('NÃO rejeita comparável de outra rua com área parecida', () =>
+    expect(
+      isSelfReference(targetHonduras, {
+        endereco: 'R. Maestro Chiaffarelli, 86',
+        areaConstruida: 810,
+        preco: 11_300_000,
+        distancia: 166,
+        vagas: 4,
+      }),
+    ).toBeNull())
+
+  it('guard-rail inerte quando o alvo não declara identidade', () =>
+    expect(isSelfReference(HONDURAS_TARGET, anuncio639)).toBeNull())
+
+  it('computeLaudo exclui o 639 e reporta em autoReferenciasExcluidas', () => {
+    const contaminado = computeLaudo({
+      target: targetHonduras,
+      comparaveis: [...HONDURAS_COMPARAVEIS, anuncio639],
+      fatoresLiquidez: HONDURAS_FATORES_LIQUIDEZ,
+    })
+    expect(contaminado.totalComparaveis).toBe(23) // o 24º (639) saiu
+    expect(contaminado.autoReferenciasExcluidas.map((e) => e.endereco)).toEqual([
+      'R. Honduras, 639',
+    ])
+    // Números idênticos ao caso limpo — a contaminação não altera o laudo.
+    expect(within(contaminado.medianaPrecoM2, 18264, 0.001)).toBe(true)
+  })
+
+  it('screenSelfReferences preserva os 23 legítimos', () => {
+    const { aceitos, excluidos } = screenSelfReferences(targetHonduras, [
+      ...HONDURAS_COMPARAVEIS,
+      anuncio639,
+    ])
+    expect(aceitos.length).toBe(23)
+    expect(excluidos.length).toBe(1)
   })
 })
