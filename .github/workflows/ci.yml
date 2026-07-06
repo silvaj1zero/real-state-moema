@@ -27,6 +27,9 @@ jobs:
           cache: 'npm'
           cache-dependency-path: app/package-lock.json
 
+      - name: Use npm 11 (mesma major que gera o lockfile)
+        run: npm install -g npm@11
+
       - name: Install dependencies
         run: npm ci
 
