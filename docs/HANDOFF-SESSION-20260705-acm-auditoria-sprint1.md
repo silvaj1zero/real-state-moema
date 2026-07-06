@@ -179,3 +179,43 @@ Arquivo: `docs/stories/9.9.story.md`
 - **`npm ci` pode reintroduzir `devtools-protocol` truncado** — se `tsc` der TS1005 em `devtools-protocol`, reinstalar `devtools-protocol@0.0.1629771 --no-save`.
 - **Smokes de PDF** exigem `--no-file-parallelism` no vitest (já documentado na memory 20260616b).
 - **Dois projetos Supabase:** `remax-moema` = `hculsnvpyccnekfyficu` (PROD); cuidado ao copiar credenciais do TierScope.
+
+---
+
+## Adendo — Sessão 06-Jul-2026 (CI verde + decisões do founder)
+
+### CI/PR #1 — Quality Gates verde pela primeira vez
+
+**Run 28824743935 (2m47s):** Quality Gates pass, Vercel–app deploy completed, CodeRabbit pass.
+
+Único check vermelho remanescente: projeto Vercel **"real-state-moema"** com deploy `Canceled from the Vercel Dashboard` — cancelamento **manual** no dashboard. Trata-se de um projeto Vercel duplicado/desativado; não é problema de código. Decisão pendente: remover a integração ou deixar como está.
+
+### Dívida de ~330 erros de tsc era falsa
+
+A contagem de ~330 erros listada em §7 era **corrupção local de `node_modules`** — arquivos `.d.ts` ausentes em `@supabase/auth-js` e outros pacotes, mesmo padrão já visto com `devtools-protocol` truncado. Um reinstall limpo (`Remove-Item node_modules; npm ci`) zerou os erros.
+
+**Lição:** se aparecerem erros de "export não existe" em libs conhecidas e estáveis, suspeitar de corrupção de `node_modules` antes de culpar versões ou bumps de dependência.
+
+### Commits da sessão (pushed, HEAD `4863b3f`)
+
+| Hash | Mensagem |
+|---|---|
+| `622708a` | `fix(ci): Node 22 no Quality Gates` |
+| `6c2f622` | `fix(ci): pina npm 11 (Node 22 traz npm 10)` |
+| `5ad6d1c` | `fix(ci): entradas aninhadas @emnapi@1.9.2 no lockfile` — `@rolldown/binding-wasm32-wasi` pina exato 1.9.2; npm 11 no Windows não gerou as nested entries; edição cirúrgica com integrity do registry; `npm ci` no Linux validava estrito e falhava |
+| `2bcb0a8` | `fix(types): 8 erros reais corrigidos` — `acmPackage` `doc: ReactElement<DocumentProps>` (React 19); `useLeads` optimistic `Lead` com campos do Epic 10 (`contato_status` / `contato_status_at` / `contato_notas` / `scraped_listing_id`); mocks tipados em `vault.test` e `captcha-client.test`. Validação: `tsc` 0 erros, `next build` exit 0 (primeira vez), vitest escopo 161/161 |
+| `4863b3f` | `docs(acm): decisões do founder registradas` |
+
+### Decisões do founder (06-Jul) — registradas no doc de auditoria §6
+
+| # | Decisão |
+|---|---|
+| 1 | **Índice de deflação = FipeZap** (homogeneização 1.3) |
+| 2 | **Headline do laudo = faixa + cenário aderente como referência** — usar `faixaSensibilidade` da Story 9.8 no `laudoModel`; validar formato com a Luciana |
+| 3 | **Story 9.1 = implementar com régua provisória** do rascunho 17-Jun; validar com a Luciana depois |
+
+### Próxima sessão — Sprint 2
+
+- [ ] **Frente 2:** CLI `acm-validate <endereço>` + XLSX vivo.
+- [ ] **Decisão 2 desbloqueada:** implementar headline em faixa no `laudoModel`.
+- [ ] **Decisão 1 desbloqueada:** homogeneização 1.3 com FipeZap.
