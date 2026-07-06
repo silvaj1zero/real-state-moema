@@ -10,6 +10,7 @@
  * `pdf(doc).toBlob()` e o download. Testável via `renderToBuffer` (AC6).
  */
 import type { ReactElement } from 'react'
+import type { DocumentProps } from '@react-pdf/renderer'
 import type { AcmLaudoComputation } from '@/lib/acm/methodology'
 import { buildResumoModel } from './resumoModel'
 import { buildLaudoModel, type LaudoInput, type LaudoSourceComparable } from './laudoModel'
@@ -26,7 +27,8 @@ export interface AcmPackageItem {
   kind: AcmPackageKind
   label: string
   filenamePrefix: string
-  doc: ReactElement
+  // ReactElement<DocumentProps> é o que pdf()/renderToBuffer aceitam (React 19 types).
+  doc: ReactElement<DocumentProps>
 }
 
 /**

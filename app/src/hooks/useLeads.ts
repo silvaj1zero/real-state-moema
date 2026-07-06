@@ -204,6 +204,10 @@ export function useCreateLead() {
         notas: input.notas || null,
         is_fisbo: input.is_fisbo ?? false,
         referral_id: null,
+        contato_status: 'nao_contatado',
+        contato_status_at: null,
+        contato_notas: null,
+        scraped_listing_id: null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       }
