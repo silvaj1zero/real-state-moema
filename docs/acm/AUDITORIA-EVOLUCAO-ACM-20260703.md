@@ -300,11 +300,11 @@ Implicações diretas:
 
 ---
 
-1. **Índice de atualização temporal**: escolher entre INCC, IGP-M e FipeZap para deflação das vendas ITBI na metodologia — impacta a comparabilidade entre vendas de 2024 e 2026.
+1. **Índice de atualização temporal — [RESOLVIDO — 06-Jul-2026]:** founder escolheu **FipeZap** (índice específico de imóveis por cidade) para deflacionar as vendas ITBI 2024–2026 a valor presente. Implementação na homogeneização 1.3.
 
-2. **Política de headline**: faixa vs. número único no material entregue ao proprietário durante a captação — decisão comercial com impacto direto na eficácia da "tese do deságio". Qual cenário (Top 3, Top 5, todos 23) deve aparecer como referência primária?
+2. **Política de headline — [RESOLVIDO — 06-Jul-2026]:** founder escolheu **faixa + cenário aderente como referência principal** (Top 3/Top 5 como referência, "todos" como teto; ex.: R$ 9,8–12,4M). Implementação no `laudoModel` usando o `faixaSensibilidade` já exposto pela Story 9.8. Validar o formato final com a Luciana antes do primeiro laudo entregue.
 
-3. **Elicit Story 9.1**: régua de score 50/20/30 foi calibrada para casas/terrenos de alto padrão — apartamentos precisam de pesos diferentes? Quais atributos são prioritários para apto (andar, vaga coberta, estado de conservação)?
+3. **Elicit Story 9.1 — [DIRECIONADO — 06-Jul-2026]:** implementar com a **régua provisória do rascunho** (handoff 17-Jun), marcada como PROVISÓRIA nos artefatos, e validar com a Luciana depois com casos reais de apto.
 
 4. **Prioridade entre Frente 2 e Frente 3**: generalizar o pipeline local (Frente 2, CLI `acm-validate`) ou evoluir o produto in-app (Frente 3, Epic 9) dependem de orçamento de sessão e horizonte de uso. Um caso fora de Moema imediatamente justifica a Frente 2 antes da 3.
 
