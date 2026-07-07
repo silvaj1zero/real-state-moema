@@ -74,17 +74,51 @@ describe('buildLaudoModel — header e faixa', () => {
       'Co-âncora terreno',
       'Fechamento',
     ])
-    expect(m.faixa[2].valor).toBe(COMPUTATION.valorMercado)
+    // Story 9.10: headline em faixa — card Mercado (ACM) reporta min–max dos cenários.
+    expect(m.faixa[2].valor).toBeNull()
+    expect(m.faixa[2].faixa).toEqual(COMPUTATION.headline.mercado)
     expect(m.faixa[3].valor).toBe(COMPUTATION.coAncoraTerreno)
     expect(m.faixa[4].destaque).toBe(true)
+  })
+})
+
+describe('buildLaudoModel — headline em faixa (Story 9.10, decisão founder 06-Jul)', () => {
+  const m = buildLaudoModel(COMPUTATION, SOURCE, INPUT)
+
+  it('Sec. 1: valor de mercado em faixa, com referência aderente e teto na nota', () => {
+    expect(m.sec1.valorMercado.valor).toBeNull()
+    expect(m.sec1.valorMercado.faixa).toEqual(COMPUTATION.headline.mercado)
+    expect(m.sec1.valorMercado.nota).toContain('cenário aderente Top 3')
+    expect(m.sec1.valorMercado.nota).toContain('teto: todos os 23')
+  })
+  it('Sec. 10: linha de valor de mercado vira faixa na tabela de conclusão', () => {
+    const row = m.sec10.tabela[2]
+    expect(row.rotulo).toContain('Valor de mercado')
+    expect(row.valor).toBeNull()
+    expect(row.faixa).toEqual(COMPUTATION.headline.mercado)
+  })
+  it('textos-template reportam faixa + referência (sumário, parecer, Sec. 10 intro)', () => {
+    const faixaMercado = COMPUTATION.headline.mercado
+    expect(faixaMercado.min).toBeLessThan(faixaMercado.max)
+    expect(m.sumario.paragrafo).toContain('cenário aderente Top 3')
+    expect(m.sec1.parecerTecnico).toContain('cenário aderente Top 3')
+    expect(m.sec10.intro).toContain('cenário aderente Top 3')
+  })
+  it('Sec. 9: leitura registra a política de headline (aderente = referência, amplo = teto)', () => {
+    expect(m.sec9.leitura).toContain('recorte aderente (Top 3)')
+    expect(m.sec9.leitura).toContain('teto')
+  })
+  it('headline nunca é o cenário de maior valor como ponto único (auditoria §3.1)', () => {
+    expect(m.faixa[2].valor).not.toBe(COMPUTATION.headline.teto.valorMercado)
+    expect(m.sec1.valorMercado.valor).not.toBe(COMPUTATION.headline.teto.valorMercado)
   })
 })
 
 describe('buildLaudoModel — números vêm da 8.2 (zero recálculo)', () => {
   const m = buildLaudoModel(COMPUTATION, SOURCE, INPUT)
 
-  it('Sec. 1 usa valorMercado e valorFechamento computados', () => {
-    expect(m.sec1.valorMercado.valor).toBe(COMPUTATION.valorMercado)
+  it('Sec. 1 usa headline/valorFechamento computados (zero recálculo)', () => {
+    expect(m.sec1.valorMercado.faixa).toEqual(COMPUTATION.headline.mercado)
     expect(m.sec1.fechamentoEstrategico.valor).toBe(COMPUTATION.valorFechamento)
   })
   it('Sec. 9 espelha os 3 cenários de sensibilidade da 8.2', () => {
@@ -179,6 +213,43 @@ describe('buildLaudoModel — todas as 10 seções presentes', () => {
   })
 })
 
+describe('buildLaudoModel — homogeneização 1.3 (Story 9.11: bairro real + deflação)', () => {
+  const SERIE = [
+    { mes: '2024-06', indice: 100 },
+    { mes: '2026-06', indice: 120 },
+  ]
+  const comparaveisHomog = HONDURAS_COMPARAVEIS.map((c, i) => ({
+    ...c,
+    bairroReal: i < 16 ? 'Jardim Paulista' : 'Jardim América',
+    dataVenda: '2024-06',
+  }))
+  const compHomog = computeLaudo({
+    target: HONDURAS_TARGET,
+    comparaveis: comparaveisHomog,
+    fatoresLiquidez: HONDURAS_FATORES_LIQUIDEZ,
+    homogeneizacao: { indice: 'FipeZap', serie: SERIE, dataReferencia: '2026-06' },
+  })
+  const m = buildLaudoModel(compHomog, SOURCE, INPUT)
+
+  it('Sec. 3: composição por bairro real verificado substitui o texto genérico', () => {
+    expect(m.sec3.composicaoBairro).toContain('bairro real verificado via CEP')
+    expect(m.sec3.composicaoBairro).toContain('Jardim Paulista — 16 comparáveis')
+    expect(m.sec3.composicaoBairro).toContain('Jardim América — 7 comparáveis')
+  })
+  it('Sec. 4: critério de atualização temporal registrado quando deflação aplicada', () => {
+    const row = m.sec4.criterios.find((c) => c.criterio === 'Atualização temporal')
+    expect(row).toBeDefined()
+    expect(row!.parametro).toContain('FipeZap')
+    expect(row!.parametro).toContain('2026-06')
+    expect(row!.justificativa).toContain('23 de 23 comparáveis ajustados')
+  })
+  it('sem homogeneização → texto genérico e sem critério temporal (legado intacto)', () => {
+    const mLegado = buildLaudoModel(COMPUTATION, SOURCE, INPUT)
+    expect(mLegado.sec3.composicaoBairro).toContain('microrregião de valorização homogênea')
+    expect(mLegado.sec4.criterios.some((c) => c.criterio === 'Atualização temporal')).toBe(false)
+  })
+})
+
 describe('buildLaudoModel — robustez (n<5, campos NULL, sem residual)', () => {
   const comparaveisPequeno = HONDURAS_COMPARAVEIS.slice(0, 2).map((c) => ({
     ...c,
@@ -224,5 +295,13 @@ describe('buildLaudoModel — robustez (n<5, campos NULL, sem residual)', () => 
   it('meta de fechamento default = faixaFechamento computada', () => {
     const m = buildLaudoModel(compPequeno, sourcePequeno, inputMin)
     expect(m.faixa[4].faixa).toEqual(compPequeno.faixaFechamento)
+  })
+  it('cenários coincidentes (n≤3) → headline degenera para ponto único, sem faixa', () => {
+    expect(compPequeno.headline.mercado.min).toBe(compPequeno.headline.mercado.max)
+    const m = buildLaudoModel(compPequeno, sourcePequeno, inputMin)
+    expect(m.faixa[2].faixa).toBeNull()
+    expect(m.faixa[2].valor).toBe(compPequeno.headline.referencia.valorMercado)
+    expect(m.sec1.valorMercado.faixa).toBeNull()
+    expect(m.sec1.valorMercado.nota).toContain('/m²')
   })
 })

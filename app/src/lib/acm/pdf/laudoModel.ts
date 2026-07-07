@@ -23,6 +23,7 @@ import { formatBRL } from '@/lib/format'
 import type {
   AcmLaudoComputation,
   ResidualLandParams,
+  SensitivityScenario,
 } from '@/lib/acm/methodology'
 import type { ResumoFaixaItem, ResumoInput, ResumoSourceComparable } from './resumoModel'
 
@@ -261,7 +262,8 @@ export interface LaudoModel {
   sec1: {
     pretendido: { valor: number | null; nota: string }
     pedidoReal: { valor: number | null; nota: string }
-    valorMercado: { valor: number; nota: string }
+    /** Headline em faixa (decisão 06-Jul): `faixa` presente → renderizar min–max. */
+    valorMercado: { valor: number | null; faixa: { min: number; max: number } | null; nota: string }
     diferenca: { percent: number | null; nota: string }
     parecerTecnico: string
     fechamentoEstrategico: { valor: number; nota: string; desagioNota: string }
@@ -402,6 +404,12 @@ function faixaTop(rank: number): string {
   return rank <= 3 ? 'Top 3' : 'Top 5'
 }
 
+/** Rótulo curto do cenário de sensibilidade ("Top 5" / "Top 3" / "todos os N"). */
+function cenarioCurto(s: SensitivityScenario): string {
+  if (s.cenario === 'todos') return `todos os ${s.n}`
+  return s.cenario === 'top5' ? 'Top 5' : 'Top 3'
+}
+
 // ===========================================================================
 // Defaults templados (caso Honduras — Art. IV: traçam ao laudo de referência)
 // ===========================================================================
@@ -471,11 +479,28 @@ export function buildLaudoModel(
   const metaFechamento = input.metaFechamento ?? computation.faixaFechamento
   const nTotal = comparaveis.length
 
+  // --- Headline em faixa (decisão founder 06-Jul · methodology.headlineFaixa)
+  // Faixa min–max entre cenários; ponto único apenas quando os cenários coincidem.
+  const h = computation.headline
+  const mercadoFaixa = h.mercado.min !== h.mercado.max ? h.mercado : null
+  const mercadoTexto = mercadoFaixa
+    ? faixaTexto(mercadoFaixa)
+    : formatBRL(h.referencia.valorMercado)
+  const referenciaNota = mercadoFaixa
+    ? `referência: cenário aderente ${cenarioCurto(h.referencia)} = ${formatBRL(
+        h.referencia.valorMercado,
+      )}`
+    : ''
+
   // --- Faixa de 5 cards (mesma da 8.3a) ----------------------------------
   const faixa: ResumoFaixaItem[] = [
     { rotulo: 'Pretendido', valor: input.precoPretendido ?? null },
     { rotulo: 'Anúncio real', valor: input.precoPedidoReal ?? null },
-    { rotulo: 'Mercado (ACM)', valor: computation.valorMercado },
+    {
+      rotulo: 'Mercado (ACM)',
+      valor: mercadoFaixa ? null : h.referencia.valorMercado,
+      faixa: mercadoFaixa,
+    },
     { rotulo: 'Co-âncora terreno', valor: computation.coAncoraTerreno },
     { rotulo: 'Fechamento', valor: null, faixa: metaFechamento, destaque: true },
   ]
@@ -612,7 +637,11 @@ export function buildLaudoModel(
   const tabelaConclusao: LaudoConclusaoRow[] = [
     { rotulo: 'Preço pretendido (proprietária)', valor: input.precoPretendido ?? null },
     { rotulo: 'Preço pedido REAL (anúncio confirmado)', valor: input.precoPedidoReal ?? null },
-    { rotulo: 'Valor de mercado (ACM, via construção)', valor: computation.valorMercado },
+    {
+      rotulo: 'Valor de mercado (ACM, via construção)',
+      valor: mercadoFaixa ? null : h.referencia.valorMercado,
+      faixa: mercadoFaixa,
+    },
     { rotulo: `Co-âncora de terreno (lote ${intMetros(input.areaTerreno)})`, valor: computation.coAncoraTerreno },
     { rotulo: 'Meta de fechamento recomendada', valor: null, faixa: metaFechamento, destaque: true },
     { rotulo: 'Preço de anúncio recomendado', valor: input.precoAnuncioRecomendado ?? null, destaque: true },
@@ -622,6 +651,34 @@ export function buildLaudoModel(
   const coAncora = computation.coAncoraTerreno
   const bairroClause = input.bairro ? `, ${input.bairro}` : ''
 
+  // --- Homogeneização 1.3 (Story 9.11): bairro real + atualização temporal
+  const temBairroVerificado = computation.composicaoBairros.some(
+    (b) => b.bairro !== 'não verificado',
+  )
+  const composicaoBairroDefault = temBairroVerificado
+    ? `Composição da amostra por bairro real verificado via CEP: ${computation.composicaoBairros
+        .map(
+          (b) =>
+            `${b.bairro} — ${b.n} comparáve${b.n === 1 ? 'l' : 'is'} (mediana ${formatBRL(
+              b.medianaPrecoM2,
+            )}/m²)`,
+        )
+        .join('; ')}.`
+    : 'O raio de análise a partir do imóvel-alvo abrange uma microrregião de valorização homogênea.'
+
+  const criteriosBase = input.criteriosSelecao ?? CRITERIOS_DEFAULT
+  const homog = computation.homogeneizacao
+  const criterios = homog.aplicada
+    ? [
+        ...criteriosBase,
+        {
+          criterio: 'Atualização temporal',
+          parametro: `Deflação a valor presente — índice ${homog.indice}, ref. ${homog.dataReferencia}`,
+          justificativa: `Vendas de competências distintas comparadas na mesma moeda (${homog.ajustes.length} de ${computation.totalComparaveis} comparáveis ajustados)`,
+        },
+      ]
+    : criteriosBase
+
   const sumarioParagrafo =
     input.sinteseParagrafo ??
     `O imóvel — ${intMetros(input.areaConstruida)} construídos sobre lote de ${intMetros(
@@ -630,9 +687,9 @@ export function buildLaudoModel(
       computation.scoreAlvo ? `, Score ${computation.scoreAlvo}` : ''
     } — ${input.precoPedidoReal != null ? `tem preço pedido real de ${formatBRL(input.precoPedidoReal)}` : 'foi avaliado'}${
       input.precoPretendido != null ? ` e expectativa da proprietária de ${formatBRL(input.precoPretendido)}` : ''
-    }. A análise de ${nTotal} vendas reais (ITBI/PMSP) num raio de análise indica valor de mercado de ${formatBRL(
-      computation.valorMercado,
-    )} (via construção) e fechamento estratégico de ${faixaTexto(metaFechamento)}.${
+    }. A análise de ${nTotal} vendas reais (ITBI/PMSP) num raio de análise indica valor de mercado de ${mercadoTexto} (via construção${
+      referenciaNota ? `; ${referenciaNota}` : ''
+    }) e fechamento estratégico de ${faixaTexto(metaFechamento)}.${
       coAncora != null
         ? ` O lote generoso sustenta uma co-âncora de terreno de ~${formatBRL(
             coAncora,
@@ -679,9 +736,9 @@ export function buildLaudoModel(
       input.areaTerreno,
     )} de terreno e classificação ${
       computation.scoreAlvo ? `Score ${computation.scoreAlvo}` : 'técnica'
-    } na régua da RE/MAX Galeria. A partir da base de ITBI oficial (PMSP) e de ofertas ativas reais, foram selecionados ${nTotal} comparáveis vendidos no raio de análise. O valor de mercado de ${formatBRL(
-      computation.valorMercado,
-    )} parte da mediana real de fechamento (~${computation.medianaPrecoM2.toLocaleString(
+    } na régua da RE/MAX Galeria. A partir da base de ITBI oficial (PMSP) e de ofertas ativas reais, foram selecionados ${nTotal} comparáveis vendidos no raio de análise. O valor de mercado de ${mercadoTexto}${
+      referenciaNota ? ` (${referenciaNota})` : ''
+    } parte da mediana real de fechamento (~${computation.medianaPrecoM2.toLocaleString(
       'pt-BR',
     )}/m²) com ajuste de Capex (Score ${computation.scoreAlvo ?? 'B'}).${
       coAncora != null
@@ -702,7 +759,7 @@ export function buildLaudoModel(
 
   const fatores = input.fatoresLiquidezDetalhe ?? FATORES_LIQUIDEZ_DEFAULT
   const composicaoNota =
-    `Valor de mercado ${formatBRL(computation.valorMercado)} → aplicação composta dos ajustes (${fatores
+    `Valor de mercado ${formatBRL(computation.valorMercado)} (recorte amplo) → aplicação composta dos ajustes (${fatores
       .map((f) => `−${Math.round(f.ajuste * 100)}%`)
       .join(' ')}) → valor de fechamento estratégico ${formatBRL(computation.valorFechamento)}.`
 
@@ -717,9 +774,9 @@ export function buildLaudoModel(
     }. O valor de fechamento defensável é, portanto, ${faixaTexto(metaFechamento)}.`
 
   const sec10IntroDefault =
-    `Com base em ${nTotal} transações reais de fechamento (ITBI/PMSP) num raio de análise, na leitura da concorrência ativa, na análise de sensibilidade da amostra e na dupla ótica de comprador, conclui-se que o valor de mercado situa-se em ${formatBRL(
-      computation.valorMercado,
-    )} e o valor de fechamento estratégico, incorporados os fatores de liquidez e condição, na faixa de ${faixaTexto(
+    `Com base em ${nTotal} transações reais de fechamento (ITBI/PMSP) num raio de análise, na leitura da concorrência ativa, na análise de sensibilidade da amostra e na dupla ótica de comprador, conclui-se que o valor de mercado situa-se em ${mercadoTexto}${
+      referenciaNota ? ` (${referenciaNota})` : ''
+    } e o valor de fechamento estratégico, incorporados os fatores de liquidez e condição, na faixa de ${faixaTexto(
       metaFechamento,
     )}.`
 
@@ -830,10 +887,13 @@ export function buildLaudoModel(
           .join(' · '),
       },
       valorMercado: {
-        valor: computation.valorMercado,
-        nota: `${(computation.valorMercado / input.areaConstruida).toLocaleString('pt-BR', {
-          maximumFractionDigits: 0,
-        })}/m²`,
+        valor: mercadoFaixa ? null : h.referencia.valorMercado,
+        faixa: mercadoFaixa,
+        nota: mercadoFaixa
+          ? `${referenciaNota} · teto: ${cenarioCurto(h.teto)} = ${formatBRL(h.teto.valorMercado)}`
+          : `${(h.referencia.valorMercado / input.areaConstruida).toLocaleString('pt-BR', {
+              maximumFractionDigits: 0,
+            })}/m²`,
       },
       diferenca: {
         percent: input.diferencaPercent ?? null,
@@ -860,9 +920,7 @@ export function buildLaudoModel(
       legenda:
         '● Imóvel-alvo  ❶❷❸ Top 3 (máxima aderência)  ❹❺ Top 4–5  ● Demais comparáveis vendidos  ■ Raio de análise',
       indice: topLinhas,
-      composicaoBairro:
-        input.composicaoBairro ??
-        'O raio de análise a partir do imóvel-alvo abrange uma microrregião de valorização homogênea.',
+      composicaoBairro: input.composicaoBairro ?? composicaoBairroDefault,
       ofertas: input.ofertasAtivas ?? [],
       notaOfertas:
         input.notaOfertas ??
@@ -871,7 +929,7 @@ export function buildLaudoModel(
     sec4: {
       intro:
         'A amostra foi filtrada por critérios objetivos que asseguram a homogeneidade técnica e a aderência ao imóvel-alvo. Cada comparável atende, cumulativamente, aos parâmetros abaixo.',
-      criterios: input.criteriosSelecao ?? CRITERIOS_DEFAULT,
+      criterios,
       regua: input.reguaScore ?? REGUA_SCORE_DEFAULT,
       notaRegua:
         input.notaRegua ??
@@ -957,7 +1015,13 @@ export function buildLaudoModel(
           coAncora != null ? ` (~${milhoes(coAncora)})` : ''
         } e com o preço real pedido, a triangulação converge para a faixa de fechamento de ${faixaTexto(
           metaFechamento,
-        )}. Recomenda-se ancorar a negociação nessa faixa, sem descer abaixo do piso sustentado pelo valor do próprio terreno.`,
+        )}. Recomenda-se ancorar a negociação nessa faixa, sem descer abaixo do piso sustentado pelo valor do próprio terreno.${
+          mercadoFaixa
+            ? ` O headline deste laudo reporta a faixa entre os cenários: o recorte aderente (${cenarioCurto(
+                h.referencia,
+              )}) é a referência principal e o recorte amplo (${cenarioCurto(h.teto)}) é o teto.`
+            : ''
+        }`,
     },
     sec10: {
       intro: sec10IntroDefault,

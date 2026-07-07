@@ -279,8 +279,10 @@ Evolução do `reverify-web.workflow.mjs` existente com: itens via args (não ha
 > **Status Sprint 1 — CONCLUÍDO em 05-Jul-2026:**
 > - **Story 9.8** (04-Jul): guard-rail anti-auto-referência (1.1) + exposição de `faixaSensibilidade` (1.2-dados) + refactors #6 (try/catch `reverify-result.json`) e #9 (aviso pseudocódigo no `.workflow.mjs`).
 > - **Story 9.9** (05-Jul, `docs/stories/9.9.story.md`): refactors #1/#2/#3 — deduplicação de `loadEnv`/aderência/haversine. Criados `app/src/lib/geo.ts` (haversine canônico único) e `app/scripts/acm-honduras/lib.mjs` (espelho Node puro para os scripts); cadeado anti-drift `app/src/lib/acm/scriptsParity.test.ts` (paridade de aderência + haversine entre `lib.mjs` e os canônicos). 16 arquivos / 161 testes passando; eslint e tsc limpos no escopo.
-> - **Pendência remanescente da Frente 1:** apenas a homogeneização 1.3 (segmentação por `bairroReal` + deflação temporal) — aguarda elicit com Luciana sobre o índice (INCC / IGP-M / FipeZap).
-> - **Próximo:** Sprint 2 — CLI `acm-validate <endereço>` + XLSX vivo com merge-back (Frente 2).
+> - **Story 9.10** (07-Jul, `docs/stories/9.10.story.md`): **Frente 1.2 implementada** — headline em faixa no `laudoModel` (decisão 2 do founder). `headlineFaixa()` em `methodology.ts` com regra determinística (referência = cenário aderente de menor valor; teto = maior valor); card Mercado (ACM), Sec. 1/9/10 e textos-template reportam faixa R$ 9,84M–12,42M no caso Honduras. 174 testes verdes, eslint/tsc limpos. Formato pendente de validação com a Luciana antes do primeiro laudo entregue.
+> - **Story 9.11** (07-Jul, `docs/stories/9.11.story.md`): **Frente 1.3 (mecanismo) implementada** — `deflacionarComparaveis()` (FipeZap, fator índice-ref/índice-venda, deságio invariante, opt-in) + `bairroReal`/`composicaoPorBairro()` expostos no laudo (Sec. 3/4). 185 testes verdes. Pendente: ingestão dos dados reais (série FipeZap SP, datas de venda e CEPs dos 23 comparáveis) e ajuste por idade (decisão metodológica).
+> - **Roadmap consolidado:** `docs/acm/ROADMAP-ACM.md` (07-Jul) — horizontes Agora/Próximo/Depois + melhorias novas N-1..N-5 e decisões pendentes. É o documento vivo de sequenciamento; este doc permanece como registro da auditoria.
+> - **Próximo:** H-1 (ingestão FipeZap/datas/CEPs) → laudo Honduras v5 → Sprint 2 (CLI `acm-validate` + XLSX vivo).
 
 Governança: cada frente vira stories via @sm/@po (SDC); push e PRs via @devops (exclusivo, Art. II).
 
@@ -302,7 +304,7 @@ Implicações diretas:
 
 1. **Índice de atualização temporal — [RESOLVIDO — 06-Jul-2026]:** founder escolheu **FipeZap** (índice específico de imóveis por cidade) para deflacionar as vendas ITBI 2024–2026 a valor presente. Implementação na homogeneização 1.3.
 
-2. **Política de headline — [RESOLVIDO — 06-Jul-2026]:** founder escolheu **faixa + cenário aderente como referência principal** (Top 3/Top 5 como referência, "todos" como teto; ex.: R$ 9,8–12,4M). Implementação no `laudoModel` usando o `faixaSensibilidade` já exposto pela Story 9.8. Validar o formato final com a Luciana antes do primeiro laudo entregue.
+2. **Política de headline — [RESOLVIDO — 06-Jul-2026 · IMPLEMENTADO — 07-Jul-2026]:** founder escolheu **faixa + cenário aderente como referência principal** (Top 3/Top 5 como referência, "todos" como teto; ex.: R$ 9,8–12,4M). Implementado na **Story 9.10** (`headlineFaixa()` em `methodology.ts` + faixa no `laudoModel`/`LaudoDocument`). Resta: validar o formato final com a Luciana antes do primeiro laudo entregue e propagar para resumo/deck/didático.
 
 3. **Elicit Story 9.1 — [DIRECIONADO — 06-Jul-2026]:** implementar com a **régua provisória do rascunho** (handoff 17-Jun), marcada como PROVISÓRIA nos artefatos, e validar com a Luciana depois com casos reais de apto.
 

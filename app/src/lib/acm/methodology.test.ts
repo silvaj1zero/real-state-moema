@@ -11,6 +11,10 @@ import {
   computeLaudo,
   isSelfReference,
   screenSelfReferences,
+  headlineFaixa,
+  deflacionarComparaveis,
+  composicaoPorBairro,
+  desagioMedido,
 } from './methodology'
 import {
   HONDURAS_TARGET,
@@ -132,6 +136,230 @@ describe('computeLaudo — regressão integrada Honduras', () => {
     expect(r.faixaSensibilidade.mercadoMin).toBe(Math.min(...mercados))
     expect(r.faixaSensibilidade.mercadoMax).toBe(Math.max(...mercados))
     expect(r.faixaSensibilidade.fechamentoMin).toBeLessThanOrEqual(r.faixaSensibilidade.fechamentoMax)
+  })
+  it('headline: referência = Top 3 (cenário aderente de menor valor no fixture), teto = todos (Story 9.10)', () => {
+    // No ranking do app o recorte de menor valor é o Top 3 (≈ R$ 9,84M) — mesmo
+    // patamar conservador da tabela do laudo (que o atribui ao Top 5); o teto é
+    // o recorte amplo (≈ R$ 12,42M). Faixa = R$ 9,8–12,4M (exemplo do founder).
+    expect(r.headline.referencia.cenario).toBe('top3')
+    expect(r.headline.teto.cenario).toBe('todos')
+    expect(within(r.headline.referencia.valorMercado, 9_842_105)).toBe(true)
+    expect(within(r.headline.teto.valorMercado, 12_419_520)).toBe(true)
+  })
+  it('headline: faixas de mercado/fechamento = envelope da sensibilidade', () => {
+    expect(r.headline.mercado.min).toBe(r.faixaSensibilidade.mercadoMin)
+    expect(r.headline.mercado.max).toBe(r.faixaSensibilidade.mercadoMax)
+    expect(r.headline.fechamento.min).toBe(r.faixaSensibilidade.fechamentoMin)
+    expect(r.headline.fechamento.max).toBe(r.faixaSensibilidade.fechamentoMax)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Headline em faixa — Story 9.10 (decisão founder 06-Jul / auditoria §3.1)
+// ---------------------------------------------------------------------------
+
+describe('headlineFaixa — regra determinística de referência e teto', () => {
+  const cenario = (
+    c: 'todos' | 'top5' | 'top3',
+    n: number,
+    valorMercado: number,
+    valorFechamento: number,
+  ) => ({
+    cenario: c,
+    n,
+    medianaPrecoM2: valorMercado / 800,
+    valorMercado,
+    valorFechamento,
+    precoM2Fechamento: Math.round(valorFechamento / 800),
+  })
+
+  it('referência = cenário aderente de MENOR valor de mercado (conservador)', () => {
+    const h = headlineFaixa([
+      cenario('todos', 23, 12_400_000, 10_200_000),
+      cenario('top5', 5, 9_840_000, 8_100_000),
+      cenario('top3', 3, 11_930_000, 9_810_000),
+    ])
+    expect(h.referencia.cenario).toBe('top5')
+    expect(h.teto.cenario).toBe('todos')
+    expect(h.mercado).toEqual({ min: 9_840_000, max: 12_400_000 })
+    expect(h.fechamento).toEqual({ min: 8_100_000, max: 10_200_000 })
+  })
+
+  it('empate de valor entre aderentes → maior n (top5)', () => {
+    const h = headlineFaixa([
+      cenario('todos', 10, 12_000_000, 10_000_000),
+      cenario('top3', 3, 9_000_000, 7_500_000),
+      cenario('top5', 5, 9_000_000, 7_500_000),
+    ])
+    expect(h.referencia.cenario).toBe('top5')
+  })
+
+  it('o "todos" nunca é referência quando há cenário aderente — mesmo sendo o menor', () => {
+    const h = headlineFaixa([
+      cenario('todos', 10, 8_000_000, 6_500_000),
+      cenario('top5', 5, 9_000_000, 7_500_000),
+      cenario('top3', 3, 9_500_000, 7_900_000),
+    ])
+    expect(h.referencia.cenario).toBe('top5')
+    expect(h.teto.cenario).toBe('top3')
+  })
+
+  it('sem cenário aderente → referência = menor valor entre os presentes', () => {
+    const h = headlineFaixa([cenario('todos', 10, 8_000_000, 6_500_000)])
+    expect(h.referencia.cenario).toBe('todos')
+    expect(h.teto.cenario).toBe('todos')
+    expect(h.mercado).toEqual({ min: 8_000_000, max: 8_000_000 })
+  })
+
+  it('lista vazia → erro explícito', () => {
+    expect(() => headlineFaixa([])).toThrow(/ao menos um cenário/)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Homogeneização temporal + bairro real — Story 9.11 (Frente 1.3, FipeZap)
+// ---------------------------------------------------------------------------
+
+describe('deflacionarComparaveis — deflação a valor presente', () => {
+  // Série sintética: +10% ao ano (a série REAL FipeZap é ingerida à parte —
+  // Art. IV: nenhum valor de índice é inventado no código).
+  const SERIE = [
+    { mes: '2024-01', indice: 100 },
+    { mes: '2025-01', indice: 110 },
+    { mes: '2026-01', indice: 121 },
+  ]
+  const OPTS = { indice: 'FipeZap', serie: SERIE, dataReferencia: '2026-01' }
+  const comp = (over: Partial<Parameters<typeof deflacionarComparaveis>[0][number]> = {}) => ({
+    endereco: 'R. Teste, 100',
+    areaConstruida: 100,
+    preco: 1_000_000,
+    ...over,
+  })
+
+  it('fator = índice(ref)/índice(venda); preço ajustado e rastreado', () => {
+    const { comparaveis, relatorio } = deflacionarComparaveis(
+      [comp({ dataVenda: '2024-01' })],
+      OPTS,
+    )
+    expect(comparaveis[0].preco).toBe(1_210_000) // 100 → 121
+    expect(relatorio.aplicada).toBe(true)
+    expect(relatorio.ajustes).toHaveLength(1)
+    expect(relatorio.ajustes[0]).toMatchObject({
+      dataVenda: '2024-01',
+      precoOriginal: 1_000_000,
+      precoAjustado: 1_210_000,
+    })
+    expect(relatorio.ajustes[0].fator).toBeCloseTo(1.21, 10)
+  })
+
+  it('precoPedido deflacionado pelo MESMO fator → deságio medido invariante', () => {
+    const original = [
+      comp({ dataVenda: '2024-01', preco: 850_000, precoPedido: 1_000_000, isVendaReal: true }),
+    ]
+    const { comparaveis } = deflacionarComparaveis(original, OPTS)
+    expect(desagioMedido(comparaveis)).toBe(desagioMedido(original)) // -15%
+  })
+
+  it('sem dataVenda ou competência fora da série → sem ajuste, reportado', () => {
+    const { comparaveis, relatorio } = deflacionarComparaveis(
+      [comp(), comp({ endereco: 'R. Fora, 1', dataVenda: '2023-06' })],
+      OPTS,
+    )
+    expect(comparaveis[0].preco).toBe(1_000_000)
+    expect(comparaveis[1].preco).toBe(1_000_000)
+    expect(relatorio.ajustes).toHaveLength(0)
+    expect(relatorio.semAjuste).toEqual(['R. Teste, 100', 'R. Fora, 1'])
+  })
+
+  it('dataReferencia fora da série → erro de configuração explícito', () => {
+    expect(() =>
+      deflacionarComparaveis([comp()], { ...OPTS, dataReferencia: '2027-01' }),
+    ).toThrow(/dataReferencia 2027-01 ausente/)
+  })
+})
+
+describe('composicaoPorBairro — bairro real verificado (auditoria §3.1)', () => {
+  it('agrupa por bairroReal, mediana R$/m² por grupo, n desc', () => {
+    const comps = [
+      { endereco: 'A', areaConstruida: 100, preco: 2_000_000, bairroReal: 'Jardim Paulista' },
+      { endereco: 'B', areaConstruida: 100, preco: 3_000_000, bairroReal: 'Jardim Paulista' },
+      { endereco: 'C', areaConstruida: 100, preco: 1_000_000, bairroReal: 'Jardim América' },
+      { endereco: 'D', areaConstruida: 100, preco: 4_000_000 },
+    ]
+    const c = composicaoPorBairro(comps)
+    expect(c).toEqual([
+      { bairro: 'Jardim Paulista', n: 2, medianaPrecoM2: 25_000 },
+      { bairro: 'Jardim América', n: 1, medianaPrecoM2: 10_000 },
+      { bairro: 'não verificado', n: 1, medianaPrecoM2: 40_000 },
+    ])
+  })
+})
+
+describe('computeLaudo — homogeneização opt-in (inerte sem opções)', () => {
+  const SERIE = [
+    { mes: '2024-06', indice: 100 },
+    { mes: '2026-06', indice: 125 },
+  ]
+
+  it('sem opts.homogeneizacao → relatório inerte e resultado legado intacto', () => {
+    const r = computeLaudo({ target: HONDURAS_TARGET, comparaveis: HONDURAS_COMPARAVEIS })
+    expect(r.homogeneizacao).toEqual({
+      aplicada: false,
+      indice: null,
+      dataReferencia: null,
+      ajustes: [],
+      semAjuste: [],
+    })
+    expect(within(r.medianaPrecoM2, 18264, 0.001)).toBe(true)
+    // Fixture sem bairroReal → composição inteira 'não verificado'.
+    expect(r.composicaoBairros).toEqual([
+      { bairro: 'não verificado', n: 23, medianaPrecoM2: r.medianaPrecoM2 },
+    ])
+  })
+
+  it('com homogeneização → mediana calculada sobre preços deflacionados', () => {
+    const comparaveis = [
+      { endereco: 'A', areaConstruida: 100, preco: 1_000_000, dataVenda: '2024-06' },
+      { endereco: 'B', areaConstruida: 100, preco: 1_500_000, dataVenda: '2026-06' },
+    ]
+    const r = computeLaudo({
+      target: { areaConstruida: 100, areaTerreno: 200 },
+      comparaveis,
+      homogeneizacao: { indice: 'FipeZap', serie: SERIE, dataReferencia: '2026-06' },
+    })
+    // A: 1,0M × 1,25 = 1,25M (12.500/m²); B: fator 1 (já em valor presente,
+    // 15.000/m²) → mediana 13.750.
+    expect(r.homogeneizacao.aplicada).toBe(true)
+    expect(r.homogeneizacao.ajustes).toHaveLength(2)
+    expect(r.homogeneizacao.ajustes.find((a) => a.endereco === 'A')!.fator).toBeCloseTo(1.25, 10)
+    expect(r.homogeneizacao.ajustes.find((a) => a.endereco === 'B')!.fator).toBe(1)
+    expect(r.medianaPrecoM2).toBe(13_750)
+  })
+
+  it('guard-rail 9.8 roda ANTES da deflação — auto-referência não é ajustada', () => {
+    const target = {
+      areaConstruida: 100,
+      areaTerreno: 200,
+      endereco: 'R. Honduras, 629',
+      vagas: 10,
+      precoPretendido: 12_000_000,
+    }
+    const autoRef = {
+      endereco: 'R. Honduras, 639',
+      areaConstruida: 100,
+      preco: 12_000_000,
+      distancia: 10,
+      vagas: 10,
+      dataVenda: '2024-06',
+    }
+    const legitimo = { endereco: 'R. Legítima, 50', areaConstruida: 100, preco: 1_000_000, dataVenda: '2024-06' }
+    const r = computeLaudo({
+      target,
+      comparaveis: [autoRef, legitimo],
+      homogeneizacao: { indice: 'FipeZap', serie: SERIE, dataReferencia: '2026-06' },
+    })
+    expect(r.autoReferenciasExcluidas.map((f) => f.endereco)).toEqual(['R. Honduras, 639'])
+    expect(r.homogeneizacao.ajustes.map((a) => a.endereco)).toEqual(['R. Legítima, 50'])
   })
 })
 

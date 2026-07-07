@@ -35,6 +35,13 @@ export interface AcmComparable {
   /** Preço pedido no anúncio, quando recuperado (p/ deságio). */
   precoPedido?: number | null
   isVendaReal?: boolean
+  /** Competência da venda 'YYYY-MM' (ITBI). Habilita a deflação temporal (Story 9.11). */
+  dataVenda?: string | null
+  /**
+   * Bairro REAL verificado via CEP — auditoria 03-Jul §3.1: o laudo Honduras
+   * rotulava 16/23 comparáveis com bairro incorreto. Campo opt-in.
+   */
+  bairroReal?: string | null
 }
 
 /** Imóvel-alvo da avaliação. */
@@ -110,6 +117,74 @@ export interface SensitivityRange {
   fechamentoMax: number
 }
 
+/**
+ * Headline em faixa — decisão do founder 06-Jul-2026 (auditoria 03-Jul §3.1 /
+ * Frente 1.2): o laudo reporta FAIXA entre os cenários de sensibilidade, com o
+ * cenário ADERENTE como referência principal e o recorte amplo como teto. O
+ * headline nunca é o cenário de maior valor apresentado como ponto único.
+ */
+export interface HeadlineFaixa {
+  /** Envelope min–max de valor de mercado entre os cenários. */
+  mercado: { min: number; max: number }
+  /** Envelope min–max de valor de fechamento entre os cenários. */
+  fechamento: { min: number; max: number }
+  /**
+   * Cenário aderente de referência: entre top5/top3, o de MENOR valor de
+   * mercado (conservador); empate resolve para o de maior n (top5).
+   */
+  referencia: SensitivityScenario
+  /** Cenário-teto: o de MAIOR valor de mercado (tipicamente 'todos'). */
+  teto: SensitivityScenario
+}
+
+// ---------------------------------------------------------------------------
+// Homogeneização temporal + bairro real — Story 9.11 (auditoria Frente 1.3)
+// ---------------------------------------------------------------------------
+
+/** Ponto mensal de um índice de preços (decisão founder 06-Jul: FipeZap). */
+export interface IndiceMensalPonto {
+  /** Competência no formato 'YYYY-MM'. */
+  mes: string
+  /** Número-índice. Só RAZÕES entre pontos são usadas — a base é livre. */
+  indice: number
+}
+
+export interface HomogeneizacaoOptions {
+  /** Nome do índice, para rastreabilidade nos artefatos (ex.: 'FipeZap'). */
+  indice: string
+  /** Série mensal do índice cobrindo as competências das vendas. */
+  serie: IndiceMensalPonto[]
+  /** Competência de referência 'YYYY-MM' — valor presente do laudo. */
+  dataReferencia: string
+}
+
+/** Ajuste temporal aplicado a um comparável (rastreável por endereço). */
+export interface AjusteTemporalFinding {
+  endereco: string
+  dataVenda: string
+  /** fator = índice(referência) / índice(venda). */
+  fator: number
+  precoOriginal: number
+  precoAjustado: number
+}
+
+export interface HomogeneizacaoRelatorio {
+  aplicada: boolean
+  indice: string | null
+  dataReferencia: string | null
+  ajustes: AjusteTemporalFinding[]
+  /** Endereços sem `dataVenda` ou sem competência na série — entram SEM ajuste. */
+  semAjuste: string[]
+}
+
+/** Composição da amostra por bairro real verificado (CEP). */
+export interface BairroComposicao {
+  /** `bairroReal` do comparável, ou 'não verificado' quando ausente. */
+  bairro: string
+  n: number
+  medianaPrecoM2: number
+}
+
 export interface AcmLaudoComputation {
   target: AcmTarget
   totalComparaveis: number
@@ -126,9 +201,15 @@ export interface AcmLaudoComputation {
   coAncoraTerreno: number | null
   sensibilidade: SensitivityScenario[]
   faixaSensibilidade: SensitivityRange
+  /** Headline em faixa com cenário aderente de referência (decisão 06-Jul). */
+  headline: HeadlineFaixa
   desagioMedidoPercent: number | null
   /** Comparáveis rejeitados por serem o próprio alvo (guard-rail Story 9.8). */
   autoReferenciasExcluidas: SelfReferenceFinding[]
+  /** Relatório da deflação temporal (Story 9.11). Inerte sem `opts.homogeneizacao`. */
+  homogeneizacao: HomogeneizacaoRelatorio
+  /** Composição da amostra por bairro real verificado (Story 9.11). */
+  composicaoBairros: BairroComposicao[]
 }
 
 // ---------------------------------------------------------------------------
@@ -261,6 +342,87 @@ export function screenSelfReferences(
     else aceitos.push(comp)
   }
   return { aceitos, excluidos }
+}
+
+// ---------------------------------------------------------------------------
+// Homogeneização temporal — Story 9.11 (auditoria Frente 1.3, índice FipeZap)
+// ---------------------------------------------------------------------------
+
+/**
+ * Deflaciona os preços dos comparáveis para a competência de referência usando
+ * a série mensal do índice (fator = índice(ref) / índice(venda)). Regras
+ * determinísticas:
+ *   - Comparável sem `dataVenda` ou com competência fora da série entra SEM
+ *     ajuste e é reportado em `semAjuste` — nunca inventamos data ou índice.
+ *   - `preco` e `precoPedido` são ajustados pelo MESMO fator: o deságio medido
+ *     (anúncio → fechamento) é uma razão da mesma competência e permanece
+ *     invariante à deflação.
+ *   - `dataReferencia` ausente da série é erro de configuração → throw.
+ */
+export function deflacionarComparaveis(
+  comparaveis: AcmComparable[],
+  opts: HomogeneizacaoOptions,
+): { comparaveis: AcmComparable[]; relatorio: HomogeneizacaoRelatorio } {
+  const porMes = new Map(opts.serie.map((p) => [p.mes, p.indice]))
+  const indiceRef = porMes.get(opts.dataReferencia)
+  if (indiceRef == null || indiceRef <= 0) {
+    throw new Error(
+      `dataReferencia ${opts.dataReferencia} ausente (ou inválida) na série do índice ${opts.indice}`,
+    )
+  }
+
+  const ajustes: AjusteTemporalFinding[] = []
+  const semAjuste: string[] = []
+  const ajustados = comparaveis.map((c) => {
+    const indiceVenda = c.dataVenda != null ? porMes.get(c.dataVenda) : undefined
+    if (c.dataVenda == null || indiceVenda == null || indiceVenda <= 0) {
+      semAjuste.push(c.endereco)
+      return c
+    }
+    const fator = indiceRef / indiceVenda
+    const precoAjustado = Math.round(c.preco * fator)
+    ajustes.push({
+      endereco: c.endereco,
+      dataVenda: c.dataVenda,
+      fator,
+      precoOriginal: c.preco,
+      precoAjustado,
+    })
+    return {
+      ...c,
+      preco: precoAjustado,
+      precoPedido: c.precoPedido != null ? Math.round(c.precoPedido * fator) : c.precoPedido,
+    }
+  })
+
+  return {
+    comparaveis: ajustados,
+    relatorio: {
+      aplicada: true,
+      indice: opts.indice,
+      dataReferencia: opts.dataReferencia,
+      ajustes,
+      semAjuste,
+    },
+  }
+}
+
+/** Composição da amostra por `bairroReal` (mediana R$/m² por bairro; n desc). */
+export function composicaoPorBairro(comparaveis: AcmComparable[]): BairroComposicao[] {
+  const grupos = new Map<string, number[]>()
+  for (const c of comparaveis) {
+    const bairro = c.bairroReal ?? 'não verificado'
+    const lista = grupos.get(bairro) ?? []
+    if (c.areaConstruida > 0) lista.push(c.preco / c.areaConstruida)
+    grupos.set(bairro, lista)
+  }
+  return [...grupos.entries()]
+    .map(([bairro, precos]) => ({
+      bairro,
+      n: precos.length,
+      medianaPrecoM2: Math.round(median(precos) * 100) / 100,
+    }))
+    .sort((a, b) => b.n - a.n || a.bairro.localeCompare(b.bairro, 'pt-BR'))
 }
 
 // ---------------------------------------------------------------------------
@@ -426,6 +588,35 @@ export function sensitivityScenarios(
   })
 }
 
+/**
+ * Deriva o headline em faixa dos cenários de sensibilidade (decisão do founder
+ * 06-Jul-2026). Regras determinísticas (gate anti-viés da auditoria §3.1):
+ *   - referência = entre os cenários aderentes (top5/top3), o de MENOR valor de
+ *     mercado — escolha conservadora; empate resolve para o de maior n (top5).
+ *     Sem cenário aderente na lista, cai para o de menor valor entre todos.
+ *   - teto = cenário de MAIOR valor de mercado (tipicamente 'todos').
+ *   - faixas mercado/fechamento = envelope min–max entre os cenários.
+ */
+export function headlineFaixa(sensibilidade: SensitivityScenario[]): HeadlineFaixa {
+  if (sensibilidade.length === 0) {
+    throw new Error('headlineFaixa requer ao menos um cenário de sensibilidade')
+  }
+  const aderentes = sensibilidade.filter((s) => s.cenario !== 'todos')
+  const pool = aderentes.length > 0 ? aderentes : sensibilidade
+  const referencia = [...pool].sort(
+    (a, b) => a.valorMercado - b.valorMercado || b.n - a.n,
+  )[0]
+  const teto = [...sensibilidade].sort((a, b) => b.valorMercado - a.valorMercado)[0]
+  const mercados = sensibilidade.map((s) => s.valorMercado)
+  const fechamentos = sensibilidade.map((s) => s.valorFechamento)
+  return {
+    mercado: { min: Math.min(...mercados), max: Math.max(...mercados) },
+    fechamento: { min: Math.min(...fechamentos), max: Math.max(...fechamentos) },
+    referencia,
+    teto,
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Deságio medido (anúncio → fechamento) — Laudo Sec. 7.1
 // ---------------------------------------------------------------------------
@@ -453,6 +644,11 @@ export interface ComputeLaudoOptions {
   raio?: number
   /** Parâmetros do valor residual do terreno; se ausente, co-âncora fica null. */
   residual?: ResidualLandParams
+  /**
+   * Deflação temporal a valor presente (Story 9.11). Se ausente, os preços
+   * entram como estão (comportamento legado) e o relatório sai `aplicada: false`.
+   */
+  homogeneizacao?: HomogeneizacaoOptions
 }
 
 /** Computa o pacote completo do laudo a partir dos comparáveis. */
@@ -462,10 +658,25 @@ export function computeLaudo(opts: ComputeLaudoOptions): AcmLaudoComputation {
   const fatores = opts.fatoresLiquidez ?? []
 
   // Guard-rail Story 9.8: auto-referências saem ANTES de qualquer estatística.
-  const { aceitos: comparaveis, excluidos: autoReferenciasExcluidas } = screenSelfReferences(
-    target,
-    opts.comparaveis,
-  )
+  // A detecção usa preços ORIGINAIS (fingerprint contra o preço pretendido atual),
+  // por isso o screening precede a deflação.
+  const screened = screenSelfReferences(target, opts.comparaveis)
+  const autoReferenciasExcluidas = screened.excluidos
+
+  // Homogeneização temporal Story 9.11: deflaciona a valor presente (opt-in).
+  let comparaveis = screened.aceitos
+  let homogeneizacao: HomogeneizacaoRelatorio = {
+    aplicada: false,
+    indice: null,
+    dataReferencia: null,
+    ajustes: [],
+    semAjuste: [],
+  }
+  if (opts.homogeneizacao) {
+    const deflacionado = deflacionarComparaveis(comparaveis, opts.homogeneizacao)
+    comparaveis = deflacionado.comparaveis
+    homogeneizacao = deflacionado.relatorio
+  }
 
   const precosM2 = comparaveis.map((c) => c.preco / c.areaConstruida)
   const medianaPrecoM2 = Math.round(median(precosM2) * 100) / 100
@@ -499,7 +710,10 @@ export function computeLaudo(opts: ComputeLaudoOptions): AcmLaudoComputation {
     coAncoraTerreno,
     sensibilidade,
     faixaSensibilidade,
+    headline: headlineFaixa(sensibilidade),
     desagioMedidoPercent: desagioMedido(comparaveis),
     autoReferenciasExcluidas,
+    homogeneizacao,
+    composicaoBairros: composicaoPorBairro(comparaveis),
   }
 }

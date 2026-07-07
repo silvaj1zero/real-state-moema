@@ -450,7 +450,11 @@ export function LaudoDocument({ model }: { model: LaudoModel }) {
         </View>
         <View style={s.posCard} wrap={false}>
           <Text style={s.posLabel}>Valor de Mercado (ACM, via construção)</Text>
-          <Text style={s.posValue}>{fmt(model.sec1.valorMercado.valor)}</Text>
+          <Text style={s.posValue}>
+            {model.sec1.valorMercado.faixa
+              ? faixaFull(model.sec1.valorMercado.faixa)
+              : fmt(model.sec1.valorMercado.valor)}
+          </Text>
           <Text style={s.posNota}>{model.sec1.valorMercado.nota}</Text>
         </View>
         <View style={s.posCard} wrap={false}>
