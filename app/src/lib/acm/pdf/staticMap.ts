@@ -30,6 +30,12 @@ export interface StaticMapOptions {
   retina?: boolean
   /** Passos do polígono do raio (menos = URL mais curta). Default 40. */
   circleSteps?: number
+  /**
+   * Padding (px) do enquadramento `auto` — folga entre os overlays e a borda da
+   * imagem. Sem ele, pins extremos encostam na borda e somem quando o container
+   * exibe a imagem com `objectFit: 'cover'`.
+   */
+  padding?: number
 }
 
 const STYLE = 'mapbox/light-v11'
@@ -92,9 +98,10 @@ export function buildStaticMapUrl(opts: StaticMapOptions): string | null {
 
   const overlayStr = overlays.join(',')
   const size = `${width}x${height}${retina ? '@2x' : ''}`
+  const padding = opts.padding != null ? `&padding=${opts.padding}` : ''
   return `https://api.mapbox.com/styles/v1/${STYLE}/static/${overlayStr}/auto/${size}?access_token=${encodeURIComponent(
     token,
-  )}`
+  )}${padding}`
 }
 
 /** Blob → data URL (base64) via FileReader. Embute a imagem no PDF sem 2ª rede. */
