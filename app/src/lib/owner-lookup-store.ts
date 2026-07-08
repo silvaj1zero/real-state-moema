@@ -85,6 +85,19 @@ export function createSupabaseOwnerLookupStore(client: SupabaseClient): OwnerLoo
       return data as OwnerLookup
     },
 
+    async recordCacheHit(lookup) {
+      // Incremento read-modify-write: aceitável — telemetria de MVP
+      // single-consultant; corrida só subcontaria um hit.
+      const { error } = await client
+        .from('owner_lookups')
+        .update({
+          cache_hit_count: (lookup.cache_hit_count ?? 0) + 1,
+          last_cache_hit_at: new Date().toISOString(),
+        })
+        .eq('id', lookup.id)
+      if (error) throw new Error(`cache hit telemetry failed: ${error.message}`)
+    },
+
     async insertFeedEvent(evt) {
       const { error } = await client.from('intelligence_feed').insert({
         consultant_id: evt.consultant_id,

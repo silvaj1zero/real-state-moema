@@ -54,6 +54,8 @@ export interface OwnerLookupStore {
     titulo: string
     metadata: Record<string, unknown>
   }): Promise<void>
+  /** Telemetria de cache (Story 6.7 AC7). Best-effort. */
+  recordCacheHit(lookup: OwnerLookup): Promise<void>
 }
 
 export interface OwnerLookupConfig {
@@ -175,6 +177,12 @@ export async function executeOwnerLookup(
     sinceIso,
   })
   if (cached) {
+    // Telemetria do dashboard (6.7 AC7) — falha não afeta a resposta.
+    try {
+      await store.recordCacheHit(cached)
+    } catch (err) {
+      console.error('owner_lookup cache-hit telemetry failed:', err instanceof Error ? err.message : err)
+    }
     return { kind: 'ok', httpStatus: 200, body: toResponse(cached, true, usage, nowMs) }
   }
 

@@ -545,7 +545,7 @@ export interface ListingCrossRef {
 }
 
 // Intelligence Feed (Story 3.7)
-export type TipoFeed = 'novo_fisbo' | 'reducao_preco' | 'ex_imobiliaria_fisbo' | 'novo_raio_desbloqueado' | 'lead_parado' | 'agendamento_proximo' | 'seed_completo' | 'sync_completo' | 'busca_parametrica' | 'owner_lookup_completo'
+export type TipoFeed = 'novo_fisbo' | 'reducao_preco' | 'ex_imobiliaria_fisbo' | 'novo_raio_desbloqueado' | 'lead_parado' | 'agendamento_proximo' | 'seed_completo' | 'sync_completo' | 'busca_parametrica' | 'owner_lookup_completo' | 'owner_lookup_aberto'
 export type PrioridadeFeed = 'alta' | 'media' | 'baixa'
 
 export interface IntelligenceFeedEvent {
@@ -589,8 +589,33 @@ export interface OwnerLookup {
   raw_response: Record<string, unknown> | null
   status: OwnerLookupRowStatus
   error_message: string | null
+  // Story 6.7 (migration 024) — telemetria de cache p/ o dashboard de consumo
+  cache_hit_count: number
+  last_cache_hit_at: string | null
   created_at: string
   updated_at: string
+}
+
+// Story 6.7 — retorno de fn_enriched_contacts_by_edificio (migration 024)
+export interface EnrichedContactByEdificio {
+  listing_id: string
+  nome: string | null
+  telefone: string | null
+  whatsapp: string | null
+  email: string | null
+  portal: string | null
+  enriched_at: string | null
+}
+
+// Story 6.7 — retorno de fn_owner_lookup_stats (migration 024)
+export interface OwnerLookupStats {
+  consultas_mes: number
+  custo_mes: number
+  sucessos_mes: number
+  nao_encontrados_mes: number
+  falhas_mes: number
+  consultas_total: number
+  cache_hits_total: number
 }
 
 export type SearchStatus = 'pending' | 'running' | 'completed' | 'failed' | 'cancelled'

@@ -9,6 +9,8 @@ interface CaptarLeadModalProps {
   listing: ScrapedListingParametric
   consultantId: string
   searchId?: string | null
+  /** Story 6.7 (AC3c): prefill vindo do dossiê de proprietário. */
+  prefill?: { nome?: string; telefone?: string; email?: string }
   onClose: () => void
   onSuccess: (leadId: string) => void
 }
@@ -17,14 +19,15 @@ export function CaptarLeadModal({
   listing,
   consultantId,
   searchId,
+  prefill,
   onClose,
   onSuccess,
 }: CaptarLeadModalProps) {
   const [nome, setNome] = useState(
-    listing.nome_anunciante || `Proprietario - ${listing.endereco?.split(',')[0] || ''}`
+    prefill?.nome || listing.nome_anunciante || `Proprietario - ${listing.endereco?.split(',')[0] || ''}`
   )
-  const [telefone, setTelefone] = useState(listing.telefone_anunciante || '')
-  const [email, setEmail] = useState(listing.email_anunciante || '')
+  const [telefone, setTelefone] = useState(prefill?.telefone || listing.telefone_anunciante || '')
+  const [email, setEmail] = useState(prefill?.email || listing.email_anunciante || '')
   const [duplicateWarning, setDuplicateWarning] = useState<{
     existingName?: string
     existingLeadId?: string

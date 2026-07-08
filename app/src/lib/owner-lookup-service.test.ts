@@ -30,6 +30,8 @@ function makeRow(overrides: Partial<OwnerLookup> = {}): OwnerLookup {
     raw_response: null,
     status: 'success',
     error_message: null,
+    cache_hit_count: 0,
+    last_cache_hit_at: null,
     created_at: NOW.toISOString(),
     updated_at: NOW.toISOString(),
     ...overrides,
@@ -44,6 +46,7 @@ function makeStore(overrides: Partial<OwnerLookupStore> = {}): OwnerLookupStore 
     resolveEdificio: vi.fn().mockResolvedValue({ sqlLote: '001.002.0003-4', endereco: 'Al. X, 1' }),
     insertLookup: vi.fn().mockImplementation(async (row) => makeRow(row as Partial<OwnerLookup>)),
     insertFeedEvent: vi.fn().mockResolvedValue(undefined),
+    recordCacheHit: vi.fn().mockResolvedValue(undefined),
     ...overrides,
   }
 }
@@ -106,6 +109,19 @@ describe('executeOwnerLookup — cache 90d (AC6)', () => {
     }
     expect(d.consultar).not.toHaveBeenCalled()
     expect(store.insertLookup).not.toHaveBeenCalled()
+    expect(store.recordCacheHit).toHaveBeenCalledTimes(1) // telemetria 6.7 AC7
+  })
+
+  it('falha na telemetria de cache hit NAO quebra a resposta', async () => {
+    const store = makeStore({
+      findCached: vi.fn().mockResolvedValue(makeRow()),
+      recordCacheHit: vi.fn().mockRejectedValue(new Error('update falhou')),
+    })
+    const out = await executeOwnerLookup(
+      { consultantId: CONSULTANT, edificioId: EDIFICIO },
+      deps(store, CONFIG_ON),
+    )
+    expect(out.kind).toBe('ok')
   })
 
   it('cache miss com flag OFF → disabled sem consumo (fronteira)', async () => {

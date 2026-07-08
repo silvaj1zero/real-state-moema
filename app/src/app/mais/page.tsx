@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { Users, DollarSign, Trophy, FileUp, Building2, Shield, Calendar, FileText, PhoneCall } from 'lucide-react'
+import { Users, DollarSign, Trophy, FileUp, Building2, Shield, Calendar, FileText, PhoneCall, UserSearch } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 interface MenuItemDef {
@@ -21,6 +21,14 @@ const MENU_ITEMS: MenuItemDef[] = [
     Icon: PhoneCall,
     color: '#0EA5E9',
     epic: 10,
+  },
+  {
+    label: 'Proprietários',
+    description: 'Dossiês de cartório',
+    path: '/proprietarios',
+    Icon: UserSearch,
+    color: '#8B5CF6',
+    epic: 6,
   },
   {
     label: 'Parceiros',

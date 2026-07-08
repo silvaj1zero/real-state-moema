@@ -17,6 +17,7 @@ import type { OwnerLookupErrorBody, OwnerLookupResponse } from '@/lib/schemas/ow
 export const ownerLookupKeys = {
   all: ['owner-lookup'] as const,
   byEdificio: (edificioId: string) => ['owner-lookup', edificioId] as const,
+  dossie: (edificioId: string) => ['owner-lookup', 'dossie', edificioId] as const,
   history: (consultantId: string) => ['owner-lookup', 'history', consultantId] as const,
 }
 
@@ -33,6 +34,34 @@ export class OwnerLookupMutationError extends Error {
     )
     this.name = 'OwnerLookupMutationError'
   }
+}
+
+/**
+ * POST /api/owners/lookup compartilhado (mutation e query do dossie).
+ * 404 com payload de lookup (status=not_found) e um resultado valido para a
+ * UI; os demais nao-2xx viram OwnerLookupMutationError tipado.
+ */
+export async function postOwnerLookup(input: {
+  edificio_id?: string
+  sql_lote?: string
+  endereco?: string
+}): Promise<OwnerLookupResponse> {
+  const res = await fetch('/api/owners/lookup', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  })
+
+  const body = (await res.json().catch(() => null)) as
+    | OwnerLookupResponse
+    | OwnerLookupErrorBody
+    | null
+
+  if (!res.ok && !(res.status === 404 && body && 'status' in body)) {
+    throw new OwnerLookupMutationError(res.status, body)
+  }
+
+  return body as OwnerLookupResponse
 }
 
 export function useOwnerLookup(edificioId?: string) {
@@ -57,30 +86,7 @@ export function useOwnerLookup(edificioId?: string) {
   })
 
   const mutation = useMutation({
-    mutationFn: async (input: {
-      edificio_id?: string
-      sql_lote?: string
-      endereco?: string
-    }): Promise<OwnerLookupResponse> => {
-      const res = await fetch('/api/owners/lookup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(input),
-      })
-
-      const body = (await res.json().catch(() => null)) as
-        | OwnerLookupResponse
-        | OwnerLookupErrorBody
-        | null
-
-      // 404 com payload de lookup (status=not_found) e um resultado valido
-      // para a UI; os demais nao-2xx viram erro tipado.
-      if (!res.ok && !(res.status === 404 && body && 'status' in body)) {
-        throw new OwnerLookupMutationError(res.status, body)
-      }
-
-      return body as OwnerLookupResponse
-    },
+    mutationFn: postOwnerLookup,
     onSettled: (_data, _error, variables) => {
       if (variables?.edificio_id) {
         queryClient.invalidateQueries({ queryKey: ownerLookupKeys.byEdificio(variables.edificio_id) })
