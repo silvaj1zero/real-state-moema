@@ -12,12 +12,16 @@
  * número novo é inventado aqui — comercial (meta/anúncio) permanece o do v4 até
  * a validação com a Luciana (H-3).
  */
-import { mkdirSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { renderToBuffer } from '@react-pdf/renderer'
 
-import { computeLaudo } from '@/lib/acm/methodology'
+import { computeLaudo, RAIO_PADRAO_M } from '@/lib/acm/methodology'
+import { haversineMeters } from '@/lib/geo'
+import { buildAcmMapMarkers } from '@/lib/acm/comparavelAdapter'
+import { buildStaticMapUrl, resolveStaticMapImage } from '@/lib/acm/pdf/staticMap'
+import { loadEnv } from './lib.mjs'
 import {
   HONDURAS_FATORES_LIQUIDEZ,
   HONDURAS_RESIDUAL,
@@ -154,7 +158,107 @@ const input: LaudoInput = {
   ],
 }
 
-const model = buildLaudoModel(computation, source, input)
+// ---------------------------------------------------------------------------
+// Mapa (Sec. 3) — mesmo mecanismo da UI (Mapbox Static Images, light-v11):
+// geocodifica alvo + 23 comparáveis (cache em 06-geocode-cache.json, auditável)
+// e embute o PNG como data URL. Sem token/rede → degrada para "sem mapa".
+// ---------------------------------------------------------------------------
+const scriptDir = path.dirname(fileURLToPath(import.meta.url))
+const geocodeCachePath = path.join(scriptDir, '06-geocode-cache.json')
+
+interface GeoPonto {
+  lat: number
+  lng: number
+  placeName: string
+}
+
+async function geocode(
+  query: string,
+  token: string,
+  perto?: { lat: number; lng: number },
+): Promise<GeoPonto | null> {
+  // bbox ±~2,2 km em torno do alvo: exclui homônimas do interior (Chile/Canadá/
+  // Cuba em Paulínia, Catanduva...) por construção.
+  const extra = perto
+    ? `&proximity=${perto.lng},${perto.lat}&bbox=${perto.lng - 0.022},${perto.lat - 0.02},${
+        perto.lng + 0.022
+      },${perto.lat + 0.02}`
+    : ''
+  const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+    query,
+  )}.json?access_token=${encodeURIComponent(token)}&country=br&limit=1${extra}`
+  const res = await fetch(url)
+  if (!res.ok) return null
+  const data = (await res.json()) as {
+    features?: { center: [number, number]; place_name: string }[]
+  }
+  const f = data.features?.[0]
+  if (!f) return null
+  return { lat: f.center[1], lng: f.center[0], placeName: f.place_name }
+}
+
+async function resolverMapaUrl(): Promise<string | null> {
+  const env = loadEnv() as Record<string, string>
+  const token = env.NEXT_PUBLIC_MAPBOX_TOKEN || env.MAPBOX_TOKEN
+  if (!token) {
+    console.warn('Sem NEXT_PUBLIC_MAPBOX_TOKEN em .env.local — laudo sai sem mapa.')
+    return null
+  }
+
+  const cache: Record<string, GeoPonto> = existsSync(geocodeCachePath)
+    ? (JSON.parse(readFileSync(geocodeCachePath, 'utf8')) as Record<string, GeoPonto>)
+    : {}
+  const geocodeCached = async (
+    query: string,
+    proximity?: { lat: number; lng: number },
+  ): Promise<GeoPonto | null> => {
+    if (cache[query]) return cache[query]
+    const ponto = await geocode(query, token, proximity)
+    if (ponto) cache[query] = ponto
+    await new Promise((r) => setTimeout(r, 120)) // rate limit Mapbox free tier
+    return ponto
+  }
+
+  const alvo = await geocodeCached(TARGET.geocodeQuery)
+  if (!alvo) {
+    console.warn('Geocode do alvo falhou — laudo sai sem mapa.')
+    return null
+  }
+
+  // Pins dos comparáveis: geocode com CEP verificado (Story 9.12) + proximity do
+  // alvo — ruas curtas (Canadá, Chile, Cuba...) têm homônimas no interior. Ponto a
+  // mais de 2 km do alvo = match ruim → fica fora do mapa, com aviso.
+  for (const s of source) {
+    const cep = vendaPorEndereco.get(s.endereco)?.cep
+    const ponto = await geocodeCached(
+      `${s.endereco}, ${s.bairro}, São Paulo, SP, ${cep ?? ''}, Brasil`,
+      alvo,
+    )
+    if (!ponto) {
+      console.warn(`Geocode falhou (sem pin): ${s.endereco}`)
+      continue
+    }
+    if (haversineMeters(alvo, ponto) > 2 * RAIO_PADRAO_M) {
+      console.warn(`Geocode fora do raio 2 km (sem pin): ${s.endereco} → ${ponto.placeName}`)
+      continue
+    }
+    s.lat = ponto.lat
+    s.lng = ponto.lng
+  }
+  writeFileSync(geocodeCachePath, JSON.stringify(cache, null, 2))
+
+  const rawUrl = buildStaticMapUrl({
+    token,
+    center: { lat: alvo.lat, lng: alvo.lng },
+    radiusMeters: RAIO_PADRAO_M,
+    markers: buildAcmMapMarkers(alvo, computation.ranking, source),
+  })
+  // toDataUrl injetado: o default usa FileReader (browser); em node é Buffer.
+  return resolveStaticMapImage(rawUrl, {
+    toDataUrl: async (b) =>
+      `data:${b.type || 'image/png'};base64,${Buffer.from(await b.arrayBuffer()).toString('base64')}`,
+  })
+}
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..')
 const outDir = path.join(repoRoot, 'docs', 'acm', 'honduras-629')
@@ -162,6 +266,9 @@ mkdirSync(outDir, { recursive: true })
 const hoje = new Date().toISOString().slice(0, 10)
 
 async function main(): Promise<void> {
+  const mapaUrl = await resolverMapaUrl()
+  if (mapaUrl) console.log(`Mapa: embutido (${(mapaUrl.length / 1024).toFixed(0)} KB base64)`)
+  const model = buildLaudoModel(computation, source, { ...input, mapaUrl })
   const buf = await renderToBuffer(<LaudoDocument model={model} />)
   const pdfPath = path.join(outDir, `LAUDO-ACM-Honduras-v5-${hoje}.pdf`)
   writeFileSync(pdfPath, buf)

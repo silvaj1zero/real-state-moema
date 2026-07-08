@@ -1,7 +1,7 @@
 # Relatório de Alterações — Laudo ACM Rua Honduras, 629 · v4 → v5
 
 **Data:** 07/07/2026 · **Caso:** Clarisia Ramos (captação) · **Consultora:** Luciana Borba (RE/MAX Galeria, CRECI 045063-J)
-**Artefato novo:** `LAUDO-ACM-Honduras-v5-2026-07-07.pdf` (+ `*.computation.json` com os números de revisão)
+**Artefato novo:** `LAUDO-ACM-Honduras-v5-2026-07-08.pdf` (+ `*.computation.json` com os números de revisão). Sec. 3 com mapa embutido — raio de 1.000 m e os 23 pins geocodificados com CEP verificado (coordenadas auditáveis em `app/scripts/acm-honduras/06-geocode-cache.json`).
 **Stories:** 9.10, 9.11 (mecanismos) · 9.12 (ingestão H-1) · 9.13 (geração v5 / H-2)
 
 ---
