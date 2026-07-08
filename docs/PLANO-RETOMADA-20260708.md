@@ -25,6 +25,13 @@ que NÃO depende de ninguém e roda em modo autônomo.
 
 ## C. Sequência AUTÔNOMA não-ACM (pós-`/clear`)
 
+> **✅ EXECUTADA em 2026-07-08** (sessão autônoma): 10.1 e 10.2 → Done (PASS,
+> suíte re-validada); 6.6 implementada ANTES da 6.7 (inversão prevista — a UI
+> consome endpoint/tabela/hook da 6.6) → Done c/ CONCERNS; 6.7 (UI dossiê) →
+> Done c/ CONCERNS. Commits locais `254a04d`, `522c7d5`, `15a77f5` — sem push.
+> **Pendências p/ founder:** aplicar migrations 023+024 no Supabase SQL Editor;
+> decidir contratação Infosimples (`OWNER_LOOKUP_ENABLED` continua OFF).
+
 Trabalho destravado, em ordem SDC, sem depender de decisão externa:
 
 | # | Item | Status hoje | O que fazer | Risco/limite |
