@@ -73,7 +73,7 @@ real. O roadmap persegue três qualidades, nesta ordem:
 | # | Item | Detalhe | Depende de |
 |---|---|---|---|
 | **D-1** | Story 9.1 — régua apto/casa | Implementar com régua PROVISÓRIA do rascunho 17-Jun (decisão 3 do founder); validar com casos reais depois | P-3 |
-| **D-2** | Story 9.5 — Fase B (re-verificação web) in-app | Lições da Fase 2 externa: navegador real, retry 403 (~60% de falsos negativos hoje), `confianca` graduada (alta/média/baixa), screenshots como evidência, portais de luxo, Wayback/GeoSampa | P-1 |
+| **D-2** | Story 9.5 — Fase B (re-verificação web) in-app | Lições da Fase 2 externa: navegador real, retry 403 (~60% de falsos negativos hoje), `confianca` graduada (alta/média/baixa), screenshots como evidência, portais de luxo, Wayback/GeoSampa. Fontes de CRUZAMENTO (nunca âncora — a âncora é ITBI/PMSP direto, Art. IV): agregadores de guias ITBI em mapa — Atlas (atlasdados.com/sp) e ITBImap (itbimap.com.br); ambos com anti-bot (403), exigem navegador real | P-1 |
 | **D-3** | Skill `/acm-validate` + squad `acm-squad` | `@acm-data` (Sonnet) · `@acm-verifier` (Fable) · `@acm-auditor` (Fable/Opus, checklist da auditoria §3) · `@acm-writer` (Sonnet); QA gates com variância medida ANTES de ativar (playbook gate-determinism) | P-1, P-2 |
 | **D-4** | Cobertura ITBI parametrizável por bairro | Pipeline por bairro, não fixado em Moema — pré-requisito de escala no mercado-alvo | P-3 |
 
