@@ -247,16 +247,17 @@ async function resolverMapaUrl(): Promise<string | null> {
   }
   writeFileSync(geocodeCachePath, JSON.stringify(cache, null, 2))
 
-  // Proporção = caixa do PDF (515×200pt, `objectFit: cover`): imagem 824×320 não
-  // sofre corte vertical; padding=44 dá folga para o pin mais extremo (o nº 4,
-  // Henrique Martins, geocodificado ao sul) não encostar na borda.
+  // Proporção = caixa do PDF (515×280pt, `objectFit: cover`): imagem 942×512@2x
+  // (mesma razão ≈1,84) não sofre corte vertical e dobra o detalhe de ruas/bairros;
+  // padding=44 dá folga para o pin mais extremo (o nº 4, Henrique Martins,
+  // geocodificado ao sul) não encostar na borda.
   const rawUrl = buildStaticMapUrl({
     token,
     center: { lat: alvo.lat, lng: alvo.lng },
     radiusMeters: RAIO_PADRAO_M,
     markers: buildAcmMapMarkers(alvo, computation.ranking, source),
-    width: 824,
-    height: 320,
+    width: 942,
+    height: 512,
     padding: 44,
   })
   // toDataUrl injetado: o default usa FileReader (browser); em node é Buffer.

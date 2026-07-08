@@ -128,7 +128,10 @@ const s = StyleSheet.create({
   parecerLabel: { fontSize: 8, fontFamily: FONTS.bodyMedium, color: COLORS.azulEscuro, marginBottom: 3 },
   parecerText: { fontSize: 8.5, color: COLORS.corpo },
   // Mapa
-  mapImg: { width: '100%', height: 200, borderRadius: 6, marginBottom: 4, objectFit: 'cover' },
+  // 280pt de altura (pedido do founder 08-Jul): mais área para ler ruas/bairros.
+  // A imagem deve ser pedida na MESMA proporção da caixa (515×280 ≈ 1,84) para o
+  // `cover` não cortar pins — ver o gerador offline (width/height/padding).
+  mapImg: { width: '100%', height: 280, borderRadius: 6, marginBottom: 4, objectFit: 'cover' },
   mapPlaceholder: {
     width: '100%',
     height: 120,
