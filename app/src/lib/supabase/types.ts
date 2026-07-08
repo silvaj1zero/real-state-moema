@@ -545,7 +545,7 @@ export interface ListingCrossRef {
 }
 
 // Intelligence Feed (Story 3.7)
-export type TipoFeed = 'novo_fisbo' | 'reducao_preco' | 'ex_imobiliaria_fisbo' | 'novo_raio_desbloqueado' | 'lead_parado' | 'agendamento_proximo' | 'seed_completo' | 'sync_completo' | 'busca_parametrica'
+export type TipoFeed = 'novo_fisbo' | 'reducao_preco' | 'ex_imobiliaria_fisbo' | 'novo_raio_desbloqueado' | 'lead_parado' | 'agendamento_proximo' | 'seed_completo' | 'sync_completo' | 'busca_parametrica' | 'owner_lookup_completo'
 export type PrioridadeFeed = 'alta' | 'media' | 'baixa'
 
 export interface IntelligenceFeedEvent {
@@ -568,6 +568,30 @@ export interface IntelligenceFeedEvent {
 // =============================================================================
 // Epic 6 — Busca Parametrica On-Demand com Enriquecimento de Contatos
 // =============================================================================
+
+// Story 6.6 — Lookup de proprietario via cartorio (migration 023)
+export type OwnerLookupRowStatus = 'pending' | 'success' | 'failed' | 'not_found'
+
+export interface OwnerLookup {
+  id: string
+  consultant_id: string
+  edificio_id: string | null
+  sql_lote: string | null
+  endereco: string | null
+  matricula: string | null
+  nome_proprietario: string | null
+  cpf_cnpj_masked: string | null
+  cartorio: string | null
+  data_matricula: string | null
+  ultima_transacao: string | null
+  fonte: string
+  custo_brl: number
+  raw_response: Record<string, unknown> | null
+  status: OwnerLookupRowStatus
+  error_message: string | null
+  created_at: string
+  updated_at: string
+}
 
 export type SearchStatus = 'pending' | 'running' | 'completed' | 'failed' | 'cancelled'
 

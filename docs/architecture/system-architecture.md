@@ -1675,6 +1675,43 @@ FOR EACH ROW EXECUTE FUNCTION fn_notify_price_change();
 
 ---
 
+## 6b. Owner Lookup Pipeline (Story 6.6)
+
+Pipeline de consulta de proprietário via cartório (Infosimples/ARISP), implementado
+até a **fronteira da API paga** — a ativação real exige `OWNER_LOOKUP_ENABLED=true`
++ `INFOSIMPLES_TOKEN` (decisão de custo do founder; ~R$0,28/consulta).
+
+```
+POST /api/owners/lookup  { edificio_id } | { sql_lote, endereco }
+  │ (sessão Supabase — 401 sem auth)
+  ├─ 1. Resolver lote: edificios.sql_lote (Story 3.5) → fallback GeoSampa WFS
+  │     (lib/geosampa.ts — INTERSECTS na camada CADASTRO_IPTU_LOTE)
+  ├─ 2. Cache 90d em owner_lookups (hit → 200 cache_hit:true, custo 0)
+  ├─ 3. Rate limit 30/h (fn_check_owner_lookup_rate_limit → 429 + Retry-After)
+  ├─ 4. Budget mensal R$60 (SUM custo_brl no mês → 402)
+  ├─ 5. Feature flag OFF → 503 (nada é consultado nem persistido)
+  ├─ 6. Infosimples/ARISP (lib/infosimples.ts — timeout 20s, 2 retries 1s/3s)
+  └─ 7. Persiste owner_lookups (RLS por consultant_id) + evento
+        intelligence_feed 'owner_lookup_completo' → payload consolidado
+
+POST /api/owners/:id/forget  → fn_anonimize_owner_lookup (LGPD, RLS-invoker)
+```
+
+| Camada | Arquivo |
+|---|---|
+| Orquestração (pura, testada com store fake) | `app/src/lib/owner-lookup-service.ts` |
+| Adapter Supabase (I/O) | `app/src/lib/owner-lookup-store.ts` |
+| Client Infosimples + flag | `app/src/lib/infosimples.ts` |
+| Fallback GeoSampa WFS | `app/src/lib/geosampa.ts` |
+| Contratos HTTP/Zod | `app/src/lib/schemas/owner-lookup.ts` |
+| Hook React Query | `app/src/hooks/useOwnerLookup.ts` |
+| Schema (tabela + RPCs + RLS) | `supabase/migrations/20260708000001_023_owner_lookups.sql` |
+
+LGPD: `cpf_cnpj_masked` guarda somente `***.***.***-XX` (máscara aplicada no parser,
+antes de qualquer persistência/log); `raw_response` é zerado no forget.
+
+---
+
 ## 7. Decisões Arquiteturais (ADRs)
 
 ### ADR-001: Separação edificios / edificios_qualificacoes
