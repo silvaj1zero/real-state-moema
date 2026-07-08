@@ -53,13 +53,11 @@ describe('buildAcmMapMarkers — pins por Top N', () => {
 
   it('alvo vermelho grande + Top3 dourado numerado + Top4-5 laranja + demais azuis', () => {
     const m = buildAcmMapMarkers(target, ranking, src as never)
-    expect(m[0]).toMatchObject({ color: '#DC1431', size: 'l' }) // alvo
-    const top3 = m.filter((x) => x.color === 'D4A843')
-    const top45 = m.filter((x) => x.color === 'F97316')
-    const outros = m.filter((x) => x.color === '2563EB')
-    expect(top3.map((x) => x.label)).toEqual([1, 2, 3])
-    expect(top45.map((x) => x.label)).toEqual([4, 5])
-    expect(outros).toHaveLength(1) // F
+    // Ordem = camadas do static map (último desenha por cima): azuis → laranjas → dourados → alvo.
+    expect(m.map((x) => x.color)).toEqual(['2563EB', 'F97316', 'F97316', 'D4A843', 'D4A843', 'D4A843', '#DC1431'])
+    expect(m.at(-1)).toMatchObject({ color: '#DC1431', size: 'l' }) // alvo por cima de todos
+    expect(m.filter((x) => x.color === 'D4A843').map((x) => x.label)).toEqual([1, 2, 3])
+    expect(m.filter((x) => x.color === 'F97316').map((x) => x.label)).toEqual([4, 5])
   })
   it('ignora comparáveis sem coords', () => {
     const semCoords = [{ endereco: 'A', areaConstruida: 400, preco: 5e6, lat: null, lng: null }]
@@ -79,6 +77,6 @@ describe('buildAcmMapMarkers — pins por Top N', () => {
     const m = buildAcmMapMarkers(target, shortRanking, shortSrc as never)
     expect(m.filter((x) => x.color === 'D4A843').map((x) => x.label)).toEqual([1, 2]) // Top 3 (só 2)
     expect(m.filter((x) => x.color === 'F97316')).toHaveLength(0) // sem Top 4-5
-    expect(m[0]).toMatchObject({ color: '#DC1431', size: 'l' }) // alvo presente
+    expect(m.at(-1)).toMatchObject({ color: '#DC1431', size: 'l' }) // alvo presente, por cima
   })
 })

@@ -273,7 +273,7 @@ export function ResumoDocument({ model }: { model: ResumoModel }) {
           </View>
         )}
         <Text style={s.legend}>
-          ● Imóvel-alvo ❶ Top 3 ❹ Top 4–5 ● Demais vendidos ■ Raio de análise
+          Vermelho: imóvel-alvo · Dourado 1–3: Top 3 · Laranja 4–5: reforço · Azul: demais vendidos · Círculo: raio de análise
         </Text>
 
         {/* Tabela Top N */}

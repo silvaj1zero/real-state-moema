@@ -440,15 +440,15 @@ const CRITERIOS_DEFAULT: LaudoCriterio[] = [
   { criterio: 'Geográfico', parametro: 'Raio de 1.000 m do imóvel-alvo', justificativa: 'Microrregião de valorização homogênea (ver seção 3)' },
   { criterio: 'Tipologia', parametro: 'Casa unifamiliar horizontal', justificativa: 'Exclui apartamento, comercial e terreno — mesma tipicidade' },
   { criterio: 'Uso (IPTU)', parametro: 'Residência', justificativa: 'Garante uso estritamente residencial' },
-  { criterio: 'Segmento de valor', parametro: '≥ R$ 5.000.000', justificativa: 'Recorte de alto padrão; mesma classe construtiva/condição do alvo' },
+  { criterio: 'Segmento de valor', parametro: 'R$ 5.000.000 ou mais', justificativa: 'Recorte de alto padrão; mesma classe construtiva/condição do alvo' },
   { criterio: 'Classe de qualidade', parametro: 'Score B', justificativa: 'Mesma classe do alvo (produto a reposicionar)' },
   { criterio: 'Período', parametro: '2024–2026 (ITBI)', justificativa: 'Atualidade das transações de fechamento' },
   { criterio: 'Evidência', parametro: 'Vendidos (ITBI) + anunciados', justificativa: 'Fechamentos reais (âncora) + concorrência ativa (teto)' },
 ]
 
 const REGUA_SCORE_DEFAULT: LaudoReguaScoreRow[] = [
-  { score: 'AAA', criterio: 'R$/m² ≥ 40k + 4+ suítes/vagas (ou área ≥ 500 m²)', leitura: 'Ícone / superluxo' },
-  { score: 'AA', criterio: 'R$/m² ≥ 30k + 3+ suítes/vagas', leitura: 'Alto padrão consolidado' },
+  { score: 'AAA', criterio: 'R$/m² 40k+ e 4+ suítes/vagas (ou área 500 m²+)', leitura: 'Ícone / superluxo' },
+  { score: 'AA', criterio: 'R$/m² 30k+ e 3+ suítes/vagas', leitura: 'Alto padrão consolidado' },
   { score: 'A', criterio: 'R$/m² 22–25k', leitura: 'Bom produto' },
   { score: 'B', criterio: 'R$/m² < 22k', leitura: 'Produto a reposicionar (caso do alvo)' },
 ]
@@ -624,11 +624,11 @@ export function buildLaudoModel(
     const vgv = rp.vgvPerM2 * rp.areaNova
     residual.push(
       { rotulo: `VGV — casa nova ${intMetros(rp.areaNova)} × ${formatBRL(rp.vgvPerM2)}/m² (saída AAA)`, valor: vgv },
-      { rotulo: `(−) Custo de obra (${intMetros(rp.areaNova)} × ${formatBRL(rp.custoObraPerM2)}/m²)`, valor: rp.custoObraPerM2 * rp.areaNova, deducao: true },
-      { rotulo: '(−) Demolição da edificação existente', valor: rp.demolicao, deducao: true },
-      { rotulo: `(−) Comercialização + impostos (${Math.round(rp.comercializacaoPct * 100)}% do VGV)`, valor: round2(rp.comercializacaoPct * vgv), deducao: true },
-      { rotulo: `(−) Custo financeiro / projeto / aprovações (${Math.round(rp.custoFinanceiroPct * 100)}%)`, valor: round2(rp.custoFinanceiroPct * vgv), deducao: true },
-      { rotulo: `(−) Margem do incorporador (${Math.round(rp.margemPct * 100)}% do VGV)`, valor: round2(rp.margemPct * vgv), deducao: true },
+      { rotulo: `(-) Custo de obra (${intMetros(rp.areaNova)} × ${formatBRL(rp.custoObraPerM2)}/m²)`, valor: rp.custoObraPerM2 * rp.areaNova, deducao: true },
+      { rotulo: '(-) Demolição da edificação existente', valor: rp.demolicao, deducao: true },
+      { rotulo: `(-) Comercialização + impostos (${Math.round(rp.comercializacaoPct * 100)}% do VGV)`, valor: round2(rp.comercializacaoPct * vgv), deducao: true },
+      { rotulo: `(-) Custo financeiro / projeto / aprovações (${Math.round(rp.custoFinanceiroPct * 100)}%)`, valor: round2(rp.custoFinanceiroPct * vgv), deducao: true },
+      { rotulo: `(-) Margem do incorporador (${Math.round(rp.margemPct * 100)}% do VGV)`, valor: round2(rp.margemPct * vgv), deducao: true },
       { rotulo: '= Valor residual do terreno (teto do comprador-terreno)', valor: computation.coAncoraTerreno ?? 0, total: true },
     )
   }
@@ -760,7 +760,7 @@ export function buildLaudoModel(
   const fatores = input.fatoresLiquidezDetalhe ?? FATORES_LIQUIDEZ_DEFAULT
   const composicaoNota =
     `Valor de mercado ${formatBRL(computation.valorMercado)} (recorte amplo) → aplicação composta dos ajustes (${fatores
-      .map((f) => `−${Math.round(f.ajuste * 100)}%`)
+      .map((f) => `-${Math.round(f.ajuste * 100)}%`)
       .join(' ')}) → valor de fechamento estratégico ${formatBRL(computation.valorFechamento)}.`
 
   const ponderacaoDefault =
@@ -918,7 +918,7 @@ export function buildLaudoModel(
     sec3: {
       mapaUrl: input.mapaUrl ?? null,
       legenda:
-        '● Imóvel-alvo  ❶❷❸ Top 3 (máxima aderência)  ❹❺ Top 4–5  ● Demais comparáveis vendidos  ■ Raio de análise',
+        'Vermelho: imóvel-alvo · Dourado 1–3: Top 3 (máxima aderência) · Laranja 4–5: reforço · Azul: demais comparáveis vendidos · Círculo: raio de análise',
       indice: topLinhas,
       composicaoBairro: input.composicaoBairro ?? composicaoBairroDefault,
       ofertas: input.ofertasAtivas ?? [],

@@ -145,9 +145,11 @@ const s = StyleSheet.create({
   table: { marginTop: 4, marginBottom: 4 },
   tr: { flexDirection: 'row', borderBottomWidth: 0.5, borderBottomColor: COLORS.cinzaBorda, paddingVertical: 3 },
   trHead: { borderBottomWidth: 1, borderBottomColor: COLORS.corpo },
-  th: { fontSize: 6, color: COLORS.cinzaClaro, textTransform: 'uppercase', letterSpacing: 0.2 },
-  td: { fontSize: 7.5 },
-  tdStrong: { fontSize: 7.5, fontFamily: FONTS.bodyMedium, color: COLORS.azulEscuro },
+  // paddingHorizontal separa coluna alinhada à direita da vizinha à esquerda
+  // (ex.: Sec. 6 "Área|Programa" e "R$/m²|Leitura" colavam sem o respiro).
+  th: { fontSize: 6, color: COLORS.cinzaClaro, textTransform: 'uppercase', letterSpacing: 0.2, paddingHorizontal: 2 },
+  td: { fontSize: 7.5, paddingHorizontal: 2 },
+  tdStrong: { fontSize: 7.5, fontFamily: FONTS.bodyMedium, color: COLORS.azulEscuro, paddingHorizontal: 2 },
   green: { color: COLORS.verde, fontFamily: FONTS.bodyMedium },
   gold: { color: COLORS.dourado, fontFamily: FONTS.bodyMedium },
   // Conclusão (Sec. 10)
@@ -487,7 +489,7 @@ export function LaudoDocument({ model }: { model: LaudoModel }) {
               <Text style={[s.tdStrong, { width: '34%' }]}>{f.fator}</Text>
               <Text style={[s.td, { width: '52%' }]}>{f.calibracao}</Text>
               <Text style={[s.td, s.green, { width: '14%', textAlign: 'right' }]}>
-                −{Math.round(f.ajuste * 100)}%
+                -{Math.round(f.ajuste * 100)}%
               </Text>
             </View>
           ))}
@@ -703,7 +705,7 @@ export function LaudoDocument({ model }: { model: LaudoModel }) {
                 >
                   <Text style={s.concLabel}>{r.rotulo}</Text>
                   <Text style={[s.concValue, ...(r.total ? [s.green] : r.deducao ? [{ color: COLORS.vermelho }] : [])]}>
-                    {r.deducao ? '−' : ''}
+                    {r.deducao ? '- ' : ''}
                     {fmt(r.valor)}
                   </Text>
                 </View>

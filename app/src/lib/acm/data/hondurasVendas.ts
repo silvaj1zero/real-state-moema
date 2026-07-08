@@ -257,7 +257,7 @@ export const HONDURAS_ALVO_CEP = {
  * índice FipeZap SP venda residencial, referência = última competência publicada.
  */
 export const HONDURAS_HOMOGENEIZACAO: HomogeneizacaoOptions = {
-  indice: `${FIPEZAP_SP_FONTE.indice} (${FIPEZAP_SP_FONTE.recorte})`,
+  indice: `${FIPEZAP_SP_FONTE.indice} — ${FIPEZAP_SP_FONTE.recorte}`,
   serie: FIPEZAP_SP_VENDA_RESIDENCIAL,
   dataReferencia: FIPEZAP_SP_ULTIMA_COMPETENCIA,
 }

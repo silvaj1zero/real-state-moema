@@ -37,7 +37,7 @@ import {
   type LaudoInput,
   type LaudoSourceComparable,
 } from '@/lib/acm/pdf/laudoModel'
-import { LaudoDocument } from '@/lib/acm/pdf/LaudoDocument'
+import { registerBrandFonts } from '@/lib/acm/pdf/theme'
 import { COMPARAVEIS, OFERTAS_ATIVAS, TARGET } from './honduras-dataset.mjs'
 
 const comparaveis = hondurasComparaveisHomogeneizados()
@@ -260,18 +260,44 @@ async function resolverMapaUrl(): Promise<string | null> {
   })
 }
 
+/** Grava o arquivo; se estiver aberto no visualizador (EBUSY), usa sufixo -revN. */
+function escreverComFallback(destino: string, dados: Buffer | string): string {
+  for (let rev = 0; ; rev++) {
+    const alvo =
+      rev === 0 ? destino : destino.replace(/(\.[a-z.]+)$/i, `-rev${rev + 1}$1`)
+    try {
+      writeFileSync(alvo, dados)
+      return alvo
+    } catch (err) {
+      if ((err as NodeJS.ErrnoException).code !== 'EBUSY' || rev >= 9) throw err
+    }
+  }
+}
+
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..')
 const outDir = path.join(repoRoot, 'docs', 'acm', 'honduras-629')
 mkdirSync(outDir, { recursive: true })
 const hoje = new Date().toISOString().slice(0, 10)
 
 async function main(): Promise<void> {
+  // Fontes da marca (Montserrat/Inter) ANTES de importar o Document — em node o
+  // registro automático do theme é no-op e o StyleSheet captura FONTS por valor;
+  // sem isto o PDF sai em Helvetica (WinAnsi), que não tem −, ≥, ● etc.
+  const fontsDir = path.join(scriptDir, '..', '..', 'public', 'fonts')
+  const fontsOk = registerBrandFonts({
+    montserratBold: path.join(fontsDir, 'Montserrat-Bold.ttf'),
+    montserratSemiBold: path.join(fontsDir, 'Montserrat-SemiBold.ttf'),
+    interRegular: path.join(fontsDir, 'Inter-Regular.ttf'),
+    interMedium: path.join(fontsDir, 'Inter-Medium.ttf'),
+  })
+  console.log(`Fontes de marca: ${fontsOk ? 'Montserrat/Inter registradas' : 'FALLBACK Helvetica'}`)
+  const { LaudoDocument } = await import('@/lib/acm/pdf/LaudoDocument')
+
   const mapaUrl = await resolverMapaUrl()
   if (mapaUrl) console.log(`Mapa: embutido (${(mapaUrl.length / 1024).toFixed(0)} KB base64)`)
   const model = buildLaudoModel(computation, source, { ...input, mapaUrl })
   const buf = await renderToBuffer(<LaudoDocument model={model} />)
-  const pdfPath = path.join(outDir, `LAUDO-ACM-Honduras-v5-${hoje}.pdf`)
-  writeFileSync(pdfPath, buf)
+  const pdfPath = escreverComFallback(path.join(outDir, `LAUDO-ACM-Honduras-v5-${hoje}.pdf`), buf)
 
   // Resumo de revisão (H-2: "revisar à luz da auditoria antes de usar na captação").
   const revisao = {
@@ -297,8 +323,10 @@ async function main(): Promise<void> {
     nota: 'Mantidas do v4 — validar com a Luciana (H-3) frente à faixa homogeneizada.',
   },
 }
-const jsonPath = path.join(outDir, `LAUDO-ACM-Honduras-v5-${hoje}.computation.json`)
-writeFileSync(jsonPath, JSON.stringify(revisao, null, 2))
+const jsonPath = escreverComFallback(
+  path.join(outDir, `LAUDO-ACM-Honduras-v5-${hoje}.computation.json`),
+  JSON.stringify(revisao, null, 2),
+)
 
 console.log(`PDF:  ${pdfPath} (${(buf.length / 1024).toFixed(0)} KB)`)
 console.log(`JSON: ${jsonPath}`)

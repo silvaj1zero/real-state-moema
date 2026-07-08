@@ -58,6 +58,10 @@ const MARKER = { top3: 'D4A843', top45: 'F97316', outros: '2563EB' } as const
  * 1-3) + Top 4-5 (laranja, 4-5) + demais comparáveis com coords (azul, pequenos).
  * Só plota quem tem lat/lng (degrada graciosamente). `maxOutros` limita o tamanho
  * da URL da Static API. Ranking = ordem de aderência da 8.2 (`computation.ranking`).
+ *
+ * A Static API desenha os overlays NA ORDEM da lista (o último fica por cima) —
+ * por isso a saída vai em camadas: azuis → laranjas → dourados → alvo. Um Top 3
+ * nunca fica escondido atrás de um pin azul.
  */
 export function buildAcmMapMarkers(
   target: { lat: number; lng: number },
@@ -70,19 +74,19 @@ export function buildAcmMapMarkers(
     if (!rankByEndereco.has(r.endereco)) rankByEndereco.set(r.endereco, i)
   })
   const maxOutros = opts?.maxOutros ?? 22
-  const markers: MapMarker[] = [{ lat: target.lat, lng: target.lng, color: '#DC1431', size: 'l' }]
-  let outros = 0
+  const top3: MapMarker[] = []
+  const top45: MapMarker[] = []
+  const outros: MapMarker[] = []
   for (const s of source) {
     if (s.lat == null || s.lng == null) continue
     const rank = rankByEndereco.get(s.endereco)
     if (rank != null && rank < 3) {
-      markers.push({ lat: s.lat, lng: s.lng, label: rank + 1, color: MARKER.top3 })
+      top3.push({ lat: s.lat, lng: s.lng, label: rank + 1, color: MARKER.top3 })
     } else if (rank != null && rank < 5) {
-      markers.push({ lat: s.lat, lng: s.lng, label: rank + 1, color: MARKER.top45 })
-    } else if (outros < maxOutros) {
-      markers.push({ lat: s.lat, lng: s.lng, color: MARKER.outros, size: 's' })
-      outros++
+      top45.push({ lat: s.lat, lng: s.lng, label: rank + 1, color: MARKER.top45 })
+    } else if (outros.length < maxOutros) {
+      outros.push({ lat: s.lat, lng: s.lng, color: MARKER.outros, size: 's' })
     }
   }
-  return markers
+  return [...outros, ...top45, ...top3, { lat: target.lat, lng: target.lng, color: '#DC1431', size: 'l' }]
 }
