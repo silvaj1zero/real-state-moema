@@ -51,6 +51,7 @@ e rastreáveis (data de venda, SQL e bairro verificado por CEP de cada um):
 | Índice FipeZap (2024-01→2026-06) | Planilha oficial de séries históricas — downloads.fipe.org.br/indices/fipezap | Aba "São Paulo", venda residencial, Número-Índice Total |
 | Data de venda + SQL dos 23 | "Dados das Transações Imobiliárias com recolhimento de ITBI" — Fazenda/PMSP (arquivos anuais 2024/2025/2026) | Casamento por logradouro+número+valor+áreas; SQL do laudo confere 5/5 nos Top 5 |
 | CEP / bairro real | ViaCEP (base Correios), por logradouro e faixa de numeração | Corroborado pelo campo CEP da própria guia ITBI (23/23) |
+| Conferência pública dos SQLs | GeoSampa (geosampa.prefeitura.sp.gov.br) — balcão oficial do cadastro municipal | Qualquer SQL da tabela abaixo é verificável por terceiros; agregadores como ITBImap/Atlas exibem as mesmas guias em mapa |
 
 ### As 23 vendas com data e bairro verificados
 
@@ -117,5 +118,9 @@ e rastreáveis (data de venda, SQL e bairro verificado por CEP de cada um):
 - `npm run typecheck` e `npm run lint` → exit 0.
 - Auditoria de texto do PDF v5: composição por bairro, critério "Atualização
   temporal — FipeZap ref. 2026-06 (23 de 23 ajustados)" e headline em faixa presentes.
+- Revisão de layout (07-Jul, noite): fontes da marca (Montserrat/Inter) embutidas na
+  geração offline, mapa da Sec. 3 com pins em camadas (Top 3/4-5 sempre visíveis),
+  sinais de subtração e legendas em caracteres seguros, colunas da Sec. 6 com respiro.
 - Commits (branch `fix/epic7-v-crawl-health`, sem push — push é do @devops):
-  `9ab93c6` (mecanismos 9.10/9.11) · `b42a14d` (ingestão 9.12) · `4251347` (laudo v5, 9.13).
+  `9ab93c6` (mecanismos 9.10/9.11) · `b42a14d` (ingestão 9.12) · `4251347` (laudo v5) ·
+  `abbd69d` (mapa Sec. 3) · `87dc91d` (layout/fontes) — Story 9.13.
