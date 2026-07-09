@@ -15,7 +15,11 @@ import {
   deflacionarComparaveis,
   composicaoPorBairro,
   desagioMedido,
+  derivarPassaporte,
+  derivarPassaportes,
+  agregarConfianca,
 } from './methodology'
+import type { AcmComparable } from './methodology'
 import {
   HONDURAS_TARGET,
   HONDURAS_COMPARAVEIS,
@@ -446,5 +450,202 @@ describe('isSelfReference / screenSelfReferences (Story 9.8)', () => {
     ])
     expect(aceitos.length).toBe(23)
     expect(excluidos.length).toBe(1)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Passaporte de confiabilidade + avisos de robustez — Story 9.15 (N-1)
+// ---------------------------------------------------------------------------
+
+describe('derivarPassaporte — grau A/B/C determinístico pela força do preço', () => {
+  const base: AcmComparable = { endereco: 'X', areaConstruida: 400, preco: 8_000_000 }
+
+  it('ITBI enriquecido (terreno + distância) → A', () => {
+    const p = derivarPassaporte(
+      { ...base, isVendaReal: true, areaTerreno: 500, distancia: 200 },
+      'incluido',
+    )
+    expect(p.confianca).toBe('A')
+    expect(p.fontePreco).toBe('itbi_oficial')
+    expect(p.status).toBe('incluido')
+  })
+
+  it('ITBI esparso (sem terreno/distância) → B', () => {
+    expect(derivarPassaporte({ ...base, isVendaReal: true }, 'incluido').confianca).toBe('B')
+  })
+
+  it('anúncio (não é fechamento) → C', () => {
+    const p = derivarPassaporte({ ...base, isVendaReal: false, precoPedido: 8_500_000 }, 'incluido')
+    expect(p.confianca).toBe('C')
+    expect(p.fontePreco).toBe('anuncio')
+  })
+
+  it('excluído pelo guard-rail 9.8 → rejeitado (com motivos)', () => {
+    const p = derivarPassaporte({ ...base, isVendaReal: true }, 'excluido', ['auto-referência'])
+    expect(p.confianca).toBe('rejeitado')
+    expect(p.motivos).toEqual(['auto-referência'])
+  })
+
+  it('proveniência ausente vira o pior grau conhecido (Art. IV — não inventa "oficial")', () => {
+    const p = derivarPassaporte({ ...base, isVendaReal: true }, 'incluido')
+    expect(p.areaConstrFonte).toBe('nao_rastreada')
+    expect(p.areaTerrenoFonte).toBe('ausente')
+    expect(p.dataVendaFonte).toBe('ausente')
+    expect(p.geocode).toBe('ausente')
+    expect(p.tipologia.fonte).toBe('ausente')
+  })
+
+  it('proveniência preenchida (9.4/9.17) é refletida no passaporte', () => {
+    const p = derivarPassaporte(
+      {
+        ...base,
+        isVendaReal: true,
+        areaTerreno: 500,
+        distancia: 100,
+        tipologia: { valor: 'casa', fonte: 'guia' },
+        areaConstruidaFonte: 'oficial',
+        areaTerrenoFonte: 'oficial',
+        dataVenda: '2025-01',
+        dataVendaConfirmada: true,
+        geocode: 'exato',
+      },
+      'incluido',
+    )
+    expect(p.tipologia).toEqual({ valor: 'casa', confianca: 'alta', fonte: 'guia' })
+    expect(p.areaConstrFonte).toBe('oficial')
+    expect(p.dataVendaFonte).toBe('confirmada')
+    expect(p.geocode).toBe('exato')
+  })
+})
+
+describe('computeLaudo — avisos + passaportes (regressão Honduras)', () => {
+  const r = computeLaudo({
+    target: HONDURAS_TARGET,
+    comparaveis: HONDURAS_COMPARAVEIS,
+    fatoresLiquidez: HONDURAS_FATORES_LIQUIDEZ,
+    residual: HONDURAS_RESIDUAL,
+  })
+
+  it('AC6 — números-âncora intactos (avisos não alteram o cálculo)', () => {
+    expect(r.totalComparaveis).toBe(23)
+    expect(within(r.medianaPrecoM2, 18264, 0.001)).toBe(true)
+    expect(within(r.valorMercado, 12_419_520)).toBe(true)
+  })
+
+  it('AC6 — passaportes.length = n processados (23, sem exclusões)', () => {
+    expect(r.passaportes).toHaveLength(23)
+    expect(r.passaportes.every((p) => p.status === 'incluido')).toBe(true)
+  })
+
+  it('agregado A/B/C: Top 5 enriquecidos = A, os 18 esparsos = B', () => {
+    expect(agregarConfianca(r.passaportes)).toEqual({ A: 5, B: 18, C: 0, rejeitado: 0 })
+  })
+
+  it('avisos esperados: terrain_lens_low_n (banda >800 n=2) + target_condition_unconfirmed', () => {
+    const codigos = r.avisos.map((a) => a.codigo)
+    expect(codigos).toContain('terrain_lens_low_n')
+    expect(codigos).toContain('target_condition_unconfirmed')
+  })
+
+  it('não dispara falsos: amostra grande, fatores presentes, top5 sólido', () => {
+    const codigos = r.avisos.map((a) => a.codigo)
+    expect(codigos).not.toContain('sample_size_low_top3')
+    expect(codigos).not.toContain('liquidity_factors_unvalidated')
+    expect(codigos).not.toContain('confidence_low_in_top5')
+    expect(codigos).not.toContain('AUTO_REF_EXCLUIDAS')
+  })
+
+  it('estadoAlvoConfirmado:true silencia target_condition_unconfirmed (cruza 9.14)', () => {
+    const r2 = computeLaudo({
+      target: HONDURAS_TARGET,
+      comparaveis: HONDURAS_COMPARAVEIS,
+      fatoresLiquidez: HONDURAS_FATORES_LIQUIDEZ,
+      residual: HONDURAS_RESIDUAL,
+      estadoAlvoConfirmado: true,
+    })
+    expect(r2.avisos.map((a) => a.codigo)).not.toContain('target_condition_unconfirmed')
+  })
+})
+
+describe('coletarAvisos — regras individuais', () => {
+  it('sample_size_low_top3 quando amostra < 5', () => {
+    const r = computeLaudo({
+      target: { areaConstruida: 300, areaTerreno: 400 },
+      comparaveis: [
+        { endereco: 'A', areaConstruida: 300, preco: 3_000_000, isVendaReal: true },
+        { endereco: 'B', areaConstruida: 310, preco: 3_100_000, isVendaReal: true },
+      ],
+    })
+    expect(r.avisos.map((a) => a.codigo)).toContain('sample_size_low_top3')
+  })
+
+  it('liquidity_factors_unvalidated quando não há fatores', () => {
+    const r = computeLaudo({ target: HONDURAS_TARGET, comparaveis: HONDURAS_COMPARAVEIS })
+    expect(r.avisos.map((a) => a.codigo)).toContain('liquidity_factors_unvalidated')
+  })
+
+  it('mixed_neighborhood_sample com >1 bairro real', () => {
+    const r = computeLaudo({
+      target: { areaConstruida: 300, areaTerreno: 400 },
+      comparaveis: [
+        { endereco: 'A', areaConstruida: 300, preco: 3_000_000, isVendaReal: true, bairroReal: 'Jardim Paulista' },
+        { endereco: 'B', areaConstruida: 300, preco: 3_100_000, isVendaReal: true, bairroReal: 'Jardim América' },
+        { endereco: 'C', areaConstruida: 300, preco: 3_200_000, isVendaReal: true, bairroReal: 'Jardim Paulista' },
+        { endereco: 'D', areaConstruida: 300, preco: 3_300_000, isVendaReal: true, bairroReal: 'Jardim América' },
+        { endereco: 'E', areaConstruida: 300, preco: 3_400_000, isVendaReal: true, bairroReal: 'Jardim Paulista' },
+      ],
+    })
+    expect(r.avisos.map((a) => a.codigo)).toContain('mixed_neighborhood_sample')
+  })
+
+  it('typology_heuristic_present quando algum comparável é tipado por heurística', () => {
+    const r = computeLaudo({
+      target: { areaConstruida: 300, areaTerreno: 400 },
+      comparaveis: [
+        { endereco: 'A', areaConstruida: 300, preco: 3_000_000, isVendaReal: true, tipologia: { valor: 'casa', fonte: 'heuristica' } },
+        { endereco: 'B', areaConstruida: 310, preco: 3_100_000, isVendaReal: true },
+        { endereco: 'C', areaConstruida: 320, preco: 3_200_000, isVendaReal: true },
+        { endereco: 'D', areaConstruida: 330, preco: 3_300_000, isVendaReal: true },
+        { endereco: 'E', areaConstruida: 340, preco: 3_400_000, isVendaReal: true },
+      ],
+    })
+    expect(r.avisos.map((a) => a.codigo)).toContain('typology_heuristic_present')
+  })
+
+  it('confidence_low_in_top5 quando o Top 5 tem comparável C (anúncio)', () => {
+    // 5 comparáveis, um deles é anúncio (não venda real) e o mais aderente.
+    const r = computeLaudo({
+      target: { areaConstruida: 300, areaTerreno: 400, endereco: null },
+      comparaveis: [
+        { endereco: 'Anuncio', areaConstruida: 300, areaTerreno: 400, distancia: 10, preco: 3_000_000, isVendaReal: false },
+        { endereco: 'B', areaConstruida: 305, areaTerreno: 400, distancia: 500, preco: 3_100_000, isVendaReal: true },
+        { endereco: 'C', areaConstruida: 320, preco: 3_200_000, isVendaReal: true },
+        { endereco: 'D', areaConstruida: 330, preco: 3_300_000, isVendaReal: true },
+        { endereco: 'E', areaConstruida: 340, preco: 3_400_000, isVendaReal: true },
+      ],
+    })
+    expect(r.avisos.map((a) => a.codigo)).toContain('confidence_low_in_top5')
+  })
+
+  it('AUTO_REF_EXCLUIDAS + passaporte rejeitado no contaminado (length = 24)', () => {
+    const target = { areaConstruida: 800, areaTerreno: 1000, endereco: 'Rua Honduras, 629', vagas: 10, precoPretendido: 12_000_000 }
+    const anuncio639 = { endereco: 'R. Honduras, 639', areaConstruida: 800, preco: 12_000_000, precoPedido: 12_000_000, distancia: 10, vagas: 10 }
+    const r = computeLaudo({ target, comparaveis: [...HONDURAS_COMPARAVEIS, anuncio639], fatoresLiquidez: HONDURAS_FATORES_LIQUIDEZ })
+    expect(r.avisos.map((a) => a.codigo)).toContain('AUTO_REF_EXCLUIDAS')
+    expect(r.passaportes).toHaveLength(24)
+    const rej = r.passaportes.find((p) => p.endereco === 'R. Honduras, 639')!
+    expect(rej.status).toBe('excluido')
+    expect(rej.confianca).toBe('rejeitado')
+  })
+})
+
+describe('derivarPassaportes — aceitos + excluídos', () => {
+  it('concatena aceitos (grau real) e excluídos (rejeitado)', () => {
+    const aceitos: AcmComparable[] = [{ endereco: 'A', areaConstruida: 300, preco: 3_000_000, isVendaReal: true }]
+    const excluidosOriginais: AcmComparable[] = [{ endereco: 'Z', areaConstruida: 300, preco: 3_000_000, isVendaReal: true }]
+    const pass = derivarPassaportes(aceitos, [{ endereco: 'Z', motivos: ['auto-ref'] }], excluidosOriginais)
+    expect(pass).toHaveLength(2)
+    expect(pass[0]).toMatchObject({ endereco: 'A', status: 'incluido', confianca: 'B' })
+    expect(pass[1]).toMatchObject({ endereco: 'Z', status: 'excluido', confianca: 'rejeitado' })
   })
 })

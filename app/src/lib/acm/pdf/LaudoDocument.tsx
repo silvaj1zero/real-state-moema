@@ -96,6 +96,22 @@ const s = StyleSheet.create({
   faixaLabel: { fontSize: 6, color: COLORS.cinzaClaro, textTransform: 'uppercase', letterSpacing: 0.3, textAlign: 'center' },
   faixaValue: { fontSize: 11, fontFamily: FONTS.heading, color: COLORS.azul, marginTop: 4, textAlign: 'center' },
   faixaValueHi: { color: COLORS.verde },
+  // Robustez & confiabilidade (Story 9.15) — bloco da capa
+  robustezBox: {
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: COLORS.cinzaBorda,
+    borderRadius: 6,
+    padding: 10,
+    backgroundColor: COLORS.fundoSuave,
+  },
+  robustezHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 5 },
+  robustezTitle: { fontSize: 8.5, fontFamily: FONTS.bodyMedium, color: COLORS.azulEscuro, textTransform: 'uppercase', letterSpacing: 0.4 },
+  robustezGrades: { fontSize: 8, fontFamily: FONTS.bodyMedium, color: COLORS.corpo },
+  avisoRow: { flexDirection: 'row', marginBottom: 2, alignItems: 'flex-start' },
+  avisoDot: { width: 8, fontSize: 8.5, fontFamily: FONTS.bodyMedium },
+  avisoText: { flex: 1, fontSize: 7.5, color: COLORS.corpo },
+  robustezOk: { fontSize: 7.5, color: COLORS.verde, fontFamily: FONTS.bodyMedium },
   // Seções
   h2: { fontFamily: FONTS.heading, fontSize: 13, color: COLORS.azulEscuro, marginTop: 16, marginBottom: 5 },
   h3: { fontFamily: FONTS.bodyMedium, fontSize: 9.5, color: COLORS.azul, marginTop: 8, marginBottom: 3 },
@@ -425,6 +441,37 @@ export function LaudoDocument({ model }: { model: LaudoModel }) {
               </View>
             )
           })}
+        </View>
+
+        {/* Robustez & confiabilidade da amostra (Story 9.15) */}
+        <View style={s.robustezBox}>
+          <View style={s.robustezHead}>
+            <Text style={s.robustezTitle}>Robustez da amostra & confiabilidade</Text>
+            <Text style={s.robustezGrades}>
+              {`Confiança dos ${model.robustez.totalIncluidos} comparáveis — A: ${model.robustez.confiabilidade.A} · B: ${model.robustez.confiabilidade.B} · C: ${model.robustez.confiabilidade.C}`}
+              {model.robustez.confiabilidade.rejeitado > 0
+                ? ` · rejeitados: ${model.robustez.confiabilidade.rejeitado}`
+                : ''}
+            </Text>
+          </View>
+          {model.robustez.avisos.length === 0 ? (
+            <Text style={s.robustezOk}>Sem avisos de robustez — amostra sólida nos critérios determinísticos.</Text>
+          ) : (
+            model.robustez.avisos.map((a, i) => {
+              const cor =
+                a.severidade === 'critico'
+                  ? COLORS.vermelho
+                  : a.severidade === 'atencao'
+                    ? COLORS.dourado
+                    : COLORS.cinzaClaro
+              return (
+                <View key={i} style={s.avisoRow}>
+                  <Text style={[s.avisoDot, { color: cor }]}>•</Text>
+                  <Text style={s.avisoText}>{a.mensagem}</Text>
+                </View>
+              )
+            })
+          )}
         </View>
 
         {/* Sumário Executivo e Objetivos */}

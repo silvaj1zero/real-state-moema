@@ -22,9 +22,12 @@
 import { formatBRL } from '@/lib/format'
 import type {
   AcmLaudoComputation,
+  AvisoAcm,
+  ConfiancaGrau,
   ResidualLandParams,
   SensitivityScenario,
 } from '@/lib/acm/methodology'
+import { agregarConfianca } from '@/lib/acm/methodology'
 import type { ResumoFaixaItem, ResumoInput, ResumoSourceComparable } from './resumoModel'
 
 // ===========================================================================
@@ -236,6 +239,14 @@ export interface LaudoConclusaoRow {
   destaque?: boolean
 }
 
+/** Bloco de robustez da capa (Story 9.15): avisos + contagem A/B/C da amostra. */
+export interface LaudoRobustez {
+  avisos: AvisoAcm[]
+  confiabilidade: Record<ConfiancaGrau, number>
+  /** Total de comparáveis incluídos (A+B+C) — denominador da leitura da capa. */
+  totalIncluidos: number
+}
+
 export interface LaudoModel {
   header: {
     titulo: string
@@ -253,6 +264,8 @@ export interface LaudoModel {
     score: string | null
     classeTexto: string | null
   }
+  /** Avisos de robustez + graus de confiança (Story 9.15). Renderizado na capa. */
+  robustez: LaudoRobustez
   faixa: ResumoFaixaItem[]
   sumario: {
     objetivos: string[]
@@ -865,6 +878,14 @@ export function buildLaudoModel(
       score: computation.scoreAlvo,
       classeTexto: input.classeTexto ?? input.classeNota ?? null,
     },
+    robustez: (() => {
+      const confiabilidade = agregarConfianca(computation.passaportes)
+      return {
+        avisos: computation.avisos,
+        confiabilidade,
+        totalIncluidos: confiabilidade.A + confiabilidade.B + confiabilidade.C,
+      }
+    })(),
     faixa,
     sumario: {
       objetivos: input.objetivos ?? OBJETIVOS_DEFAULT,

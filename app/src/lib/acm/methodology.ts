@@ -42,6 +42,21 @@ export interface AcmComparable {
    * rotulava 16/23 comparáveis com bairro incorreto. Campo opt-in.
    */
   bairroReal?: string | null
+
+  // --- Proveniência para o passaporte de confiabilidade (Story 9.15) --------
+  // Campos OPT-IN preenchidos pela ingestão (9.4/9.17) à medida que a origem do
+  // dado é conhecida. Ausentes → o passaporte assume o pior grau conhecido
+  // (Art. IV — No Invention: nunca presumimos "oficial" sem evidência).
+  /** Tipologia do comparável e como foi determinada (guia oficial > heurística > visual). */
+  tipologia?: { valor: string; fonte: 'guia' | 'heuristica' | 'visual' | 'desconhecida' } | null
+  /** Origem da área construída informada. */
+  areaConstruidaFonte?: 'oficial' | 'anuncio' | 'estimada' | null
+  /** Origem da área de terreno informada. */
+  areaTerrenoFonte?: 'oficial' | 'estimada' | null
+  /** `dataVenda` confirmada em fonte oficial (guia/ITBI) vs inferida. */
+  dataVendaConfirmada?: boolean | null
+  /** Precisão do geocoding do comparável. */
+  geocode?: 'exato' | 'rua' | 'cep' | 'aproximado' | null
 }
 
 /** Imóvel-alvo da avaliação. */
@@ -185,6 +200,50 @@ export interface BairroComposicao {
   medianaPrecoM2: number
 }
 
+// ---------------------------------------------------------------------------
+// Avisos de robustez + passaporte de confiabilidade — Story 9.15 (N-1)
+// ---------------------------------------------------------------------------
+
+export type AvisoSeveridade = 'info' | 'atencao' | 'critico'
+
+/**
+ * Aviso determinístico de robustez da amostra. Emitido por regra pura (nunca
+ * julgamento LLM). O laudo "grita o que não sabe" — a capa lista os avisos para
+ * que a tese de preço se sustente sob contraditório (veredito ROI v3 §1).
+ */
+export interface AvisoAcm {
+  codigo: string
+  severidade: AvisoSeveridade
+  mensagem: string
+}
+
+/**
+ * Grau de confiabilidade do comparável como EVIDÊNCIA de preço:
+ *   A = transação ITBI fechada e enriquecida (terreno + distância → aderência plena)
+ *   B = transação ITBI fechada, porém esparsa (sem enriquecimento de terreno/distância)
+ *   C = preço pedido/anúncio (não é fechamento) ou área construída ausente
+ *   rejeitado = excluído pelo guard-rail anti-auto-referência (Story 9.8)
+ * A força vem da ORIGEM DO PREÇO (ITBI > anúncio); tipologia/geocode incertos
+ * geram avisos próprios, não rebaixam o grau abaixo de B para um fechamento real.
+ */
+export type ConfiancaGrau = 'A' | 'B' | 'C' | 'rejeitado'
+
+/** Passaporte de confiabilidade v1 de um comparável (Story 9.15 AC3). */
+export interface ComparavelPassport {
+  endereco: string
+  /** Origem do preço: transação ITBI fechada vs anúncio (pedido). */
+  fontePreco: 'itbi_oficial' | 'anuncio' | 'desconhecida'
+  /** Tipologia e como foi determinada. `ausente` quando não há dado. */
+  tipologia: { valor: string; confianca: 'alta' | 'media' | 'baixa'; fonte: 'guia' | 'heuristica' | 'visual' | 'ausente' }
+  areaConstrFonte: 'oficial' | 'anuncio' | 'estimada' | 'nao_rastreada'
+  areaTerrenoFonte: 'oficial' | 'estimada' | 'ausente'
+  dataVendaFonte: 'confirmada' | 'inferida' | 'ausente'
+  geocode: 'exato' | 'rua' | 'cep' | 'aproximado' | 'ausente'
+  status: 'incluido' | 'excluido'
+  motivos: string[]
+  confianca: ConfiancaGrau
+}
+
 export interface AcmLaudoComputation {
   target: AcmTarget
   totalComparaveis: number
@@ -210,6 +269,14 @@ export interface AcmLaudoComputation {
   homogeneizacao: HomogeneizacaoRelatorio
   /** Composição da amostra por bairro real verificado (Story 9.11). */
   composicaoBairros: BairroComposicao[]
+  /** Avisos determinísticos de robustez da amostra (Story 9.15). */
+  avisos: AvisoAcm[]
+  /**
+   * Passaporte de confiabilidade por comparável (Story 9.15). Inclui os aceitos
+   * (grau A/B/C) e os excluídos pelo guard-rail 9.8 (grau `rejeitado`).
+   * length = totalComparaveis + autoReferenciasExcluidas.length.
+   */
+  passaportes: ComparavelPassport[]
 }
 
 // ---------------------------------------------------------------------------
@@ -631,6 +698,265 @@ export function desagioMedido(comparaveis: AcmComparable[]): number | null {
 }
 
 // ---------------------------------------------------------------------------
+// Passaporte de confiabilidade — Story 9.15 (derivação determinística)
+// ---------------------------------------------------------------------------
+
+/**
+ * Deriva o passaporte de um comparável a partir dos campos disponíveis, sem
+ * inventar origem (Art. IV): dado ausente vira o pior grau conhecido. O grau de
+ * confiança reflete a força do PREÇO como evidência (ITBI fechado > anúncio).
+ */
+export function derivarPassaporte(
+  comp: AcmComparable,
+  status: 'incluido' | 'excluido',
+  motivos: string[] = [],
+): ComparavelPassport {
+  const itbi = comp.isVendaReal === true
+  const fontePreco: ComparavelPassport['fontePreco'] = itbi
+    ? 'itbi_oficial'
+    : comp.precoPedido != null || comp.preco > 0
+      ? 'anuncio'
+      : 'desconhecida'
+
+  const tipoFonteRaw = comp.tipologia?.fonte ?? 'ausente'
+  // 'desconhecida' no comparável mapeia para 'ausente' no passaporte.
+  const tipoFonte: ComparavelPassport['tipologia']['fonte'] =
+    tipoFonteRaw === 'desconhecida' ? 'ausente' : tipoFonteRaw
+  const tipoConfianca: 'alta' | 'media' | 'baixa' =
+    tipoFonte === 'guia' ? 'alta' : tipoFonte === 'visual' ? 'media' : tipoFonte === 'heuristica' ? 'baixa' : 'baixa'
+
+  const areaConstrFonte: ComparavelPassport['areaConstrFonte'] =
+    comp.areaConstruidaFonte ?? 'nao_rastreada'
+  const areaTerrenoFonte: ComparavelPassport['areaTerrenoFonte'] =
+    comp.areaTerreno != null && comp.areaTerreno > 0 ? (comp.areaTerrenoFonte ?? 'estimada') : 'ausente'
+  const dataVendaFonte: ComparavelPassport['dataVendaFonte'] =
+    comp.dataVenda == null ? 'ausente' : comp.dataVendaConfirmada ? 'confirmada' : 'inferida'
+  const geocode: ComparavelPassport['geocode'] = comp.geocode ?? 'ausente'
+
+  let confianca: ConfiancaGrau
+  if (status === 'excluido') {
+    confianca = 'rejeitado'
+  } else if (!itbi || !(comp.areaConstruida > 0)) {
+    confianca = 'C' // anúncio (não é fechamento) ou sem área construída
+  } else if (comp.areaTerreno != null && comp.areaTerreno > 0 && comp.distancia != null) {
+    confianca = 'A' // ITBI fechado e enriquecido (habilita aderência plena)
+  } else {
+    confianca = 'B' // ITBI fechado, porém esparso
+  }
+
+  return {
+    endereco: comp.endereco,
+    fontePreco,
+    tipologia: {
+      valor: comp.tipologia?.valor ?? 'desconhecida',
+      confianca: tipoConfianca,
+      fonte: tipoFonte,
+    },
+    areaConstrFonte,
+    areaTerrenoFonte,
+    dataVendaFonte,
+    geocode,
+    status,
+    motivos,
+    confianca,
+  }
+}
+
+/** Passaportes de todos os comparáveis: aceitos (A/B/C) + excluídos 9.8 (rejeitado). */
+export function derivarPassaportes(
+  aceitos: AcmComparable[],
+  excluidos: SelfReferenceFinding[],
+  excluidosOriginais: AcmComparable[] = [],
+): ComparavelPassport[] {
+  const byEndereco = new Map(excluidosOriginais.map((c) => [c.endereco, c]))
+  const passAceitos = aceitos.map((c) => derivarPassaporte(c, 'incluido'))
+  const passExcluidos = excluidos.map((f) => {
+    const original = byEndereco.get(f.endereco)
+    return original
+      ? derivarPassaporte(original, 'excluido', f.motivos)
+      : {
+          endereco: f.endereco,
+          fontePreco: 'desconhecida' as const,
+          tipologia: { valor: 'desconhecida', confianca: 'baixa' as const, fonte: 'ausente' as const },
+          areaConstrFonte: 'nao_rastreada' as const,
+          areaTerrenoFonte: 'ausente' as const,
+          dataVendaFonte: 'ausente' as const,
+          geocode: 'ausente' as const,
+          status: 'excluido' as const,
+          motivos: f.motivos,
+          confianca: 'rejeitado' as const,
+        }
+  })
+  return [...passAceitos, ...passExcluidos]
+}
+
+/** Contagem agregada de graus na amostra INCLUÍDA (para a capa). */
+export function agregarConfianca(
+  passaportes: ComparavelPassport[],
+): Record<ConfiancaGrau, number> {
+  const acc: Record<ConfiancaGrau, number> = { A: 0, B: 0, C: 0, rejeitado: 0 }
+  for (const p of passaportes) acc[p.confianca] += 1
+  return acc
+}
+
+// ---------------------------------------------------------------------------
+// Avisos de robustez — Story 9.15 (regras puras + códigos canônicos)
+// ---------------------------------------------------------------------------
+
+/** Span em meses entre a menor e a maior competência 'YYYY-MM' (0 se <2 datas). */
+function spanMesesDataVenda(comparaveis: AcmComparable[]): number {
+  const meses = comparaveis
+    .map((c) => c.dataVenda)
+    .filter((d): d is string => typeof d === 'string' && /^\d{4}-\d{2}$/.test(d))
+    .map((d) => {
+      const [y, m] = d.split('-').map(Number)
+      return y * 12 + (m - 1)
+    })
+  if (meses.length < 2) return 0
+  return Math.max(...meses) - Math.min(...meses)
+}
+
+interface AvisosInputs {
+  target: AcmTarget
+  aceitos: AcmComparable[]
+  passaportes: ComparavelPassport[]
+  computation: Pick<
+    AcmLaudoComputation,
+    'top3' | 'top5' | 'efeitoEscalaTerreno' | 'composicaoBairros' | 'coAncoraTerreno' | 'autoReferenciasExcluidas'
+  >
+  fatoresLiquidez: number[]
+  homogeneizacaoAplicada: boolean
+  estadoAlvoConfirmado: boolean
+}
+
+/**
+ * Coleta os avisos determinísticos de robustez (Story 9.15 AC2). Cada regra é
+ * pura e independente; a ausência de dado nunca gera falso "OK" — gera aviso.
+ */
+export function coletarAvisos(inp: AvisosInputs): AvisoAcm[] {
+  const avisos: AvisoAcm[] = []
+  const push = (codigo: string, severidade: AvisoSeveridade, mensagem: string) =>
+    avisos.push({ codigo, severidade, mensagem })
+
+  const { aceitos, passaportes, computation, target } = inp
+  const incluidos = passaportes.filter((p) => p.status === 'incluido')
+
+  // sample_size_low_top3 — amostra de referência frágil
+  if (computation.top3.length < 3 || aceitos.length < 5) {
+    push(
+      'sample_size_low_top3',
+      'critico',
+      `Amostra pequena: ${aceitos.length} comparáveis (Top 3 = ${computation.top3.length}). Tese sensível a cada ponto.`,
+    )
+  }
+
+  // mixed_neighborhood_sample — mais de um bairro real verificado
+  const bairrosVerificados = computation.composicaoBairros.filter((b) => b.bairro !== 'não verificado')
+  if (bairrosVerificados.length > 1) {
+    push(
+      'mixed_neighborhood_sample',
+      'atencao',
+      `Amostra multi-bairro (${bairrosVerificados.map((b) => `${b.bairro}: ${b.n}`).join(', ')}) sem segmentação.`,
+    )
+  }
+
+  // typology_heuristic_present — algum comparável tipado só por heurística
+  if (aceitos.some((c) => c.tipologia?.fonte === 'heuristica')) {
+    push(
+      'typology_heuristic_present',
+      'atencao',
+      'Há comparáveis com tipologia por heurística (não confirmada em guia oficial — ver Regra R5).',
+    )
+  }
+
+  // target_land_area_unconfirmed — terreno do alvo ausente/provisório
+  if (target.areaTerreno == null || target.areaTerreno <= 0) {
+    push(
+      'target_land_area_unconfirmed',
+      'atencao',
+      'Área de terreno do alvo ausente/provisória — a lente de terreno é indicativa.',
+    )
+  }
+
+  // temporal_dispersion_high — datas espalhadas sem homogeneização
+  if (!inp.homogeneizacaoAplicada && spanMesesDataVenda(aceitos) > 12) {
+    push(
+      'temporal_dispersion_high',
+      'atencao',
+      'Vendas dispersas em mais de 12 meses sem homogeneização temporal (índice off).',
+    )
+  }
+
+  // terrain_lens_low_n — banda de terreno ou residual com n < 3
+  const bandaAlvo = computation.efeitoEscalaTerreno.find((b) =>
+    target.areaTerreno > 800 ? b.faixa === '>800' : target.areaTerreno >= 500 ? b.faixa === '500-800' : b.faixa === '<500',
+  )
+  if (computation.coAncoraTerreno != null && bandaAlvo != null && bandaAlvo.n < 3) {
+    push(
+      'terrain_lens_low_n',
+      'atencao',
+      `Lente de terreno com base fraca: banda ${bandaAlvo.faixa} tem n=${bandaAlvo.n} (<3). Co-âncora indicativa.`,
+    )
+  }
+
+  // liquidity_factors_unvalidated — fatores de liquidez não elicitados
+  if (inp.fatoresLiquidez.length === 0) {
+    push(
+      'liquidity_factors_unvalidated',
+      'atencao',
+      'Fatores de liquidez/condição não elicitados — valor de fechamento = valor de mercado (sem ajuste).',
+    )
+  }
+
+  // same_street_missing_due_normalization — gap conhecido do guard-rail 9.8
+  if (target.endereco != null) {
+    const ruaAlvo = normalizeStreet(target.endereco)
+    const alvoTemVirgula = target.endereco.includes(',')
+    const suspeitos = aceitos.filter(
+      (c) => normalizeStreet(c.endereco) === ruaAlvo && c.endereco.includes(',') !== alvoTemVirgula,
+    )
+    if (suspeitos.length > 0) {
+      push(
+        'same_street_missing_due_normalization',
+        'info',
+        `Mesma rua do alvo com formato de endereço divergente (${suspeitos.length}): revisar guard-rail 9.8 (vírgula/normalização).`,
+      )
+    }
+  }
+
+  // target_condition_unconfirmed — ficha/estado do alvo ausente (cruza 9.14)
+  if (!inp.estadoAlvoConfirmado) {
+    push(
+      'target_condition_unconfirmed',
+      'atencao',
+      'Estado/ficha do imóvel-alvo não confirmado — faixa reportada de forma conservadora (ver Story 9.14).',
+    )
+  }
+
+  // confidence_low_in_top5 — Top 5 (por aderência) com passaporte C
+  const top5Enderecos = new Set(computation.top5.map((t) => t.endereco))
+  const top5Baixo = incluidos.filter((p) => top5Enderecos.has(p.endereco) && p.confianca === 'C')
+  if (top5Baixo.length > 0) {
+    push(
+      'confidence_low_in_top5',
+      'critico',
+      `Top 5 contém ${top5Baixo.length} comparáve${top5Baixo.length === 1 ? 'l' : 'is'} de confiança C (anúncio/sem fechamento).`,
+    )
+  }
+
+  // AUTO_REF_EXCLUIDAS — info se houve exclusões pelo guard-rail 9.8
+  if (computation.autoReferenciasExcluidas.length > 0) {
+    push(
+      'AUTO_REF_EXCLUIDAS',
+      'info',
+      `${computation.autoReferenciasExcluidas.length} comparável(is) excluído(s) por auto-referência (guard-rail 9.8).`,
+    )
+  }
+
+  return avisos
+}
+
+// ---------------------------------------------------------------------------
 // Orquestrador
 // ---------------------------------------------------------------------------
 
@@ -649,6 +975,11 @@ export interface ComputeLaudoOptions {
    * entram como estão (comportamento legado) e o relatório sai `aplicada: false`.
    */
   homogeneizacao?: HomogeneizacaoOptions
+  /**
+   * Estado/ficha do alvo confirmado (Story 9.14). Quando falso/ausente, emite o
+   * aviso `target_condition_unconfirmed` e o laudo reporta faixa conservadora.
+   */
+  estadoAlvoConfirmado?: boolean
 }
 
 /** Computa o pacote completo do laudo a partir dos comparáveis. */
@@ -662,6 +993,9 @@ export function computeLaudo(opts: ComputeLaudoOptions): AcmLaudoComputation {
   // por isso o screening precede a deflação.
   const screened = screenSelfReferences(target, opts.comparaveis)
   const autoReferenciasExcluidas = screened.excluidos
+  // Guarda os objetos originais dos excluídos p/ o passaporte (Story 9.15).
+  const excluidosEnderecos = new Set(autoReferenciasExcluidas.map((f) => f.endereco))
+  const excluidosOriginais = opts.comparaveis.filter((c) => excluidosEnderecos.has(c.endereco))
 
   // Homogeneização temporal Story 9.11: deflaciona a valor presente (opt-in).
   let comparaveis = screened.aceitos
@@ -695,6 +1029,23 @@ export function computeLaudo(opts: ComputeLaudoOptions): AcmLaudoComputation {
     fechamentoMax: Math.max(...sensibilidade.map((s) => s.valorFechamento)),
   }
 
+  const top5 = ranking.slice(0, 5)
+  const top3 = ranking.slice(0, 3)
+  const efeitoEscalaTerreno = landPriceByLotSize(comparaveis)
+  const composicaoBairros = composicaoPorBairro(comparaveis)
+
+  // Passaporte de confiabilidade + avisos de robustez (Story 9.15).
+  const passaportes = derivarPassaportes(comparaveis, autoReferenciasExcluidas, excluidosOriginais)
+  const avisos = coletarAvisos({
+    target,
+    aceitos: comparaveis,
+    passaportes,
+    computation: { top3, top5, efeitoEscalaTerreno, composicaoBairros, coAncoraTerreno, autoReferenciasExcluidas },
+    fatoresLiquidez: fatores,
+    homogeneizacaoAplicada: homogeneizacao.aplicada,
+    estadoAlvoConfirmado: opts.estadoAlvoConfirmado === true,
+  })
+
   return {
     target,
     totalComparaveis: comparaveis.length,
@@ -704,9 +1055,9 @@ export function computeLaudo(opts: ComputeLaudoOptions): AcmLaudoComputation {
     valorFechamento,
     faixaFechamento: { min: valorFechamento, max: valorMercado },
     ranking,
-    top5: ranking.slice(0, 5),
-    top3: ranking.slice(0, 3),
-    efeitoEscalaTerreno: landPriceByLotSize(comparaveis),
+    top5,
+    top3,
+    efeitoEscalaTerreno,
     coAncoraTerreno,
     sensibilidade,
     faixaSensibilidade,
@@ -714,6 +1065,8 @@ export function computeLaudo(opts: ComputeLaudoOptions): AcmLaudoComputation {
     desagioMedidoPercent: desagioMedido(comparaveis),
     autoReferenciasExcluidas,
     homogeneizacao,
-    composicaoBairros: composicaoPorBairro(comparaveis),
+    composicaoBairros,
+    avisos,
+    passaportes,
   }
 }
