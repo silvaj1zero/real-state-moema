@@ -29,6 +29,7 @@ import type {
   SensitivityScenario,
 } from '@/lib/acm/methodology'
 import { agregarConfianca } from '@/lib/acm/methodology'
+import { classificarTeseComercial } from '@/lib/acm/teseComercial'
 import type { ResumoFaixaItem, ResumoInput, ResumoSourceComparable } from './resumoModel'
 
 // ===========================================================================
@@ -287,6 +288,16 @@ export interface LaudoModel {
   robustez: LaudoRobustez
   /** Arbítrio de estado + três preços (Story 9.14). Renderizado na capa. */
   desagio: LaudoDesagio
+  /**
+   * Tese comercial automática (Story 9.18). Badge + frase na capa; omitido
+   * visualmente quando `tese === 'indefinida'`.
+   */
+  teseComercial: {
+    tese: 'acima' | 'alinhado' | 'abaixo' | 'indefinida'
+    label: string
+    frase: string
+    deltaPct: number | null
+  }
   faixa: ResumoFaixaItem[]
   sumario: {
     objetivos: string[]
@@ -975,6 +986,15 @@ export function buildLaudoModel(
       captacao: metaFechamento,
       anuncio: input.precoAnuncioRecomendado ?? input.precoPedidoReal ?? null,
     }),
+    // Story 9.18 — reclassifica com preços do input (anúncio tem prioridade).
+    teseComercial: (() => {
+      const t = classificarTeseComercial(
+        h.referencia.valorMercado,
+        input.precoPedidoReal,
+        input.precoPretendido ?? computation.target.precoPretendido,
+      )
+      return { tese: t.tese, label: t.label, frase: t.frase, deltaPct: t.deltaPct }
+    })(),
     faixa,
     sumario: {
       objetivos: input.objetivos ?? OBJETIVOS_DEFAULT,

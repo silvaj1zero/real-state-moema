@@ -433,6 +433,47 @@ export function LaudoDocument({ model }: { model: LaudoModel }) {
               {h.classeTexto ? ` — ${h.classeTexto}` : ''}
             </Text>
           </View>
+          {/* Story 9.18 — badge de tese comercial (omitido se indefinida) */}
+          {model.teseComercial.tese !== 'indefinida' && (
+            <View
+              style={{
+                marginTop: 6,
+                alignSelf: 'flex-start',
+                borderRadius: 4,
+                paddingHorizontal: 8,
+                paddingVertical: 3,
+                backgroundColor:
+                  model.teseComercial.tese === 'abaixo'
+                    ? '#FEF3C7'
+                    : model.teseComercial.tese === 'acima'
+                      ? '#FEE2E2'
+                      : '#ECFDF5',
+                borderWidth: 1,
+                borderColor:
+                  model.teseComercial.tese === 'abaixo'
+                    ? COLORS.dourado
+                    : model.teseComercial.tese === 'acima'
+                      ? COLORS.vermelho
+                      : COLORS.verde,
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 8,
+                  fontFamily: FONTS.bodyMedium,
+                  color: COLORS.azulEscuro,
+                }}
+              >
+                {model.teseComercial.label}
+                {model.teseComercial.deltaPct != null
+                  ? ` (${model.teseComercial.deltaPct > 0 ? '+' : ''}${model.teseComercial.deltaPct}%)`
+                  : ''}
+              </Text>
+              <Text style={{ fontSize: 7, color: COLORS.corpo, marginTop: 1 }}>
+                {model.teseComercial.frase}
+              </Text>
+            </View>
+          )}
         </View>
 
         {/* Faixa de valores (5 cards) */}

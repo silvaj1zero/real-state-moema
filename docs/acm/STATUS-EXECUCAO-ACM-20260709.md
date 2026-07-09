@@ -43,13 +43,13 @@
 | **9.17** | R5 industrializado — tipologia por guia como **gate de pipeline** (não script de caso) | Opus | ✅ implementada InReview (working tree; 220 tests) |
 | **9.4** | Sink ITBI ampliado (Complemento, Uso IPTU, terreno, fração ideal, ACC) | Sonnet | Ready — contrato de campos alinhado; implementação cross-repo pendente |
 
-### Wave 3 — Uso em campo (não iniciada; arquivos disjuntos → paralelizável)
-| Story | Título | Modelo |
-|-------|--------|--------|
-| **9.19** | ACM Lite + modo dono + objeções v1 | Sonnet |
-| **9.18** | Tese automática acima/alinhado/abaixo na capa | Sonnet |
-| **9.16** | Pesos de aderência condicionais à tese (constr./terreno/apto) | Opus |
-| **9.21** | Radar de subprecificação (caso 132) | Sonnet |
+### Wave 3 — Uso em campo
+| Story | Título | Modelo | Status |
+|-------|--------|--------|--------|
+| **9.19** | ACM Lite + modo dono + objeções v1 | Sonnet | ✅ InReview (liteModel + package + script; 238 tests) |
+| **9.18** | Tese automática acima/alinhado/abaixo na capa | Sonnet | ✅ InReview (teseComercial + badge capa) |
+| **9.16** | Pesos de aderência condicionais à tese (constr./terreno/apto) | Opus | Draft |
+| **9.21** | Radar de subprecificação (caso 132) | Sonnet | Draft |
 
 ### Wave 4 — Fábrica (bloqueada até Waves 1+2 Done)
 - **P-1** CLI `acm-validate <endereço>` (dataset canônico + gates R5/9.8/avisos + PDF Lite/Pro + XLSX + computation) — substitui os 3 scripts por caso.

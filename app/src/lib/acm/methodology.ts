@@ -21,6 +21,14 @@ import {
   type TipologiaTipo,
   type VerificacaoVisualMap,
 } from './tipologia'
+import {
+  classificarTeseComercial,
+  type TeseComercial,
+  type TeseComercialLimiares,
+} from './teseComercial'
+
+export type { TeseComercial, TeseComercialLimiares } from './teseComercial'
+export { classificarTeseComercial, TESE_LIMIARES_DEFAULT } from './teseComercial'
 
 // ---------------------------------------------------------------------------
 // Tipos
@@ -424,6 +432,11 @@ export interface AcmLaudoComputation {
   r5: RelatorioR5
   /** Comparáveis excluídos pelo gate R5 (tipologia incompatível / override visual). */
   excluidosTipologia: ExcluidoTipologia[]
+  /**
+   * Tese comercial automática (Story 9.18): acima / alinhado / abaixo / indefinida.
+   * Usa anúncio real (se houver) senão pretendido, vs referência do headline.
+   */
+  teseComercial: TeseComercial
 }
 
 // ---------------------------------------------------------------------------
@@ -1245,6 +1258,13 @@ export interface ComputeLaudoOptions {
   propertyType?: TipologiaTipo | null
   /** Overrides visuais declarativos por SQL (AC5) — ex.: Cotovia/Pavão no 132. */
   verificacaoVisual?: VerificacaoVisualMap | null
+  /**
+   * Preço de anúncio publicado (Story 9.18). Prioridade sobre
+   * `target.precoPretendido` na tese comercial.
+   */
+  precoPedidoReal?: number | null
+  /** Limiares da tese comercial (default ±5%). */
+  teseLimiares?: TeseComercialLimiares
 }
 
 /** Computa o pacote completo do laudo a partir dos comparáveis. */
@@ -1336,6 +1356,15 @@ export function computeLaudo(opts: ComputeLaudoOptions): AcmLaudoComputation {
     excluidosTipologia,
   })
 
+  const headline = headlineFaixa(sensibilidade)
+  // Story 9.18 — tese vs referência do headline (cenário aderente).
+  const teseComercial = classificarTeseComercial(
+    headline.referencia.valorMercado,
+    opts.precoPedidoReal,
+    target.precoPretendido,
+    opts.teseLimiares,
+  )
+
   return {
     target,
     totalComparaveis: comparaveis.length,
@@ -1351,7 +1380,7 @@ export function computeLaudo(opts: ComputeLaudoOptions): AcmLaudoComputation {
     coAncoraTerreno,
     sensibilidade,
     faixaSensibilidade,
-    headline: headlineFaixa(sensibilidade),
+    headline,
     desagioMedidoPercent: desagioMedido(comparaveis),
     autoReferenciasExcluidas,
     homogeneizacao,
@@ -1362,5 +1391,6 @@ export function computeLaudo(opts: ComputeLaudoOptions): AcmLaudoComputation {
     passaportes,
     r5,
     excluidosTipologia,
+    teseComercial,
   }
 }
