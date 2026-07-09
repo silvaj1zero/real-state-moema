@@ -35,7 +35,7 @@
 
 ### Wave 1 — pendência de fechamento
 - **Commit da 9.20** — ✅ `71c44a2` (2026-07-09, retomada).
-- **Follow-up (hardening):** congelar AP113/AP132 como fixtures de regressão (regra do veredito v4 "Honduras deixa de ser gabarito único"). Requer os datasets canônicos desses casos — encaixa na P-1.
+- **Follow-up (hardening):** ~~congelar AP113/AP132~~ ✅ `andradePertence.regression.test.ts` (11 testes; n=56, mediana/top3/tese/subprecificação).
 
 ### Wave 2 — Anti-desastre em escala
 | Story | Título | Modelo recomendado | Status |

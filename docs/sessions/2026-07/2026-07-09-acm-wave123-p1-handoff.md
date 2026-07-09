@@ -9,7 +9,7 @@
 | **scope** | `self_continuation` / `intra_processo` |
 | **from** | Agent:session-acm-impl |
 | **to** | Agent:next-session |
-| **consumed** | null |
+| **consumed** | 2026-07-09 by Agent:next-session (fixtures AP + follow-up) |
 | **branch** | `fix/epic7-v-crawl-health` |
 | **HEAD** | `ef26b0c` (= origin, **sincronizado**) |
 | **repo** | `C:\Users\Zero\Desktop\AIOX-Enterprise MASTER\workspace\businesses\luciana-borba\repos\real-state-moema` |
