@@ -2,6 +2,12 @@
 
 **Atualizado:** 09-Jul-2026 · **Dono:** founder + Luciana Borba (RE/MAX Galeria, CRECI 045063-J)
 **Documentos-mãe:** `docs/acm/AUDITORIA-EVOLUCAO-ACM-20260703.md` (auditoria + plano 4 frentes) · `docs/prd/EPIC-8-ACM-LAUDO-GENERATION.md` (propósito e pilares)
+**Análise de engenharia (09-Jul):** `docs/acm/ANALISE-ENGENHARIA-ACM-20260709.md` — eixos A compute · B PDF · C R5 · D skill; maturidade, riscos e recomendações
+**Avaliação crítica do método (09-Jul):** `docs/acm/AVALIACAO-CRITICA-METODO-ACM-20260709.md` — epistemologia, vieses, stress-test 3 casos, tiers, backlog S/A/B/C★, placar NBR
+**One-pager H-3 Luciana:** `docs/acm/ONEPAGER-H3-LUCIANA-ACM-20260709.md`
+**Stories draft Classe S + Lite (09-Jul):** `9.14` deságio/ficha · `9.15` avisos[] · `9.16` pesos por tese · `9.17` R5 · `9.18` tese comercial · `9.19` ACM Lite modo dono
+**Veredito ROI único (09-Jul, v3):** `docs/acm/VEREDITO-ROI-UNICO-20260709.md` — prioridade real 1–8 da análise de método + OS agêntico; passaporte; três preços; criativos (tribunal/radar/objeções/simulador)
+**Stories wave evidência:** 9.14–9.21 (9.20 mediana A/B/C · 9.21 radar subprecificação)
 **Caso âncora:** Rua Honduras 629 (proprietária Clarisia — captação pendente) · **Mercado-alvo:** Sul + Jardins, foco Moema / Vila Olímpia / Brooklin
 
 ---

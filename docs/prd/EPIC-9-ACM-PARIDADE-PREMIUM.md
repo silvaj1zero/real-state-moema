@@ -75,8 +75,15 @@ Renderização **nativa TS** no app; engine = só produtor de dados ITBI. Este �
 | 9.5 | "Fase B" — validação web de comparáveis (status CONFIRMADO/PARCIAL/off-market + links) | Dados/Integração | Should | 9.4, Epic 7 crawler | @dev |
 | 9.6 | Acabamento tipográfico/branding do PDF (vendoring Montserrat/Inter, logo vetorial RE/MAX) | Render/Design | Should | — | @dev + @ux-design-expert |
 | 9.7 | Config geográfica Moema validada (CEP/viewbox contra ITBI real) | Dados | Could | 9.0 | @data-engineer |
+| 9.14 | Deságio/estado do alvo explícito (C-1) + ficha do imóvel | Cálculo/Render | Must | H-3 Luciana | @dev |
+| 9.15 | `avisos[]` de robustez da amostra na capa | Cálculo/Render | Must | — | @dev |
+| 9.16 | Pesos de aderência por tese (construção/terreno/apto) | Cálculo | Must | — | @dev |
+| 9.17 | R5 industrializado (tipologia casa×apto + gate) | Dados/Cálculo | Must | 9.4 ampliada | @dev + @data-engineer |
+| 9.18 | Tese comercial automática (acima/alinhado/abaixo) | Render | Should | 9.10 | @dev |
+| 9.19 | ACM Lite + resumo “modo dono” | Render/UX | Must (adoção) | 9.10; soft 9.15/9.18 | @dev + @ux |
 
-> **Sequência recomendada:** 9.0 → (9.1 ‖ 9.2 ‖ 9.4) → (9.3 ‖ 9.5) → 9.6. 9.7 oportunístico.
+> **Wave pós-avaliação crítica 09-Jul:** 9.14 ‖ 9.15 ‖ 9.16 → 9.17 (com 9.4) → 9.18 → 9.19.  
+> **Sequência original:** 9.0 → (9.1 ‖ 9.2 ‖ 9.4) → (9.3 ‖ 9.5) → 9.6. 9.7 oportunístico.
 > **Caminho crítico mínimo p/ 1ª entrega premium:** 9.0 → 9.1 + 9.2 (laudo de apto + planilha canônica). 9.4 em paralelo (cross-repo). 9.3/9.5/9.6 enriquecem.
 > Stories detalhadas serão criadas por @sm em `docs/stories/9.0.story.md` … `9.7.story.md` após validação @po.
 > **Recorte do 1º draft (decisão founder, 2026-06-17):** @sm detalha o **caminho crítico 9.0 · 9.1 · 9.2 · 9.4**; 9.3/9.5/9.6/9.7 permanecem como esboço neste PRD até refino pós-spike (9.0). **9.4 mantida como Must** (cross-repo `acm-imobiliario`, coordenada via @devops).
