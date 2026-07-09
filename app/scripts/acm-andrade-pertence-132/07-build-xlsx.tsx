@@ -67,6 +67,9 @@ const dataset = JSON.parse(readFileSync(path.join(outDir, 'dataset.json'), 'utf8
   comparaveis: DatasetComparavel[]
 }
 const T = dataset.target
+// Área construída oficial = 196 m² (confirmada; dataset trazia 220 estimado).
+// Mantém o ranking de aderência da XLSX em sincronia com o laudo v4.
+T.areaConstruida = 196
 
 // --- homogeneização por item (mesma série/referência do laudo) --------------
 const idxPorMes = new Map(FIPEZAP_SP_VENDA_RESIDENCIAL.map((p) => [p.mes, p.indice]))
@@ -93,16 +96,16 @@ const ranked = dataset.comparaveis
   .sort((a, b) => b.indice - a.indice)
   .map((x, i) => ({ ...x, rank: i + 1 }))
 
-// Self-check contra o laudo v3 (computation.json) — não publicar ranking errado.
-// v3: Av. Cotovia 726 saiu (reclassificada EDIFÍCIO por Street View dez/2024) →
-// Pariquera-Açu 41 assume o 3º lugar de aderência.
-const ESPERADO = ['R UBAIRA 60', 'R JURUENA 87', 'R PARIQUERA-ACU 41']
+// Self-check contra o laudo v4 (computation.json) — não publicar ranking errado.
+// v4: área construída do alvo fixada em 196 m² (era 220 estimado) → o ranking de
+// aderência muda (Ubaíra 250 m² sai do Top 3; entra TV Sebastião Emílio Forli 58).
+const ESPERADO = ['R JURUENA 87', 'R PARIQUERA-ACU 41', 'TV SEBASTIAO EMILIO FORLI 58']
 const top3 = ranked.slice(0, 3).map((x) => x.c.endereco)
 if (JSON.stringify(top3) !== JSON.stringify(ESPERADO)) {
-  console.error(`Top 3 diverge do laudo v3: ${top3.join(' · ')} — abortando.`)
+  console.error(`Top 3 diverge do laudo v4: ${top3.join(' · ')} — abortando.`)
   process.exit(1)
 }
-console.log(`Top 3: ${top3.join(' · ')} → CONFERE com o laudo v3 ✓`)
+console.log(`Top 3: ${top3.join(' · ')} → CONFERE com o laudo v4 ✓`)
 
 // --- formatação --------------------------------------------------------------
 const brl = (n: number | null) => (n == null ? '—' : `R$ ${Math.round(n).toLocaleString('pt-BR')}`)

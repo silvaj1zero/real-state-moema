@@ -114,6 +114,10 @@ interface Dataset {
 
 const dataset = JSON.parse(readFileSync(path.join(outDir, 'dataset.json'), 'utf8')) as Dataset
 const T = dataset.target
+// Área construída OFICIAL confirmada = 196 m² (anúncios divergiam 196–220; a
+// consultora/matrícula fixou 196). Corrige a lente de construção e o ranking de
+// aderência (que compara contra a área do alvo). O dataset trazia 220 (estimativa).
+T.areaConstruida = 196
 
 const comparaveis: AcmComparable[] = dataset.comparaveis.map((c) => ({
   endereco: c.endereco,
@@ -126,12 +130,21 @@ const comparaveis: AcmComparable[] = dataset.comparaveis.map((c) => ({
   isVendaReal: true,
 }))
 
+// Área de terreno do alvo ~220 m² (PROVISÓRIO — condicionante nº1, a confirmar na
+// matrícula/IPTU). Usada como SEGUNDA LENTE de valor (Sec. 8: R$/m² terreno × 220)
+// e no display — NÃO como peso de aderência no ranking de construção.
+//
+// DECISÃO METODOLÓGICA (132): o ranking de construção fica com areaTerreno=0 (terreno
+// inerte no índice). Motivo: ativar a similaridade de terreno (20%) puxa para o Top-N
+// casas terreno-similares porém baratas em construção (ex.: José Cândido 74/77 a ~5.000/m²c
+// — ITBI subdeclarado/valor de terra), colapsando a mediana de CONSTRUÇÃO e invertendo a
+// tese. Para imóvel CONSERVADO (valor no construído), a lente de construção deve rankear por
+// construção+proximidade; o terreno entra como leitura independente que CONVERGE (~R$ 1,98M).
+const AREA_TERRENO_ALVO = 220
 const computation = computeLaudo({
-  // areaTerreno do alvo NÃO informada → 0 (componente de terreno já é inerte
-  // na amostra; nunca exibida como fato — ver mutação do view-model abaixo).
   target: {
     areaConstruida: T.areaConstruida,
-    areaTerreno: 0,
+    areaTerreno: 0, // ranking de construção limpo — terreno entra como 2ª lente (ver acima)
     endereco: T.endereco,
     vagas: T.vagas,
     precoPretendido: T.precoPretendido,
@@ -182,12 +195,23 @@ const dConservador = valorDesagio(0.85) // −15% (piso Capex Score B) = h.refer
 const dProvavel = valorDesagio(0.925) // −7,5% — imóvel conservado
 const dAgressivo = valorDesagio(1.0) // 0% — reformado / muito conservado
 
+// Lente de TERRENO (Sec. 8) — agora ATIVA com o terreno do alvo (~220 m²).
+// Mediana de R$/m² de terreno das casas de lote <500 m² (guia oficial) × área do alvo.
+const banda500 = computation.efeitoEscalaTerreno.find((b) => b.faixa === '<500')
+const leituraTerreno =
+  banda500 && banda500.n > 0 ? Math.round(banda500.medianaPrecoM2Terreno * AREA_TERRENO_ALVO) : null
+
+// Faixa entre as duas lentes independentes (construção Top 5 × terreno).
+const lenteConstr = h.referencia.valorMercado
+const faixaLentesMin = leituraTerreno ? Math.min(lenteConstr, leituraTerreno) : lenteConstr
+const faixaLentesMax = leituraTerreno ? Math.max(lenteConstr, leituraTerreno) : lenteConstr
+
 const input: LaudoInput = {
   enderecoAlvo: T.endereco,
   bairro: `Vila Olímpia (CEP ${T.cep})`,
   proprietario: T.proprietario,
   areaConstruida: T.areaConstruida,
-  areaTerreno: 0, // não informado — mascarado no view-model (nunca exibido como "0 m²")
+  areaTerreno: AREA_TERRENO_ALVO, // ~220 m² (provisório — condicionante nº1, confirmar na matrícula)
   programa: { dormitorios: T.dormitorios, suites: T.suites, vagas: T.vagas },
   classeTexto: 'Conservado — pronto para morar',
   precoPretendido: T.precoPretendido,
@@ -247,21 +271,21 @@ const input: LaudoInput = {
   motivosSelecao: [
     '★★★ Top 3 — máxima aderência: área construída próxima de 220 m² e menor distância ao alvo, na mesma classe e tipologia (casa confirmada por guia).',
     '★ Top 4–5 — reforço da leitura de microlocalização.',
-    'A similaridade de terreno (20% do índice) segue inerte APENAS pelo lado do alvo (metragem não informada) — os comparáveis-casa agora têm terreno real da guia oficial.',
+    `A similaridade de terreno (20% do índice) é mantida FORA do ranking de construção por decisão metodológica: com terreno ~${AREA_TERRENO_ALVO} m² a similaridade puxaria casas terreno-similares porém baratas em construção (ITBI subdeclarado/valor de terra), distorcendo a mediana de construção. O terreno entra como LENTE INDEPENDENTE (Sec. 8), não como peso de aderência.`,
   ],
   notaEfeitoEscala:
-    'O efeito-escala de terreno agora É medido (Sec. 8): as casas confirmadas trazem área de terreno real da guia oficial. Falta a metragem de terreno do ALVO (matrícula/IPTU) para aplicar a lente ao imóvel — ver condicionantes.',
+    `O efeito-escala de terreno é medido (Sec. 8) com as áreas reais das guias oficiais. Com o terreno do alvo ~${AREA_TERRENO_ALVO} m² (provisório), a lente é aplicada: mediana de R$/m² de terreno das casas de lote <500 m²${banda500 ? ` (${banda500.n} casas, ${fmt(banda500.medianaPrecoM2Terreno)}/m²)` : ''} × ${AREA_TERRENO_ALVO} m² ⇒ ${leituraTerreno ? `~${fmt(leituraTerreno)}` : 'n/d'}.`,
   rastreabilidadeNota:
     'SQL = Setor/Quadra/Lote (cadastro municipal), extraído da guia ITBI/PMSP ingerida. Consulta pública: GeoSampa.',
   abordagemADescricao:
-    'Abordagem A (comparação direta de terreno): o R$/m² de terreno da microrregião agora é medido a partir das guias oficiais das casas da amostra (tabela acima). A aplicação ao ALVO permanece pendente da metragem de terreno oficial (matrícula/IPTU) — condicionante nº 1.',
+    `Abordagem A (comparação direta de terreno): R$/m² de terreno das casas da amostra (guias oficiais) × ${AREA_TERRENO_ALVO} m² do alvo (provisório) ⇒ leitura de terreno ${leituraTerreno ? `~${fmt(leituraTerreno)}` : 'n/d'}. Confirmar a metragem na matrícula/IPTU (condicionante nº 1).`,
   coefAproveitamento:
-    'Metragem de terreno do alvo não informada — quintal com garagem para 6 veículos sugere lote relevante; confirmar na matrícula/IPTU (condicionante).',
+    `Terreno do alvo ~${AREA_TERRENO_ALVO} m² (provisório): com ~${T.areaConstruida} m² construídos, o coeficiente de aproveitamento fica em ~1,0 (sobrado de 2 pavimentos). ATENÇÃO: 6 vagas num lote de ~220 m² é apertado — é possível que o terreno real seja MAIOR; conferir na matrícula/IPTU antes de fixar a lente de terreno.`,
   convergenciaTerreno:
-    'Convergência das lentes parcialmente demonstrável: a lente de construção (casas) e as métricas de terreno da amostra apontam na mesma direção — patamar acima do anúncio atual. A leitura final de terreno do alvo depende da metragem oficial (condicionante nº 1).',
+    `Duas lentes independentes: construção (${T.areaConstruida} m² × mediana R$/m²c, Top 5) = ${fmt(lenteConstr)}; terreno (~${AREA_TERRENO_ALVO} m² × R$/m² de terreno da amostra) = ${leituraTerreno ? `~${fmt(leituraTerreno)}` : 'n/d'}. Formam uma faixa de ${fmt(faixaLentesMin)}–${fmt(faixaLentesMax)}, ambas ACIMA do anúncio de ${fmt(T.precoPedidoReal)} — a leitura por dois caminhos independentes reforça a tese de subprecificação. (Terreno provisório — confirmar na matrícula; se o lote for maior, a lente de terreno sobe.)`,
   perfisComprador: [
-    `Comprador-usuário: casa conservada, pronta para morar, 4 quartos/6 vagas perto do Metrô Eucaliptos — paga pelo construído (R$/m² × ${T.areaConstruida} m²); é a lente que este laudo mede.`,
-    'Comprador-terreno/investidor: com o R$/m² de terreno da amostra medido (Sec. 8), essa lente é aplicável assim que a metragem do lote do alvo for confirmada na matrícula.',
+    `Comprador-usuário: casa conservada, pronta para morar, 4 quartos/6 vagas perto do Metrô Eucaliptos — paga pelo construído (R$/m² × ${T.areaConstruida} m²); para imóvel conservado é a lente PRIMÁRIA.`,
+    `Comprador-terreno/investidor: com terreno ~${AREA_TERRENO_ALVO} m², a lente de terreno (${leituraTerreno ? `~${fmt(leituraTerreno)}` : 'n/d'}) converge com a de construção — mas num imóvel conservado o valor está no construído, não na terra.`,
   ],
   sensibilidadeLeitura:
     `O cenário aderente de referência (${cenarioLabel(h.referencia)}) fica em ${fmt(h.referencia.valorMercado)} e o recorte amplo (${cenarioLabel(cenarioTodos)}) em ${fmt(cenarioTodos.valorMercado)} — os três recortes praticamente convergem, sinal de amostra homogênea (só casas, tipologia confirmada). O preço anunciado (${fmt(T.precoPedidoReal)}) situa-se ${difPercent >= 0 ? `${Math.abs(difPercent).toLocaleString('pt-BR')}% ABAIXO do cenário aderente` : 'acima do cenário aderente'} — o dado NÃO sustenta corte de preço; sustenta reposicionamento da apresentação e verificação das metragens oficiais. Ressalva: o valor de mercado embute Capex de −15% (Score B da régua); para imóvel conservado essa dedução é conservadora — a faixa real tende ao topo. SENSIBILIDADE DECLARADA AO ESTADO DE CONSERVAÇÃO (campo de arbítrio NBR): em vez do −15% fixo, esta emissão declara três cenários sobre a mediana aderente — conservador ${fmt(dConservador)} (−15%, piso Capex Score B), provável ${fmt(dProvavel)} (−7,5%, imóvel conservado) e agressivo ${fmt(dAgressivo)} (0%, reformado). Para o 132 (conservado, pronto para morar, contra amostra de casas de padrão ~1970), o cenário PROVÁVEL é ${fmt(dProvavel)}; o −15% é PISO conservador, não a leitura central.`,
@@ -272,7 +296,7 @@ const input: LaudoInput = {
     `Atualização temporal: ${computation.homogeneizacao.ajustes.length} de ${computation.totalComparaveis} comparáveis deflacionados a ${computation.homogeneizacao.dataReferencia} pelo índice ${computation.homogeneizacao.indice}.`,
     `Composição por bairro verificado: ${computation.composicaoBairros.map((b) => `${b.bairro} (${b.n})`).join(', ')}.`,
     `Tipologia depurada (R5): amostra exclusivamente de casas — ${dataset.recorte.funil.aposClasseValor - computation.totalComparaveis - computation.autoReferenciasExcluidas.length} unidades verticais excluídas via guia oficial/heurística de lote (inclui as duas transações da própria rua — seção 6).`,
-    'Métricas de terreno da amostra medidas pela guia oficial (Sec. 8); aplicação ao alvo pendente da metragem oficial do lote (condicionante nº 1).',
+    `Segunda lente (terreno): R$/m² de terreno das casas de lote <500 m² × ${AREA_TERRENO_ALVO} m² (provisório) ⇒ ${leituraTerreno ? `~${fmt(leituraTerreno)}` : 'n/d'}, convergente com a lente de construção (${fmt(h.referencia.valorMercado)}) — confirmar metragem na matrícula (condicionante nº 1).`,
   ],
   estrategiaComercial: [
     `NÃO cortar preço com base em preços pedidos de concorrentes: a evidência de fechamento de CASAS (faixa ${fmt(h.mercado.min)}–${fmt(h.mercado.max)}, tipologia confirmada por guia oficial) não indica sobrepreço no anúncio atual — indica o contrário.`,
@@ -282,14 +306,14 @@ const input: LaudoInput = {
     'Definir fatores de liquidez com a consultora — a meta de fechamento aperta após essa calibração.',
   ],
   condicionantes: [
-    'Nº 1 — Metragens oficiais: confirmar na matrícula/IPTU a área construída (anúncios divergem 196–220 m²) e a área de TERRENO (não informada) — ambas mudam o posicionamento.',
+    `Nº 1 — Metragens oficiais: confirmar na matrícula/IPTU a área construída (anúncios divergem 196–220 m²) e a área de TERRENO (adotada ~${AREA_TERRENO_ALVO} m² PROVISÓRIA nesta emissão). Ressalva: 6 vagas num lote de ~220 m² é apertado — o terreno real pode ser maior; a lente de terreno se ajusta proporcionalmente à metragem confirmada.`,
     'Nº 2 — Tipologia: confirmada por guia oficial (SF/PMSP) para as vendas ≤ 2025; as vendas de 2026 usam heurística de lote declarada até a SF publicar o arquivo do exercício. Dois endereços que a heurística havia classificado como casa (Av. Cotovia 726 e Av. Pavão 700) foram reclassificados como EDIFÍCIO por verificação visual (Google Street View, dez/2024) e excluídos da amostra.',
     'Distâncias aproximadas: coordenadas da base geocodificadas por logradouro/CEP (±~200 m).',
     'Fatores de liquidez/condição (Sec. 2): cenário ILUSTRATIVO (−7% / −5% / −4%) ancorado na estagnação e na divergência cadastral do imóvel; validar os percentuais com a consultora (H-3). Sem Capex de modernização (imóvel conservado).',
     `Deságio/Capex DECLARADO (campo de arbítrio NBR — C-1): o valor de mercado computado usa o PISO conservador de −15% (Score B). Para imóvel conservado o cenário provável é −7,5% (${fmt(dProvavel)}) e o teto 0% (${fmt(dAgressivo)}) — confirmar o estado do alvo (ficha/vistoria) para fixar o fator final.`,
   ],
   parecerFinal:
-    `Emissão técnica ${VERSAO} (amostra depurada por tipologia): a lente de construção — ${computation.totalComparaveis} fechamentos reais de CASAS no raio de 1 km, homogeneizados — sustenta faixa de ${fmt(h.mercado.min)} a ${fmt(h.mercado.max)} para ${T.areaConstruida} m², com os três recortes de sensibilidade convergindo. O anúncio atual (${fmt(T.precoPedidoReal)}) está ~${Math.abs(difPercent).toLocaleString('pt-BR')}% abaixo da referência: a evidência NÃO sustenta corte de preço — sustenta consolidar a oferta e reposicionar. Recomenda-se (1) confirmar metragens oficiais na matrícula/IPTU, (2) validar na Fase 1 as casas prováveis de 2026, e só então calibrar preço de anúncio e meta de fechamento com a consultora. Faixa por estado de conservação (deságio declarado): conservador ${fmt(dConservador)} (−15%) · provável ${fmt(dProvavel)} (−7,5%) · agressivo ${fmt(dAgressivo)} (0%) — para imóvel conservado a leitura central é ${fmt(dProvavel)}, com o −15% como piso.`,
+    `Emissão técnica ${VERSAO} (amostra depurada por tipologia): DUAS lentes independentes convergem. Lente de construção — ${computation.totalComparaveis} fechamentos reais de CASAS no raio de 1 km, homogeneizados — sustenta ${fmt(h.referencia.valorMercado)} (Top 5; faixa ${fmt(h.mercado.min)}–${fmt(h.mercado.max)}) para ${T.areaConstruida} m². Lente de terreno — ~${AREA_TERRENO_ALVO} m² × R$/m² de terreno da amostra ⇒ ${leituraTerreno ? `~${fmt(leituraTerreno)}` : 'n/d'}. As duas formam a faixa ${fmt(faixaLentesMin)}–${fmt(faixaLentesMax)}, ambas ACIMA do anúncio (${fmt(T.precoPedidoReal)}, ~${Math.abs(difPercent).toLocaleString('pt-BR')}% abaixo da lente de construção): a evidência NÃO sustenta corte de preço — sustenta consolidar a oferta e reposicionar. Recomenda-se (1) confirmar metragens oficiais na matrícula/IPTU (área construída fixada em ${T.areaConstruida} m²; terreno ~${AREA_TERRENO_ALVO} m² provisório — 6 vagas sugerem possível lote maior), (2) validar na Fase 1 as casas prováveis de 2026, e só então calibrar preço de anúncio e fechamento com a consultora. Faixa por estado de conservação (deságio declarado): conservador ${fmt(dConservador)} (−15%) · provável ${fmt(dProvavel)} (−7,5%) · agressivo ${fmt(dAgressivo)} (0%) — para imóvel conservado a leitura central é ${fmt(dProvavel)}.`,
 }
 
 async function resolverMapaUrl(): Promise<string | null> {
@@ -343,10 +367,10 @@ async function main(): Promise<void> {
   if (mapaUrl) console.log(`Mapa: embutido (${(mapaUrl.length / 1024).toFixed(0)} KB base64)`)
 
   const model = buildLaudoModel(computation, source, { ...input, mapaUrl })
-  // Terreno do alvo NÃO informado: nunca exibir "0 m²" como fato (Art. IV).
-  model.header.programa.terreno = null as unknown as number
+  // Terreno do alvo ~220 m² (provisório): a lente de terreno agora É exibida.
+  model.header.programa.terreno = AREA_TERRENO_ALVO
   const coAncoraRow = model.sec10.tabela.find((r) => r.rotulo.startsWith('Co-âncora'))
-  if (coAncoraRow) coAncoraRow.rotulo = 'Co-âncora de terreno (metragem não informada)'
+  if (coAncoraRow) coAncoraRow.rotulo = 'Co-âncora de terreno (~220 m², provisório)'
 
   // C-1 nível 1: anexa a sensibilidade de deságio (estado de conservação) à Sec. 9.
   // Campo de arbítrio DECLARADO — troca o −15% oculto por 3 cenários explícitos.
