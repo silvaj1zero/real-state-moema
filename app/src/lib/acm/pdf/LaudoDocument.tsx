@@ -112,6 +112,18 @@ const s = StyleSheet.create({
   avisoDot: { width: 8, fontSize: 8.5, fontFamily: FONTS.bodyMedium },
   avisoText: { flex: 1, fontSize: 7.5, color: COLORS.corpo },
   robustezOk: { fontSize: 7.5, color: COLORS.verde, fontFamily: FONTS.bodyMedium },
+  // Três preços + arbítrio de estado (Story 9.14)
+  desagioBox: { marginTop: 10, borderWidth: 1, borderColor: COLORS.cinzaBorda, borderRadius: 6, padding: 10 },
+  precoRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', paddingVertical: 2, borderBottomWidth: 0.5, borderBottomColor: COLORS.cinzaBorda },
+  precoRotulo: { fontSize: 8, fontFamily: FONTS.bodyMedium, color: COLORS.azulEscuro },
+  precoDesc: { fontSize: 6.5, color: COLORS.cinzaClaro },
+  precoValor: { fontSize: 9, fontFamily: FONTS.heading, color: COLORS.azul },
+  cenarioRow: { flexDirection: 'row', gap: 6, marginTop: 6 },
+  cenarioChip: { flex: 1, borderWidth: 1, borderColor: COLORS.cinzaBorda, borderRadius: 4, paddingHorizontal: 6, paddingVertical: 4, alignItems: 'center' },
+  cenarioChipHi: { borderColor: COLORS.dourado, backgroundColor: COLORS.fundoSuave },
+  cenarioLabel: { fontSize: 6.5, color: COLORS.cinzaClaro, textTransform: 'uppercase', letterSpacing: 0.3 },
+  cenarioValor: { fontSize: 8.5, fontFamily: FONTS.bodyMedium, color: COLORS.azulEscuro, marginTop: 2 },
+  arbitrioNota: { fontSize: 6.8, color: COLORS.cinzaClaro, marginTop: 6, fontStyle: 'italic' },
   // Seções
   h2: { fontFamily: FONTS.heading, fontSize: 13, color: COLORS.azulEscuro, marginTop: 16, marginBottom: 5 },
   h3: { fontFamily: FONTS.bodyMedium, fontSize: 9.5, color: COLORS.azul, marginTop: 8, marginBottom: 3 },
@@ -472,6 +484,29 @@ export function LaudoDocument({ model }: { model: LaudoModel }) {
               )
             })
           )}
+        </View>
+
+        {/* Três preços + arbítrio de estado (Story 9.14) */}
+        <View style={s.desagioBox}>
+          <Text style={s.robustezTitle}>Três preços & arbítrio de estado</Text>
+          {model.desagio.tresPrecos.map((p, i) => (
+            <View key={i} style={s.precoRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={s.precoRotulo}>{p.rotulo}</Text>
+                <Text style={s.precoDesc}>{p.descricao}</Text>
+              </View>
+              <Text style={s.precoValor}>{p.faixa ? faixaFull(p.faixa) : fmt(p.valor)}</Text>
+            </View>
+          ))}
+          <View style={s.cenarioRow}>
+            {model.desagio.cenarios.map((c, i) => (
+              <View key={i} style={[s.cenarioChip, ...(c.aplicado ? [s.cenarioChipHi] : [])]}>
+                <Text style={s.cenarioLabel}>{`${c.rotulo} −${Math.round(c.percentual * 100)}%`}</Text>
+                <Text style={s.cenarioValor}>{fmt(c.valor)}</Text>
+              </View>
+            ))}
+          </View>
+          <Text style={s.arbitrioNota}>{model.desagio.notaArbitrio}</Text>
         </View>
 
         {/* Sumário Executivo e Objetivos */}

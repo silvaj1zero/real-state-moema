@@ -18,6 +18,8 @@ import {
   derivarPassaporte,
   derivarPassaportes,
   agregarConfianca,
+  tratarDesagio,
+  DESAGIO_DEFAULT,
 } from './methodology'
 import type { AcmComparable } from './methodology'
 import {
@@ -636,6 +638,78 @@ describe('coletarAvisos — regras individuais', () => {
     const rej = r.passaportes.find((p) => p.endereco === 'R. Honduras, 639')!
     expect(rej.status).toBe('excluido')
     expect(rej.confianca).toBe('rejeitado')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Deságio de estado do alvo — Story 9.14 (C-1: fim do Capex oculto)
+// ---------------------------------------------------------------------------
+
+describe('tratarDesagio — três cenários explícitos (0 / −7,5% / −15%)', () => {
+  it('sem ficha → expõe os três, cenarioAplicado null (AC3: sem default silencioso)', () => {
+    const d = tratarDesagio(10_000_000, { areaConstruida: 800, areaTerreno: 1000 })
+    expect(d.cenarioAplicado).toBeNull()
+    expect(d.origemDefault).toBe('sem-ficha')
+    expect(d.valorMercadoPorCenario).toEqual({
+      agressivo: 10_000_000,
+      provavel: 9_250_000,
+      conservador: 8_500_000,
+    })
+    expect(d.foraDaReguaSimples).toBe(false)
+  })
+
+  it('estado B (conservado) → cenário provável, marcado provisório pré-H3', () => {
+    const d = tratarDesagio(10_000_000, { areaConstruida: 800, areaTerreno: 1000, estadoConservacao: 'B' })
+    expect(d.cenarioAplicado).toBe('provavel')
+    expect(d.origemDefault).toBe('ficha-provisoria-pre-H3')
+    expect(d.estadoConservacao).toBe('B')
+  })
+
+  it('estado A → agressivo (0%); estado C → conservador (−15%)', () => {
+    expect(tratarDesagio(1e7, { areaConstruida: 1, areaTerreno: 1, estadoConservacao: 'A' }).cenarioAplicado).toBe('agressivo')
+    expect(tratarDesagio(1e7, { areaConstruida: 1, areaTerreno: 1, estadoConservacao: 'C' }).cenarioAplicado).toBe('conservador')
+  })
+
+  it('estado D → conservador + fora da régua simples (flag)', () => {
+    const d = tratarDesagio(1e7, { areaConstruida: 1, areaTerreno: 1, estadoConservacao: 'D' })
+    expect(d.cenarioAplicado).toBe('conservador')
+    expect(d.foraDaReguaSimples).toBe(true)
+  })
+
+  it('override explícito vence a ficha', () => {
+    const d = tratarDesagio(1e7, { areaConstruida: 1, areaTerreno: 1, estadoConservacao: 'C' }, DESAGIO_DEFAULT, 'agressivo')
+    expect(d.cenarioAplicado).toBe('agressivo')
+    expect(d.origemDefault).toBe('override-explicito')
+  })
+})
+
+describe('computeLaudo — deságio de estado (Story 9.14 AC4/AC5/AC6)', () => {
+  it('AC5 — Honduras sem ficha: valorMercado intacto; deságio é camada aditiva inerte', () => {
+    const r = computeLaudo({
+      target: HONDURAS_TARGET,
+      comparaveis: HONDURAS_COMPARAVEIS,
+      fatoresLiquidez: HONDURAS_FATORES_LIQUIDEZ,
+      residual: HONDURAS_RESIDUAL,
+    })
+    expect(within(r.valorMercado, 12_419_520)).toBe(true) // inalterado
+    expect(r.desagioTratado.cenarioAplicado).toBeNull() // sem ficha → sem default
+    // conservador reproduz o patamar de −15% de forma EXPLÍCITA (não oculta)
+    expect(r.desagioTratado.valorMercadoPorCenario.agressivo).toBe(r.valorMercado)
+    expect(r.desagioTratado.valorMercadoPorCenario.conservador).toBe(Math.round(r.valorMercado * 0.85))
+    // O aviso de condição não confirmada continua (sem ficha)
+    expect(r.avisos.map((a) => a.codigo)).toContain('target_condition_unconfirmed')
+  })
+
+  it('AC6/9.15 — com ficha estado B: condição confirmada e cenário provável aplicado', () => {
+    const r = computeLaudo({
+      target: { ...HONDURAS_TARGET, estadoConservacao: 'B' },
+      comparaveis: HONDURAS_COMPARAVEIS,
+      fatoresLiquidez: HONDURAS_FATORES_LIQUIDEZ,
+    })
+    expect(r.desagioTratado.cenarioAplicado).toBe('provavel')
+    expect(r.desagioTratado.origemDefault).toBe('ficha-provisoria-pre-H3')
+    // ficha presente → silencia o aviso de condição não confirmada
+    expect(r.avisos.map((a) => a.codigo)).not.toContain('target_condition_unconfirmed')
   })
 })
 

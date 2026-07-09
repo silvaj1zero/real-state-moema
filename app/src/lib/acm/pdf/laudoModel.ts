@@ -24,6 +24,7 @@ import type {
   AcmLaudoComputation,
   AvisoAcm,
   ConfiancaGrau,
+  DesagioTratado,
   ResidualLandParams,
   SensitivityScenario,
 } from '@/lib/acm/methodology'
@@ -247,6 +248,24 @@ export interface LaudoRobustez {
   totalIncluidos: number
 }
 
+/** Um dos três preços obrigatórios da capa (Story 9.14 — nunca colapsar em um só). */
+export interface LaudoPrecoLinha {
+  rotulo: string
+  descricao: string
+  valor: number | null
+  faixa: { min: number; max: number } | null
+}
+
+/** Bloco de arbítrio de estado + três preços (Story 9.14). Renderizado na capa. */
+export interface LaudoDesagio {
+  /** Técnico provável · Comercial de captação · Estratégico de anúncio. */
+  tresPrecos: LaudoPrecoLinha[]
+  /** Três cenários de deságio de estado (conservador/provável/agressivo). */
+  cenarios: Array<{ chave: 'conservador' | 'provavel' | 'agressivo'; rotulo: string; percentual: number; valor: number; aplicado: boolean }>
+  /** Nota de arbítrio (origem do cenário, pendência de H-3 quando provisório). */
+  notaArbitrio: string
+}
+
 export interface LaudoModel {
   header: {
     titulo: string
@@ -266,6 +285,8 @@ export interface LaudoModel {
   }
   /** Avisos de robustez + graus de confiança (Story 9.15). Renderizado na capa. */
   robustez: LaudoRobustez
+  /** Arbítrio de estado + três preços (Story 9.14). Renderizado na capa. */
+  desagio: LaudoDesagio
   faixa: ResumoFaixaItem[]
   sumario: {
     objetivos: string[]
@@ -482,6 +503,56 @@ const CONDICIONANTES_DEFAULT = [
 // ===========================================================================
 // Builder
 // ===========================================================================
+
+/** Rótulo pt-BR do cenário de deságio. */
+const CENARIO_ROTULO: Record<'conservador' | 'provavel' | 'agressivo', string> = {
+  conservador: 'Conservador',
+  provavel: 'Provável',
+  agressivo: 'Agressivo',
+}
+
+/**
+ * Monta o bloco de arbítrio de estado + três preços da capa (Story 9.14).
+ * Os três preços NUNCA colapsam em um só (regra do veredito ROI §2).
+ */
+function buildDesagio(
+  d: DesagioTratado,
+  precos: {
+    tecnico: number | null
+    tecnicoFaixa: { min: number; max: number } | null
+    captacao: { min: number; max: number }
+    anuncio: number | null
+  },
+): LaudoDesagio {
+  const cenarios = (['agressivo', 'provavel', 'conservador'] as const).map((chave) => ({
+    chave,
+    rotulo: CENARIO_ROTULO[chave],
+    percentual: d.cenarios[chave],
+    valor: d.valorMercadoPorCenario[chave],
+    aplicado: d.cenarioAplicado === chave,
+  }))
+
+  let notaArbitrio: string
+  if (d.cenarioAplicado == null) {
+    notaArbitrio =
+      'Estado do imóvel-alvo não confirmado: os três cenários de deságio são exibidos e a faixa é reportada de forma conservadora (sem escolher −15% automaticamente). Confirmar o estado em vistoria (ficha do alvo).'
+  } else {
+    const provisorio = d.origemDefault === 'ficha-provisoria-pre-H3'
+    notaArbitrio = `Cenário aplicado: ${CENARIO_ROTULO[d.cenarioAplicado]} (−${Math.round(
+      d.cenarios[d.cenarioAplicado] * 100,
+    )}%)${d.estadoConservacao ? `, estado declarado ${d.estadoConservacao}` : ''}.${
+      provisorio ? ' Régua A–D e defaults PROVISÓRIOS — pendentes de validação com a consultora (H-3).' : ''
+    }${d.foraDaReguaSimples ? ' Estado D: fora da régua simples — exige tratamento dedicado.' : ''}`
+  }
+
+  const tresPrecos: LaudoPrecoLinha[] = [
+    { rotulo: 'Valor técnico provável', descricao: 'Mediana ITBI saneada (evidência de fechamento)', valor: precos.tecnico, faixa: precos.tecnicoFaixa },
+    { rotulo: 'Comercial de captação', descricao: 'Técnico ajustado por condição/liquidez', valor: null, faixa: precos.captacao },
+    { rotulo: 'Estratégico de anúncio', descricao: 'Posicionamento vs concorrência ativa', valor: precos.anuncio, faixa: null },
+  ]
+
+  return { tresPrecos, cenarios, notaArbitrio }
+}
 
 export function buildLaudoModel(
   computation: AcmLaudoComputation,
@@ -886,6 +957,12 @@ export function buildLaudoModel(
         totalIncluidos: confiabilidade.A + confiabilidade.B + confiabilidade.C,
       }
     })(),
+    desagio: buildDesagio(computation.desagioTratado, {
+      tecnico: mercadoFaixa ? null : h.referencia.valorMercado,
+      tecnicoFaixa: mercadoFaixa,
+      captacao: metaFechamento,
+      anuncio: input.precoAnuncioRecomendado ?? input.precoPedidoReal ?? null,
+    }),
     faixa,
     sumario: {
       objetivos: input.objetivos ?? OBJETIVOS_DEFAULT,

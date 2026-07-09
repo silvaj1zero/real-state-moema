@@ -72,6 +72,20 @@ export interface AcmTarget {
    * anúncios do próprio alvo disfarçados de comparável.
    */
   precoPretendido?: number | null
+
+  // --- Ficha do alvo (Story 9.14) — estado de conservação declarado ---------
+  // Opt-in. A escala A–D e seus defaults de deságio são PROVISÓRIOS até a
+  // elicitação H-3 com a Luciana (Art. IV — não inventar a régua sem validar).
+  /**
+   * Estado de conservação declarado do alvo (vistoria da consultora):
+   *   A = novo/reformado integral · B = conservado/pronto morar
+   *   C = necessita ajustes · D = obsolescência/reforma pesada
+   * Ausente → nenhum deságio de estado é aplicado silenciosamente (AC3).
+   */
+  estadoConservacao?: 'A' | 'B' | 'C' | 'D' | null
+  anoConstrucao?: number | null
+  /** Texto curto de reformas relevantes (rastreabilidade). */
+  reformasRelevantes?: string | null
 }
 
 /** Comparável excluído pelo guard-rail anti-auto-referência, com motivos. */
@@ -244,6 +258,92 @@ export interface ComparavelPassport {
   confianca: ConfiancaGrau
 }
 
+// ---------------------------------------------------------------------------
+// Deságio de estado do alvo — Story 9.14 (C-1: fim do Capex oculto)
+// ---------------------------------------------------------------------------
+
+export type DesagioCenario = 'conservador' | 'provavel' | 'agressivo'
+
+/** Frações de deságio por cenário (defaults AC2; override por input). */
+export interface DesagioCenarios {
+  conservador: number
+  provavel: number
+  agressivo: number
+}
+
+/** Deságio de ESTADO/condição do alvo — eixo separado do Score de mercado (AC2). */
+export const DESAGIO_DEFAULT: DesagioCenarios = { conservador: 0.15, provavel: 0.075, agressivo: 0 }
+
+/**
+ * Tabela PROVISÓRIA estado→cenário (AC3). A régua A–D e estes mapeamentos são
+ * **provisórios até a elicitação H-3 com a Luciana** (Art. IV) — nenhum laudo
+ * deve tratá-los como definitivos antes disso. `origemDefault` sinaliza a pendência.
+ */
+export const ESTADO_CENARIO_PROVISORIO: Record<'A' | 'B' | 'C' | 'D', DesagioCenario> = {
+  A: 'agressivo',
+  B: 'provavel',
+  C: 'conservador',
+  D: 'conservador',
+}
+
+/**
+ * Tratamento explícito do deságio de estado (Story 9.14). Expõe os TRÊS cenários
+ * sempre; só aplica um ao headline quando há ficha (sem ficha → sem default
+ * silencioso de −15%, AC3). Separado do Score de mercado, do residual e dos
+ * fatores de liquidez (AC4).
+ */
+export interface DesagioTratado {
+  cenarios: DesagioCenarios
+  /** valorMercado × (1 − d) para cada cenário. */
+  valorMercadoPorCenario: Record<DesagioCenario, number>
+  /** Cenário aplicado ao headline; null quando sem ficha (não há default silencioso). */
+  cenarioAplicado: DesagioCenario | null
+  estadoConservacao: 'A' | 'B' | 'C' | 'D' | null
+  /** Proveniência do cenário — `ficha-provisoria-pre-H3` sinaliza pendência de H-3. */
+  origemDefault: 'ficha-provisoria-pre-H3' | 'sem-ficha' | 'override-explicito'
+  /** Estado D → fora da régua simples (exige tratamento dedicado, AC3). */
+  foraDaReguaSimples: boolean
+}
+
+/**
+ * Deriva os cenários de deságio de estado a partir do valor de mercado e da ficha
+ * do alvo. Não altera `valorMercado` (eixo de mercado/Score) — é uma camada de
+ * arbítrio de condição, explícita e defensável.
+ */
+export function tratarDesagio(
+  valorMercado: number,
+  target: AcmTarget,
+  cenarios: DesagioCenarios = DESAGIO_DEFAULT,
+  cenarioOverride?: DesagioCenario,
+): DesagioTratado {
+  const valorMercadoPorCenario: Record<DesagioCenario, number> = {
+    conservador: Math.round(valorMercado * (1 - cenarios.conservador)),
+    provavel: Math.round(valorMercado * (1 - cenarios.provavel)),
+    agressivo: Math.round(valorMercado * (1 - cenarios.agressivo)),
+  }
+  const estado = target.estadoConservacao ?? null
+  let cenarioAplicado: DesagioCenario | null
+  let origemDefault: DesagioTratado['origemDefault']
+  if (cenarioOverride != null) {
+    cenarioAplicado = cenarioOverride
+    origemDefault = 'override-explicito'
+  } else if (estado != null) {
+    cenarioAplicado = ESTADO_CENARIO_PROVISORIO[estado]
+    origemDefault = 'ficha-provisoria-pre-H3'
+  } else {
+    cenarioAplicado = null // AC3: sem ficha, expõe os três — nunca escolhe −15% sozinho
+    origemDefault = 'sem-ficha'
+  }
+  return {
+    cenarios,
+    valorMercadoPorCenario,
+    cenarioAplicado,
+    estadoConservacao: estado,
+    origemDefault,
+    foraDaReguaSimples: estado === 'D',
+  }
+}
+
 export interface AcmLaudoComputation {
   target: AcmTarget
   totalComparaveis: number
@@ -269,6 +369,8 @@ export interface AcmLaudoComputation {
   homogeneizacao: HomogeneizacaoRelatorio
   /** Composição da amostra por bairro real verificado (Story 9.11). */
   composicaoBairros: BairroComposicao[]
+  /** Deságio de estado do alvo — três cenários explícitos (Story 9.14). */
+  desagioTratado: DesagioTratado
   /** Avisos determinísticos de robustez da amostra (Story 9.15). */
   avisos: AvisoAcm[]
   /**
@@ -978,8 +1080,13 @@ export interface ComputeLaudoOptions {
   /**
    * Estado/ficha do alvo confirmado (Story 9.14). Quando falso/ausente, emite o
    * aviso `target_condition_unconfirmed` e o laudo reporta faixa conservadora.
+   * Derivado automaticamente como `true` quando `target.estadoConservacao` existe.
    */
   estadoAlvoConfirmado?: boolean
+  /** Frações de deságio de estado por cenário (Story 9.14). Default: DESAGIO_DEFAULT. */
+  cenariosDesagio?: DesagioCenarios
+  /** Força um cenário de deságio no headline (override explícito da ficha). */
+  cenarioDesagio?: DesagioCenario
 }
 
 /** Computa o pacote completo do laudo a partir dos comparáveis. */
@@ -1034,6 +1141,11 @@ export function computeLaudo(opts: ComputeLaudoOptions): AcmLaudoComputation {
   const efeitoEscalaTerreno = landPriceByLotSize(comparaveis)
   const composicaoBairros = composicaoPorBairro(comparaveis)
 
+  // Deságio de estado do alvo — três cenários explícitos (Story 9.14).
+  const desagioTratado = tratarDesagio(valorMercado, target, opts.cenariosDesagio, opts.cenarioDesagio)
+  // A ficha declarada confirma o estado → silencia target_condition_unconfirmed (9.15).
+  const estadoAlvoConfirmado = opts.estadoAlvoConfirmado === true || target.estadoConservacao != null
+
   // Passaporte de confiabilidade + avisos de robustez (Story 9.15).
   const passaportes = derivarPassaportes(comparaveis, autoReferenciasExcluidas, excluidosOriginais)
   const avisos = coletarAvisos({
@@ -1043,7 +1155,7 @@ export function computeLaudo(opts: ComputeLaudoOptions): AcmLaudoComputation {
     computation: { top3, top5, efeitoEscalaTerreno, composicaoBairros, coAncoraTerreno, autoReferenciasExcluidas },
     fatoresLiquidez: fatores,
     homogeneizacaoAplicada: homogeneizacao.aplicada,
-    estadoAlvoConfirmado: opts.estadoAlvoConfirmado === true,
+    estadoAlvoConfirmado,
   })
 
   return {
@@ -1066,6 +1178,7 @@ export function computeLaudo(opts: ComputeLaudoOptions): AcmLaudoComputation {
     autoReferenciasExcluidas,
     homogeneizacao,
     composicaoBairros,
+    desagioTratado,
     avisos,
     passaportes,
   }
