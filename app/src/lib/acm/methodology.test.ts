@@ -20,6 +20,7 @@ import {
   agregarConfianca,
   tratarDesagio,
   DESAGIO_DEFAULT,
+  weightedMedian,
 } from './methodology'
 import type { AcmComparable } from './methodology'
 import {
@@ -710,6 +711,81 @@ describe('computeLaudo — deságio de estado (Story 9.14 AC4/AC5/AC6)', () => {
     expect(r.desagioTratado.origemDefault).toBe('ficha-provisoria-pre-H3')
     // ficha presente → silencia o aviso de condição não confirmada
     expect(r.avisos.map((a) => a.codigo)).not.toContain('target_condition_unconfirmed')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Mediana ponderada / ranking de evidência A·B·C — Story 9.20
+// ---------------------------------------------------------------------------
+
+describe('weightedMedian — cruzamento do peso acumulado', () => {
+  it('pesos iguais → mediana simples', () => {
+    expect(weightedMedian([
+      { valor: 10, peso: 1 },
+      { valor: 20, peso: 1 },
+      { valor: 30, peso: 1 },
+    ])).toBe(20)
+  })
+
+  it('peso concentrado puxa a mediana para o valor pesado', () => {
+    expect(weightedMedian([
+      { valor: 10, peso: 1 },
+      { valor: 20, peso: 10 },
+      { valor: 30, peso: 1 },
+    ])).toBe(20)
+  })
+
+  it('sem pesos válidos → fallback mediana simples', () => {
+    expect(weightedMedian([
+      { valor: 10, peso: 0 },
+      { valor: 30, peso: 0 },
+    ])).toBe(20)
+  })
+})
+
+describe('computeLaudo — ranking de evidência (Story 9.20)', () => {
+  it('AC6 — Honduras (0 comparáveis C): mediana principal == mediana legada', () => {
+    const r = computeLaudo({
+      target: HONDURAS_TARGET,
+      comparaveis: HONDURAS_COMPARAVEIS,
+      fatoresLiquidez: HONDURAS_FATORES_LIQUIDEZ,
+      residual: HONDURAS_RESIDUAL,
+    })
+    expect(r.evidencia.nC).toBe(0)
+    expect(r.evidencia.nA).toBe(5)
+    expect(r.evidencia.nB).toBe(18)
+    expect(r.evidencia.medianaPrincipal).toBe(r.medianaPrecoM2) // âncora preservada
+    expect(r.evidencia.laterais).toEqual([])
+  })
+
+  it('AC2 — comparável C (anúncio) fica lateral, fora da mediana principal', () => {
+    // 4 vendas ITBI iguais (10.000/m²) + 1 anúncio outlier (grau C) alto.
+    const comparaveis: AcmComparable[] = [
+      { endereco: 'A', areaConstruida: 100, preco: 1_000_000, isVendaReal: true },
+      { endereco: 'B', areaConstruida: 100, preco: 1_000_000, isVendaReal: true },
+      { endereco: 'C', areaConstruida: 100, preco: 1_000_000, isVendaReal: true },
+      { endereco: 'D', areaConstruida: 100, preco: 1_000_000, isVendaReal: true },
+      { endereco: 'ANUNCIO', areaConstruida: 100, preco: 5_000_000, isVendaReal: false },
+    ]
+    const r = computeLaudo({ target: { areaConstruida: 100, areaTerreno: 200 }, comparaveis })
+    expect(r.evidencia.nC).toBe(1)
+    expect(r.evidencia.laterais).toEqual(['ANUNCIO'])
+    // Mediana principal ignora o anúncio de 50.000/m² → 10.000/m² (só A/B).
+    expect(r.evidencia.medianaPrincipal).toBe(10_000)
+  })
+
+  it('AC5 — aviso sample_size_low_top3 quando pool A/B < 5', () => {
+    const comparaveis: AcmComparable[] = [
+      { endereco: 'A', areaConstruida: 100, preco: 1_000_000, isVendaReal: true },
+      { endereco: 'B', areaConstruida: 100, preco: 1_100_000, isVendaReal: true },
+      { endereco: 'X', areaConstruida: 100, preco: 2_000_000, isVendaReal: false },
+      { endereco: 'Y', areaConstruida: 100, preco: 2_100_000, isVendaReal: false },
+      { endereco: 'Z', areaConstruida: 100, preco: 2_200_000, isVendaReal: false },
+      { endereco: 'W', areaConstruida: 100, preco: 2_300_000, isVendaReal: false },
+    ]
+    const r = computeLaudo({ target: { areaConstruida: 100, areaTerreno: 200 }, comparaveis })
+    expect(r.evidencia.nA + r.evidencia.nB).toBe(2) // só A e B são ITBI
+    expect(r.avisos.map((a) => a.codigo)).toContain('sample_size_low_top3')
   })
 })
 

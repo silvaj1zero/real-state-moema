@@ -242,6 +242,23 @@ export interface AvisoAcm {
  */
 export type ConfiancaGrau = 'A' | 'B' | 'C' | 'rejeitado'
 
+/**
+ * Ranking de evidência A·B·C (Story 9.20): a mediana principal usa apenas
+ * comparáveis A/B; os C ficam laterais (não puxam o número). A mediana ponderada
+ * (opcional v1) pesa os A/B pela aderência ao alvo.
+ */
+export interface EvidenciaRanking {
+  /** Mediana simples de R$/m² sobre os A/B incluídos (referência principal). */
+  medianaPrincipal: number
+  /** Mediana ponderada por aderência sobre os A/B (opcional v1, AC3). */
+  medianaPonderada: number
+  nA: number
+  nB: number
+  nC: number
+  /** Endereços grau C — laterais, fora da mediana principal. */
+  laterais: string[]
+}
+
 /** Passaporte de confiabilidade v1 de um comparável (Story 9.15 AC3). */
 export interface ComparavelPassport {
   endereco: string
@@ -371,6 +388,8 @@ export interface AcmLaudoComputation {
   composicaoBairros: BairroComposicao[]
   /** Deságio de estado do alvo — três cenários explícitos (Story 9.14). */
   desagioTratado: DesagioTratado
+  /** Ranking de evidência A·B·C — mediana principal só A/B (Story 9.20). */
+  evidencia: EvidenciaRanking
   /** Avisos determinísticos de robustez da amostra (Story 9.15). */
   avisos: AvisoAcm[]
   /**
@@ -420,6 +439,30 @@ export function median(values: number[]): number {
   return sorted.length % 2 !== 0
     ? sorted[mid]
     : (sorted[mid - 1] + sorted[mid]) / 2
+}
+
+/**
+ * Mediana ponderada (Story 9.20): valor onde o peso acumulado cruza metade do
+ * peso total. Pesos ≤0 ou não-finitos são ignorados. Sem pesos válidos → cai
+ * para a mediana simples dos valores (fallback documentado, AC3).
+ */
+export function weightedMedian(pares: Array<{ valor: number; peso: number }>): number {
+  const validos = pares
+    .filter((p) => Number.isFinite(p.valor) && Number.isFinite(p.peso) && p.peso > 0)
+    .sort((a, b) => a.valor - b.valor)
+  if (validos.length === 0) return median(pares.map((p) => p.valor))
+  const total = validos.reduce((acc, p) => acc + p.peso, 0)
+  const meta = total / 2
+  let acumulado = 0
+  for (let i = 0; i < validos.length; i++) {
+    acumulado += validos[i].peso
+    if (acumulado > meta) return validos[i].valor
+    // Exatamente na metade → média com o próximo (mediana par ponderada).
+    if (acumulado === meta && i + 1 < validos.length) {
+      return (validos[i].valor + validos[i + 1].valor) / 2
+    }
+  }
+  return validos[validos.length - 1].valor
 }
 
 /** Similaridade normalizada 0..1: 1 - |x - alvo| / alvo, com clamp em [0,1]. */
@@ -901,6 +944,59 @@ export function agregarConfianca(
   return acc
 }
 
+/**
+ * Ranking de evidência (Story 9.20): mediana principal sobre os A/B incluídos
+ * (C fica lateral), mais a mediana ponderada por aderência. Determinístico:
+ *   - `aceitos` são os comparáveis incluídos (pós-deflação, R$/m² já válido).
+ *   - `passaportes` classificam cada endereço em A/B/C.
+ *   - `ranking` fornece o índice de aderência (peso da mediana ponderada).
+ * Regressão: amostra sem C → medianaPrincipal == mediana simples de todos (o
+ * caso Honduras tem 0 comparáveis C, então o número-âncora é preservado).
+ */
+export function derivarEvidencia(
+  aceitos: AcmComparable[],
+  passaportes: ComparavelPassport[],
+  ranking: AdherenceBreakdown[],
+): EvidenciaRanking {
+  const grauPorEndereco = new Map(
+    passaportes.filter((p) => p.status === 'incluido').map((p) => [p.endereco, p.confianca]),
+  )
+  const indicePorEndereco = new Map(ranking.map((r) => [r.endereco, r.indice]))
+
+  const abPares: Array<{ valor: number; peso: number }> = []
+  const precosAB: number[] = []
+  let nA = 0
+  let nB = 0
+  let nC = 0
+  const laterais: string[] = []
+
+  for (const c of aceitos) {
+    if (!(c.areaConstruida > 0)) continue
+    const grau = grauPorEndereco.get(c.endereco)
+    const precoM2 = c.preco / c.areaConstruida
+    if (grau === 'A') nA += 1
+    else if (grau === 'B') nB += 1
+    else if (grau === 'C') {
+      nC += 1
+      laterais.push(c.endereco)
+      continue // C é lateral — não entra na mediana principal (AC2)
+    } else {
+      continue // rejeitado/desconhecido não entra
+    }
+    precosAB.push(precoM2)
+    abPares.push({ valor: precoM2, peso: indicePorEndereco.get(c.endereco) ?? 0 })
+  }
+
+  return {
+    medianaPrincipal: Math.round(median(precosAB) * 100) / 100,
+    medianaPonderada: Math.round(weightedMedian(abPares) * 100) / 100,
+    nA,
+    nB,
+    nC,
+    laterais,
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Avisos de robustez — Story 9.15 (regras puras + códigos canônicos)
 // ---------------------------------------------------------------------------
@@ -929,6 +1025,8 @@ interface AvisosInputs {
   fatoresLiquidez: number[]
   homogeneizacaoAplicada: boolean
   estadoAlvoConfirmado: boolean
+  /** Tamanho do pool A/B (Story 9.20 AC5) — dispara sample_size_low_top3 se <5. */
+  poolAB?: number
 }
 
 /**
@@ -943,12 +1041,14 @@ export function coletarAvisos(inp: AvisosInputs): AvisoAcm[] {
   const { aceitos, passaportes, computation, target } = inp
   const incluidos = passaportes.filter((p) => p.status === 'incluido')
 
-  // sample_size_low_top3 — amostra de referência frágil
-  if (computation.top3.length < 3 || aceitos.length < 5) {
+  // sample_size_low_top3 — amostra de referência frágil (inclui pool A/B, 9.20 AC5)
+  const poolAB = inp.poolAB
+  if (computation.top3.length < 3 || aceitos.length < 5 || (poolAB != null && poolAB < 5)) {
+    const notaAB = poolAB != null && poolAB < 5 ? ` — apenas ${poolAB} comparáveis A/B na mediana principal` : ''
     push(
       'sample_size_low_top3',
       'critico',
-      `Amostra pequena: ${aceitos.length} comparáveis (Top 3 = ${computation.top3.length}). Tese sensível a cada ponto.`,
+      `Amostra pequena: ${aceitos.length} comparáveis (Top 3 = ${computation.top3.length})${notaAB}. Tese sensível a cada ponto.`,
     )
   }
 
@@ -1146,8 +1246,11 @@ export function computeLaudo(opts: ComputeLaudoOptions): AcmLaudoComputation {
   // A ficha declarada confirma o estado → silencia target_condition_unconfirmed (9.15).
   const estadoAlvoConfirmado = opts.estadoAlvoConfirmado === true || target.estadoConservacao != null
 
-  // Passaporte de confiabilidade + avisos de robustez (Story 9.15).
+  // Passaporte de confiabilidade + ranking de evidência (Stories 9.15, 9.20).
   const passaportes = derivarPassaportes(comparaveis, autoReferenciasExcluidas, excluidosOriginais)
+  const evidencia = derivarEvidencia(comparaveis, passaportes, ranking)
+
+  // Avisos de robustez (Story 9.15/9.20 AC5).
   const avisos = coletarAvisos({
     target,
     aceitos: comparaveis,
@@ -1156,6 +1259,7 @@ export function computeLaudo(opts: ComputeLaudoOptions): AcmLaudoComputation {
     fatoresLiquidez: fatores,
     homogeneizacaoAplicada: homogeneizacao.aplicada,
     estadoAlvoConfirmado,
+    poolAB: evidencia.nA + evidencia.nB,
   })
 
   return {
@@ -1179,6 +1283,7 @@ export function computeLaudo(opts: ComputeLaudoOptions): AcmLaudoComputation {
     homogeneizacao,
     composicaoBairros,
     desagioTratado,
+    evidencia,
     avisos,
     passaportes,
   }
