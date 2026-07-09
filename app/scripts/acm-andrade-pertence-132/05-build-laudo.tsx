@@ -151,6 +151,11 @@ const computation = computeLaudo({
   },
   comparaveis,
   fatoresLiquidez: FATORES_LIQUIDEZ.map((f) => f.ajuste),
+  // Story 9.16 — caso 132: tese construção (evita artefato terreno-barato no Top N).
+  tese: 'construcao',
+  propertyType: 'casa',
+  precoPedidoReal: T.precoPretendido,
+  subprecificacaoMeta: { nAnuncios: 70, tempoExposicaoDias: 90 },
   homogeneizacao: {
     indice: `${FIPEZAP_SP_FONTE.indice} — ${FIPEZAP_SP_FONTE.recorte}`,
     serie: FIPEZAP_SP_VENDA_RESIDENCIAL,

@@ -276,6 +276,31 @@ export function LiteDocument({ model }: { model: LiteModel }) {
           </View>
         )}
 
+        {model.subprecificacao.nivel != null && (
+          <View
+            style={{
+              marginTop: 8,
+              padding: 8,
+              borderRadius: 5,
+              backgroundColor: '#FEF3C7',
+              borderWidth: 1,
+              borderColor: COLORS.dourado,
+            }}
+          >
+            <Text style={{ fontSize: 9, fontFamily: FONTS.bodyMedium, color: COLORS.azulEscuro }}>
+              Radar subprecificação · {model.subprecificacao.nivel}
+              {model.subprecificacao.deltaPct != null
+                ? ` (${model.subprecificacao.deltaPct}%)`
+                : ''}
+            </Text>
+            {model.subprecificacao.acaoRecomendada && (
+              <Text style={{ fontSize: 8.5, color: COLORS.corpo, marginTop: 3 }}>
+                {model.subprecificacao.acaoRecomendada}
+              </Text>
+            )}
+          </View>
+        )}
+
         <Text style={s.h2}>3 vendas mais parecidas</Text>
         <View style={s.table}>
           <View style={[s.tr, s.trHead]}>

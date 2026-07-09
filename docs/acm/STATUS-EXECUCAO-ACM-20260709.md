@@ -46,10 +46,10 @@
 ### Wave 3 — Uso em campo
 | Story | Título | Modelo | Status |
 |-------|--------|--------|--------|
-| **9.19** | ACM Lite + modo dono + objeções v1 | Sonnet | ✅ InReview (liteModel + package + script; 238 tests) |
-| **9.18** | Tese automática acima/alinhado/abaixo na capa | Sonnet | ✅ InReview (teseComercial + badge capa) |
-| **9.16** | Pesos de aderência condicionais à tese (constr./terreno/apto) | Opus | Draft |
-| **9.21** | Radar de subprecificação (caso 132) | Sonnet | Draft |
+| **9.19** | ACM Lite + modo dono + objeções v1 | Sonnet | ✅ InReview |
+| **9.18** | Tese automática acima/alinhado/abaixo na capa | Sonnet | ✅ InReview |
+| **9.16** | Pesos de aderência condicionais à tese (constr./terreno/apto) | Opus | ✅ InReview (default hibrido; 132→construcao) |
+| **9.21** | Radar de subprecificação (caso 132) | Sonnet | ✅ InReview (limiares 5/8/15%) |
 
 ### Wave 4 — Fábrica (bloqueada até Waves 1+2 Done)
 - **P-1** CLI `acm-validate <endereço>` (dataset canônico + gates R5/9.8/avisos + PDF Lite/Pro + XLSX + computation) — substitui os 3 scripts por caso.
@@ -67,4 +67,4 @@
 3. **0b H-3 com a Luciana** — destrava os defaults da 9.14 e o uso comercial (one-pager pronto).
 4. Só então **Wave 2** (9.17 + 9.4) e **Wave 3** (paralela), com os modelos recomendados acima.
 
-> Uma frase: **Wave 1 no remote · 9.17+9.18+9.19 no local (ahead) · suite 238. Falta push recente, H-3, 9.4 cross-repo, 9.16/9.21, P-1.**
+> Uma frase: **Wave 1–3 de código (9.14–9.21 exceto 9.4) no local · suite 250. Falta push, H-3, 9.4 cross-repo, P-1 CLI.**

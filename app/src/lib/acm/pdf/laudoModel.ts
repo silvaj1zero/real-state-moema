@@ -298,6 +298,19 @@ export interface LaudoModel {
     frase: string
     deltaPct: number | null
   }
+  /** Tese de avaliação + pesos (Story 9.16) — transparência Sec. 4. */
+  teseAvaliacao: {
+    tese: string
+    pesos: { areaConstruida: number; areaTerreno: number; proximidade: number }
+    rotulo: string
+  }
+  /** Radar de subprecificação (Story 9.21) — bloco curto na capa se nivel ≠ null. */
+  subprecificacao: {
+    nivel: 'fraca' | 'moderada' | 'forte' | null
+    deltaPct: number | null
+    acaoRecomendada: string | null
+    narrativa: string | null
+  }
   faixa: ResumoFaixaItem[]
   sumario: {
     objetivos: string[]
@@ -763,18 +776,29 @@ export function buildLaudoModel(
 
   const criteriosBase = input.criteriosSelecao ?? CRITERIOS_DEFAULT
   const homog = computation.homogeneizacao
+  const pesos = computation.pesosAderencia
+  // Story 9.16 AC7 — declara tese e tabela de pesos na Sec. 4.
+  const criteriosComTese = [
+    ...criteriosBase,
+    {
+      criterio: 'Tese de aderência (9.16)',
+      parametro: `${computation.teseAvaliacao} · constr. ${Math.round(pesos.areaConstruida * 100)}% · terr. ${Math.round(pesos.areaTerreno * 100)}% · prox. ${Math.round(pesos.proximidade * 100)}%`,
+      justificativa:
+        'Pesos do ranking Top N condicionados à tese de avaliação — transparentes (Art. IV). Sec. 8 (terreno) permanece leitura independente.',
+    },
+  ]
   // Story 9.17 AC7: se o gate R5 rodou, documenta a regra em uma linha na Sec. 4.
   const criteriosComR5 =
     computation.r5?.aplicado
       ? [
-          ...criteriosBase,
+          ...criteriosComTese,
           {
             criterio: 'R5 Tipologia (gate)',
             parametro: `Alvo = ${computation.r5.propertyType} · ${computation.r5.nAceitos} aceitos / ${computation.r5.nExcluidos} excluídos`,
             justificativa: computation.r5.regraUmaLinha,
           },
         ]
-      : criteriosBase
+      : criteriosComTese
   const criterios = homog.aplicada
     ? [
         ...criteriosComR5,
@@ -995,6 +1019,24 @@ export function buildLaudoModel(
       )
       return { tese: t.tese, label: t.label, frase: t.frase, deltaPct: t.deltaPct }
     })(),
+    teseAvaliacao: {
+      tese: computation.teseAvaliacao,
+      pesos: computation.pesosAderencia,
+      rotulo:
+        computation.teseAvaliacao === 'construcao'
+          ? 'Construção (R$/m² construído)'
+          : computation.teseAvaliacao === 'terreno'
+            ? 'Terreno (lente de lote)'
+            : computation.teseAvaliacao === 'apto'
+              ? 'Apartamento (provisório)'
+              : 'Híbrido (legado 50/20/30)',
+    },
+    subprecificacao: {
+      nivel: computation.subprecificacao.nivel,
+      deltaPct: computation.subprecificacao.deltaPct,
+      acaoRecomendada: computation.subprecificacao.acaoRecomendada,
+      narrativa: computation.subprecificacao.narrativa,
+    },
     faixa,
     sumario: {
       objetivos: input.objetivos ?? OBJETIVOS_DEFAULT,

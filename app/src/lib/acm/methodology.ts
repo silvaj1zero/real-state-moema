@@ -26,9 +26,15 @@ import {
   type TeseComercial,
   type TeseComercialLimiares,
 } from './teseComercial'
+import {
+  classificarSubprecificacao,
+  type SubprecificacaoRadar,
+} from './subprecificacao'
 
 export type { TeseComercial, TeseComercialLimiares } from './teseComercial'
 export { classificarTeseComercial, TESE_LIMIARES_DEFAULT } from './teseComercial'
+export type { SubprecificacaoRadar, NivelSubprecificacao } from './subprecificacao'
+export { classificarSubprecificacao, SUBPRECIFICACAO_LIMIARES } from './subprecificacao'
 
 // ---------------------------------------------------------------------------
 // Tipos
@@ -121,12 +127,25 @@ export interface SelfReferenceFinding {
   motivos: string[]
 }
 
+/** Tese de avaliação que condiciona os pesos de aderência (Story 9.16). */
+export type AcmTese = 'construcao' | 'terreno' | 'hibrido' | 'apto'
+
+export interface AdherencePesos {
+  areaConstruida: number
+  areaTerreno: number
+  proximidade: number
+}
+
 export interface AdherenceBreakdown {
   endereco: string
   simAreaConstruida: number
   simAreaTerreno: number
   proximidade: number
   indice: number
+  /** Pesos aplicados nesta avaliação (Story 9.16). */
+  pesos: AdherencePesos
+  /** Tese que gerou os pesos. */
+  tese: AcmTese
 }
 
 export interface LotSizeBand {
@@ -437,6 +456,17 @@ export interface AcmLaudoComputation {
    * Usa anúncio real (se houver) senão pretendido, vs referência do headline.
    */
   teseComercial: TeseComercial
+  /**
+   * Tese de avaliação que condicionou os pesos de aderência (Story 9.16).
+   * Default legado: `hibrido`.
+   */
+  teseAvaliacao: AcmTese
+  /** Pesos de aderência efetivamente usados. */
+  pesosAderencia: AdherencePesos
+  /**
+   * Radar de subprecificação (Story 9.21). `nivel: null` sem anúncio ou sem gap.
+   */
+  subprecificacao: SubprecificacaoRadar
 }
 
 // ---------------------------------------------------------------------------
@@ -456,15 +486,33 @@ export const CAPEX_BY_SCORE: Record<Score, number> = {
   B: 0.15,
 }
 
-/** Pesos do índice de aderência (Material Didático Parte 1.3). */
-export const ADHERENCE_WEIGHTS = {
-  areaConstruida: 0.5,
-  areaTerreno: 0.2,
-  proximidade: 0.3,
-} as const
+/**
+ * Pesos de aderência por tese (Story 9.16 AC2).
+ * `hibrido` = legado Honduras 50/20/30 (Material Didático Parte 1.3).
+ * `apto` = provisório até Story 9.1 fechar régua de apartamento.
+ */
+export const ADHERENCE_WEIGHTS_BY_TESE: Record<AcmTese, AdherencePesos> = {
+  construcao: { areaConstruida: 0.7, areaTerreno: 0.0, proximidade: 0.3 },
+  terreno: { areaConstruida: 0.3, areaTerreno: 0.4, proximidade: 0.3 },
+  hibrido: { areaConstruida: 0.5, areaTerreno: 0.2, proximidade: 0.3 },
+  apto: { areaConstruida: 0.6, areaTerreno: 0.0, proximidade: 0.4 },
+}
+
+/**
+ * Default legado = `hibrido` (50/20/30) — preserva regressão Honduras (AC6).
+ * Para casa conservada / caso 132, preferir `construcao` (AC1 da story).
+ */
+export const DEFAULT_ACM_TESE: AcmTese = 'hibrido'
+
+/** Alias legado — mesmos pesos do hibrido. */
+export const ADHERENCE_WEIGHTS = ADHERENCE_WEIGHTS_BY_TESE.hibrido
 
 /** Raio de análise padrão em metros (Material Didático Parte 1.1). */
 export const RAIO_PADRAO_M = 1000
+
+export function pesosPorTese(tese: AcmTese = DEFAULT_ACM_TESE): AdherencePesos {
+  return ADHERENCE_WEIGHTS_BY_TESE[tese] ?? ADHERENCE_WEIGHTS_BY_TESE.hibrido
+}
 
 // ---------------------------------------------------------------------------
 // Utilidades
@@ -705,12 +753,17 @@ export function classifyScore(
 // Índice de aderência — Material Didático Parte 1.3
 // ---------------------------------------------------------------------------
 
-/** Aderência = 0,50·simÁreaConstr + 0,20·simÁreaTerreno + 0,30·proximidade. */
+/**
+ * Aderência ponderada pela tese (Story 9.16).
+ * Default `hibrido` = 0,50·simÁreaConstr + 0,20·simÁreaTerreno + 0,30·proximidade.
+ */
 export function adherenceIndex(
   target: AcmTarget,
   comp: AcmComparable,
   raio: number = RAIO_PADRAO_M,
+  tese: AcmTese = DEFAULT_ACM_TESE,
 ): AdherenceBreakdown {
+  const pesos = pesosPorTese(tese)
   const simAreaConstruida = similaridade(comp.areaConstruida, target.areaConstruida)
   const simAreaTerreno =
     comp.areaTerreno != null
@@ -719,10 +772,18 @@ export function adherenceIndex(
   const proximidade =
     comp.distancia != null ? Math.max(0, Math.min(1, 1 - comp.distancia / raio)) : 0
   const indice =
-    ADHERENCE_WEIGHTS.areaConstruida * simAreaConstruida +
-    ADHERENCE_WEIGHTS.areaTerreno * simAreaTerreno +
-    ADHERENCE_WEIGHTS.proximidade * proximidade
-  return { endereco: comp.endereco, simAreaConstruida, simAreaTerreno, proximidade, indice }
+    pesos.areaConstruida * simAreaConstruida +
+    pesos.areaTerreno * simAreaTerreno +
+    pesos.proximidade * proximidade
+  return {
+    endereco: comp.endereco,
+    simAreaConstruida,
+    simAreaTerreno,
+    proximidade,
+    indice,
+    pesos,
+    tese,
+  }
 }
 
 /** Ordena comparáveis por aderência decrescente. */
@@ -730,9 +791,10 @@ export function rankByAdherence(
   target: AcmTarget,
   comparaveis: AcmComparable[],
   raio: number = RAIO_PADRAO_M,
+  tese: AcmTese = DEFAULT_ACM_TESE,
 ): AdherenceBreakdown[] {
   return comparaveis
-    .map((c) => adherenceIndex(target, c, raio))
+    .map((c) => adherenceIndex(target, c, raio, tese))
     .sort((a, b) => b.indice - a.indice)
 }
 
@@ -807,8 +869,9 @@ export function sensitivityScenarios(
   score: Score,
   fatoresLiquidez: number[],
   raio: number = RAIO_PADRAO_M,
+  tese: AcmTese = DEFAULT_ACM_TESE,
 ): SensitivityScenario[] {
-  const ranked = rankByAdherence(target, comparaveis, raio)
+  const ranked = rankByAdherence(target, comparaveis, raio, tese)
   const byEndereco = new Map(comparaveis.map((c) => [c.endereco, c]))
   const precoM2 = (c: AcmComparable) => c.preco / c.areaConstruida
 
@@ -1265,6 +1328,17 @@ export interface ComputeLaudoOptions {
   precoPedidoReal?: number | null
   /** Limiares da tese comercial (default ±5%). */
   teseLimiares?: TeseComercialLimiares
+  /**
+   * Tese de avaliação / pesos de aderência (Story 9.16).
+   * Default `hibrido` (legado Honduras). Casa conservada / 132 → `construcao`.
+   */
+  tese?: AcmTese
+  /** Inputs opt-in do radar de subprecificação (Story 9.21). */
+  subprecificacaoMeta?: {
+    tempoExposicaoDias?: number | null
+    nAnuncios?: number | null
+    concorrenciaAlta?: boolean | null
+  }
 }
 
 /** Computa o pacote completo do laudo a partir dos comparáveis. */
@@ -1318,8 +1392,17 @@ export function computeLaudo(opts: ComputeLaudoOptions): AcmLaudoComputation {
   const valorMercado = marketValue(medianaPrecoM2, target.areaConstruida, scoreAlvo)
   const valorFechamento = liquidityAdjustment(valorMercado, fatores)
 
-  const ranking = rankByAdherence(target, comparaveis, raio)
-  const sensibilidade = sensitivityScenarios(target, comparaveis, scoreAlvo, fatores, raio)
+  const teseAvaliacao = opts.tese ?? DEFAULT_ACM_TESE
+  const pesosAderencia = pesosPorTese(teseAvaliacao)
+  const ranking = rankByAdherence(target, comparaveis, raio, teseAvaliacao)
+  const sensibilidade = sensitivityScenarios(
+    target,
+    comparaveis,
+    scoreAlvo,
+    fatores,
+    raio,
+    teseAvaliacao,
+  )
   const coAncoraTerreno = opts.residual ? residualLandValue(opts.residual) : null
   const faixaSensibilidade: SensitivityRange = {
     mercadoMin: Math.min(...sensibilidade.map((s) => s.valorMercado)),
@@ -1330,6 +1413,7 @@ export function computeLaudo(opts: ComputeLaudoOptions): AcmLaudoComputation {
 
   const top5 = ranking.slice(0, 5)
   const top3 = ranking.slice(0, 3)
+  // Sec. 8 terreno permanece independente da tese de ranking (AC4 / 9.16).
   const efeitoEscalaTerreno = landPriceByLotSize(comparaveis)
   const composicaoBairros = composicaoPorBairro(comparaveis)
 
@@ -1365,6 +1449,25 @@ export function computeLaudo(opts: ComputeLaudoOptions): AcmLaudoComputation {
     opts.teseLimiares,
   )
 
+  // Story 9.21 — radar de subprecificação (opt-in preços; meta opcional).
+  const precoComercialRadar =
+    opts.precoPedidoReal != null && opts.precoPedidoReal > 0
+      ? opts.precoPedidoReal
+      : target.precoPretendido != null && target.precoPretendido > 0
+        ? target.precoPretendido
+        : null
+  const top5Mercado =
+    sensibilidade.find((s) => s.cenario === 'top5')?.valorMercado ?? null
+  const subprecificacao = classificarSubprecificacao({
+    precoComercial: precoComercialRadar,
+    referenciaConstrucao: headline.referencia.valorMercado,
+    referenciaTop5: top5Mercado,
+    referenciaTerreno: coAncoraTerreno,
+    tempoExposicaoDias: opts.subprecificacaoMeta?.tempoExposicaoDias,
+    nAnuncios: opts.subprecificacaoMeta?.nAnuncios,
+    concorrenciaAlta: opts.subprecificacaoMeta?.concorrenciaAlta,
+  })
+
   return {
     target,
     totalComparaveis: comparaveis.length,
@@ -1392,5 +1495,8 @@ export function computeLaudo(opts: ComputeLaudoOptions): AcmLaudoComputation {
     r5,
     excluidosTipologia,
     teseComercial,
+    teseAvaliacao,
+    pesosAderencia,
+    subprecificacao,
   }
 }

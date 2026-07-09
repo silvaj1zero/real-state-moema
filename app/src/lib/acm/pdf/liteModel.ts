@@ -64,6 +64,13 @@ export interface LiteModel {
   avisosCriticos: AvisoAcm[]
   /** AC7 — alerta R5/tipologia em destaque. */
   alertaTipologia: AvisoAcm | null
+  /** Story 9.21 — bloco curto se nivel ≠ null. */
+  subprecificacao: {
+    nivel: 'fraca' | 'moderada' | 'forte' | null
+    deltaPct: number | null
+    acaoRecomendada: string | null
+    narrativa: string | null
+  }
   modoDono: LiteModoDono
   disclaimer: string
 }
@@ -178,6 +185,12 @@ export function buildLiteModel(
     tese,
     avisosCriticos,
     alertaTipologia,
+    subprecificacao: {
+      nivel: computation.subprecificacao.nivel,
+      deltaPct: computation.subprecificacao.deltaPct,
+      acaoRecomendada: computation.subprecificacao.acaoRecomendada,
+      narrativa: computation.subprecificacao.narrativa,
+    },
     modoDono,
     disclaimer: DISCLAIMER_DEFAULT,
   }

@@ -7,8 +7,10 @@ import {
   adherenceIndex,
   median,
   RAIO_PADRAO_M,
+  DEFAULT_ACM_TESE,
   type AcmComparable,
   type AcmTarget,
+  type AcmTese,
 } from './methodology'
 
 export interface SimilarComparable {
@@ -35,10 +37,11 @@ export function selectMostSimilar(
   comparaveis: AcmComparable[],
   topN: number = 10,
   raio: number = RAIO_PADRAO_M,
+  tese: AcmTese = DEFAULT_ACM_TESE,
 ): SimilarResult {
   const scored = comparaveis
     .filter((c) => c.areaConstruida > 0 && c.preco > 0)
-    .map((c) => ({ c, adh: adherenceIndex(target, c, raio).indice }))
+    .map((c) => ({ c, adh: adherenceIndex(target, c, raio, tese).indice }))
     .sort((a, b) => b.adh - a.adh)
 
   const top: SimilarComparable[] = scored.slice(0, Math.max(0, topN)).map(({ c, adh }) => ({

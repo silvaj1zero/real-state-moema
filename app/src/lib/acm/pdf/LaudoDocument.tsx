@@ -474,6 +474,32 @@ export function LaudoDocument({ model }: { model: LaudoModel }) {
               </Text>
             </View>
           )}
+          {/* Story 9.21 — radar de subprecificação */}
+          {model.subprecificacao.nivel != null && (
+            <View
+              style={{
+                marginTop: 6,
+                borderRadius: 4,
+                paddingHorizontal: 8,
+                paddingVertical: 5,
+                backgroundColor: '#FEF3C7',
+                borderWidth: 1,
+                borderColor: COLORS.dourado,
+              }}
+            >
+              <Text style={{ fontSize: 8, fontFamily: FONTS.bodyMedium, color: COLORS.azulEscuro }}>
+                Radar subprecificação · {model.subprecificacao.nivel}
+                {model.subprecificacao.deltaPct != null
+                  ? ` (${model.subprecificacao.deltaPct}%)`
+                  : ''}
+              </Text>
+              {model.subprecificacao.acaoRecomendada && (
+                <Text style={{ fontSize: 7, color: COLORS.corpo, marginTop: 2 }}>
+                  {model.subprecificacao.acaoRecomendada}
+                </Text>
+              )}
+            </View>
+          )}
         </View>
 
         {/* Faixa de valores (5 cards) */}
