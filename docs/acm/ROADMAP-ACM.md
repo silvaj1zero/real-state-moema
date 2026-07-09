@@ -242,6 +242,15 @@ confirma que o **−15% subavalia** e o cenário correto é **0 a −7,5%** (ref
 construção real** do cadastro IPTU (não só o "Uso"/"Descrição" que traz "residencial horizontal").
 Sem ele, C-2 fica só com o eixo idade (Ross), sem o fator de padrão.
 
+**Achado 09-Jul (v4 do 132) — terreno é LENTE, não peso de ranking:** ao informar o terreno do alvo
+(~220 m²), a tentação é ativar a similaridade de terreno (20% do `adherenceIndex`). NÃO fazer para imóvel
+cujo valor está no CONSTRUÍDO: a similaridade de terreno puxa para o Top-N casas terreno-similares porém
+**baratas em construção** (ITBI subdeclarado / preço de terra — ex.: José Cândido de Souza 74/77 a ~5.000/m²c),
+**contaminando a mediana de construção** e colapsando a referência (no 132: R$ 1,99M → R$ 1,27M, artefato que
+inverte a tese). Tratamento correto: **duas lentes independentes** — construção rankeia por construção+proximidade
+(`target.areaTerreno=0` no ranking); terreno entra como leitura separada (`R$/m² terreno × área`) que CONVERGE.
+Regra: só acoplar terreno ao ranking quando a tese for de TERRENO (teardown/investidor, como no 113), não de construção.
+
 ### 10.5 Sequência sugerida do adendo
 
 ```

@@ -100,3 +100,42 @@ npx -y tsx scripts/acm-andrade-pertence/07-build-xlsx.tsx       # ou -132 (self-
   aproximada e mesma-rua vira ~10 m nominal.
 - Fatores de liquidez são INPUTS por imóvel da consultora (Honduras: −7/−5/−3/−4%) — nunca reusar sem elicitação;
   composto Honduras ≈ −17,7%, coerente com deságio ITBI medido (−12,7%) e IPR regional (12–17%).
+
+---
+
+## 7. ATUALIZAÇÃO FINAL — sessão de retomada 09-Jul (Opus)
+
+Sessão longa pós-`/clear`. Estado consolidado (supera as seções acima onde divergir):
+
+### 7.1 Caso 132 — laudo **v4** (canônico agora)
+- **Área construída = 196 m²** (oficial confirmado pela consultora; o dataset trazia 220 estimado — os anúncios divergiam 196–220). Override `T.areaConstruida = 196` no `05-build-laudo.tsx` e no `07-build-xlsx.tsx`.
+- **DUAS lentes independentes convergem numa faixa:**
+  - Construção (196 m² × mediana 10.647/m²c, Top 5) = **R$ 1.773.948** (faixa 1.773.948–2.082.434).
+  - Terreno (**~220 m² PROVISÓRIO** × R$ 9.000/m² terreno de 44 casas <500 m²) = **~R$ 1.980.000**.
+  - Anúncio R$ 1.495.000 = **18,7% abaixo** da lente de construção → tese de **subprecificação mantida**.
+- **DECISÃO METODOLÓGICA (documentada no código):** o terreno entra como **lente independente** (Sec. 8), **NÃO** como peso no ranking de aderência. Ativar a similaridade de terreno (20%) puxava casas terreno-similares porém baratas em construção (ex.: José Cândido de Souza 74/77 a ~5.000/m²c — ITBI subdeclarado/valor de terra), colapsando a mediana de construção para R$ 1,27M (artefato). Para imóvel conservado a lente de construção rankeia por construção+proximidade.
+- **CAVEAT registrado:** 6 vagas num lote de ~220 m² é apertado (CA ≈ 196/220 ≈ 0,9) — o terreno real pode ser MAIOR; a lente de terreno sobe proporcionalmente quando a matrícula confirmar. Terreno = condicionante nº 1.
+- Artefatos: `LAUDO-...-v4-2026-07-09-rev2.pdf` (canônico) + `.computation.json`; `ACM-AndradePertence132-validacao-corretor-rev3.xlsx` (self-check Top 3 = **Juruena 87 · Pariquera-Açu 41 · TV Sebastião Emílio Forli 58** ✓). v3/v2/v1 preservados.
+
+### 7.2 Fatores de Ajuste de Liquidez e Condição (Sec. 2) — mecanismo opção-por-ACM
+- Infra compartilhada já existia (`liquidityAdjustment`, `LaudoFatorLiquidez`, `fatoresLiquidezDetalhe`).
+- **132:** const `FATORES_LIQUIDEZ` ilustrativa (−7% exposição / −5% regularização / −4% liquidez do produto; SEM Capex — imóvel conservado) → fechamento estratégico compõe sobre o valor de mercado. A validar com a consultora (H-3).
+- **113:** mecanismo portado **vazio** (`[]`) — critérios próprios não observados; perfil de reforma geral → Capex tende a aplicar quando elicitado.
+
+### 7.3 ROADMAP §10 — revisões externas consolidadas
+`docs/acm/ROADMAP-ACM.md` §10.1–§10.12: frentes **C-1..C-6**, custo-benefício, split de **3 camadas**, tiers ACM Lite/Pro/Técnica, apêndice técnico (Graus NBR 14653-2, Ross-Heidecke completo, specs de implementação), referências normativas, e o mecanismo de fatores de liquidez. Métrica-chave p/ reunião: modelo atual ≈ **85–90% do Grau III**; os 10–15% são defensabilidade, não número.
+
+### 7.4 Git / PR / gates (via @devops)
+- Branch `fix/epic7-v-crawl-health` **pushada**; **PR #1** aberto → `master` (100 commits; título/corpo atualizados p/ o escopo completo Epic 7–10 + ACM + owners).
+- **Quality Gates ✅** (após fix de `no-explicit-any` em `11-grade-sensibilidade.tsx`) · **CodeRabbit ✅**.
+- **Segurança:** CodeRabbit achou 🔴 Critical — credencial de conta de teste em texto plano em 2 handoffs Epic 7 (+1 fora do diff). **Redigido** (`89da9d4`). **Issues abertos:** #2 (rotacionar conta `admin-teste@moema.local` + histórico), #3 (LGPD startTransition), #4 (RLS UPDATE policy), #5 (seed portal enum).
+
+### 7.5 Pendências (ordem de valor)
+1. **v4 do 132 está UNCOMMITTED** — commitar + push via @devops (atualiza o PR #1).
+2. **Rotacionar** a conta de teste (issue #2) — ação do operador.
+3. **H-3 com a Luciana:** validar terreno real do 132 (vs. 220 provisório), fatores de liquidez reais, faixa.
+4. Matrículas/IPTU dos alvos; Fase 1 humana (casas 2026 sem guia); portar C-1 para o 113 (hoje só o 132 tem deságio declarado).
+5. Merge do PR #1 (revisão humana; herda waiver MVP-LOCAL do Epic 7).
+
+### 7.6 Validação real desta sessão
+`npm run typecheck` limpo · `npm run lint` 0 erros · eslint dos scripts ACM exit 0 · XLSX self-check CONFERE (v4) · Quality Gates CI verde · nenhum código de `app/src/` alterado pela linha ACM (só `scripts/` e `docs/`).
