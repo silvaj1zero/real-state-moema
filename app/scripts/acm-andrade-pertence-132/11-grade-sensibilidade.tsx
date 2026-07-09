@@ -20,6 +20,26 @@ import {
   FIPEZAP_SP_VENDA_RESIDENCIAL,
 } from '@/lib/acm/data/fipezapSpVendaResidencial'
 
+interface RawComparavel {
+  endereco: string
+  areaConstruida: number
+  areaTerreno: number | null
+  preco: number
+  distancia: number
+  dataVenda: string | null
+  bairroReal: string | null
+}
+
+interface LinhaGrade {
+  recorte: string
+  medM2: number
+  avgM2: number
+  medSem: number
+  medCom: number
+  avgSem: number
+  avgCom: number
+}
+
 const scriptDir = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(scriptDir, '..', '..', '..')
 const dataset = JSON.parse(
@@ -28,7 +48,7 @@ const dataset = JSON.parse(
 const AREA = dataset.target.areaConstruida as number
 const CAPEX = CAPEX_BY_SCORE.B // 0.15 — Score B do alvo
 
-const comparaveis: AcmComparable[] = dataset.comparaveis.map((c: any) => ({
+const comparaveis: AcmComparable[] = (dataset.comparaveis as RawComparavel[]).map((c) => ({
   endereco: c.endereco,
   areaConstruida: c.areaConstruida,
   areaTerreno: c.areaTerreno,
@@ -58,7 +78,7 @@ console.log(`Homogeneização: ${FIPEZAP_SP_FONTE.indice} → ${FIPEZAP_SP_ULTIM
 console.log(`Comparáveis na amostra: ${homog.length}\n`)
 
 const recortes = [5, 10, 20, homog.length]
-const linhas: any[] = []
+const linhas: LinhaGrade[] = []
 for (const n of recortes) {
   const set = ranked.slice(0, n).map((r) => byEndereco.get(r.endereco)!).filter(Boolean)
   const vals = set.map(m2)
