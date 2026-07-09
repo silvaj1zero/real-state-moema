@@ -3,7 +3,7 @@
 **Data:** 2026-07-09 · **Modelo:** Opus 4.8 · **Branch:** `fix/epic7-v-crawl-health`
 **Plano-mãe:** `PLANO-EXECUCAO-ACM-20260709.md` · **Veredito:** `VEREDITO-ROI-UNICO-20260709.md` (v4)
 
-> Wave 1 **código** fechado em local (3 commits). Nenhum push (0a/@devops permanece pendente — risco: tudo só neste disco).
+> **Atualizado fim de sessão 2026-07-09:** Waves 1–3 + P-1 offline no remote. Branch `fix/epic7-v-crawl-health` @ `ef26b0c` **sincronizada** com origin. Handoff: `docs/sessions/2026-07/2026-07-09-acm-wave123-p1-handoff.md`.
 
 ---
 
@@ -30,8 +30,8 @@
 ## O que falta do plano (não iniciado)
 
 ### Fase 0 (pré-condições — humano/@devops)
-- **0a — push/backup** dos commits locais (agora inclui 9.15 + 9.14, e 9.20 quando commitada). **Risco irreversível** — trabalho só neste disco. Exclusivo `@devops`.
-- **0b — H-3 com a Luciana** (valida faixa + calibra defaults A–D da 9.14 + copy).
+- **0a — push/backup** — ✅ feito (@devops): `301df10..ef26b0c` em `origin/fix/epic7-v-crawl-health`.
+- **0b — H-3 com a Luciana** (valida faixa + calibra defaults A–D da 9.14 + copy) — **ainda pendente**.
 
 ### Wave 1 — pendência de fechamento
 - **Commit da 9.20** — ✅ `71c44a2` (2026-07-09, retomada).
@@ -62,9 +62,9 @@
 
 ## Próximo passo recomendado
 
-1. ~~Decidir o commit da 9.20~~ ✅ `71c44a2`.
-2. **0a push via @devops** — tirar o trabalho do disco único (risco #1). Branch `fix/epic7-v-crawl-health` está **ahead 3+** de origin (9.15 + 9.14 + 9.20; + docs se commitados).
-3. **0b H-3 com a Luciana** — destrava os defaults da 9.14 e o uso comercial (one-pager pronto).
-4. Só então **Wave 2** (9.17 + 9.4) e **Wave 3** (paralela), com os modelos recomendados acima.
+1. ~~Commit 9.20~~ ✅ · ~~Push 0a~~ ✅ `ef26b0c`.
+2. **0b H-3 com a Luciana** — destrava defaults 9.14 + copy Lite.
+3. **9.4 sink** no `acm-imobiliario` + `9.4-sink-coverage.mjs` neste repo.
+4. **@qa** fechar stories InReview · **P-2** merge-back XLSX · fixtures AP no vitest.
 
-> Uma frase: **Waves 1–3 + P-1 offline no local · 9.4 só contrato/coverage aqui (sink no engine) · falta push, H-3, backfill PROD, P-2.**
+> Uma frase: **Código ACM (waves 1–3 + P-1 offline) no GitHub · falta H-3, sink 9.4 no engine, P-2 e close QA.**

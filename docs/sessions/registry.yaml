@@ -14,3 +14,12 @@
   sections: "14/14"
   ttl_days: 30
   consumed: null
+- id: 2026-07-09-acm-wave123-p1-handoff
+  date: 2026-07-09
+  project: real-state-moema-acm
+  scope: self_continuation
+  score: 9
+  status: approved
+  path: docs/sessions/2026-07/2026-07-09-acm-wave123-p1-handoff.md
+  word_count: ~1200
+  sections: 10/10
