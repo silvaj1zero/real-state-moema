@@ -52,8 +52,8 @@
 | **9.21** | Radar de subprecificação (caso 132) | Sonnet | ✅ InReview (limiares 5/8/15%) |
 
 ### Wave 4 — Fábrica
-- **P-1** CLI `acm-validate` **offline v1** ✅ — `scripts/acm/acm-validate.tsx` + `validatePipeline.ts` (dataset → gates R5/avisos + computation + Lite/laudo). Caminho “só endereço” via RPC ainda depende de 9.4 PROD.
-- **P-2** merge-back da planilha XLSX do corretor — não iniciado.
+- **P-1** CLI `acm-validate` **offline v1** ✅ — `scripts/acm/acm-validate.tsx` + `validatePipeline.ts`.
+- **P-2** merge-back XLSX corretor ✅ — `xlsx/mergeBack.ts` + `scripts/acm/merge-back-xlsx.tsx` (Confere✗ exclui; tipologia/correção=pares; backup `dataset.pre-merge-back.json`).
 
 ### Fora da janela (não iniciar)
 9.22 (simulador 3 estratégias), 9.23 (tribunal/robustez), 9.5 (Fase 2 web + screenshots), skill/squad ACM, Ross-Heidecke, E2E no CI.
