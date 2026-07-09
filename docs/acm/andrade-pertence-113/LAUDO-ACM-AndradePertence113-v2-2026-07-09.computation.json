@@ -1,0 +1,660 @@
+{
+  "geradoEm": "2026-07-09T11:24:37.173Z",
+  "datasetGeradoEm": "2026-07-09T06:31:10.262Z",
+  "recorte": {
+    "raioM": 1000,
+    "consultantId": "1f7ec2b3-d414-4850-8b6a-32faa8e1f47c",
+    "regras": [
+      "R1 Geográfico — raio 1000 m do alvo (PostGIS fn_comparaveis_no_raio)",
+      "R2 Evidência — vendas reais ITBI/PMSP (is_venda_real=true, fonte='itbi')",
+      "R3 Tipologia (proxy) — endereço com venda única no período (endereços com N vendas = edifícios verticais; campo tipo 100% NULL até a Story 9.4)",
+      "R4 Classe de valor — R$/m² < 22.000 (piso do Score A na régua; alvo é Score B/reforma geral)",
+      "R5 Tipologia CONFIRMADA — uso IPTU da guia oficial (SF/PMSP) por SQL: só RESIDÊNCIA/horizontal; APARTAMENTO EM CONDOMÍNIO excluído. Guias 2026 sem arquivo público: heurística de lote declarada (\"casa (provável)\")"
+    ],
+    "funil": {
+      "rpcNoRaio": 891,
+      "vendasItbiValidas": 891,
+      "aposVendaUnica": 131,
+      "aposClasseValor": 120,
+      "aposTipologiaGuia": 56
+    },
+    "excluidosTipologia": [
+      {
+        "endereco": "R DR ANDRADE PERTENCE 45",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 308,
+        "preco": 2135000
+      },
+      {
+        "endereco": "R DR ANDRADE PERTENCE 110",
+        "tipologia": "apartamento (provável)",
+        "confianca": "heurística de lote (0116) — guia pública indisponível",
+        "areaConstruida": 180,
+        "preco": 2380000
+      },
+      {
+        "endereco": "R PINTASSILGO 556",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 101,
+        "preco": 1000000
+      },
+      {
+        "endereco": "R BALUARTE 63",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 203,
+        "preco": 1850000
+      },
+      {
+        "endereco": "R BALUARTE 230",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 172,
+        "preco": 1009921.26
+      },
+      {
+        "endereco": "AV COTOVIA 233",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 258,
+        "preco": 1600000
+      },
+      {
+        "endereco": "AV COTOVIA 258",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 295,
+        "preco": 3100000
+      },
+      {
+        "endereco": "AV PAVAO 139",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 238,
+        "preco": 2105000
+      },
+      {
+        "endereco": "AV PAVAO 211",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 460,
+        "preco": 4900000
+      },
+      {
+        "endereco": "R INHAMBU 1208",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 117,
+        "preco": 1290000
+      },
+      {
+        "endereco": "R PINTASSILGO 295",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 98,
+        "preco": 1000000
+      },
+      {
+        "endereco": "AV ROUXINOL 225",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 349,
+        "preco": 1850000
+      },
+      {
+        "endereco": "AV ROUXINOL 388",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 129,
+        "preco": 1400000
+      },
+      {
+        "endereco": "R ARAGUARI 578",
+        "tipologia": "apartamento (provável)",
+        "confianca": "heurística de lote (0274) — guia pública indisponível",
+        "areaConstruida": 248,
+        "preco": 1550000
+      },
+      {
+        "endereco": "R TUIM 703",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 300,
+        "preco": 2300000
+      },
+      {
+        "endereco": "R TUIM 693",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 300,
+        "preco": 1890000
+      },
+      {
+        "endereco": "R ARAGUARI 545",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 209,
+        "preco": 1235723.44
+      },
+      {
+        "endereco": "AV ROUXINOL 407",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 117,
+        "preco": 1110000
+      },
+      {
+        "endereco": "AV DR CARDOSO DE MELO 463",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 195,
+        "preco": 1000000
+      },
+      {
+        "endereco": "R CANARIO 1112",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 145,
+        "preco": 1175000
+      },
+      {
+        "endereco": "R PINTASSILGO 155",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 241,
+        "preco": 1425000
+      },
+      {
+        "endereco": "R GRAUNA 262",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 233,
+        "preco": 1410000
+      },
+      {
+        "endereco": "R TUIM 663",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 335,
+        "preco": 2370245
+      },
+      {
+        "endereco": "AV ROUXINOL 463",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 135,
+        "preco": 1065000
+      },
+      {
+        "endereco": "R GRAUNA 134",
+        "tipologia": "apartamento (provável)",
+        "confianca": "heurística de lote (0322) — guia pública indisponível",
+        "areaConstruida": 153,
+        "preco": 1010000
+      },
+      {
+        "endereco": "AV ROUXINOL 533",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 297,
+        "preco": 2833090
+      },
+      {
+        "endereco": "AV BEM-TE-VI 55",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 263,
+        "preco": 1350000
+      },
+      {
+        "endereco": "R TUIM 536",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 178,
+        "preco": 1510000
+      },
+      {
+        "endereco": "AL JAUAPERI 1317",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 387,
+        "preco": 1970000
+      },
+      {
+        "endereco": "R PROF VAHIA DE ABREU 622",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 292,
+        "preco": 1760000
+      },
+      {
+        "endereco": "R INHAMBU 864",
+        "tipologia": "apartamento (provável)",
+        "confianca": "heurística de lote (0293) — guia pública indisponível",
+        "areaConstruida": 124,
+        "preco": 1025800
+      },
+      {
+        "endereco": "AV MACUCO 58",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 288,
+        "preco": 2050000
+      },
+      {
+        "endereco": "R CANARIO 906",
+        "tipologia": "apartamento (provável)",
+        "confianca": "heurística de lote (0743) — guia pública indisponível",
+        "areaConstruida": 318,
+        "preco": 3150000
+      },
+      {
+        "endereco": "AV DR CARDOSO DE MELO 626",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 98,
+        "preco": 1250000
+      },
+      {
+        "endereco": "R CASA DO ATOR 470",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 306,
+        "preco": 1500000
+      },
+      {
+        "endereco": "R ARAGUARI 349",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 127,
+        "preco": 1026504
+      },
+      {
+        "endereco": "R MARQ DE INHAMBUQUE 9",
+        "tipologia": "apartamento (provável)",
+        "confianca": "heurística de lote (0641) — guia pública indisponível",
+        "areaConstruida": 199,
+        "preco": 1100000
+      },
+      {
+        "endereco": "AL JAUAPERI 1120",
+        "tipologia": "apartamento (provável)",
+        "confianca": "heurística de lote (0416) — guia pública indisponível",
+        "areaConstruida": 118,
+        "preco": 1200000
+      },
+      {
+        "endereco": "R GAIVOTA 916",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 184,
+        "preco": 1350000
+      },
+      {
+        "endereco": "R CANARIO 754",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 94,
+        "preco": 1020000
+      },
+      {
+        "endereco": "R NOVA CIDADE 147",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 204,
+        "preco": 1000000
+      },
+      {
+        "endereco": "R QUATA 339",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 97,
+        "preco": 1200000
+      },
+      {
+        "endereco": "R QUATA 960",
+        "tipologia": "apartamento (provável)",
+        "confianca": "heurística de lote (0268) — guia pública indisponível",
+        "areaConstruida": 247,
+        "preco": 1711768.45
+      },
+      {
+        "endereco": "AL DOS ARAPANES 1131",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 253,
+        "preco": 2500000
+      },
+      {
+        "endereco": "R GAIVOTA 754",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 134,
+        "preco": 1000000
+      },
+      {
+        "endereco": "R TUIM 307",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 268,
+        "preco": 1727812.5
+      },
+      {
+        "endereco": "AV MACUCO 426",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 333,
+        "preco": 2772000
+      },
+      {
+        "endereco": "R INHAMBU 632",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 268,
+        "preco": 1160320
+      },
+      {
+        "endereco": "AL JAUAPERI 887",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 151,
+        "preco": 1610747.66
+      },
+      {
+        "endereco": "AV IBIJAU 199",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 199,
+        "preco": 1200000
+      },
+      {
+        "endereco": "AL DOS ARAPANES 982",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 263,
+        "preco": 1750000
+      },
+      {
+        "endereco": "R CANARIO 644",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 263,
+        "preco": 1800000
+      },
+      {
+        "endereco": "AV JACUTINGA 446",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 306,
+        "preco": 1070000
+      },
+      {
+        "endereco": "R CANARIO 639",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 115,
+        "preco": 1472000
+      },
+      {
+        "endereco": "AV JACUTINGA 498",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 142,
+        "preco": 1050000
+      },
+      {
+        "endereco": "R ALEIXO GARCIA 75",
+        "tipologia": "apartamento (provável)",
+        "confianca": "heurística de lote (0395) — guia pública indisponível",
+        "areaConstruida": 102,
+        "preco": 1050000
+      },
+      {
+        "endereco": "R ALEIXO GARCIA 51",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 138,
+        "preco": 1140000
+      },
+      {
+        "endereco": "R CASA DO ATOR 803",
+        "tipologia": "apartamento (provável)",
+        "confianca": "heurística de lote (0875) — guia pública indisponível",
+        "areaConstruida": 141,
+        "preco": 1050000
+      },
+      {
+        "endereco": "R MONTE APRAZIVEL 149",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 326,
+        "preco": 2900000
+      },
+      {
+        "endereco": "AV LAVANDISCA 360",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 461,
+        "preco": 2800000
+      },
+      {
+        "endereco": "AV MACUCO 586",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 286,
+        "preco": 3000000
+      },
+      {
+        "endereco": "AV MACUCO 523",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 189,
+        "preco": 1500000
+      },
+      {
+        "endereco": "R TUIM 186",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 486,
+        "preco": 4050000
+      },
+      {
+        "endereco": "R GAIVOTA 647",
+        "tipologia": "apartamento",
+        "confianca": "guia oficial",
+        "areaConstruida": 112,
+        "preco": 1011818
+      }
+    ],
+    "excluidosClasseValor": [
+      {
+        "endereco": "AV COTOVIA 335",
+        "areaConstruida": 324,
+        "preco": 11435182.82,
+        "precoM2": 35294
+      },
+      {
+        "endereco": "R PARIQUERA-ACU 39",
+        "areaConstruida": 140,
+        "preco": 4750000,
+        "precoM2": 33929
+      },
+      {
+        "endereco": "R TUIM 653",
+        "areaConstruida": 185,
+        "preco": 4100000,
+        "precoM2": 22162
+      },
+      {
+        "endereco": "R CASA DO ATOR 330",
+        "areaConstruida": 197,
+        "preco": 5625000,
+        "precoM2": 28553
+      },
+      {
+        "endereco": "R GAIVOTA 1128",
+        "areaConstruida": 111,
+        "preco": 4800000,
+        "precoM2": 43243
+      },
+      {
+        "endereco": "R GAIVOTA 1112",
+        "areaConstruida": 354,
+        "preco": 10173794.65,
+        "precoM2": 28740
+      },
+      {
+        "endereco": "R IRAUNA 778",
+        "areaConstruida": 213,
+        "preco": 5500000,
+        "precoM2": 25822
+      },
+      {
+        "endereco": "R GAIVOTA 1102",
+        "areaConstruida": 85,
+        "preco": 7817452,
+        "precoM2": 91970
+      },
+      {
+        "endereco": "R SILVANIA 165",
+        "areaConstruida": 120,
+        "preco": 2977000,
+        "precoM2": 24808
+      },
+      {
+        "endereco": "R FIANDEIRAS 659",
+        "areaConstruida": 166,
+        "preco": 7150000,
+        "precoM2": 43072
+      },
+      {
+        "endereco": "R FIANDEIRAS 169",
+        "areaConstruida": 120,
+        "preco": 3000000,
+        "precoM2": 25000
+      }
+    ]
+  },
+  "avisosDataset": [
+    "areaTerreno dos comparáveis: preenchida pela GUIA OFICIAL para casas confirmadas (fração ideal 1); vendas 2026 sem guia pública seguem sem terreno.",
+    "Coordenadas dos comparáveis geocodificadas por logradouro/CEP na ingestão — distâncias aproximadas (±~200 m).",
+    "Tipologia (R5): confirmada por guia oficial exceto vendas 2026 (\"casa (provável)\" por heurística de lote) — conferir na planilha Fase 1.",
+    "bairroReal é verificação PARCIAL: por nome de logradouro (ViaCEP) restrita aos bairros que intersectam o raio — não por CEP da guia (Story 9.4). Inconclusivo → \"não verificado\".",
+    "Sem fatores de liquidez elicitados com a consultora: valor de fechamento = valor de mercado nesta emissão."
+  ],
+  "homogeneizacao": {
+    "indice": "FipeZap — São Paulo · venda · residencial (Número-Índice Total)",
+    "dataReferencia": "2026-06",
+    "ajustados": 55,
+    "semAjuste": [
+      "AV COTOVIA 726"
+    ],
+    "fatorMin": 1.0030246147997712,
+    "fatorMax": 1.125872168852919
+  },
+  "medianaPrecoM2": 10640.24,
+  "scoreAlvo": "B",
+  "headline": {
+    "mercado": {
+      "min": 723536,
+      "max": 1094096
+    },
+    "fechamento": {
+      "min": 723536,
+      "max": 1094096
+    },
+    "referencia": {
+      "cenario": "top5",
+      "n": 5,
+      "medianaPrecoM2": 15597.44,
+      "valorMercado": 1060626,
+      "valorFechamento": 1060626,
+      "precoM2Fechamento": 13258
+    },
+    "teto": {
+      "cenario": "top3",
+      "n": 3,
+      "medianaPrecoM2": 16089.65,
+      "valorMercado": 1094096,
+      "valorFechamento": 1094096,
+      "precoM2Fechamento": 13676
+    }
+  },
+  "faixaSensibilidade": {
+    "mercadoMin": 723536,
+    "mercadoMax": 1094096,
+    "fechamentoMin": 723536,
+    "fechamentoMax": 1094096
+  },
+  "composicaoBairros": [
+    {
+      "bairro": "Moema",
+      "n": 26,
+      "medianaPrecoM2": 8921.97
+    },
+    {
+      "bairro": "não verificado",
+      "n": 14,
+      "medianaPrecoM2": 10072.61
+    },
+    {
+      "bairro": "Vila Olímpia",
+      "n": 12,
+      "medianaPrecoM2": 15245.42
+    },
+    {
+      "bairro": "Vila Nova Conceição",
+      "n": 4,
+      "medianaPrecoM2": 15965.09
+    }
+  ],
+  "top5": [
+    {
+      "endereco": "AV DR CARDOSO DE MELO 379",
+      "simAreaConstruida": 0.8125,
+      "simAreaTerreno": 0.44666666666666666,
+      "proximidade": 0.573,
+      "indice": 0.6674833333333333
+    },
+    {
+      "endereco": "R ELIZABETH TROVAO USUI 64",
+      "simAreaConstruida": 0.6125,
+      "simAreaTerreno": 0.6666666666666667,
+      "proximidade": 0.256,
+      "indice": 0.5163833333333334
+    },
+    {
+      "endereco": "R ELIZABETH TROVAO USUI 65",
+      "simAreaConstruida": 0.6125,
+      "simAreaTerreno": 0.6599999999999999,
+      "proximidade": 0.256,
+      "indice": 0.51505
+    },
+    {
+      "endereco": "R IRAUNA 615",
+      "simAreaConstruida": 0.25,
+      "simAreaTerreno": 0.9333333333333333,
+      "proximidade": 0.516,
+      "indice": 0.46646666666666664
+    },
+    {
+      "endereco": "PC CEL FERNANDES DE LIMA 100",
+      "simAreaConstruida": 0.07499999999999996,
+      "simAreaTerreno": 0.9733333333333334,
+      "proximidade": 0.747,
+      "indice": 0.45626666666666665
+    }
+  ],
+  "desagioMedidoPercent": null,
+  "coAncoraTerreno": null,
+  "autoReferenciasExcluidas": [],
+  "pendencias": [
+    "Nº 1 — Metragens oficiais do alvo: confirmar na matrícula/IPTU os 80 m² construídos / 150 m² de terreno e a averbação das ampliações (lavanderia dos fundos).",
+    "Nº 2 — Tipologia: confirmada por guia oficial (SF/PMSP) para vendas ≤ 2025; vendas 2026 por heurística de lote declarada até a SF publicar o arquivo do exercício.",
+    "Distâncias aproximadas: coordenadas da base geocodificadas por logradouro/CEP (precisão ±~200 m).",
+    "Definir fatores de liquidez com a consultora — nesta emissão, fechamento = mercado.",
+    "Leitura de terreno usa preço TOTAL/área de terreno (metodologia de referência) — para lotes com construção aproveitável ela superestima levemente a terra pura."
+  ]
+}
