@@ -67,4 +67,4 @@
 3. **0b H-3 com a Luciana** — destrava os defaults da 9.14 e o uso comercial (one-pager pronto).
 4. Só então **Wave 2** (9.17 + 9.4) e **Wave 3** (paralela), com os modelos recomendados acima.
 
-> Uma frase: **Wave 1 no remote · 0a push feito · 9.17 (R5 gate) implementada e verde (220 tests). Falta commit/push da 9.17, H-3, 9.4 cross-repo, e Waves 3–4.**
+> Uma frase: **Wave 1 no remote · 9.17+9.18+9.19 no local (ahead) · suite 238. Falta push recente, H-3, 9.4 cross-repo, 9.16/9.21, P-1.**
