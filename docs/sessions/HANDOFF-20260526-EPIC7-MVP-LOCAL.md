@@ -12,7 +12,7 @@
 ### Stack rodando localmente
 - ✅ Next.js dev server: **http://localhost:3003**
 - ✅ DB Supabase prod (`hculsnvpyccnekfyficu`) com 11 migrations Epic 7 aplicadas (008–013, 016–020)
-- ✅ Conta admin de teste: `admin-teste@moema.local` / `Teste1234!Admin`
+- ✅ Conta admin de teste: `admin-teste@moema.local` / **[senha redigida — ver gestor de segredos; rotacionar a conta de teste]**
 - ✅ 25 listings sintéticos em `scraped_listings` (prefixo `mvp-seed-*`)
 - ✅ Review queue renderiza 10 itens (<70% confidence) com cards completos
 
@@ -101,7 +101,7 @@ cd "C:/Users/Zero/Desktop/Real State - Moema/app"
 PORT=3003 npm run dev
 
 # Ver fila
-# 1. Login: http://localhost:3003/login com admin-teste@moema.local / Teste1234!Admin
+# 1. Login: http://localhost:3003/login com a conta admin de teste (credenciais no gestor de segredos)
 # 2. Abrir: http://localhost:3003/leads/review-queue
 
 # Re-seed (se DB foi limpo)

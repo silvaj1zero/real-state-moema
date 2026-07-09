@@ -180,7 +180,7 @@ Digest: 2103462422@E352
 cd "C:/Users/Zero/Desktop/Real State - Moema/app"
 PORT=3003 npm run dev
 
-# Ver fila (login admin-teste@moema.local / Teste1234!Admin)
+# Ver fila (login: conta admin de teste — credenciais no gestor de segredos)
 # http://localhost:3003/leads/review-queue
 
 # Resetar decisões pra testar de novo (se necessário)
