@@ -33,6 +33,12 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createClient } from '@supabase/supabase-js'
 import { loadEnv } from '../acm-honduras/lib.mjs'
+// Story 9.17 — gate R5 canônico (rodar com npx tsx).
+import {
+  filtrarComparaveisPorR5,
+  R5_REGRA_UMA_LINHA,
+  VERIFICACAO_VISUAL_ANDRADE_PERTENCE_132,
+} from '../../src/lib/acm/tipologia.ts'
 
 const TARGET = {
   endereco: 'Rua Dr. Andrade Pertence, 132',
@@ -170,27 +176,14 @@ if (!tipologia) {
   console.warn('AVISO: tipologia-guias.json ausente — R5 não aplicado (rode 10-backfill-tipologia).')
 }
 
-// --- Override de VERIFICAÇÃO VISUAL (R5b) ----------------------------------
-// Vendas 2023/2026 sem guia pública entram como "casa (provável)" por heurística
-// de lote (R5). Quando a inspeção do Google Street View (dez/2024) confirma que o
-// endereço é EDIFÍCIO/torre, a heurística é corrigida para 'apartamento' — fonte
-// mais forte que o chute de lote. Fato verificado, não invenção (Art. IV).
-// Registrado por SQL cadastral (chave estável). Operador: zero — 2026-07-09.
-const VERIFICACAO_VISUAL = {
-  '4117800485': 'AV COTOVIA 726', // edifício residencial (Street View dez/2024)
-  '4115900611': 'AV PAVAO 700', // edifício residencial (Street View dez/2024)
-}
-const CONFIANCA_VISUAL = 'Street View dez/2024 — edifício confirmado (verificação visual do operador, 2026-07-09)'
+// Override visual: VERIFICACAO_VISUAL_ANDRADE_PERTENCE_132 (canônico em tipologia.ts).
 
 const preComparaveis = r4
   .map((r) => {
     const extra = dataPorId.get(r.comparavel_id) ?? {}
     const sql = extra.notas?.match(/SQL\s+(\w+)/)?.[1] ?? null
     const dataRef = extra.data_referencia ?? null
-    let tip = sql ? (tipologiaPorSql.get(sql) ?? null) : null
-    if (sql && VERIFICACAO_VISUAL[sql]) {
-      tip = { ...(tip ?? {}), tipologia: 'apartamento', confianca: CONFIANCA_VISUAL }
-    }
+    const tip = sql ? (tipologiaPorSql.get(sql) ?? null) : null
     const casaConfirmada = tip?.tipologia === 'casa'
     return {
       id: r.comparavel_id,
@@ -209,8 +202,13 @@ const preComparaveis = r4
       dataVenda: dataRef ? dataRef.slice(0, 7) : null,
       bairroReal: normalizaBairro(viacepCache[logradouroBusca(r.endereco)] ?? null),
       sqlCadastral: sql,
-      tipologia: tip?.tipologia ?? 'não classificado',
+      // Campos que o gate canônico consome (Story 9.17).
+      tipologiaLegado: tip?.tipologia ?? 'não classificado',
       tipologiaConfianca: tip?.confianca ?? '—',
+      guia: tip?.guia ?? null,
+      usoIptu: tip?.guia?.usoIptu ?? null,
+      padraoIptu: tip?.guia?.padraoIptu ?? null,
+      complemento: tip?.guia?.complemento ?? null,
       lat: r.latitude ?? null,
       lng: r.longitude ?? null,
       fonte: 'ITBI/PMSP',
@@ -218,12 +216,43 @@ const preComparaveis = r4
   })
   .sort((a, b) => a.distancia - b.distancia)
 
-const comparaveis = tipologia
-  ? preComparaveis.filter((c) => c.tipologia.startsWith('casa'))
-  : preComparaveis
-const excluidosTipologia = preComparaveis.filter((c) => !c.tipologia.startsWith('casa'))
+// Gate R5 canônico (app/src/lib/acm/tipologia.ts) — sem 4ª cópia da regra.
+const gate = tipologia
+  ? filtrarComparaveisPorR5(preComparaveis, 'casa', {
+      verificacaoVisual: VERIFICACAO_VISUAL_ANDRADE_PERTENCE_132,
+    })
+  : {
+      aceitos: preComparaveis,
+      excluidos: [],
+      porEndereco: new Map(),
+      relatorio: { aplicado: false, nAceitos: preComparaveis.length, nExcluidos: 0 },
+    }
+
+const comparaveis = gate.aceitos.map((c) => {
+  const cls = gate.porEndereco.get(c.endereco)
+  return {
+    ...c,
+    tipologia: cls?.rotulo ?? c.tipologiaLegado,
+    tipologiaConfianca: cls
+      ? cls.fonte === 'visual'
+        ? cls.motivos[cls.motivos.length - 1]
+        : c.tipologiaConfianca
+      : c.tipologiaConfianca,
+  }
+})
+const excluidosTipologia = gate.excluidos.map((e) => {
+  const raw = preComparaveis.find((p) => p.endereco === e.endereco)
+  return {
+    endereco: e.endereco,
+    tipologia: e.classificacao.rotulo,
+    confianca: e.classificacao.fonte,
+    areaConstruida: raw?.areaConstruida,
+    preco: raw?.preco,
+    motivo: e.motivo,
+  }
+})
 console.log(
-  `R5 tipologia: ${comparaveis.length} casas (${comparaveis.filter((c) => c.tipologia === 'casa').length} por guia + ${comparaveis.filter((c) => c.tipologia !== 'casa').length} por heurística) | excluídos: ${excluidosTipologia.length}`,
+  `R5 tipologia (canônico): ${comparaveis.length} casas (${comparaveis.filter((c) => c.tipologia === 'casa').length} por guia + ${comparaveis.filter((c) => c.tipologia !== 'casa').length} por heurística/visual) | excluídos: ${excluidosTipologia.length}`,
 )
 
 const dataset = {
@@ -237,7 +266,7 @@ const dataset = {
       "R2 Evidência — vendas reais ITBI/PMSP (is_venda_real=true, fonte='itbi')",
       'R3 Tipologia (proxy) — endereço com venda única no período (endereços com N vendas = edifícios verticais; campo tipo 100% NULL até a Story 9.4)',
       `R4 Classe de valor — R$/m² < ${TETO_PRECO_M2.toLocaleString('pt-BR')} (piso do Score A na régua)`,
-      'R5 Tipologia CONFIRMADA — uso IPTU da guia oficial (SF/PMSP) por SQL: só RESIDÊNCIA/horizontal; APARTAMENTO EM CONDOMÍNIO excluído. Guias 2026 sem arquivo público: heurística de lote declarada ("casa (provável)")',
+      R5_REGRA_UMA_LINHA,
     ],
     funil: {
       rpcNoRaio: rpcRows.length,
@@ -246,13 +275,7 @@ const dataset = {
       aposClasseValor: r4.length,
       aposTipologiaGuia: comparaveis.length,
     },
-    excluidosTipologia: excluidosTipologia.map((c) => ({
-      endereco: c.endereco,
-      tipologia: c.tipologia,
-      confianca: c.tipologiaConfianca,
-      areaConstruida: c.areaConstruida,
-      preco: c.preco,
-    })),
+    excluidosTipologia,
     excluidosClasseValor: excluidosClasse.map((r) => ({
       endereco: r.endereco,
       areaConstruida: r.area_m2,

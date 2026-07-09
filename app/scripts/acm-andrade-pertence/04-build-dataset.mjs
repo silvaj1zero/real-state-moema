@@ -29,6 +29,11 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createClient } from '@supabase/supabase-js'
 import { loadEnv } from '../acm-honduras/lib.mjs'
+// Story 9.17 — gate R5 canônico (rodar com npx tsx).
+import {
+  filtrarComparaveisPorR5,
+  R5_REGRA_UMA_LINHA,
+} from '../../src/lib/acm/tipologia.ts'
 
 const TARGET = {
   endereco: 'Rua Dr. Andrade Pertence, 113',
@@ -206,8 +211,12 @@ const preComparaveis = r4
       dataVenda: dataRef ? dataRef.slice(0, 7) : null,
       bairroReal: normalizaBairro(viacepCache[logradouroBusca(r.endereco)] ?? null),
       sqlCadastral: sql,
-      tipologia: tip?.tipologia ?? 'não classificado',
+      tipologiaLegado: tip?.tipologia ?? 'não classificado',
       tipologiaConfianca: tip?.confianca ?? '—',
+      guia: tip?.guia ?? null,
+      usoIptu: tip?.guia?.usoIptu ?? null,
+      padraoIptu: tip?.guia?.padraoIptu ?? null,
+      complemento: tip?.guia?.complemento ?? null,
       lat: r.latitude ?? null,
       lng: r.longitude ?? null,
       fonte: 'ITBI/PMSP',
@@ -215,12 +224,37 @@ const preComparaveis = r4
   })
   .sort((a, b) => a.distancia - b.distancia)
 
-const comparaveis = tipologia
-  ? preComparaveis.filter((c) => c.tipologia.startsWith('casa'))
-  : preComparaveis
-const excluidosTipologia = preComparaveis.filter((c) => !c.tipologia.startsWith('casa'))
+// Gate R5 canônico (app/src/lib/acm/tipologia.ts) — Story 9.17.
+const gate = tipologia
+  ? filtrarComparaveisPorR5(preComparaveis, 'casa')
+  : {
+      aceitos: preComparaveis,
+      excluidos: [],
+      porEndereco: new Map(),
+      relatorio: { aplicado: false, nAceitos: preComparaveis.length, nExcluidos: 0 },
+    }
+
+const comparaveis = gate.aceitos.map((c) => {
+  const cls = gate.porEndereco.get(c.endereco)
+  return {
+    ...c,
+    tipologia: cls?.rotulo ?? c.tipologiaLegado,
+    tipologiaConfianca: c.tipologiaConfianca,
+  }
+})
+const excluidosTipologia = gate.excluidos.map((e) => {
+  const raw = preComparaveis.find((p) => p.endereco === e.endereco)
+  return {
+    endereco: e.endereco,
+    tipologia: e.classificacao.rotulo,
+    confianca: e.classificacao.fonte,
+    areaConstruida: raw?.areaConstruida,
+    preco: raw?.preco,
+    motivo: e.motivo,
+  }
+})
 console.log(
-  `R5 tipologia: ${comparaveis.length} casas (${comparaveis.filter((c) => c.tipologia === 'casa').length} por guia + ${comparaveis.filter((c) => c.tipologia !== 'casa').length} por heurística) | excluídos: ${excluidosTipologia.length}`,
+  `R5 tipologia (canônico): ${comparaveis.length} casas (${comparaveis.filter((c) => c.tipologia === 'casa').length} por guia + ${comparaveis.filter((c) => c.tipologia !== 'casa').length} por heurística) | excluídos: ${excluidosTipologia.length}`,
 )
 
 const dataset = {
@@ -234,7 +268,7 @@ const dataset = {
       "R2 Evidência — vendas reais ITBI/PMSP (is_venda_real=true, fonte='itbi')",
       'R3 Tipologia (proxy) — endereço com venda única no período (endereços com N vendas = edifícios verticais; campo tipo 100% NULL até a Story 9.4)',
       `R4 Classe de valor — R$/m² < ${TETO_PRECO_M2.toLocaleString('pt-BR')} (piso do Score A na régua; alvo é Score B/reforma geral)`,
-      'R5 Tipologia CONFIRMADA — uso IPTU da guia oficial (SF/PMSP) por SQL: só RESIDÊNCIA/horizontal; APARTAMENTO EM CONDOMÍNIO excluído. Guias 2026 sem arquivo público: heurística de lote declarada ("casa (provável)")',
+      R5_REGRA_UMA_LINHA,
     ],
     funil: {
       rpcNoRaio: rpcRows.length,
@@ -243,13 +277,7 @@ const dataset = {
       aposClasseValor: r4.length,
       aposTipologiaGuia: comparaveis.length,
     },
-    excluidosTipologia: excluidosTipologia.map((c) => ({
-      endereco: c.endereco,
-      tipologia: c.tipologia,
-      confianca: c.tipologiaConfianca,
-      areaConstruida: c.areaConstruida,
-      preco: c.preco,
-    })),
+    excluidosTipologia,
     excluidosClasseValor: excluidosClasse.map((r) => ({
       endereco: r.endereco,
       areaConstruida: r.area_m2,

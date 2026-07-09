@@ -37,11 +37,11 @@
 - **Commit da 9.20** — ✅ `71c44a2` (2026-07-09, retomada).
 - **Follow-up (hardening):** congelar AP113/AP132 como fixtures de regressão (regra do veredito v4 "Honduras deixa de ser gabarito único"). Requer os datasets canônicos desses casos — encaixa na P-1.
 
-### Wave 2 — Anti-desastre em escala (não iniciada)
-| Story | Título | Modelo recomendado |
-|-------|--------|--------------------|
-| **9.17** | R5 industrializado — tipologia por guia como **gate de pipeline** (não script de caso) | Opus |
-| **9.4** | Sink ITBI ampliado (Complemento, Uso IPTU, terreno, fração ideal, ACC) | Sonnet |
+### Wave 2 — Anti-desastre em escala
+| Story | Título | Modelo recomendado | Status |
+|-------|--------|--------------------|--------|
+| **9.17** | R5 industrializado — tipologia por guia como **gate de pipeline** (não script de caso) | Opus | ✅ implementada InReview (working tree; 220 tests) |
+| **9.4** | Sink ITBI ampliado (Complemento, Uso IPTU, terreno, fração ideal, ACC) | Sonnet | Ready — contrato de campos alinhado; implementação cross-repo pendente |
 
 ### Wave 3 — Uso em campo (não iniciada; arquivos disjuntos → paralelizável)
 | Story | Título | Modelo |
@@ -67,4 +67,4 @@
 3. **0b H-3 com a Luciana** — destrava os defaults da 9.14 e o uso comercial (one-pager pronto).
 4. Só então **Wave 2** (9.17 + 9.4) e **Wave 3** (paralela), com os modelos recomendados acima.
 
-> Uma frase: **Wave 1 (motor de evidência) commitada e verde no disco — grita o que não sabe, mostra três preços e não deixa testemunha fraca puxar a mediana. Próximo bloqueante: push (0a) + H-3 (0b).**
+> Uma frase: **Wave 1 no remote · 0a push feito · 9.17 (R5 gate) implementada e verde (220 tests). Falta commit/push da 9.17, H-3, 9.4 cross-repo, e Waves 3–4.**

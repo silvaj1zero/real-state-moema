@@ -13,6 +13,15 @@
  *   + efeito-escala do terreno + valor residual do incorporador → co-âncora de terreno
  */
 
+import {
+  filtrarComparaveisPorR5,
+  toAcmTipologia,
+  type ExcluidoTipologia,
+  type RelatorioR5,
+  type TipologiaTipo,
+  type VerificacaoVisualMap,
+} from './tipologia'
+
 // ---------------------------------------------------------------------------
 // Tipos
 // ---------------------------------------------------------------------------
@@ -57,6 +66,16 @@ export interface AcmComparable {
   dataVendaConfirmada?: boolean | null
   /** Precisão do geocoding do comparável. */
   geocode?: 'exato' | 'rua' | 'cep' | 'aproximado' | null
+
+  // --- Campos R5 / sink 9.4 (opt-in) — Story 9.17 --------------------------------
+  /** SQL cadastral (chave estável p/ guia e override visual). */
+  sqlCadastral?: string | null
+  /** Uso IPTU / descrição do uso (guia oficial). */
+  usoIptu?: string | null
+  /** Descrição do padrão IPTU (horizontal/vertical). */
+  padraoIptu?: string | null
+  /** Complemento da guia (ex.: "AP 82") — causa-raiz do incidente casa×apto. */
+  complemento?: string | null
 }
 
 /** Imóvel-alvo da avaliação. */
@@ -398,6 +417,13 @@ export interface AcmLaudoComputation {
    * length = totalComparaveis + autoReferenciasExcluidas.length.
    */
   passaportes: ComparavelPassport[]
+  /**
+   * Gate R5 de tipologia (Story 9.17). Inerte (`aplicado: false`) sem
+   * `propertyType` — preserva regressão Honduras.
+   */
+  r5: RelatorioR5
+  /** Comparáveis excluídos pelo gate R5 (tipologia incompatível / override visual). */
+  excluidosTipologia: ExcluidoTipologia[]
 }
 
 // ---------------------------------------------------------------------------
@@ -1027,6 +1053,9 @@ interface AvisosInputs {
   estadoAlvoConfirmado: boolean
   /** Tamanho do pool A/B (Story 9.20 AC5) — dispara sample_size_low_top3 se <5. */
   poolAB?: number
+  /** Gate R5 (Story 9.17) — amostra mista / heurística / incompleta. */
+  r5?: RelatorioR5
+  excluidosTipologia?: ExcluidoTipologia[]
 }
 
 /**
@@ -1155,6 +1184,27 @@ export function coletarAvisos(inp: AvisosInputs): AvisoAcm[] {
     )
   }
 
+  // TIPOLOGIA_MISTA — gate R5 removeu incompatíveis (Story 9.17 AC3)
+  const nExclR5 = inp.excluidosTipologia?.length ?? 0
+  if (inp.r5?.aplicado && nExclR5 > 0) {
+    push(
+      'TIPOLOGIA_MISTA',
+      'critico',
+      `R5 excluiu ${nExclR5} comparável(is) de tipologia incompatível com o alvo (${inp.r5.propertyType}). Amostra saneada: ${inp.r5.nAceitos} restantes.`,
+    )
+  }
+
+  // typology_r5_incomplete — gate ativo mas amostra ainda com indefinidos ou só heurística
+  if (inp.r5?.aplicado && (inp.r5.nIndefinido > 0 || (inp.r5.nHeuristica > 0 && inp.r5.nHeuristica === inp.r5.nAceitos && inp.r5.nAceitos > 0))) {
+    push(
+      'typology_r5_incomplete',
+      'atencao',
+      inp.r5.nIndefinido > 0
+        ? `R5 incompleto: ${inp.r5.nIndefinido} registro(s) sem classificação confiável na entrada (ver Complemento/Uso na Story 9.4).`
+        : 'R5 ativo só com heurística de lote (sem guia oficial) — conferência humana Fase 1 obrigatória.',
+    )
+  }
+
   return avisos
 }
 
@@ -1187,6 +1237,14 @@ export interface ComputeLaudoOptions {
   cenariosDesagio?: DesagioCenarios
   /** Força um cenário de deságio no headline (override explícito da ficha). */
   cenarioDesagio?: DesagioCenario
+  /**
+   * Tipologia do imóvel-alvo (Story 9.17). Quando informada, ativa o gate R5:
+   * comparáveis incompatíveis saem da amostra com aviso `TIPOLOGIA_MISTA`.
+   * Ausente → gate inerte (regressão Honduras).
+   */
+  propertyType?: TipologiaTipo | null
+  /** Overrides visuais declarativos por SQL (AC5) — ex.: Cotovia/Pavão no 132. */
+  verificacaoVisual?: VerificacaoVisualMap | null
 }
 
 /** Computa o pacote completo do laudo a partir dos comparáveis. */
@@ -1204,8 +1262,22 @@ export function computeLaudo(opts: ComputeLaudoOptions): AcmLaudoComputation {
   const excluidosEnderecos = new Set(autoReferenciasExcluidas.map((f) => f.endereco))
   const excluidosOriginais = opts.comparaveis.filter((c) => excluidosEnderecos.has(c.endereco))
 
+  // Gate R5 — tipologia casa×apto (Story 9.17). Opt-in via propertyType.
+  // Corre após o 9.8 e antes da deflação/mediana (amostra já saneada por tipo).
+  const gateR5 = filtrarComparaveisPorR5(screened.aceitos, opts.propertyType ?? null, {
+    verificacaoVisual: opts.verificacaoVisual,
+  })
+  const excluidosTipologia = gateR5.excluidos
+  const r5 = gateR5.relatorio
+  // Enriquece tipologia nos aceitos (passaporte 9.15 + avisos de heurística).
+  let comparaveis = gateR5.aceitos.map((c) => {
+    const cls = gateR5.porEndereco.get(c.endereco)
+    if (!cls) return c
+    if (c.tipologia?.fonte === 'guia' || c.tipologia?.fonte === 'visual') return c
+    return { ...c, tipologia: toAcmTipologia(cls) }
+  })
+
   // Homogeneização temporal Story 9.11: deflaciona a valor presente (opt-in).
-  let comparaveis = screened.aceitos
   let homogeneizacao: HomogeneizacaoRelatorio = {
     aplicada: false,
     indice: null,
@@ -1250,7 +1322,7 @@ export function computeLaudo(opts: ComputeLaudoOptions): AcmLaudoComputation {
   const passaportes = derivarPassaportes(comparaveis, autoReferenciasExcluidas, excluidosOriginais)
   const evidencia = derivarEvidencia(comparaveis, passaportes, ranking)
 
-  // Avisos de robustez (Story 9.15/9.20 AC5).
+  // Avisos de robustez (Story 9.15/9.20 AC5 + 9.17 R5).
   const avisos = coletarAvisos({
     target,
     aceitos: comparaveis,
@@ -1260,6 +1332,8 @@ export function computeLaudo(opts: ComputeLaudoOptions): AcmLaudoComputation {
     homogeneizacaoAplicada: homogeneizacao.aplicada,
     estadoAlvoConfirmado,
     poolAB: evidencia.nA + evidencia.nB,
+    r5,
+    excluidosTipologia,
   })
 
   return {
@@ -1286,5 +1360,7 @@ export function computeLaudo(opts: ComputeLaudoOptions): AcmLaudoComputation {
     evidencia,
     avisos,
     passaportes,
+    r5,
+    excluidosTipologia,
   }
 }

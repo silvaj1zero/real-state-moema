@@ -752,16 +752,28 @@ export function buildLaudoModel(
 
   const criteriosBase = input.criteriosSelecao ?? CRITERIOS_DEFAULT
   const homog = computation.homogeneizacao
+  // Story 9.17 AC7: se o gate R5 rodou, documenta a regra em uma linha na Sec. 4.
+  const criteriosComR5 =
+    computation.r5?.aplicado
+      ? [
+          ...criteriosBase,
+          {
+            criterio: 'R5 Tipologia (gate)',
+            parametro: `Alvo = ${computation.r5.propertyType} · ${computation.r5.nAceitos} aceitos / ${computation.r5.nExcluidos} excluídos`,
+            justificativa: computation.r5.regraUmaLinha,
+          },
+        ]
+      : criteriosBase
   const criterios = homog.aplicada
     ? [
-        ...criteriosBase,
+        ...criteriosComR5,
         {
           criterio: 'Atualização temporal',
           parametro: `Deflação a valor presente — índice ${homog.indice}, ref. ${homog.dataReferencia}`,
           justificativa: `Vendas de competências distintas comparadas na mesma moeda (${homog.ajustes.length} de ${computation.totalComparaveis} comparáveis ajustados)`,
         },
       ]
-    : criteriosBase
+    : criteriosComR5
 
   const sumarioParagrafo =
     input.sinteseParagrafo ??

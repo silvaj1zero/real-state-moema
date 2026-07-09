@@ -24,6 +24,13 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import * as XLSX from 'xlsx'
+// Story 9.17 — classificação canônica (sem 4ª cópia da regra R5).
+// Rodar com: npx tsx --max-old-space-size=6144 scripts/.../10-backfill-tipologia.mjs ...
+import {
+  classificarDeGuias,
+  confiancaLegado,
+  digitsSql,
+} from '../../src/lib/acm/tipologia.ts'
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(scriptDir, '..', '..', '..')
@@ -32,8 +39,6 @@ const CASOS = [
   path.join(repoRoot, 'docs', 'acm', 'andrade-pertence-132'),
 ]
 
-const digits = (s) => String(s ?? '').replace(/\D+/g, '').replace(/^0+/, '')
-
 // --- SQLs procurados (união dos dois datasets) -------------------------------
 const datasets = CASOS.map((dir) => ({
   dir,
@@ -41,7 +46,7 @@ const datasets = CASOS.map((dir) => ({
 }))
 const wanted = new Set()
 for (const { data } of datasets) {
-  for (const c of data.comparaveis) if (c.sqlCadastral) wanted.add(digits(c.sqlCadastral))
+  for (const c of data.comparaveis) if (c.sqlCadastral) wanted.add(digitsSql(c.sqlCadastral))
 }
 console.log(`SQLs procurados (união 113+132): ${wanted.size}`)
 
@@ -83,7 +88,7 @@ for (const file of files) {
     for (let i = headerIdx + 1; i < rows.length; i++) {
       const r = rows[i]
       if (!Array.isArray(r)) continue
-      const sql = digits(r[iSql])
+      const sql = digitsSql(r[iSql])
       if (!wanted.has(sql)) continue
       matches++
       const rec = {
@@ -110,40 +115,22 @@ for (const file of files) {
   console.log(`${path.basename(file)}: ${matches} guia(s) de SQLs procurados`)
 }
 
-// --- classificação -----------------------------------------------------------
-/** Lote do SQL (4 dígitos antes do DV). Faixa alta = unidade condominial. */
-function loteDoSql(sqlDigits) {
-  const s = sqlDigits.padStart(11, '0')
-  return Number(s.slice(6, 10))
-}
-function classifica(guias, sqlDigits) {
-  if (guias && guias.length) {
-    const g = guias[guias.length - 1]
-    const uso = String(g.usoIptu ?? '').toUpperCase()
-    const padrao = String(g.padraoIptu ?? '').toUpperCase()
-    if (uso.includes('APARTAMENTO') || padrao.includes('VERTICAL'))
-      return { tipologia: 'apartamento', confianca: 'guia oficial' }
-    if (uso.includes('RESIDÊNCIA') || uso.includes('RESIDENCIA') || padrao.includes('HORIZONTAL'))
-      return { tipologia: 'casa', confianca: 'guia oficial' }
-    return { tipologia: `outro (${g.usoIptu})`, confianca: 'guia oficial' }
-  }
-  const lote = loteDoSql(sqlDigits)
-  return {
-    tipologia: lote >= 100 ? 'apartamento (provável)' : 'casa (provável)',
-    confianca: `heurística de lote (${String(lote).padStart(4, '0')}) — guia pública indisponível`,
-  }
-}
-
+// --- classificação (canônica Story 9.17: app/src/lib/acm/tipologia.ts) --------
 // --- grava por caso ------------------------------------------------------------
 for (const { dir, data } of datasets) {
   const out = []
   const contagem = new Map()
   for (const c of data.comparaveis) {
-    const sql = c.sqlCadastral ? digits(c.sqlCadastral) : null
+    const sql = c.sqlCadastral ? digitsSql(c.sqlCadastral) : null
     const guias = sql ? (guiaPorSql.get(sql) ?? null) : null
-    const cls = sql
-      ? classifica(guias, sql)
-      : { tipologia: 'sem SQL', confianca: 'não classificável' }
+    const classif = classificarDeGuias(guias, sql)
+    const cls = {
+      tipologia: sql ? classif.rotulo : 'sem SQL',
+      confianca: sql ? confiancaLegado(classif) : 'não classificável',
+      tipo: classif.tipo,
+      fonte: classif.fonte,
+      motivos: classif.motivos,
+    }
     contagem.set(cls.tipologia, (contagem.get(cls.tipologia) ?? 0) + 1)
     out.push({
       endereco: c.endereco,

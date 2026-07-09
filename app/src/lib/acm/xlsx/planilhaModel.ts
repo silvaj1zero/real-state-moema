@@ -142,6 +142,15 @@ export function buildPlanilhaModel(
       ['Status anúncio', 'confirmado · parcial · off-market · não recuperável'],
       ['Fonte', 'ITBI oficial PMSP (venda real, âncora) + anúncios (concorrência/teto)'],
       ['Aviso de dado', 'Campos de metodologia (área constr×terreno, S/V/D, SQL, score) dependem do sink ITBI (Story 9.4); enquanto não mapeados, aparecem vazios.'],
+      // Story 9.17 AC7 — regra R5 em uma linha no Leia-me quando o gate rodou.
+      ...(computation.r5?.aplicado
+        ? ([
+            [
+              'R5 Tipologia',
+              `${computation.r5.regraUmaLinha} · alvo=${computation.r5.propertyType} · aceitos=${computation.r5.nAceitos} · excluídos=${computation.r5.nExcluidos}`,
+            ],
+          ] as Array<[string, string]>)
+        : []),
     ],
   }
 
