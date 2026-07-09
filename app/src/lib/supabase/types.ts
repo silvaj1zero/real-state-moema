@@ -309,6 +309,10 @@ export interface AcmComparavel {
   preco_pedido?: number | null
   desagio_percent?: number | null
   status_anuncio?: AcmStatusAnuncio | null
+  // Story 9.4 ampliação R5 — colunas a popular no sink (podem ser NULL até o backfill).
+  complemento?: string | null
+  uso_iptu?: string | null
+  fracao_ideal?: number | null
   created_at: string
   updated_at: string
 }
@@ -353,6 +357,12 @@ export interface ComparavelNoRaio {
   latitude?: number | null
   longitude?: number | null
   anuncio_url?: string | null
+  // Story 9.4 ampliação R5 (opt-in na RPC após sink).
+  complemento?: string | null
+  uso_iptu?: string | null
+  fracao_ideal?: number | null
+  padrao_iptu?: string | number | null
+  tipo?: string | null
 }
 
 // =============================================================================

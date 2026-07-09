@@ -40,8 +40,8 @@
 ### Wave 2 — Anti-desastre em escala
 | Story | Título | Modelo recomendado | Status |
 |-------|--------|--------------------|--------|
-| **9.17** | R5 industrializado — tipologia por guia como **gate de pipeline** (não script de caso) | Opus | ✅ implementada InReview (working tree; 220 tests) |
-| **9.4** | Sink ITBI ampliado (Complemento, Uso IPTU, terreno, fração ideal, ACC) | Sonnet | Ready — contrato de campos alinhado; implementação cross-repo pendente |
+| **9.17** | R5 industrializado — tipologia por guia como **gate de pipeline** (não script de caso) | Opus | ✅ InReview |
+| **9.4** | Sink ITBI ampliado (Complemento, Uso IPTU, terreno, fração ideal, ACC) | Sonnet | 📋 contrato+coverage script neste repo; **sink `.py` ainda no engine** |
 
 ### Wave 3 — Uso em campo
 | Story | Título | Modelo | Status |
@@ -51,9 +51,9 @@
 | **9.16** | Pesos de aderência condicionais à tese (constr./terreno/apto) | Opus | ✅ InReview (default hibrido; 132→construcao) |
 | **9.21** | Radar de subprecificação (caso 132) | Sonnet | ✅ InReview (limiares 5/8/15%) |
 
-### Wave 4 — Fábrica (bloqueada até Waves 1+2 Done)
-- **P-1** CLI `acm-validate <endereço>` (dataset canônico + gates R5/9.8/avisos + PDF Lite/Pro + XLSX + computation) — substitui os 3 scripts por caso.
-- **P-2** merge-back da planilha XLSX do corretor.
+### Wave 4 — Fábrica
+- **P-1** CLI `acm-validate` **offline v1** ✅ — `scripts/acm/acm-validate.tsx` + `validatePipeline.ts` (dataset → gates R5/avisos + computation + Lite/laudo). Caminho “só endereço” via RPC ainda depende de 9.4 PROD.
+- **P-2** merge-back da planilha XLSX do corretor — não iniciado.
 
 ### Fora da janela (não iniciar)
 9.22 (simulador 3 estratégias), 9.23 (tribunal/robustez), 9.5 (Fase 2 web + screenshots), skill/squad ACM, Ross-Heidecke, E2E no CI.
@@ -67,4 +67,4 @@
 3. **0b H-3 com a Luciana** — destrava os defaults da 9.14 e o uso comercial (one-pager pronto).
 4. Só então **Wave 2** (9.17 + 9.4) e **Wave 3** (paralela), com os modelos recomendados acima.
 
-> Uma frase: **Wave 1–3 de código (9.14–9.21 exceto 9.4) no local · suite 250. Falta push, H-3, 9.4 cross-repo, P-1 CLI.**
+> Uma frase: **Waves 1–3 + P-1 offline no local · 9.4 só contrato/coverage aqui (sink no engine) · falta push, H-3, backfill PROD, P-2.**
