@@ -557,16 +557,22 @@ function buildDesagio(
   }))
 
   let notaArbitrio: string
-  if (d.cenarioAplicado == null) {
+  if (d.foraDaReguaSimples) {
     notaArbitrio =
-      'Estado do imóvel-alvo não confirmado: os três cenários de deságio são exibidos e a faixa é reportada de forma conservadora (sem escolher −15% automaticamente). Confirmar o estado em vistoria (ficha do alvo).'
+      'Estado F (fora da régua): conversa aberta — sem deságio automático. Três bandas 0/−7,5/−15% apenas como referência de sensibilidade.'
+  } else if (d.cenarioAplicado == null && d.desagioEstadoPct == null) {
+    notaArbitrio =
+      'Estado do imóvel-alvo não confirmado: os três cenários de deságio são exibidos e a faixa é reportada de forma conservadora (preferência H-3: subavaliar se errar — sem escolher −15% automaticamente). Confirmar o estado em vistoria (ficha A–E).'
   } else {
-    const provisorio = d.origemDefault === 'ficha-provisoria-pre-H3'
-    notaArbitrio = `Cenário aplicado: ${CENARIO_ROTULO[d.cenarioAplicado]} (−${Math.round(
-      d.cenarios[d.cenarioAplicado] * 100,
-    )}%)${d.estadoConservacao ? `, estado declarado ${d.estadoConservacao}` : ''}.${
-      provisorio ? ' Régua A–D e defaults PROVISÓRIOS — pendentes de validação com a consultora (H-3).' : ''
-    }${d.foraDaReguaSimples ? ' Estado D: fora da régua simples — exige tratamento dedicado.' : ''}`
+    const pct =
+      d.desagioEstadoPct != null
+        ? Math.round(d.desagioEstadoPct * 1000) / 10
+        : Math.round(d.cenarios[d.cenarioAplicado!] * 100)
+    notaArbitrio = `Régua H-3 Luciana: estado ${d.estadoConservacao ?? '—'} → deságio −${pct}%${
+      d.valorMercadoAjustadoEstado != null
+        ? ` (técnico ajustado ≈ valor de mercado × (1−${pct}%))`
+        : ''
+    }. Banda de sensibilidade 0 / −7,5 / −15% permanece visível. Origem: ${d.origemDefault}.`
   }
 
   const tresPrecos: LaudoPrecoLinha[] = [
@@ -600,16 +606,18 @@ export function buildLaudoModel(
       )}`
     : ''
 
-  // --- Faixa de 5 cards (mesma da 8.3a) ----------------------------------
+  // --- Faixa capa (H-3: "Mercado R$ X – Y (referência Z)"; residual só Sec. 8) ---
   const faixa: ResumoFaixaItem[] = [
     { rotulo: 'Pretendido', valor: input.precoPretendido ?? null },
     { rotulo: 'Anúncio real', valor: input.precoPedidoReal ?? null },
     {
-      rotulo: 'Mercado (ACM)',
+      // Formato H-3: faixa + referência no card (render mostra min–max; ref no sumário)
+      rotulo: mercadoFaixa
+        ? `Mercado (ref. ${formatBRL(h.referencia.valorMercado)})`
+        : 'Mercado (ACM)',
       valor: mercadoFaixa ? null : h.referencia.valorMercado,
       faixa: mercadoFaixa,
     },
-    { rotulo: 'Co-âncora terreno', valor: computation.coAncoraTerreno },
     { rotulo: 'Fechamento', valor: null, faixa: metaFechamento, destaque: true },
   ]
 

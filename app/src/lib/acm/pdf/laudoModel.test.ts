@@ -66,19 +66,18 @@ describe('buildLaudoModel — header e faixa', () => {
   })
   it('Score do alvo = B (computado pela 8.2)', () => expect(m.header.score).toBe('B'))
   it('data de emissão injetada', () => expect(m.header.dataEmissao).toBe('09/06/2026'))
-  it('faixa de 5 cards na ordem da referência', () => {
-    expect(m.faixa.map((f) => f.rotulo)).toEqual([
-      'Pretendido',
-      'Anúncio real',
-      'Mercado (ACM)',
-      'Co-âncora terreno',
-      'Fechamento',
-    ])
-    // Story 9.10: headline em faixa — card Mercado (ACM) reporta min–max dos cenários.
+  it('faixa de capa H-3 (sem co-âncora; residual só Sec. 8)', () => {
+    expect(m.faixa).toHaveLength(4)
+    expect(m.faixa[0].rotulo).toBe('Pretendido')
+    expect(m.faixa[1].rotulo).toBe('Anúncio real')
+    expect(m.faixa[2].rotulo).toMatch(/^Mercado \(ref\./)
+    expect(m.faixa[3].rotulo).toBe('Fechamento')
+    // Story 9.10 + H-3: card Mercado reporta min–max + ref no rótulo
     expect(m.faixa[2].valor).toBeNull()
     expect(m.faixa[2].faixa).toEqual(COMPUTATION.headline.mercado)
-    expect(m.faixa[3].valor).toBe(COMPUTATION.coAncoraTerreno)
-    expect(m.faixa[4].destaque).toBe(true)
+    expect(m.faixa[3].destaque).toBe(true)
+    // Co-âncora permanece no Sec. 8, não na capa
+    expect(m.faixa.map((f) => f.rotulo).join('|')).not.toMatch(/Co-âncora/)
   })
 })
 
@@ -276,7 +275,7 @@ describe('buildLaudoModel — robustez (n<5, campos NULL, sem residual)', () => 
     const m = buildLaudoModel(compPequeno, sourcePequeno, inputMin)
     expect(m.sec5.linhas.length).toBeLessThanOrEqual(2)
     expect(m.sec10.tabela).toHaveLength(6)
-    expect(m.faixa).toHaveLength(5)
+    expect(m.faixa).toHaveLength(4) // H-3: sem card co-âncora na capa
   })
   it('co-âncora null → faixa card null e sem breakdown residual', () => {
     const m = buildLaudoModel(compPequeno, sourcePequeno, inputMin)
@@ -294,7 +293,7 @@ describe('buildLaudoModel — robustez (n<5, campos NULL, sem residual)', () => 
   })
   it('meta de fechamento default = faixaFechamento computada', () => {
     const m = buildLaudoModel(compPequeno, sourcePequeno, inputMin)
-    expect(m.faixa[4].faixa).toEqual(compPequeno.faixaFechamento)
+    expect(m.faixa[3].faixa).toEqual(compPequeno.faixaFechamento) // Fechamento (índice 3 pós-H-3)
   })
   it('cenários coincidentes (n≤3) → headline degenera para ponto único, sem faixa', () => {
     expect(compPequeno.headline.mercado.min).toBe(compPequeno.headline.mercado.max)

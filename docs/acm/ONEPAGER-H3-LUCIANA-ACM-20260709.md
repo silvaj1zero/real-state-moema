@@ -119,13 +119,13 @@ Marque o que soa com a sua voz; risque o que não usaria nunca.
 
 | Item | OK? | Nota |
 |------|-----|------|
-| Formato de faixa aprovado | ☐ | |
-| Escala A–D (ou outra) aprovada | ☐ | |
-| Defaults 0 / −7,5 / −15% OK? | ☐ | |
-| Texto “não cortar” no caso barato | ☐ | |
-| Residual: capa sim/não | ☐ | |
-| Lite na V1: sim/não | ☐ | |
-| Preferência super vs sub avaliar | ☐ | |
+| Formato de faixa aprovado | ☑ | Mercado R$ X–Y (referência Z) |
+| Escala A–D (ou outra) aprovada | ☑ | **A–F**: 0 / −5 / −7,5 / −10 / −15 · F fora |
+| Defaults 0 / −7,5 / −15% OK? | ☑ | Expandido com −5 e −10 (B e D) |
+| Texto “não cortar” no caso barato | ☑ | Subprecificado — não recomendo cortar |
+| Residual: capa sim/não | ☑ | Só laudo técnico / investidor |
+| Lite na V1: sim/não | ☑ | Lite V1 · laudo completo só V2 |
+| Preferência super vs sub avaliar | ☑ | Preferir **subavaliar** |
 | Próximo caso real para testar | ☐ | endereço: _______ |
 
 **Dono do follow-up:** founder / operador · **Atualizar:** `ROADMAP-ACM.md` H-3 + defaults nas stories 9.14/9.19  

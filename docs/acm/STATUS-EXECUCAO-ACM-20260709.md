@@ -31,7 +31,7 @@
 
 ### Fase 0 (pré-condições — humano/@devops)
 - **0a — push/backup** — ✅ feito (@devops): `301df10..ef26b0c` em `origin/fix/epic7-v-crawl-health`.
-- **0b — H-3 com a Luciana** (valida faixa + calibra defaults A–D da 9.14 + copy) — **ainda pendente**.
+- **0b — H-3 com a Luciana** — ✅ **2026-07-10** (`DECISOES-H3-LUCIANA-20260710.md`): faixa X–Y ref Z · régua A–F 0/−5/−7,5/−10/−15 · copy subprec · residual só técnico · Lite V1 / laudo V2 · preferir subavaliar.
 
 ### Wave 1 — pendência de fechamento
 - **Commit da 9.20** — ✅ `71c44a2` (2026-07-09, retomada).

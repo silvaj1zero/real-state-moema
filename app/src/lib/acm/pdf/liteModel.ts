@@ -136,24 +136,26 @@ export function buildLiteModel(
   const faixa = computation.headline.mercado
   const pret = input.precoPedidoReal ?? input.precoPretendido
 
+  // H-3 Luciana: frase canônica + formato "Mercado X–Y (referência Z)" + preferir subavaliar.
+  const mercadoFaixaTxt = `Mercado ${formatBRL(faixa.min)} – ${formatBRL(faixa.max)} (referência ${formatBRL(ref)})`
   const modoDonoDefault: LiteModoDono = {
-    oQueRegistrosMostram: `Encontramos ${n} venda${n === 1 ? '' : 's'} real${n === 1 ? '' : 'is'} (ITBI) comparáveis. A referência de mercado fica entre ${formatBRL(faixa.min)} e ${formatBRL(faixa.max)} (cenário aderente ≈ ${formatBRL(ref)}).`,
+    oQueRegistrosMostram: `Encontramos ${n} venda${n === 1 ? '' : 's'} real${n === 1 ? '' : 'is'} (ITBI) comparáveis. ${mercadoFaixaTxt}.`,
     oQueSugere:
       tese.tese === 'abaixo'
-        ? 'O preço pedido/pretendido está abaixo da referência de vendas — o risco principal não é “estar caro”, e sim deixar valor na mesa.'
+        ? 'Subprecificado — não recomendo cortar. O risco principal não é “estar caro”, e sim deixar valor na mesa.'
         : tese.tese === 'acima'
-          ? 'O preço pedido/pretendido está acima da referência de vendas — a captura tende a exigir deságio ou prazo maior.'
+          ? 'O preço pedido/pretendido está acima da referência de vendas — a captura tende a exigir realismo de mercado ou prazo maior.'
           : tese.tese === 'alinhado'
-            ? 'O preço está na banda da referência — o jogo vira execução, apresentação e diferenciação, não corte cego.'
-            : 'Ainda não há preço comercial informado — a faixa de mercado acima é o ponto de partida da conversa.',
+            ? 'O mercado não é um número — é uma faixa. Pelo estado do imóvel, eu posiciono aqui. O jogo vira execução e diferenciação, não corte cego.'
+            : 'O mercado não é um número — é uma faixa. Pelo estado do imóvel, eu posiciono aqui — ainda falta informar o preço comercial pretendido.',
     oQueConfirmar:
-      'Estado de conservação e reformas do imóvel (ficha), área oficial (matrícula/IPTU), e se todos os comparáveis são da mesma tipologia (casa×apto).',
+      'Estado de conservação (ficha A–E da visita), reformas, área oficial (matrícula/IPTU) e tipologia casa×apto dos comparáveis.',
     oQueRecomendamos:
       pret != null
-        ? `Negociar com âncora na faixa ${formatBRL(faixa.min)}–${formatBRL(faixa.max)}; anúncio e fechamento devem conversar com essa evidência, não só com o pretendido de ${formatBRL(pret)}.`
-        : `Definir preço de anúncio e meta de fechamento dentro da faixa ${formatBRL(faixa.min)}–${formatBRL(faixa.max)}, com base nas vendas reais acima.`,
+        ? `${mercadoFaixaTxt}. Preferimos âncora conservadora (subavaliar se errar) na exclusividade; o pedido de ${formatBRL(pret)} deve conversar com essa faixa.`
+        : `${mercadoFaixaTxt}. Definir anúncio e meta de fechamento dentro da faixa, com âncora preferencialmente conservadora.`,
     oQueNaoDizemos:
-      'Não estamos dizendo o “valor certo” único do seu imóvel, nem substituindo vistoria, matrícula ou opinião de perito judicial. É leitura de mercado a partir de registros públicos e regras declaradas.',
+      'Não é laudo judicial nem NBR completo. Residual de incorporador e co-âncora de terreno ficam no laudo técnico (V2), não neste Lite de V1. Não substituímos vistoria, matrícula ou perícia.',
   }
 
   const ov = input.modoDonoOverride ?? {}

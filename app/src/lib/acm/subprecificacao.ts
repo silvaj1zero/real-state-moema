@@ -115,11 +115,12 @@ export function classificarSubprecificacao(inp: SubprecificacaoInputs): Subpreci
       ? ` Também abaixo da lente de terreno (${gaps.vsTerreno}%).`
       : ''
 
+  // H-3 Luciana (2026-07-10): texto canônico de subprecificação.
   const acao =
     nivel === 'forte'
-      ? 'Não reduzir preço. Reposicionar narrativa, fotos, distribuição e prova social — o gap é de percepção, não de teto técnico.'
+      ? 'Subprecificado — não recomendo cortar. Reposicionar narrativa, fotos e distribuição; o gap é de percepção, não de teto técnico.'
       : nivel === 'moderada'
-        ? 'Evitar corte de preço antes de testar reposicionamento (mídia, copy, evidência ACM).'
+        ? 'Subprecificado — não recomendo cortar. Testar reposicionamento (mídia, copy, evidência ACM) antes de qualquer desconto.'
         : 'Monitorar: leve gap abaixo da referência — calibrar anúncio sem desconto defensivo.'
 
   const narrativa =

@@ -83,7 +83,9 @@ describe.each([
     expect(r.resumo.subprecificacao).toBe(anchor.subprecificacao)
     if (slug === 'andrade-pertence-132' && 'deltaSubPct' in anchor) {
       expect(r.computation.subprecificacao.deltaPct).toBe(anchor.deltaSubPct)
-      expect(r.computation.subprecificacao.acaoRecomendada).toMatch(/Nao reduzir preco|Não reduzir preço/i)
+      expect(r.computation.subprecificacao.acaoRecomendada).toMatch(
+        /Subprecificado|não recomendo cortar|Nao reduzir|Não reduzir/i,
+      )
     }
   })
 

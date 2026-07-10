@@ -95,11 +95,12 @@ export function classificarTeseComercial(
   else if (preco <= ref * (1 - limAbaixo)) tese = 'abaixo'
   else tese = 'alinhado'
 
+  // Copy H-3 (Luciana 2026-07-10): "Subprecificado — não recomendo cortar"
   const frase =
     tese === 'acima'
       ? `Preço ${deltaPct > 0 ? '+' : ''}${deltaPct}% vs referência ACM — tese de realismo de mercado (deságio de captura).`
       : tese === 'abaixo'
-        ? `Preço ${deltaPct}% vs referência ACM — tese de subprecificação: não cortar preço; reposicionar evidência.`
+        ? `Preço ${deltaPct}% vs referência ACM — Subprecificado — não recomendo cortar.`
         : `Preço dentro de ±${Math.round(limAcima * 100)}% da referência ACM — tese de execução e diferenciação.`
 
   return {

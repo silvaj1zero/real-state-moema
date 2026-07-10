@@ -646,11 +646,12 @@ describe('coletarAvisos — regras individuais', () => {
 // Deságio de estado do alvo — Story 9.14 (C-1: fim do Capex oculto)
 // ---------------------------------------------------------------------------
 
-describe('tratarDesagio — três cenários explícitos (0 / −7,5% / −15%)', () => {
+describe('tratarDesagio — H-3 régua A–F (0 / −5 / −7,5 / −10 / −15%)', () => {
   it('sem ficha → expõe os três, cenarioAplicado null (AC3: sem default silencioso)', () => {
     const d = tratarDesagio(10_000_000, { areaConstruida: 800, areaTerreno: 1000 })
     expect(d.cenarioAplicado).toBeNull()
     expect(d.origemDefault).toBe('sem-ficha')
+    expect(d.desagioEstadoPct).toBeNull()
     expect(d.valorMercadoPorCenario).toEqual({
       agressivo: 10_000_000,
       provavel: 9_250_000,
@@ -659,21 +660,30 @@ describe('tratarDesagio — três cenários explícitos (0 / −7,5% / −15%)',
     expect(d.foraDaReguaSimples).toBe(false)
   })
 
-  it('estado B (conservado) → cenário provável, marcado provisório pré-H3', () => {
+  it('estado B → −5% (H-3), origem calibrada', () => {
     const d = tratarDesagio(10_000_000, { areaConstruida: 800, areaTerreno: 1000, estadoConservacao: 'B' })
-    expect(d.cenarioAplicado).toBe('provavel')
-    expect(d.origemDefault).toBe('ficha-provisoria-pre-H3')
+    expect(d.desagioEstadoPct).toBe(0.05)
+    expect(d.valorMercadoAjustadoEstado).toBe(9_500_000)
+    expect(d.origemDefault).toBe('h3-luciana-2026-07-10')
     expect(d.estadoConservacao).toBe('B')
   })
 
-  it('estado A → agressivo (0%); estado C → conservador (−15%)', () => {
-    expect(tratarDesagio(1e7, { areaConstruida: 1, areaTerreno: 1, estadoConservacao: 'A' }).cenarioAplicado).toBe('agressivo')
-    expect(tratarDesagio(1e7, { areaConstruida: 1, areaTerreno: 1, estadoConservacao: 'C' }).cenarioAplicado).toBe('conservador')
+  it('H-3 mapa A–E: 0 / 5 / 7,5 / 10 / 15', () => {
+    const t = (e: 'A' | 'B' | 'C' | 'D' | 'E') =>
+      tratarDesagio(10_000_000, { areaConstruida: 1, areaTerreno: 1, estadoConservacao: e })
+    expect(t('A').desagioEstadoPct).toBe(0)
+    expect(t('B').desagioEstadoPct).toBe(0.05)
+    expect(t('C').desagioEstadoPct).toBe(0.075)
+    expect(t('D').desagioEstadoPct).toBe(0.1)
+    expect(t('E').desagioEstadoPct).toBe(0.15)
+    expect(t('A').valorMercadoAjustadoEstado).toBe(10_000_000)
+    expect(t('E').valorMercadoAjustadoEstado).toBe(8_500_000)
   })
 
-  it('estado D → conservador + fora da régua simples (flag)', () => {
-    const d = tratarDesagio(1e7, { areaConstruida: 1, areaTerreno: 1, estadoConservacao: 'D' })
-    expect(d.cenarioAplicado).toBe('conservador')
+  it('estado F → fora da régua (sem % automático)', () => {
+    const d = tratarDesagio(1e7, { areaConstruida: 1, areaTerreno: 1, estadoConservacao: 'F' })
+    expect(d.cenarioAplicado).toBeNull()
+    expect(d.desagioEstadoPct).toBeNull()
     expect(d.foraDaReguaSimples).toBe(true)
   })
 
@@ -684,7 +694,7 @@ describe('tratarDesagio — três cenários explícitos (0 / −7,5% / −15%)',
   })
 })
 
-describe('computeLaudo — deságio de estado (Story 9.14 AC4/AC5/AC6)', () => {
+describe('computeLaudo — deságio de estado (Story 9.14 + H-3)', () => {
   it('AC5 — Honduras sem ficha: valorMercado intacto; deságio é camada aditiva inerte', () => {
     const r = computeLaudo({
       target: HONDURAS_TARGET,
@@ -701,15 +711,14 @@ describe('computeLaudo — deságio de estado (Story 9.14 AC4/AC5/AC6)', () => {
     expect(r.avisos.map((a) => a.codigo)).toContain('target_condition_unconfirmed')
   })
 
-  it('AC6/9.15 — com ficha estado B: condição confirmada e cenário provável aplicado', () => {
+  it('H-3 — com ficha estado C (−7,5%): condição confirmada e % fino aplicado', () => {
     const r = computeLaudo({
-      target: { ...HONDURAS_TARGET, estadoConservacao: 'B' },
+      target: { ...HONDURAS_TARGET, estadoConservacao: 'C' },
       comparaveis: HONDURAS_COMPARAVEIS,
       fatoresLiquidez: HONDURAS_FATORES_LIQUIDEZ,
     })
-    expect(r.desagioTratado.cenarioAplicado).toBe('provavel')
-    expect(r.desagioTratado.origemDefault).toBe('ficha-provisoria-pre-H3')
-    // ficha presente → silencia o aviso de condição não confirmada
+    expect(r.desagioTratado.desagioEstadoPct).toBe(0.075)
+    expect(r.desagioTratado.origemDefault).toBe('h3-luciana-2026-07-10')
     expect(r.avisos.map((a) => a.codigo)).not.toContain('target_condition_unconfirmed')
   })
 })

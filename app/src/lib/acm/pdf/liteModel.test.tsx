@@ -54,7 +54,7 @@ describe('buildLiteModel (Story 9.19)', () => {
     expect(model.modoDono.oQueSugere.length).toBeGreaterThan(10)
     expect(model.modoDono.oQueConfirmar.length).toBeGreaterThan(10)
     expect(model.modoDono.oQueRecomendamos.length).toBeGreaterThan(10)
-    expect(model.modoDono.oQueNaoDizemos).toMatch(/não estamos dizendo/i)
+    expect(model.modoDono.oQueNaoDizemos).toMatch(/laudo judicial|NBR|V2|vistoria/i)
   })
 
   it('AC1 — disclaimer NBR/judicial', () => {

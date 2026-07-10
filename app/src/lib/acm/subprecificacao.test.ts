@@ -28,7 +28,7 @@ describe('classificarSubprecificacao (Story 9.21)', () => {
     })
     expect(r.nivel).toBe('forte')
     expect(r.deltaPct!).toBeLessThan(-15)
-    expect(r.acaoRecomendada).toMatch(/Não reduzir preço/i)
+    expect(r.acaoRecomendada).toMatch(/Subprecificado|não recomendo cortar|Não reduzir/i)
   })
 
   it('moderada entre 8% e 15%', () => {

@@ -15,7 +15,7 @@ export interface AcmDatasetTarget {
   precoPretendido?: number | null
   precoPedidoReal?: number | null
   vagas?: number | null
-  estadoConservacao?: 'A' | 'B' | 'C' | 'D' | null
+  estadoConservacao?: 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | null
   lat?: number | null
   lng?: number | null
 }

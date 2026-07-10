@@ -42,6 +42,9 @@ export { classificarSubprecificacao, SUBPRECIFICACAO_LIMIARES } from './subpreci
 
 export type Score = 'AAA' | 'AA' | 'A' | 'B'
 
+/** Escala de conservação H-3 (Luciana, 2026-07-10). A–E com %; F = conversa aberta. */
+export type EstadoConservacao = 'A' | 'B' | 'C' | 'D' | 'E' | 'F'
+
 /** Comparável de entrada para a metodologia (superset desacoplado do tipo do DB). */
 export interface AcmComparable {
   endereco: string
@@ -106,16 +109,13 @@ export interface AcmTarget {
    */
   precoPretendido?: number | null
 
-  // --- Ficha do alvo (Story 9.14) — estado de conservação declarado ---------
-  // Opt-in. A escala A–D e seus defaults de deságio são PROVISÓRIOS até a
-  // elicitação H-3 com a Luciana (Art. IV — não inventar a régua sem validar).
+  // --- Ficha do alvo (Story 9.14 + H-3 Luciana 2026-07-10) -------------------
   /**
-   * Estado de conservação declarado do alvo (vistoria da consultora):
-   *   A = novo/reformado integral · B = conservado/pronto morar
-   *   C = necessita ajustes · D = obsolescência/reforma pesada
-   * Ausente → nenhum deságio de estado é aplicado silenciosamente (AC3).
+   * Estado de conservação (vistoria). Régua H-3 (A–F):
+   *   A 0% · B −5% · C −7,5% · D −10% · E −15% · F fora da régua (conversa aberta)
+   * Ausente → nenhum deságio silencioso (AC3).
    */
-  estadoConservacao?: 'A' | 'B' | 'C' | 'D' | null
+  estadoConservacao?: EstadoConservacao | null
   anoConstrucao?: number | null
   /** Texto curto de reformas relevantes (rastreabilidade). */
   reformasRelevantes?: string | null
@@ -334,37 +334,72 @@ export interface DesagioCenarios {
   agressivo: number
 }
 
-/** Deságio de ESTADO/condição do alvo — eixo separado do Score de mercado (AC2). */
+/**
+ * Três preços de sensibilidade de estado (banda 0 / −7,5% / −15%) — transparência.
+ * A régua H-3 A–F usa descontos finos em `ESTADO_DESAGIO_H3`.
+ */
 export const DESAGIO_DEFAULT: DesagioCenarios = { conservador: 0.15, provavel: 0.075, agressivo: 0 }
 
 /**
- * Tabela PROVISÓRIA estado→cenário (AC3). A régua A–D e estes mapeamentos são
- * **provisórios até a elicitação H-3 com a Luciana** (Art. IV) — nenhum laudo
- * deve tratá-los como definitivos antes disso. `origemDefault` sinaliza a pendência.
+ * Régua H-3 Luciana (2026-07-10): deságio de estado por nota A–E.
+ * F = fora da régua (conversa aberta — sem % automático).
  */
-export const ESTADO_CENARIO_PROVISORIO: Record<'A' | 'B' | 'C' | 'D', DesagioCenario> = {
+export const ESTADO_DESAGIO_H3: Record<'A' | 'B' | 'C' | 'D' | 'E', number> = {
+  A: 0, // 0%
+  B: 0.05, // −5%
+  C: 0.075, // −7,5%
+  D: 0.1, // −10%
+  E: 0.15, // −15%
+}
+
+/** @deprecated use ESTADO_DESAGIO_H3 — mantido como alias de mapeamento grosso 3 cenários. */
+export const ESTADO_CENARIO_PROVISORIO: Record<'A' | 'B' | 'C' | 'D' | 'E' | 'F', DesagioCenario | null> = {
   A: 'agressivo',
-  B: 'provavel',
-  C: 'conservador',
-  D: 'conservador',
+  B: 'agressivo', // −5% mais perto de 0% que de −7,5%
+  C: 'provavel',
+  D: 'conservador', // −10% entre provável e conservador — puxa conservador (H-3: preferir subavaliar)
+  E: 'conservador',
+  F: null,
 }
 
 /**
- * Tratamento explícito do deságio de estado (Story 9.14). Expõe os TRÊS cenários
- * sempre; só aplica um ao headline quando há ficha (sem ficha → sem default
- * silencioso de −15%, AC3). Separado do Score de mercado, do residual e dos
- * fatores de liquidez (AC4).
+ * Política de produto H-3 (Luciana, 2026-07-10) — Art. IV: decisões elicitadas.
+ */
+export const H3_POLICY = {
+  /** Capa: "Mercado R$ X – Y (referência Z)". */
+  faixaFormato: 'mercado-xy-ref-z' as const,
+  /** Residual de incorporador: só laudo técnico / investidor (não capa Lite). */
+  residualNaCapaLite: false,
+  residualNoLaudoTecnico: true,
+  /** Lite na V1; laudo completo só na V2. */
+  liteNaV1: true,
+  laudoCompletoNaV2: true,
+  /** Preferir subavaliar se o modelo errar. */
+  preferenciaErro: 'subavaliar' as const,
+  textoSubprecificacao: 'Subprecificado — não recomendo cortar',
+  fraseDono:
+    'O mercado não é um número — é uma faixa. Pelo estado do imóvel, eu posiciono aqui.',
+  origemDefaults: 'h3-luciana-2026-07-10' as const,
+} as const
+
+/**
+ * Tratamento explícito do deságio de estado (Story 9.14 + H-3). Expõe os TRÊS
+ * cenários de banda sempre; aplica % fino da régua A–E quando há ficha.
  */
 export interface DesagioTratado {
   cenarios: DesagioCenarios
-  /** valorMercado × (1 − d) para cada cenário. */
+  /** valorMercado × (1 − d) para cada cenário de banda (0 / 7,5 / 15). */
   valorMercadoPorCenario: Record<DesagioCenario, number>
-  /** Cenário aplicado ao headline; null quando sem ficha (não há default silencioso). */
+  /** Cenário de banda mais próximo do estado; null sem ficha ou F. */
   cenarioAplicado: DesagioCenario | null
-  estadoConservacao: 'A' | 'B' | 'C' | 'D' | null
-  /** Proveniência do cenário — `ficha-provisoria-pre-H3` sinaliza pendência de H-3. */
-  origemDefault: 'ficha-provisoria-pre-H3' | 'sem-ficha' | 'override-explicito'
-  /** Estado D → fora da régua simples (exige tratamento dedicado, AC3). */
+  /** % exato da régua H-3 (0–0.15); null sem ficha ou F. */
+  desagioEstadoPct: number | null
+  /** valorMercado × (1 − desagioEstadoPct); null se sem aplicação. */
+  valorMercadoAjustadoEstado: number | null
+  estadoConservacao: EstadoConservacao | null
+  /** Proveniência — H-3 calibrado em 2026-07-10. */
+  origemDefault: 'h3-luciana-2026-07-10' | 'sem-ficha' | 'override-explicito'
+  /** Estado F → fora da régua simples (conversa aberta). */
   foraDaReguaSimples: boolean
 }
 
@@ -387,23 +422,37 @@ export function tratarDesagio(
   const estado = target.estadoConservacao ?? null
   let cenarioAplicado: DesagioCenario | null
   let origemDefault: DesagioTratado['origemDefault']
+  let desagioEstadoPct: number | null = null
+
   if (cenarioOverride != null) {
     cenarioAplicado = cenarioOverride
     origemDefault = 'override-explicito'
-  } else if (estado != null) {
+    desagioEstadoPct = cenarios[cenarioOverride]
+  } else if (estado != null && estado !== 'F') {
+    desagioEstadoPct = ESTADO_DESAGIO_H3[estado]
     cenarioAplicado = ESTADO_CENARIO_PROVISORIO[estado]
-    origemDefault = 'ficha-provisoria-pre-H3'
+    origemDefault = H3_POLICY.origemDefaults
+  } else if (estado === 'F') {
+    cenarioAplicado = null
+    origemDefault = H3_POLICY.origemDefaults
+    desagioEstadoPct = null
   } else {
-    cenarioAplicado = null // AC3: sem ficha, expõe os três — nunca escolhe −15% sozinho
+    cenarioAplicado = null // AC3: sem ficha — nunca escolhe −15% sozinho
     origemDefault = 'sem-ficha'
   }
+
+  const valorMercadoAjustadoEstado =
+    desagioEstadoPct != null ? Math.round(valorMercado * (1 - desagioEstadoPct)) : null
+
   return {
     cenarios,
     valorMercadoPorCenario,
     cenarioAplicado,
+    desagioEstadoPct,
+    valorMercadoAjustadoEstado,
     estadoConservacao: estado,
     origemDefault,
-    foraDaReguaSimples: estado === 'D',
+    foraDaReguaSimples: estado === 'F',
   }
 }
 

@@ -29,7 +29,7 @@ describe('classificarTeseComercial (Story 9.18)', () => {
     const t = classificarTeseComercial(ref, 900_000, null)
     expect(t.tese).toBe('abaixo')
     expect(t.deltaPct).toBe(-10)
-    expect(t.frase).toMatch(/não cortar/i)
+    expect(t.frase).toMatch(/Subprecificado|não recomendo cortar|não cortar/i)
   })
 
   it('AC4 — 132-like: anúncio 1,495M vs ref ~1,77M → abaixo', () => {
