@@ -10,6 +10,10 @@
  * `pdf().toBlob()`. Geração 100% cliente (offline-capable, ADR-EPIC8-001). Estado
  * de loading + tratamento de erro (AC6). O texto-modelo das 10 seções usa defaults
  * templados (Art. IV), sobrescrevíveis no view-model.
+ *
+ * Story 9.23 — ativa os mecanismos v5 in-app: guard-rail 9.8 (endereço/vagas/preço),
+ * homogeneização FipeZap (default ON), deságio H-3 A–F, gate R5 e painel de
+ * transparência (headline em faixa + avisos) antes do download.
  */
 import { useState } from 'react'
 import { X, FileText, Loader2 } from 'lucide-react'
@@ -19,11 +23,24 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import type { ComparavelNoRaio } from '@/lib/supabase/types'
 import { toAcmComparables, type AcmRpcRow } from '@/lib/acm/adapter'
-import { computeLaudo, type ResidualLandParams } from '@/lib/acm/methodology'
+import {
+  computeLaudo,
+  type AcmLaudoComputation,
+  type EstadoConservacao,
+  type ResidualLandParams,
+} from '@/lib/acm/methodology'
+import type { TipologiaTipo } from '@/lib/acm/tipologia'
 import { buildLaudoModel, type LaudoSourceComparable, type LaudoInput } from '@/lib/acm/pdf/laudoModel'
 import { buildStaticMapUrl, resolveStaticMapImage } from '@/lib/acm/pdf/staticMap'
 import { comparavelToLaudoSource, buildAcmMapMarkers } from '@/lib/acm/comparavelAdapter'
 import { LaudoDocument } from '@/lib/acm/pdf/LaudoDocument'
+import { AcmAvisosPanel } from './AcmAvisosPanel'
+import {
+  buildComputeOptions,
+  ESTADO_CONSERVACAO_OPCOES,
+  FIPEZAP_REFERENCIA_LABEL,
+  TIPOLOGIA_OPCOES,
+} from './computeOptions'
 
 interface LaudoExportSheetProps {
   open: boolean
@@ -83,6 +100,10 @@ export function LaudoExportSheet({
   const [f2, setF2] = useState('') // regularização
   const [f3, setF3] = useState('') // Capex
   const [f4, setF4] = useState('') // liquidez
+  // Story 9.23 — mecanismos v5
+  const [homogeneizacaoAtiva, setHomogeneizacaoAtiva] = useState(true)
+  const [estado, setEstado] = useState<EstadoConservacao | ''>('')
+  const [tipologia, setTipologia] = useState<TipologiaTipo | ''>('')
   // Residual (Sec. 8b) — pré-preenchido com os defaults Honduras (seed-data-first)
   const [vgvM2, setVgvM2] = useState(String(RESIDUAL_DEFAULTS.vgvPerM2))
   const [areaNova, setAreaNova] = useState(String(RESIDUAL_DEFAULTS.areaNova))
@@ -98,6 +119,41 @@ export function LaudoExportSheet({
   const areaT = numOrUndef(areaTerreno)
   const podeGerar = !!areaC && areaC > 0 && !!areaT && areaT > 0 && comparaveis.length > 0
 
+  /** Monta o computation compartilhado (fiação v5 + residual local). */
+  function buildComputation(areaCVal: number, areaTVal: number): AcmLaudoComputation {
+    const acmComps = toAcmComparables(comparaveis as unknown as AcmRpcRow[])
+    const fatores = [numOrUndef(f1), numOrUndef(f2), numOrUndef(f3), numOrUndef(f4)].filter(
+      (n): n is number => n != null,
+    )
+    const residual: ResidualLandParams = {
+      ...RESIDUAL_DEFAULTS,
+      vgvPerM2: numOrUndef(vgvM2) ?? RESIDUAL_DEFAULTS.vgvPerM2,
+      areaNova: numOrUndef(areaNova) ?? areaCVal,
+      custoObraPerM2: numOrUndef(custoObra) ?? RESIDUAL_DEFAULTS.custoObraPerM2,
+      demolicao: numOrUndef(demolicao) ?? RESIDUAL_DEFAULTS.demolicao,
+    }
+    return computeLaudo({
+      ...buildComputeOptions({
+        areaConstruida: areaCVal,
+        areaTerreno: areaTVal,
+        endereco: endereco.trim() || enderecoAlvo,
+        vagas: numOrUndef(vagas) ?? null,
+        precoPretendido: numOrUndef(pretendido) ?? null,
+        homogeneizacaoAtiva,
+        estadoConservacao: estado || null,
+        propertyType: tipologia || null,
+      }),
+      comparaveis: acmComps,
+      fatoresLiquidez: fatores,
+      raio: radiusMeters,
+      residual,
+    })
+  }
+
+  // Prévia de transparência (headline em faixa + avisos + guard-rail) — recomputa
+  // a cada render a partir do estado atual (zero recálculo escondido; AC5/AC6).
+  const preview = podeGerar && areaC && areaT ? buildComputation(areaC, areaT) : null
+
   async function handleGerar() {
     setError(null)
     if (!areaC || !areaT) {
@@ -106,11 +162,6 @@ export function LaudoExportSheet({
     }
     setIsGenerating(true)
     try {
-      // 1) Comparáveis → lib de cálculo (8.2), com residual p/ a co-âncora (Sec. 8b)
-      const acmComps = toAcmComparables(comparaveis as unknown as AcmRpcRow[])
-      const fatores = [numOrUndef(f1), numOrUndef(f2), numOrUndef(f3), numOrUndef(f4)].filter(
-        (n): n is number => n != null,
-      )
       const residual: ResidualLandParams = {
         ...RESIDUAL_DEFAULTS,
         vgvPerM2: numOrUndef(vgvM2) ?? RESIDUAL_DEFAULTS.vgvPerM2,
@@ -119,13 +170,7 @@ export function LaudoExportSheet({
         demolicao: numOrUndef(demolicao) ?? RESIDUAL_DEFAULTS.demolicao,
       }
 
-      const computation = computeLaudo({
-        target: { areaConstruida: areaC, areaTerreno: areaT },
-        comparaveis: acmComps,
-        fatoresLiquidez: fatores,
-        raio: radiusMeters,
-        residual,
-      })
+      const computation = buildComputation(areaC, areaT)
 
       // 2) Fonte rica do Top N / Sec. 5 / Sec. 7.1 (inclui lat/lng + anuncio_url)
       const source: LaudoSourceComparable[] = comparaveis.map(comparavelToLaudoSource)
@@ -188,6 +233,7 @@ export function LaudoExportSheet({
 
   const field = 'flex-1'
   const label = 'block text-[10px] uppercase tracking-wide text-gray-500 mb-1'
+  const selectCls = 'w-full h-9 px-3 text-sm border border-gray-300 rounded-lg bg-white'
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
@@ -278,6 +324,53 @@ export function LaudoExportSheet({
             </div>
           </div>
 
+          {/* Story 9.23 — ficha do alvo (opcionais): estado A–F + tipologia R5 */}
+          <div className="flex gap-2">
+            <div className={field}>
+              <span className={label}>Estado do imóvel (régua A–F)</span>
+              <select
+                value={estado}
+                onChange={(e) => setEstado(e.target.value as EstadoConservacao | '')}
+                className={selectCls}
+              >
+                <option value="">Não informar (faixa conservadora)</option>
+                {ESTADO_CONSERVACAO_OPCOES.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className={field}>
+              <span className={label}>Tipologia do alvo</span>
+              <select
+                value={tipologia}
+                onChange={(e) => setTipologia(e.target.value as TipologiaTipo | '')}
+                className={selectCls}
+              >
+                <option value="">Não informar</option>
+                {TIPOLOGIA_OPCOES.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <p className="text-[10px] text-gray-400 leading-snug">
+            A classificação de tipologia dos comparáveis é parcial até a Story 9.4 — o gate R5 sinaliza a limitação nos avisos.
+          </p>
+
+          <label className="flex items-center gap-2 text-xs text-gray-700">
+            <input
+              type="checkbox"
+              checked={homogeneizacaoAtiva}
+              onChange={(e) => setHomogeneizacaoAtiva(e.target.checked)}
+              className="size-4 rounded border-gray-300"
+            />
+            Homogeneizar fechamentos a valor presente ({FIPEZAP_REFERENCIA_LABEL})
+          </label>
+
           <div>
             <span className={label}>Fatores de liquidez (frações) — exposição · regularização · Capex · liquidez</span>
             <div className="flex gap-2">
@@ -309,6 +402,9 @@ export function LaudoExportSheet({
               </div>
             </div>
           </div>
+
+          {/* Story 9.23 AC5 — transparência pré-download */}
+          {preview && <AcmAvisosPanel computation={preview} />}
 
           {error && (
             <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</p>

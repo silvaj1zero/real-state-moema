@@ -15,9 +15,14 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import type { ComparavelNoRaio } from '@/lib/supabase/types'
 import { toAcmComparables, type AcmRpcRow } from '@/lib/acm/adapter'
-import { computeLaudo } from '@/lib/acm/methodology'
+import { computeLaudo, type EstadoConservacao } from '@/lib/acm/methodology'
 import { buildPlanilhaModel, type PlanilhaPropertyType } from '@/lib/acm/xlsx/planilhaModel'
 import { buildPlanilhaWorkbook } from '@/lib/acm/xlsx/buildPlanilhaWorkbook'
+import {
+  buildComputeOptions,
+  ESTADO_CONSERVACAO_OPCOES,
+  FIPEZAP_REFERENCIA_LABEL,
+} from './computeOptions'
 
 interface PlanilhaExportSheetProps {
   open: boolean
@@ -37,6 +42,9 @@ export function PlanilhaExportSheet({ open, onClose, comparaveis, enderecoAlvo, 
   const [areaConstruida, setAreaConstruida] = useState('')
   const [areaTerreno, setAreaTerreno] = useState('')
   const [propertyType, setPropertyType] = useState<PlanilhaPropertyType>('casa')
+  // Story 9.23 — mecanismos v5
+  const [homogeneizacaoAtiva, setHomogeneizacaoAtiva] = useState(true)
+  const [estado, setEstado] = useState<EstadoConservacao | ''>('')
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -54,7 +62,15 @@ export function PlanilhaExportSheet({ open, onClose, comparaveis, enderecoAlvo, 
     try {
       const acmComps = toAcmComparables(comparaveis as unknown as AcmRpcRow[])
       const computation = computeLaudo({
-        target: { areaConstruida: areaC, areaTerreno: areaT },
+        ...buildComputeOptions({
+          areaConstruida: areaC,
+          areaTerreno: areaT,
+          endereco: endereco.trim() || enderecoAlvo,
+          homogeneizacaoAtiva,
+          estadoConservacao: estado || null,
+          // AC4 — tipologia do alvo alimenta o gate R5 (casa/apartamento ⊂ TipologiaTipo).
+          propertyType,
+        }),
         comparaveis: acmComps,
         raio: radiusMeters,
       })
@@ -125,6 +141,33 @@ export function PlanilhaExportSheet({ open, onClose, comparaveis, enderecoAlvo, 
               <option value="apartamento">Apartamento (sem aba Terrenos)</option>
             </select>
           </div>
+
+          {/* Story 9.23 — estado A–F (opcional) + homogeneização FipeZap */}
+          <div>
+            <span className={label}>Estado do imóvel (régua A–F)</span>
+            <select
+              value={estado}
+              onChange={(e) => setEstado(e.target.value as EstadoConservacao | '')}
+              className="w-full h-9 px-3 text-sm border border-gray-300 rounded-lg bg-white"
+            >
+              <option value="">Não informar (faixa conservadora)</option>
+              {ESTADO_CONSERVACAO_OPCOES.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <label className="flex items-center gap-2 text-xs text-gray-700">
+            <input
+              type="checkbox"
+              checked={homogeneizacaoAtiva}
+              onChange={(e) => setHomogeneizacaoAtiva(e.target.checked)}
+              className="size-4 rounded border-gray-300"
+            />
+            Homogeneizar fechamentos a valor presente ({FIPEZAP_REFERENCIA_LABEL})
+          </label>
 
           {error && <p className="text-xs text-red-600">{error}</p>}
 

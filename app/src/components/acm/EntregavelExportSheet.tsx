@@ -17,7 +17,13 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import type { ComparavelNoRaio } from '@/lib/supabase/types'
 import { toAcmComparables, type AcmRpcRow } from '@/lib/acm/adapter'
-import { computeLaudo, type ResidualLandParams } from '@/lib/acm/methodology'
+import {
+  computeLaudo,
+  type AcmLaudoComputation,
+  type EstadoConservacao,
+  type ResidualLandParams,
+} from '@/lib/acm/methodology'
+import type { TipologiaTipo } from '@/lib/acm/tipologia'
 import type { LaudoSourceComparable } from '@/lib/acm/pdf/laudoModel'
 import { buildDeckModel, type DeckInput } from '@/lib/acm/pdf/deckModel'
 import { buildDidaticoModel, type DidaticoInput } from '@/lib/acm/pdf/didaticoModel'
@@ -25,6 +31,13 @@ import { DeckDocument } from '@/lib/acm/pdf/DeckDocument'
 import { DidaticoDocument } from '@/lib/acm/pdf/DidaticoDocument'
 import { buildStaticMapUrl, resolveStaticMapImage } from '@/lib/acm/pdf/staticMap'
 import { comparavelToLaudoSource, buildAcmMapMarkers } from '@/lib/acm/comparavelAdapter'
+import { AcmAvisosPanel } from './AcmAvisosPanel'
+import {
+  buildComputeOptions,
+  ESTADO_CONSERVACAO_OPCOES,
+  FIPEZAP_REFERENCIA_LABEL,
+  TIPOLOGIA_OPCOES,
+} from './computeOptions'
 
 export type EntregavelKind = 'deck' | 'didatico'
 
@@ -91,6 +104,10 @@ export function EntregavelExportSheet({
   const [f2, setF2] = useState('')
   const [f3, setF3] = useState('')
   const [f4, setF4] = useState('')
+  // Story 9.23 — mecanismos v5
+  const [homogeneizacaoAtiva, setHomogeneizacaoAtiva] = useState(true)
+  const [estado, setEstado] = useState<EstadoConservacao | ''>('')
+  const [tipologia, setTipologia] = useState<TipologiaTipo | ''>('')
 
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -101,6 +118,34 @@ export function EntregavelExportSheet({
   const areaT = numOrUndef(areaTerreno)
   const podeGerar = !!areaC && areaC > 0 && !!areaT && areaT > 0 && comparaveis.length > 0
 
+  /** Cálculo (8.2) com residual + fiação v5 compartilhada. */
+  function buildComputation(areaCVal: number, areaTVal: number): AcmLaudoComputation {
+    const acmComps = toAcmComparables(comparaveis as unknown as AcmRpcRow[])
+    const fatores = [numOrUndef(f1), numOrUndef(f2), numOrUndef(f3), numOrUndef(f4)].filter(
+      (n): n is number => n != null,
+    )
+    const residual: ResidualLandParams = { ...RESIDUAL_DEFAULTS, areaNova: areaCVal }
+    return computeLaudo({
+      ...buildComputeOptions({
+        areaConstruida: areaCVal,
+        areaTerreno: areaTVal,
+        endereco: endereco.trim() || enderecoAlvo,
+        vagas: numOrUndef(vagas) ?? null,
+        precoPretendido: numOrUndef(pretendido) ?? null,
+        homogeneizacaoAtiva,
+        estadoConservacao: estado || null,
+        propertyType: tipologia || null,
+      }),
+      comparaveis: acmComps,
+      fatoresLiquidez: fatores,
+      raio: radiusMeters,
+      residual,
+    })
+  }
+
+  // Prévia de transparência (headline em faixa + avisos + guard-rail) — AC5/AC6.
+  const preview = podeGerar && areaC && areaT ? buildComputation(areaC, areaT) : null
+
   async function handleGerar() {
     setError(null)
     if (!areaC || !areaT) {
@@ -109,19 +154,9 @@ export function EntregavelExportSheet({
     }
     setIsGenerating(true)
     try {
-      const acmComps = toAcmComparables(comparaveis as unknown as AcmRpcRow[])
-      const fatores = [numOrUndef(f1), numOrUndef(f2), numOrUndef(f3), numOrUndef(f4)].filter(
-        (n): n is number => n != null,
-      )
       const residual: ResidualLandParams = { ...RESIDUAL_DEFAULTS, areaNova: areaC }
 
-      const computation = computeLaudo({
-        target: { areaConstruida: areaC, areaTerreno: areaT },
-        comparaveis: acmComps,
-        fatoresLiquidez: fatores,
-        raio: radiusMeters,
-        residual,
-      })
+      const computation = buildComputation(areaC, areaT)
 
       const source: LaudoSourceComparable[] = comparaveis.map(comparavelToLaudoSource)
 
@@ -185,6 +220,7 @@ export function EntregavelExportSheet({
 
   const field = 'flex-1'
   const label = 'block text-[10px] uppercase tracking-wide text-gray-500 mb-1'
+  const selectCls = 'w-full h-9 px-3 text-sm border border-gray-300 rounded-lg bg-white'
   const { Icon } = meta
 
   return (
@@ -272,6 +308,53 @@ export function EntregavelExportSheet({
             </div>
           </div>
 
+          {/* Story 9.23 — ficha do alvo (opcionais): estado A–F + tipologia R5 */}
+          <div className="flex gap-2">
+            <div className={field}>
+              <span className={label}>Estado do imóvel (régua A–F)</span>
+              <select
+                value={estado}
+                onChange={(e) => setEstado(e.target.value as EstadoConservacao | '')}
+                className={selectCls}
+              >
+                <option value="">Não informar (faixa conservadora)</option>
+                {ESTADO_CONSERVACAO_OPCOES.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className={field}>
+              <span className={label}>Tipologia do alvo</span>
+              <select
+                value={tipologia}
+                onChange={(e) => setTipologia(e.target.value as TipologiaTipo | '')}
+                className={selectCls}
+              >
+                <option value="">Não informar</option>
+                {TIPOLOGIA_OPCOES.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <p className="text-[10px] text-gray-400 leading-snug">
+            A classificação de tipologia dos comparáveis é parcial até a Story 9.4 — o gate R5 sinaliza a limitação nos avisos.
+          </p>
+
+          <label className="flex items-center gap-2 text-xs text-gray-700">
+            <input
+              type="checkbox"
+              checked={homogeneizacaoAtiva}
+              onChange={(e) => setHomogeneizacaoAtiva(e.target.checked)}
+              className="size-4 rounded border-gray-300"
+            />
+            Homogeneizar fechamentos a valor presente ({FIPEZAP_REFERENCIA_LABEL})
+          </label>
+
           <div>
             <span className={label}>Fatores de liquidez (frações) — exposição · regularização · Capex · liquidez</span>
             <div className="flex gap-2">
@@ -281,6 +364,9 @@ export function EntregavelExportSheet({
               <Input type="number" value={f4} onChange={(e) => setF4(e.target.value)} placeholder="0,04" />
             </div>
           </div>
+
+          {/* Story 9.23 AC5 — transparência pré-download */}
+          {preview && <AcmAvisosPanel computation={preview} />}
 
           {error && (
             <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</p>
