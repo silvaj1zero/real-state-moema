@@ -30,3 +30,8 @@
   score: 9
   status: approved
   path: docs/sessions/2026-07/2026-07-09-acm-p2-fixtures-handoff.md
+- id: 2026-07-10-acm-pos-h3-handoff
+  date: 2026-07-10
+  project: real-state-moema-acm
+  score: 9
+  path: docs/sessions/2026-07/2026-07-10-acm-pos-h3-handoff.md

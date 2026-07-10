@@ -197,12 +197,19 @@ export function buildResumoModel(
     valorFechamento: s.valorFechamento,
   }))
 
-  // --- Faixa (5 cards) — ACM_RESUMO pág. 1
+  // --- Faixa capa (H-3: Mercado X–Y ref Z; residual só laudo técnico Sec. 8) ---
+  const h = computation.headline
+  const mercadoFaixa = h.mercado.min !== h.mercado.max ? h.mercado : null
   const faixa: ResumoFaixaItem[] = [
     { rotulo: 'Pretendido', valor: input.precoPretendido ?? null },
     { rotulo: 'Anúncio real', valor: input.precoPedidoReal ?? null },
-    { rotulo: 'Mercado (ACM)', valor: computation.valorMercado },
-    { rotulo: 'Co-âncora terreno', valor: computation.coAncoraTerreno },
+    {
+      rotulo: mercadoFaixa
+        ? `Mercado (ref. ${formatBRL(h.referencia.valorMercado)})`
+        : 'Mercado (ACM)',
+      valor: mercadoFaixa ? null : h.referencia.valorMercado,
+      faixa: mercadoFaixa,
+    },
     { rotulo: 'Fechamento', valor: null, faixa: metaFechamento, destaque: true },
   ]
 

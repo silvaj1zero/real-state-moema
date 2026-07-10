@@ -54,25 +54,28 @@ describe('buildResumoModel — header e ficha', () => {
   it('Score do alvo = B', () => expect(m.ficha.score).toBe('B'))
 })
 
-describe('buildResumoModel — faixa (5 cards)', () => {
+describe('buildResumoModel — faixa capa H-3', () => {
   const m = buildResumoModel(COMPUTATION, SOURCE, INPUT)
 
-  it('5 itens na ordem da referência', () => {
-    expect(m.faixa.map((f) => f.rotulo)).toEqual([
-      'Pretendido',
-      'Anúncio real',
-      'Mercado (ACM)',
-      'Co-âncora terreno',
-      'Fechamento',
-    ])
+  it('4 cards sem co-âncora na capa', () => {
+    expect(m.faixa).toHaveLength(4)
+    expect(m.faixa[0].rotulo).toBe('Pretendido')
+    expect(m.faixa[1].rotulo).toBe('Anúncio real')
+    expect(m.faixa[2].rotulo).toMatch(/^Mercado/)
+    expect(m.faixa[3].rotulo).toBe('Fechamento')
+    expect(m.faixa.map((f) => f.rotulo).join('|')).not.toMatch(/Co-âncora/)
   })
-  it('Mercado (ACM) = valor de mercado computado', () =>
-    expect(m.faixa[2].valor).toBe(COMPUTATION.valorMercado))
-  it('Co-âncora = residual computado', () =>
-    expect(m.faixa[3].valor).toBe(COMPUTATION.coAncoraTerreno))
+  it('Mercado em faixa (headline) ou ponto de referência', () => {
+    if (m.faixa[2].faixa) {
+      expect(m.faixa[2].valor).toBeNull()
+      expect(m.faixa[2].faixa).toEqual(COMPUTATION.headline.mercado)
+    } else {
+      expect(m.faixa[2].valor).toBe(COMPUTATION.headline.referencia.valorMercado)
+    }
+  })
   it('Fechamento usa faixa (meta do consultor) e é destaque', () => {
-    expect(m.faixa[4].faixa).toEqual({ min: 10_000_000, max: 10_500_000 })
-    expect(m.faixa[4].destaque).toBe(true)
+    expect(m.faixa[3].faixa).toEqual({ min: 10_000_000, max: 10_500_000 })
+    expect(m.faixa[3].destaque).toBe(true)
   })
 })
 
@@ -145,11 +148,11 @@ describe('buildResumoModel — robustez (n<5, campos NULL)', () => {
     const m = buildResumoModel(compPequeno, sourcePequeno, inputMin)
     expect(m.topComparaveis.length).toBeLessThanOrEqual(2)
     expect(m.conclusao).toHaveLength(6)
-    expect(m.faixa).toHaveLength(5)
+    expect(m.faixa).toHaveLength(4)
   })
-  it('co-âncora null vira "—" no card e não aparece no bullet', () => {
+  it('sem residual: capa sem card co-âncora; bullet sem co-âncora', () => {
     const m = buildResumoModel(compPequeno, sourcePequeno, inputMin)
-    expect(m.faixa[3].valor).toBeNull()
+    expect(m.faixa.map((f) => f.rotulo).join('|')).not.toMatch(/Co-âncora/)
     expect(m.sintese.bullets.some((b) => b.includes('co-âncora'))).toBe(false)
   })
   it('terreno NULL → coluna de terreno "—" (null) no Top', () => {
@@ -166,6 +169,6 @@ describe('buildResumoModel — robustez (n<5, campos NULL)', () => {
   })
   it('meta de fechamento default = faixaFechamento computada', () => {
     const m = buildResumoModel(compPequeno, sourcePequeno, inputMin)
-    expect(m.faixa[4].faixa).toEqual(compPequeno.faixaFechamento)
+    expect(m.faixa[3].faixa).toEqual(compPequeno.faixaFechamento)
   })
 })
