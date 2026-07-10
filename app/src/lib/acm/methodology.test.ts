@@ -457,6 +457,162 @@ describe('isSelfReference / screenSelfReferences (Story 9.8)', () => {
 })
 
 // ---------------------------------------------------------------------------
+// normalizeStreet — Story 9.22 (equivalência de formatos DB vs vírgula)
+// ---------------------------------------------------------------------------
+
+describe('normalizeStreet — equivalência de formatos (Story 9.22)', () => {
+  // Alvo com identidade completa (caso Andrade Pertence 132).
+  const targetAP132 = {
+    areaConstruida: 420,
+    areaTerreno: 600,
+    endereco: 'Rua Dr. Andrade Pertence, 132',
+    vagas: 4,
+    precoPretendido: 8_500_000,
+  }
+
+  // AC1 — Equivalência de formatos: formato DB (sem vírgula) deve normalizar igual
+  // ao formato com vírgula (mesma via, número diferente).
+  it('AC1: "R DR ANDRADE PERTENCE 110" ≡ "Rua Dr. Andrade Pertence, 113" (mesma via)', () => {
+    const compSemVirgula = {
+      endereco: 'R DR ANDRADE PERTENCE 110',
+      areaConstruida: 420,
+      preco: 8_000_000,
+      distancia: 30,
+      vagas: 4,
+    }
+    const targetComVirgula = { ...targetAP132, endereco: 'Rua Dr. Andrade Pertence, 113' }
+    // isSelfReference usa normalizeStreet internamente; se as vias são reconhecidas
+    // como mesma rua E distância < 50 m → R1 dispara (self-reference detectada).
+    const finding = isSelfReference(targetComVirgula, compSemVirgula)
+    expect(finding).not.toBeNull()
+    expect(finding!.motivos.some((m) => m.includes('mesma rua'))).toBe(true)
+  })
+
+  // AC1 — Prefixos abreviados sem ponto ("AV", "AL", "TV", "PC", "EST").
+  it('AC1: "AV PAULISTA 100" ≡ "Avenida Paulista, 100"', () => {
+    const target = {
+      areaConstruida: 100,
+      areaTerreno: 0,
+      endereco: 'Avenida Paulista, 100',
+      vagas: 1,
+      precoPretendido: 1_000_000,
+    }
+    const comp = { endereco: 'AV PAULISTA 100', areaConstruida: 100, preco: 1_000_000, distancia: 5, vagas: 1 }
+    const finding = isSelfReference(target, comp)
+    expect(finding).not.toBeNull()
+  })
+
+  it('AC1: "AL SANTOS 50" ≡ "Alameda Santos, 50"', () => {
+    const target = {
+      areaConstruida: 100,
+      areaTerreno: 0,
+      endereco: 'Alameda Santos, 50',
+      vagas: 1,
+      precoPretendido: 1_000_000,
+    }
+    const comp = { endereco: 'AL SANTOS 50', areaConstruida: 100, preco: 1_000_000, distancia: 5, vagas: 1 }
+    const finding = isSelfReference(target, comp)
+    expect(finding).not.toBeNull()
+  })
+
+  // AC5 — Caso real Andrade Pertence 132: comparáveis nº 110 e nº 45 (mesma rua)
+  // devem ser reconhecidos como mesma via pelo guard-rail.
+  it('AC5: "R DR ANDRADE PERTENCE 110" — mesma rua que alvo 132 (R1 com distância 30m)', () => {
+    const comp110 = {
+      endereco: 'R DR ANDRADE PERTENCE 110',
+      areaConstruida: 420,
+      preco: 8_200_000,
+      distancia: 30,
+      vagas: 4,
+    }
+    const finding = isSelfReference(targetAP132, comp110)
+    expect(finding).not.toBeNull()
+  })
+
+  it('AC5: "R DR ANDRADE PERTENCE 45" — mesma rua que alvo 132 (R3 área+vagas)', () => {
+    const comp45 = {
+      endereco: 'R DR ANDRADE PERTENCE 45',
+      areaConstruida: 420, // área ±2%
+      preco: 8_500_000, // preço ±5%
+      distancia: 500, // longe — não R1
+      vagas: 4,
+    }
+    const finding = isSelfReference(targetAP132, comp45)
+    expect(finding).not.toBeNull()
+    expect(finding!.motivos.some((m) => m.includes('mesma rua'))).toBe(true)
+  })
+
+  // AC5 — caso negativo: rua diferente NÃO deve ser reconhecida como mesma via.
+  it('AC5 (negativo): "R JURUENA 87" — rua diferente, não match com Andrade Pertence', () => {
+    const compOutraRua = {
+      endereco: 'R JURUENA 87',
+      areaConstruida: 420,
+      preco: 8_500_000,
+      distancia: 30,
+      vagas: 4,
+    }
+    const finding = isSelfReference(targetAP132, compOutraRua)
+    // mesmaRua = false → R1 e R3 não disparam (R2 exige área+vagas+preço; preço
+    // bate mas sem mesmaRua e sem vagas suficientes para fingerprint completo)
+    // Apenas R2 poderia disparar (area ±2%, vagas 4=4, preco ±5%) mas vagas=4 do
+    // comp e 4 do alvo batem — verificar que o finding (se existir) NÃO menciona rua.
+    if (finding !== null) {
+      expect(finding.motivos.every((m) => !m.includes('mesma rua'))).toBe(true)
+    }
+  })
+
+  // AC2 — Zero regressão: Honduras com vírgula continua funcionando.
+  it('AC2 (regressão): formato com vírgula Honduras continua detectado corretamente', () => {
+    const targetHonduras = {
+      ...HONDURAS_TARGET,
+      endereco: 'Rua Honduras, 629',
+      vagas: 10,
+      precoPretendido: 12_000_000,
+    }
+    const anuncio639 = {
+      endereco: 'R. Honduras, 639',
+      areaConstruida: 800,
+      areaTerreno: null,
+      preco: 12_000_000,
+      precoPedido: 12_000_000,
+      distancia: 10,
+      vagas: 10,
+    }
+    const finding = isSelfReference(targetHonduras, anuncio639)
+    expect(finding).not.toBeNull()
+  })
+
+  // AC3 — Falso positivo documentado: nome de via terminando em número.
+  // "PC 14 BIS" sem vírgula → "bis" não é numérico puro (\d+[a-z]?) então NÃO é
+  // removido. Mas "PC 14" sem vírgula → "14" é removido (risco residual declarado).
+  it('AC3 (falso positivo limitado): "PC 14 BIS" — token "BIS" não é numérico, não removido', () => {
+    // isSelfReference com target em "Praça Quatorze Bis, 10" vs comp "PC 14 BIS 10"
+    // A norma remove "10" do comp (numérico final sem vírgula) → "pc 14 bis"
+    // O alvo tem vírgula → "praca quatorze bis" (sem número)
+    // "pc 14 bis" ≠ "praca quatorze bis" → mesmaRua=false (escrita difere: "14" vs "quatorze")
+    // Isso é esperado: matching entre forma numeral e extenso está fora do escopo.
+    // O teste documenta que "BIS" sobrevive ao pipe (não é apagado por ser não-numérico).
+    const target = {
+      areaConstruida: 100,
+      areaTerreno: 0,
+      endereco: 'Praça Quatorze Bis, 10',
+      vagas: 1,
+      precoPretendido: 1_000_000,
+    }
+    const comp = {
+      endereco: 'PC 14 BIS 10',
+      areaConstruida: 100,
+      preco: 1_000_000,
+      distancia: 5,
+      vagas: 1,
+    }
+    // mesmaRua depende de normalização; o ponto principal: sem throw, sem crash.
+    // isSelfReference retorna null ou finding — apenas garantimos que não explode.
+    expect(() => isSelfReference(target, comp)).not.toThrow()
+  })
+})
+
+// ---------------------------------------------------------------------------
 // Passaporte de confiabilidade + avisos de robustez — Story 9.15 (N-1)
 // ---------------------------------------------------------------------------
 

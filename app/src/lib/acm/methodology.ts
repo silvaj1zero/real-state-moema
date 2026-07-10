@@ -624,16 +624,44 @@ export const SELF_REFERENCE_TOLERANCE = {
 const STREET_PREFIX_RE =
   /^(rua|r\.?|avenida|av\.?|alameda|al\.?|travessa|tv\.?|praca|pc\.?|estrada|est\.?)\s+/
 
-/** Nome da via normalizado: sem acentos, sem prefixo de logradouro, sem número. */
+/**
+ * Nome da via normalizado: sem acentos, sem pontuação de abreviação, sem prefixo
+ * de logradouro, sem número de porta (quando o endereço não usa vírgula como
+ * separador).
+ *
+ * Pipeline (Story 9.22 — v2):
+ *   1. lowercase
+ *   2. NFD + remove diacríticos
+ *   3. remove pontos (pontuação de abreviação: "Dr." → "Dr", "Av." → "Av")
+ *   4. split(',')[0]  — cobre formato "Rua X, nº" (número após vírgula descartado)
+ *   5. trim + remove prefixo de logradouro
+ *   6. SOMENTE quando o endereço original não continha vírgula: remove token
+ *      final numérico com sufixo de letra opcional (ex.: "110", "45A") — esse é
+ *      o número da porta embutido no formato do banco ("R DR X 110").
+ *
+ * Risco residual documentado (AC3): vias cujo NOME termina em número grafado como
+ * dígito sem vírgula (ex.: "PC 14 BIS" sem vírgula) perderão o token "BIS" apenas
+ * se ele for numérico — o padrão é \d+[a-z]? então "BIS" não é afetado. Vias com
+ * número puro no nome (ex.: "Praça 14" sem vírgula, grafada "PC 14") podem perder o
+ * token "14". R1 ainda exige distancia < 50 m e R3 exige área + vagas/preço; a
+ * exclusão indevida requer coincidência múltipla (risco residual aceito, Art. IV).
+ */
 function normalizeStreet(endereco: string): string {
-  return endereco
+  const temVirgula = endereco.includes(',')
+  const base = endereco
     .toLowerCase()
     .normalize('NFD')
-    .replace(/\p{M}/gu, '')
+    .replace(/\p{M}/gu, '') // remove diacríticos
+    .replace(/\./g, '') // remove pontos de abreviação ("dr." → "dr", "r." → "r")
     .split(',')[0]
     .trim()
     .replace(STREET_PREFIX_RE, '')
     .trim()
+
+  if (temVirgula) return base
+
+  // Formato sem vírgula: número da porta está embutido no final ("R DR X 110")
+  return base.replace(/\s+\d+[a-z]?$/, '').trim()
 }
 
 /**
@@ -1264,21 +1292,14 @@ export function coletarAvisos(inp: AvisosInputs): AvisoAcm[] {
     )
   }
 
-  // same_street_missing_due_normalization — gap conhecido do guard-rail 9.8
-  if (target.endereco != null) {
-    const ruaAlvo = normalizeStreet(target.endereco)
-    const alvoTemVirgula = target.endereco.includes(',')
-    const suspeitos = aceitos.filter(
-      (c) => normalizeStreet(c.endereco) === ruaAlvo && c.endereco.includes(',') !== alvoTemVirgula,
-    )
-    if (suspeitos.length > 0) {
-      push(
-        'same_street_missing_due_normalization',
-        'info',
-        `Mesma rua do alvo com formato de endereço divergente (${suspeitos.length}): revisar guard-rail 9.8 (vírgula/normalização).`,
-      )
-    }
-  }
+  // same_street_missing_due_normalization — REMOVIDO em Story 9.22
+  // O aviso foi criado como sentinela para o gap de normalização do guard-rail 9.8
+  // (formatos sem vírgula, como "R DR X 110", não batiam com formatos com vírgula).
+  // Story 9.22 corrigiu normalizeStreet() para unificar os dois formatos; o aviso
+  // passou a ser morto (never fires quando a normalização bate) ou enganoso (dispara
+  // para comparáveis legítimos de mesma via com formato diferente do alvo).
+  // Decisão: remover. Regra KISS: validator que nunca dispara em 90d é candidato a
+  // arquivamento; aqui a causa raiz foi eliminada, não apenas o sintoma. (AC4/9.22)
 
   // target_condition_unconfirmed — ficha/estado do alvo ausente (cruza 9.14)
   if (!inp.estadoAlvoConfirmado) {
