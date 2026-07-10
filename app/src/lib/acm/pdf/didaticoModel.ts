@@ -177,6 +177,16 @@ export function buildDidaticoModel(
   const nTotal = comparaveis.length
   const topN = input.topNValidacao ?? 10
 
+  // H-4: mercado no formato H-3 "R$ X–Y (referência Z)" via headline — nunca o
+  // ponto do cenário amplo (methodology.headlineFaixa, decisão 06-Jul).
+  const h = computation.headline
+  const mercadoTexto =
+    h.mercado.min !== h.mercado.max
+      ? `${milhoesCompact(h.mercado.min)}–${milhoesCompact(h.mercado.max)} (referência ${milhoesCompact(
+          h.referencia.valorMercado,
+        )})`
+      : milhoesCompact(h.referencia.valorMercado)
+
   // Pesos REAIS da metodologia (a fórmula explicada = a executada)
   const wC = Math.round(ADHERENCE_WEIGHTS.areaConstruida * 100)
   const wT = Math.round(ADHERENCE_WEIGHTS.areaTerreno * 100)
@@ -289,7 +299,7 @@ export function buildDidaticoModel(
         computation.medianaPrecoM2,
       )}/m²) × ${intMetros(areaC)} × ajuste de Capex (Score ${
         computation.scoreAlvo ?? 'B'
-      }) dá o valor de mercado pela construção: ${milhoesCompact(computation.valorMercado)}.`,
+      }) dá o valor de mercado pela construção — reportado em faixa entre os cenários: ${mercadoTexto}.`,
       terreno: {
         intro: 'R$/m² terreno = valor ÷ área de terreno. Descoberta-chave: esse índice cai conforme o lote cresce (efeito escala):',
         faixas: escala,
@@ -309,9 +319,9 @@ export function buildDidaticoModel(
       sensibilidade: {
         intro: `A mesma estratégia de cálculo é aplicada a 3 recortes (todos / Top 5 / Top 3). A convergência define a faixa final de fechamento.`,
         cenarios,
-        nota: `Convergência: faixa de fechamento de ${milhoesCompact(metaFechamento.min)}–${milhoesCompact(
-          metaFechamento.max,
-        )}.`,
+        nota: `Convergência: mercado em ${mercadoTexto}; faixa de fechamento de ${milhoesCompact(
+          metaFechamento.min,
+        )}–${milhoesCompact(metaFechamento.max)}.`,
       },
       desagio: desagioTxt,
     },

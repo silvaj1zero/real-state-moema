@@ -110,6 +110,14 @@ describe('buildResumoModel — sensibilidade e conclusão', () => {
     ])
   })
   it('conclusão tem 6 linhas', () => expect(m.conclusao).toHaveLength(6))
+  it('valor de mercado da conclusão usa headline em faixa (H-4)', () => {
+    if (COMPUTATION.headline.mercado.min !== COMPUTATION.headline.mercado.max) {
+      expect(m.conclusao[2].valor).toBeNull()
+      expect(m.conclusao[2].faixa).toEqual(COMPUTATION.headline.mercado)
+    } else {
+      expect(m.conclusao[2].valor).toBe(COMPUTATION.headline.referencia.valorMercado)
+    }
+  })
   it('linha de co-âncora cita o lote', () =>
     expect(m.conclusao[3].rotulo).toContain('1.000 m²'))
   it('parecer menciona anúncio recomendado e due diligence', () => {

@@ -217,7 +217,12 @@ export function buildResumoModel(
   const conclusao: ResumoConclusaoRow[] = [
     { rotulo: 'Preço pretendido (proprietária)', valor: input.precoPretendido ?? null },
     { rotulo: 'Preço pedido REAL (anúncio confirmado)', valor: input.precoPedidoReal ?? null },
-    { rotulo: 'Valor de mercado (ACM, via construção)', valor: computation.valorMercado },
+    {
+      // H-4: mesma faixa H-3 do laudo (headline) — nunca o ponto do cenário amplo
+      rotulo: 'Valor de mercado (ACM, via construção)',
+      valor: mercadoFaixa ? null : h.referencia.valorMercado,
+      faixa: mercadoFaixa,
+    },
     {
       rotulo: `Co-âncora de terreno (lote ${intMetros(input.areaTerreno)})`,
       valor: computation.coAncoraTerreno,

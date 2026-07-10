@@ -214,6 +214,14 @@ export function buildDeckModel(
   const metaFechamento = input.metaFechamento ?? computation.faixaFechamento
   const coAncora = computation.coAncoraTerreno
 
+  // H-4: mercado no formato H-3 "R$ X–Y (referência Z)" via headline — nunca o
+  // ponto do cenário amplo (methodology.headlineFaixa, decisão 06-Jul).
+  const h = computation.headline
+  const mercadoTexto =
+    h.mercado.min !== h.mercado.max
+      ? `${faixaMilhoes(h.mercado)} (referência ${milhoes(h.referencia.valorMercado)})`
+      : milhoes(h.referencia.valorMercado)
+
   const topComparaveis: LaudoTopRow[] = computation.top5.map((t, i) => {
     const src = byEndereco.get(t.endereco)
     return {
@@ -347,7 +355,7 @@ export function buildDeckModel(
     },
     sensibilidade: {
       cenarios: sensibilidade,
-      nota: `O número se sustenta por vários ângulos. Convergência em ${faixaMilhoes(
+      nota: `O número se sustenta por vários ângulos. Mercado ${mercadoTexto}. Convergência de fechamento em ${faixaMilhoes(
         metaFechamento,
       )} (com co-âncora de terreno e preço real pedido). O lote firma o piso e reduz o risco de liquidez.`,
     },

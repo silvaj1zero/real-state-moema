@@ -61,6 +61,12 @@ describe('buildDeckModel — consistência com a 8.2 (AC3)', () => {
     expect(m.sensibilidade.cenarios[0].valorMercado).toBe(COMPUTATION.sensibilidade[0].valorMercado)
     expect(m.topComparaveis).toHaveLength(5)
   })
+  it('nota da sensibilidade reporta mercado em faixa H-3 via headline (H-4)', () => {
+    expect(m.sensibilidade.nota).toMatch(/Mercado R\$ /)
+    if (COMPUTATION.headline.mercado.min !== COMPUTATION.headline.mercado.max) {
+      expect(m.sensibilidade.nota).toContain('referência')
+    }
+  })
   it('institucional templado presente', () => {
     expect(m.pauta.length).toBeGreaterThanOrEqual(7)
     expect(m.remaxMundo.length).toBe(3)
@@ -85,6 +91,13 @@ describe('buildDidaticoModel — fórmula = pesos reais (AC2/AC3)', () => {
   })
   it('sensibilidade espelha a 8.2', () => {
     expect(m.parte2.sensibilidade.cenarios[0].valorFechamento).toBe(COMPUTATION.sensibilidade[0].valorFechamento)
+  })
+  it('mercado reportado em faixa H-3 via headline, não ponto (H-4)', () => {
+    expect(m.parte2.construido).toContain('reportado em faixa')
+    expect(m.parte2.sensibilidade.nota).toContain('mercado em')
+    if (COMPUTATION.headline.mercado.min !== COMPUTATION.headline.mercado.max) {
+      expect(m.parte2.construido).toContain('referência')
+    }
   })
 })
 
