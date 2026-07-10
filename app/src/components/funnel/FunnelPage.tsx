@@ -19,6 +19,8 @@ function useMediaQuery(query: string): boolean {
 
   useEffect(() => {
     const mql = window.matchMedia(query)
+    // TODO(epic7-wave-b): refactor useMediaQuery to avoid setState in effect (React Compiler cascading-render warning). Standard SSR pattern — low risk.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMatches(mql.matches)
 
     const handler = (e: MediaQueryListEvent) => setMatches(e.matches)

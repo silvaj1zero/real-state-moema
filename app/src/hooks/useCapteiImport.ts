@@ -4,7 +4,12 @@ import { useState, useCallback } from 'react'
 import Papa from 'papaparse'
 import * as XLSX from 'xlsx'
 import { createClient } from '@/lib/supabase/client'
+import { storeLeadPIIBatch } from '@/lib/vault'
 import { useQueryClient } from '@tanstack/react-query'
+
+// NOTA PROD/LGPD: `leads.telefone`/`email` em claro não existem em PROD (PII cifrada
+// via Vault). A importação cifra a PII pela RPC `fn_store_lead_pii` após inserir o
+// lead. Dedup é por nome (não por telefone). Ver [[project_prod-leads-pii-schema]].
 
 // ---------------------------------------------------------------------------
 // Types
@@ -190,7 +195,7 @@ export function useCapteiImport(consultantId: string | null) {
     // Fetch existing leads for duplicate detection
     const { data: existingLeads } = await supabase
       .from('leads')
-      .select('id, nome, telefone, edificio_id')
+      .select('id, nome, edificio_id')
       .eq('consultant_id', consultantId)
 
     const existing = existingLeads ?? []
@@ -297,21 +302,35 @@ export function useCapteiImport(consultantId: string | null) {
       const row = toImport[i]
 
       try {
-        const { error: insertError } = await supabase.from('leads').insert({
-          consultant_id: consultantId,
-          edificio_id: row.edificioMatch?.id || null,
-          nome: row.nome,
-          telefone: row.telefone || null,
-          email: row.email || null,
-          origem: 'captei' as const,
-          etapa_funil: 'contato' as const,
-          notas: row.endereco ? `Importado Captei — Endereço: ${row.endereco}` : 'Importado Captei',
-        })
+        // Sem telefone/email em claro (não existem em PROD) — vão p/ o Vault abaixo.
+        const { data: inserted, error: insertError } = await supabase
+          .from('leads')
+          .insert({
+            consultant_id: consultantId,
+            edificio_id: row.edificioMatch?.id || null,
+            nome: row.nome,
+            origem: 'captei' as const,
+            etapa_funil: 'contato' as const,
+            notas: row.endereco ? `Importado Captei — Endereço: ${row.endereco}` : 'Importado Captei',
+          })
+          .select('id')
+          .single()
 
         if (insertError) {
           errors++
           errorDetails.push({ line: row.index + 2, reason: insertError.message })
         } else {
+          // Cifra a PII de contato no Vault (best-effort).
+          const pii: { telefone?: string; email?: string } = {}
+          if (row.telefone) pii.telefone = row.telefone
+          if (row.email) pii.email = row.email
+          if (Object.keys(pii).length > 0) {
+            try {
+              await storeLeadPIIBatch(supabase, inserted.id, pii)
+            } catch (e) {
+              console.warn(`captei import: falha ao cifrar PII do lead ${inserted.id}:`, e)
+            }
+          }
           imported++
         }
       } catch (err) {

@@ -1,9 +1,159 @@
 schema: 1
 story: '7.4'
-gate: CONCERNS
-status_reason: 'Re-gate 2026-05-19: 3 fixes do gate anterior (LOGIC-001/SEC-001/SEC-002) RESOLVED com tests dedicados (23 novos, 455/455 full). Verdict permanece CONCERNS apenas por blockers externos pendentes: BLOCK-001 (Story 7.10 LGPD external counsel) + OBS-001 (AC9 PoC real execution em staging — @devops). Codigo aprovado; deploy producao continua BLOCKED organizacionalmente ate 7.10 Done.'
+gate: PASS_WITH_WAIVER
+status_reason: 'Re-gate 2026-05-26 (post-PoC schema-vs-code findings): 1 critical bug (SCHEMA-001 Actor.openRequestQueue vs Crawlee RequestQueue.open) RESOLVED em 894dc9e. 3 latent bugs (SCHEMA-002/003/004) RESOLVED por migration 021 (enum mercadolivre + raw_data + cnpj_anunciante). Gate updated com nova categoria schema_vs_code_coverage. Re-gate 2026-05-24 ainda valido para BLOCK-001 (MVP-LOCAL-WAIVER) e OBS-001 (DEFERRED-TO-ACTIVATION). Other low-sev items (TEST-001/PERF-001/LOGIC-002/MNT-001/MNT-002) remain tech-debt acceptable. Cloud/multi-user deploy continues blocked pending ADR §4/§5 trigger re-evaluation.'
 reviewer: 'Quinn'
-updated: '2026-05-19T04:35:00Z'
+updated: '2026-05-26T00:00:00Z'
+
+reGate_20260526:
+  date: '2026-05-26'
+  reviewer: '@qa (Quinn)'
+  previousVerdict: PASS_WITH_WAIVER
+  newVerdict: PASS_WITH_WAIVER
+  newVerdictReason: >
+    PoC local executado 2026-05-26 (founder + admin teste) revelou 4 bugs latentes
+    nao detectados pelo gate original (2026-05-19) nem pelos re-gates 2026-05-24:
+    o gate verificou TypeScript compila + tests passam, mas NAO verificou schema DB
+    contra writes do crawler nem rodou o crawler real. Bug critico SCHEMA-001
+    (Actor.openRequestQueue passthrough) impedia o crawler de processar fila —
+    fixed em 894dc9e. Bugs SCHEMA-002/003/004 (enum mercadolivre faltando + colunas
+    raw_data + cnpj_anunciante inexistentes) so apareceriam em prod ou seed —
+    fixed via migration 021. Verdict mantem PASS_WITH_WAIVER (sem regressao em
+    AC1-AC10, sem reabertura de BLOCK-001/OBS-001), mas NOVA CATEGORIA de check
+    adicionada: schema_vs_code_coverage. Root cause do gate fraco documentado.
+  fixesValidated:
+    SCHEMA-001:
+      status: RESOLVED
+      commit: 894dc9e
+      notes: 'apps/crawlers/mercadolivre-imoveis/src/main.ts:182 — substituido RequestQueue.open() (crawlee) por Actor.openRequestQueue() + passthrough no createPortalCrawler override. Antes: crawler instanciava nova queue alheia ao Actor, requests enqueued nunca eram processados (fila vazia para o crawler). Depois: queue bind ao Actor garante consumo. Detectado quando crawler local rodou contra ML real e bateu em 403 anti-bot (esperado per OBS-001) — sinal de que a queue agora funciona.'
+    SCHEMA-002:
+      status: RESOLVED
+      migration: 021
+      notes: 'ALTER TYPE portal_scraping ADD VALUE IF NOT EXISTS mercadolivre. Antes: seed sintetico e crawler writes falhavam com invalid input value for enum portal_scraping. Migration idempotente (PG12+).'
+    SCHEMA-003:
+      status: RESOLVED
+      migration: 021
+      notes: 'ADD COLUMN IF NOT EXISTS raw_data JSONB DEFAULT {} em scraped_listings. Crawler persistListing escreve raw_data (HTML bruto + JSON-LD + telefone mascarado + whatsapp link) para debug forensico de drift de selector e reprocessing offline. Default {} preserva retrocompat com rows Epic 6.'
+    SCHEMA-004:
+      status: RESOLVED
+      migration: 021
+      notes: 'ADD COLUMN IF NOT EXISTS cnpj_anunciante TEXT em scraped_listings + idx parcial. Crawler escreve CNPJ extraido por parseDetail.ts regex; consumido pela Story 7.5 CNAE lookup (Receita Federal → classify imobiliaria). Sem CHECK constraint — normalizacao na Story 7.5.'
+  gate_quality_root_cause:
+    finding: >
+      QA gate original (2026-05-19) e re-gates 2026-05-24 nao detectaram SCHEMA-001/002/003/004
+      porque automated_checks cobriam apenas: TypeScript strict, lint, full suite (432-455 tests).
+      Nenhum check correlacionou writes do crawler (main.ts persistListing INSERT/UPSERT) com
+      schema DB real. Tests usam mocks de SupabaseClient. PoC era doc-only (OBS-001).
+      Resultado: 4 bugs entraram em "InProgress → Done" sem reproducao real.
+    fix: >
+      Adicionada nova categoria de check schema_vs_code_coverage (ver abaixo). Future gates
+      de stories que persistem em DB devem incluir essa categoria como obrigatoria. Tracker
+      em docs/architecture/adrs/ADR-EPIC7-QA-SCHEMA-COVERAGE.md (a criar quando relevante).
+
+schema_vs_code_coverage:
+  category_added: '2026-05-26'
+  rationale: 'Tests com mocks DB passam mesmo quando schema real diverge do codigo. Gate deve correlacionar writes/reads do codigo com schema DB autoritativo (supabase/migrations/).'
+  applied_to_story_7_4:
+    crawler_writes:
+      file: apps/crawlers/mercadolivre-imoveis/src/main.ts
+      function: persistListing
+      writes_checked:
+        - column: portal
+          db_status: OK
+          notes: enum portal_scraping inclui mercadolivre (migration 021)
+        - column: external_id
+          db_status: OK
+        - column: url
+          db_status: OK
+        - column: nome_anunciante
+          db_status: OK
+          notes: existe desde Epic 6 migration 006
+        - column: telefone_anunciante
+          db_status: OK
+          notes: existe desde Epic 6 migration 006 (PF mascarado)
+        - column: whatsapp_anunciante
+          db_status: OK
+          notes: existe desde Epic 6 migration 006
+        - column: creci_anunciante
+          db_status: OK
+          notes: existe desde Epic 6 migration 006
+        - column: cnpj_anunciante
+          db_status: OK
+          notes: adicionado via migration 021
+        - column: home_flags
+          db_status: OK
+          notes: existe desde Epic 7 migration 008
+        - column: raw_data
+          db_status: OK
+          notes: adicionado via migration 021
+        - column: classification
+          db_status: OK
+          notes: existe desde Epic 7 migration 008
+        - column: classification_confidence
+          db_status: OK
+        - column: classification_signals
+          db_status: OK
+      conflict: 'none — todos os writes do persistListing agora alinhados com schema apos migration 021'
+    enum_usage:
+      file: apps/crawlers/mercadolivre-imoveis/src/main.ts
+      enum_values_used:
+        - portal_scraping.mercadolivre
+      db_status: OK
+      notes: 'Migration 021 adiciona mercadolivre ao enum'
+  future_application:
+    rule: 'Toda story que adiciona writes/reads em tabelas Supabase deve incluir bloco schema_vs_code_coverage no gate antes de PASS.'
+    automation_candidate: >
+      Script futuro (scripts/qa/validate-schema-vs-code.js) que analisa AST do crawler/edge
+      function e cruza com supabase/migrations/ — gera draft do bloco para o gate. Out of
+      scope desta sessao; tech-debt anotado.
+
+reGate_20260524:
+  date: '2026-05-24'
+  reviewer: '@qa (Quinn)'
+  previousVerdict: CONCERNS
+  newVerdict: PASS_WITH_WAIVER
+  newVerdictReason: >
+    MVP-LOCAL-WAIVER applied. BLOCK-001 already RESOLVED-BY-WAIVER. OBS-001
+    re-evaluated under MVP-LOCAL: single user, local execution, low volume,
+    no SLA — real-batch PoC acceptable as DEFERRED-TO-ACTIVATION (first-use
+    moment becomes the empirical test; anti-bot/JSON-LD/CU discoveries
+    handled operationally when they happen). LOGIC-001/SEC-001/SEC-002 fixes
+    from re-gate 2026-05-19 still RESOLVED (cap-per-bairro module + HMAC-SHA256
+    webhook + trigger shared-secret). No regression in PASS items.
+    storyStatusTransition: 'InReview -> Done'.
+  ac_status_updates:
+    OBS-001: 'DEFERRED-TO-ACTIVATION — real-batch validation acceptable at first-use moment under MVP-LOCAL. If MercadoLivre anti-bot triggers at runtime, founder + Luciana handle operationally. Reinstated as hard prerequisite if any ADR §4 Constraint 3 trigger fires (cloud, multi-user, >100 leads/mo, public endpoint).'
+  remainingItemsForRevisit:
+    - 'OBS-001 real PoC — reinstated on §4 Constraint 3 trigger'
+    - 'TEST-001 real ML snapshots — Wave B tech-debt'
+    - 'PERF-001 Crawlee concurrency assertion — Wave B'
+    - 'LOGIC-002 upsert+update consolidation — Wave B'
+    - 'MNT-001 numeric filters URL wiring — Wave B'
+    - 'MNT-002 userData.bairroCount dead code cleanup — minor'
+  mvp_local_acceptance: >
+    Under MVP-LOCAL (founder decision 2026-05-24), MercadoLivre crawler is
+    operationally Done for single-user local-server scope. The integration
+    (Apify dispatch + webhook + cap-per-bairro + classify + persist) is
+    code-complete with HMAC security in place. Activation is a runtime event
+    (founder enables MERCADOLIVRE_TRIGGER_SECRET + Apify Actor deploy +
+    first crawl). If anti-bot or selector drift surface, they are handled at
+    that moment. Any §4 Constraint 3 trigger auto-voids the waiver and
+    reimposes BLOCK-001 + OBS-001 as hard prerequisites.
+
+waivers:
+  - id: MVP-LOCAL-WAIVER
+    date: '2026-05-24'
+    authorized_by: 'Founder (Zero)'
+    ac_affected: AC1-AC8
+    scope: 'MVP-local single-user'
+    constraints:
+      - 'Local server only — no public IP, no cloud deploy'
+      - 'No external data sharing'
+      - 'Re-evaluation mandatory before prod/multi-user/cloud/>100 leads/month'
+    references:
+      - 'docs/architecture/adrs/ADR-EPIC7-MVP-LOCAL-WAIVER.md'
+      - 'docs/qa/gates/7.10-lgpd-foundation.yml'
+    resolves: ['BLOCK-001']
 
 reGate:
   date: '2026-05-19'
@@ -35,8 +185,10 @@ top_issues:
     severity: critical
     category: compliance
     ac: AC1-AC8
+    status: RESOLVED-BY-WAIVER
     finding: 'DEPLOY GATE: Story 7.10 (LGPD Foundation — LIA counsel + cifragem + opt-out + audit log) ainda nao Done. Story 7.4 captura telefone_anunciante (PF mascarado) + nome_anunciante e persiste em scraped_listings. Sem LIA aprovada e cifragem em repouso, deploy producao = violacao LGPD.'
     suggested_action: 'NAO promover a producao ate Story 7.10 atingir Done. Implementacao + smoke staging permitidos com flag privacy-mock; producao bloqueada. Reforcar pre-push hook em @devops.'
+    resolution: 'RESOLVED-BY-WAIVER 2026-05-24 — MVP-LOCAL-WAIVER (ADR-EPIC7-MVP-LOCAL-WAIVER). Single-user / local-server scope. Cloud/multi-user deploy permanece bloqueado per ADR triggers; LGPD obligations themselves remain in force (controles 7.10 ativos: vault, audit log, opt-out, anonymize).'
   - id: 'SEC-001'
     severity: medium
     category: security

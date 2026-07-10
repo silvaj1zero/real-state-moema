@@ -1,5 +1,6 @@
 import { redirect, notFound } from 'next/navigation'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { getLeadPII } from '@/lib/vault'
 import { HomeStageScreen } from '@/components/home-staging'
 
 interface PageProps {
@@ -15,13 +16,17 @@ export default async function HomeStagingPage({ params }: PageProps) {
   } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
+  // PII cifrada: `leads.telefone` não existe em claro em PROD. Decifra via Vault
+  // (caminho legítimo + audit log). Ver [[project_prod-leads-pii-schema]].
   const { data: lead, error } = await supabase
     .from('leads')
-    .select('id, nome, telefone, consultant_id, edificio_id, edificios(id, nome, endereco)')
+    .select('id, nome, consultant_id, edificio_id, edificios(id, nome, endereco)')
     .eq('id', leadId)
     .single()
 
   if (error || !lead) notFound()
+
+  const telefone = await getLeadPII(supabase, lead.id, 'telefone').catch(() => null)
 
   const edificio = (lead as Record<string, unknown>).edificios as {
     id: string
@@ -45,7 +50,7 @@ export default async function HomeStagingPage({ params }: PageProps) {
     <HomeStageScreen
       leadId={lead.id}
       leadNome={lead.nome}
-      telefone={lead.telefone}
+      telefone={telefone}
       edificioEndereco={edificio?.endereco || 'Endereço não cadastrado'}
       edificioTipologia={tipologia}
       consultantId={lead.consultant_id}

@@ -18,6 +18,23 @@ import {
 } from '@supabase/supabase-js'
 
 // ---------------------------------------------------------------------------
+// Block detection (Story 7.12 AC4)
+// ---------------------------------------------------------------------------
+
+/**
+ * Story 7.12 — HTTP status que indicam bloqueio anti-bot (Cloudflare):
+ * 403 (Forbidden por reputacao de ASN) e 503 (challenge "just a moment").
+ * Usados para medir a taxa de bloqueio por portal antes/depois do proxy
+ * residencial (meta: < 15% nos alvos residenciais).
+ */
+export const BLOCK_STATUS_CODES = [403, 503] as const
+
+/** True se o status code indica bloqueio anti-bot (403/503). */
+export function isBlockStatus(code: number | null | undefined): boolean {
+  return code === 403 || code === 503
+}
+
+// ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
@@ -188,6 +205,7 @@ export class Telemetry {
 
   private requestsFinished = 0
   private requestsFailed = 0
+  private requestsBlocked = 0
   private durationsMs: number[] = []
 
   constructor(opts: TelemetryOptions = {}) {
@@ -229,6 +247,7 @@ export class Telemetry {
     this.startedAt = startedAt
     this.requestsFinished = 0
     this.requestsFailed = 0
+    this.requestsBlocked = 0
     this.durationsMs = []
     return id
   }
@@ -252,6 +271,11 @@ export class Telemetry {
       return
     }
     this.requestsFinished += 1
+    // Story 7.12 AC4 — conta 403/503 como bloqueio (mesmo quando o request
+    // "completa" com status de bloqueio em vez de lancar excecao).
+    if (isBlockStatus(statusCode)) {
+      this.requestsBlocked += 1
+    }
     if (typeof durationMs === 'number' && Number.isFinite(durationMs)) {
       this.durationsMs.push(durationMs)
     }
@@ -281,12 +305,18 @@ export class Telemetry {
     url: string,
     errorMessage: string,
     errorStack?: string | null,
+    opts: { blocked?: boolean } = {},
   ): void {
     if (!this.runId || !this.portal) {
       this.logger('Telemetry.recordFailure called before startRun — ignored')
       return
     }
     this.requestsFailed += 1
+    // Story 7.12 AC4 — falhas por anti-bot (ex.: AntiBotDetectedError no
+    // challenge 503 do Cloudflare) contam como bloqueio para o block-rate.
+    if (opts.blocked) {
+      this.requestsBlocked += 1
+    }
 
     const runId = this.runId
     const portal = this.portal
@@ -313,18 +343,26 @@ export class Telemetry {
     started_at: string | null
     requests_finished: number
     requests_failed: number
+    requests_blocked: number
+    block_rate: number | null
     avg_duration_ms: number | null
   } {
     const avg =
       this.durationsMs.length === 0
         ? null
         : this.durationsMs.reduce((a, b) => a + b, 0) / this.durationsMs.length
+    // Story 7.12 AC4 — taxa de bloqueio sobre o total de tentativas
+    // (sucessos + falhas). null quando nao houve tentativa (evita /0).
+    const attempts = this.requestsFinished + this.requestsFailed
+    const blockRate = attempts === 0 ? null : this.requestsBlocked / attempts
     return {
       run_id: this.runId,
       portal: this.portal,
       started_at: this.startedAt,
       requests_finished: this.requestsFinished,
       requests_failed: this.requestsFailed,
+      requests_blocked: this.requestsBlocked,
+      block_rate: blockRate,
       avg_duration_ms: avg,
     }
   }

@@ -15,6 +15,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 import {
   Telemetry,
+  isBlockStatus,
   type TelemetryClient,
   type CrawlRunInsert,
   type CrawlRequestInsert,
@@ -242,6 +243,79 @@ describe('fetchRunSnapshot', () => {
     const snap = await tel.fetchRunSnapshot()
     expect(snap?.portal).toBe('mercadolivre')
     expect(snap?.status).toBe('running')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Story 7.12 AC4 — block-rate (403/503 + anti-bot)
+// ---------------------------------------------------------------------------
+
+describe('isBlockStatus — Story 7.12 AC4', () => {
+  it.each([
+    [403, true],
+    [503, true],
+    [200, false],
+    [404, false],
+    [429, false],
+    [null, false],
+    [undefined, false],
+  ])('status %s -> %s', (code, expected) => {
+    expect(isBlockStatus(code as number | null | undefined)).toBe(expected)
+  })
+})
+
+describe('block-rate telemetry — Story 7.12 AC4', () => {
+  it('recordRequest com 403/503 conta como bloqueio', async () => {
+    await tel.startRun('zap')
+    tel.recordRequest('https://a.test', 200, 50)
+    tel.recordRequest('https://b.test', 403, 50)
+    tel.recordRequest('https://c.test', 503, 50)
+    await flushMicrotasks()
+
+    const snap = tel.snapshot()
+    expect(snap.requests_finished).toBe(3)
+    expect(snap.requests_blocked).toBe(2)
+    expect(snap.block_rate).toBeCloseTo(2 / 3, 5)
+  })
+
+  it('recordFailure com {blocked:true} (anti-bot 503) conta como bloqueio', async () => {
+    await tel.startRun('vivareal')
+    tel.recordRequest('https://ok.test', 200, 30)
+    tel.recordFailure('https://blocked.test', 'Anti-bot detected (cloudflare-503)', null, {
+      blocked: true,
+    })
+    await flushMicrotasks()
+
+    const snap = tel.snapshot()
+    expect(snap.requests_failed).toBe(1)
+    expect(snap.requests_blocked).toBe(1)
+    // 1 bloqueio / 2 tentativas (1 finished + 1 failed)
+    expect(snap.block_rate).toBeCloseTo(0.5, 5)
+  })
+
+  it('recordFailure sem blocked NAO conta como bloqueio (regressao)', async () => {
+    await tel.startRun('zap')
+    tel.recordFailure('https://x.test', 'parse failed')
+    await flushMicrotasks()
+    const snap = tel.snapshot()
+    expect(snap.requests_failed).toBe(1)
+    expect(snap.requests_blocked).toBe(0)
+    expect(snap.block_rate).toBe(0)
+  })
+
+  it('block_rate null quando nao ha tentativas', async () => {
+    await tel.startRun('zap')
+    expect(tel.snapshot().block_rate).toBeNull()
+  })
+
+  it('startRun reseta o contador de bloqueio', async () => {
+    await tel.startRun('zap')
+    tel.recordRequest('https://a.test', 403, 50)
+    await flushMicrotasks()
+    expect(tel.snapshot().requests_blocked).toBe(1)
+
+    await tel.startRun('vivareal')
+    expect(tel.snapshot().requests_blocked).toBe(0)
   })
 })
 

@@ -4,8 +4,8 @@ import { useState, useTransition } from 'react'
 import {
   submitReviewDecision,
   revealPhone,
-  type ReviewAction,
 } from '@/app/leads/review-queue/actions'
+import type { ReviewAction } from '@/app/leads/review-queue/schemas'
 
 /**
  * ReviewQueueCard — Story 7.8 AC3 + AC4.

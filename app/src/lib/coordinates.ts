@@ -11,19 +11,22 @@ export function parseCoordinates(raw: string | null): { lat: number; lng: number
     return { lng: parseFloat(wktMatch[1]), lat: parseFloat(wktMatch[2]) }
   }
 
-  // WKB hex format — decode for Point geometry only
+  // WKB/EWKB hex format — decode for Point geometry only.
+  // Usa DataView (browser + Node) em vez de Buffer (Node-only) para funcionar
+  // também no client (a call list e o mapa rodam no browser).
   if (/^[0-9a-fA-F]+$/.test(raw) && raw.length >= 42) {
     try {
-      const buf = Buffer.from(raw, 'hex')
-      const endian = buf[0] // 0 = big, 1 = little
-      const readDouble = endian === 1
-        ? (offset: number) => buf.readDoubleLE(offset)
-        : (offset: number) => buf.readDoubleBE(offset)
-      const typeWord = endian === 1 ? buf.readUInt32LE(1) : buf.readUInt32BE(1)
+      const bytes = new Uint8Array(raw.length / 2)
+      for (let i = 0; i < bytes.length; i++) {
+        bytes[i] = parseInt(raw.substring(i * 2, i * 2 + 2), 16)
+      }
+      const view = new DataView(bytes.buffer)
+      const little = view.getUint8(0) === 1 // 0 = big, 1 = little endian
+      const typeWord = view.getUint32(1, little)
       const hasSRID = (typeWord & 0x20000000) !== 0
       const coordOffset = hasSRID ? 9 : 5
-      const lng = readDouble(coordOffset)
-      const lat = readDouble(coordOffset + 8)
+      const lng = view.getFloat64(coordOffset, little)
+      const lat = view.getFloat64(coordOffset + 8, little)
       if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
         return { lat, lng }
       }

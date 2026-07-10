@@ -3,19 +3,89 @@
 import { useState, useRef, useEffect } from 'react'
 import type { ComparavelNoRaio } from '@/lib/supabase/types'
 import type { AcmCalculations } from '@/hooks/useAcm'
-import { Download, Copy, FileSpreadsheet, BookOpen, ChevronDown } from 'lucide-react'
+import { Download, Copy, FileSpreadsheet, BookOpen, ChevronDown, FileText, FileBarChart2, Presentation, GraduationCap, PackageCheck } from 'lucide-react'
 import { formatBRL } from '@/lib/format'
+import { ResumoExportSheet } from './ResumoExportSheet'
+import { LaudoExportSheet } from './LaudoExportSheet'
+import { EntregavelExportSheet } from './EntregavelExportSheet'
+import { PacoteExportSheet } from './PacoteExportSheet'
+import { PlanilhaExportSheet } from './PlanilhaExportSheet'
 
 interface AcmExportMenuProps {
   comparaveis: ComparavelNoRaio[]
   stats: AcmCalculations
   onIncluirDossie?: () => void
+  /** Story 8.3a — contexto p/ gerar o Resumo PDF (coordenadas/raio/endereço do alvo). */
+  lat?: number
+  lng?: number
+  enderecoAlvo?: string
+  radiusMeters?: number
 }
 
-export function AcmExportMenu({ comparaveis, stats, onIncluirDossie }: AcmExportMenuProps) {
+/**
+ * Story 8.1 (AC7) — constrói o CSV de comparáveis (pura, testável sem DOM).
+ * Os 7 campos originais ficam no início (cabeçalho preservado); os campos da
+ * metodologia são anexados ao final (NULL/ausente → célula vazia).
+ */
+export function buildComparaveisCsv(comparaveis: ComparavelNoRaio[]): string {
+  const num = (v: number | null | undefined, d = 2) =>
+    v == null ? '' : v.toFixed(d)
+  const txt = (v: string | number | null | undefined) =>
+    v == null ? '' : String(v)
+
+  const headers = [
+    'Endereço', 'Área m²', 'Preço', 'Preço/m²', 'Tipo', 'Fonte', 'Distância (m)',
+    // Story 8.1 — metodologia
+    'Área constr. m²', 'Área terreno m²', 'R$/m² terreno',
+    'Dorms', 'Suítes', 'Vagas', 'Score', 'SQL cadastral', 'Ano ref.',
+    'Preço pedido', 'Deságio %', 'Status anúncio',
+  ]
+  const rows = comparaveis.map((c) => [
+    `"${c.endereco}"`,
+    c.area_m2.toFixed(2),
+    c.preco.toFixed(2),
+    c.preco_m2.toFixed(2),
+    c.is_venda_real ? 'Venda Real' : 'Anúncio',
+    c.fonte,
+    c.distancia_m.toFixed(1),
+    // Story 8.1 — metodologia
+    num(c.area_construida_m2),
+    num(c.area_terreno_m2),
+    num(c.preco_m2_terreno),
+    txt(c.dormitorios),
+    txt(c.suites),
+    txt(c.vagas),
+    txt(c.score),
+    `"${txt(c.sql_cadastral)}"`,
+    txt(c.ano_referencia),
+    num(c.preco_pedido),
+    num(c.desagio_percent),
+    txt(c.status_anuncio),
+  ])
+
+  return [headers.join(','), ...rows.map((r) => r.join(','))].join('\n')
+}
+
+export function AcmExportMenu({
+  comparaveis,
+  stats,
+  onIncluirDossie,
+  lat,
+  lng,
+  enderecoAlvo,
+  radiusMeters,
+}: AcmExportMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
+  const [resumoOpen, setResumoOpen] = useState(false)
+  const [laudoOpen, setLaudoOpen] = useState(false)
+  const [deckOpen, setDeckOpen] = useState(false)
+  const [didaticoOpen, setDidaticoOpen] = useState(false)
+  const [pacoteOpen, setPacoteOpen] = useState(false)
+  const [planilhaOpen, setPlanilhaOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
+
+  const canResumo = lat != null && lng != null && radiusMeters != null
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -49,18 +119,7 @@ export function AcmExportMenu({ comparaveis, stats, onIncluirDossie }: AcmExport
   }
 
   function handleExportCSV() {
-    const headers = ['Endereço', 'Área m²', 'Preço', 'Preço/m²', 'Tipo', 'Fonte', 'Distância (m)']
-    const rows = comparaveis.map((c) => [
-      `"${c.endereco}"`,
-      c.area_m2.toFixed(2),
-      c.preco.toFixed(2),
-      c.preco_m2.toFixed(2),
-      c.is_venda_real ? 'Venda Real' : 'Anúncio',
-      c.fonte,
-      c.distancia_m.toFixed(1),
-    ])
-
-    const csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n')
+    const csv = buildComparaveisCsv(comparaveis)
     const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -106,6 +165,78 @@ export function AcmExportMenu({ comparaveis, stats, onIncluirDossie }: AcmExport
             <BookOpen className="size-3.5 text-gray-400" />
             Incluir no Dossiê
           </button>
+          {canResumo && (
+            <button
+              onClick={() => {
+                setPacoteOpen(true)
+                setIsOpen(false)
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-[#003DA5] hover:bg-blue-50 transition-colors border-b border-gray-100"
+            >
+              <PackageCheck className="size-3.5 text-[#003DA5]" />
+              Gerar pacote completo (PDF)
+            </button>
+          )}
+          {canResumo && (
+            <button
+              onClick={() => {
+                setResumoOpen(true)
+                setIsOpen(false)
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              <FileText className="size-3.5 text-gray-400" />
+              Gerar Resumo (PDF)
+            </button>
+          )}
+          {canResumo && (
+            <button
+              onClick={() => {
+                setLaudoOpen(true)
+                setIsOpen(false)
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              <FileBarChart2 className="size-3.5 text-gray-400" />
+              Gerar Laudo (PDF)
+            </button>
+          )}
+          {canResumo && (
+            <button
+              onClick={() => {
+                setDeckOpen(true)
+                setIsOpen(false)
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              <Presentation className="size-3.5 text-gray-400" />
+              Gerar Deck (PDF)
+            </button>
+          )}
+          {canResumo && (
+            <button
+              onClick={() => {
+                setDidaticoOpen(true)
+                setIsOpen(false)
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              <GraduationCap className="size-3.5 text-gray-400" />
+              Gerar Didático (PDF)
+            </button>
+          )}
+          {comparaveis.length > 0 && (
+            <button
+              onClick={() => {
+                setPlanilhaOpen(true)
+                setIsOpen(false)
+              }}
+              className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              <FileSpreadsheet className="size-3.5 text-gray-400" />
+              Gerar Planilha (XLSX)
+            </button>
+          )}
           <button
             onClick={handleExportCSV}
             className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
@@ -114,6 +245,78 @@ export function AcmExportMenu({ comparaveis, stats, onIncluirDossie }: AcmExport
             CSV
           </button>
         </div>
+      )}
+
+      {canResumo && (
+        <ResumoExportSheet
+          open={resumoOpen}
+          onClose={() => setResumoOpen(false)}
+          comparaveis={comparaveis}
+          lat={lat as number}
+          lng={lng as number}
+          enderecoAlvo={enderecoAlvo ?? ''}
+          radiusMeters={radiusMeters as number}
+        />
+      )}
+
+      {canResumo && (
+        <LaudoExportSheet
+          open={laudoOpen}
+          onClose={() => setLaudoOpen(false)}
+          comparaveis={comparaveis}
+          lat={lat as number}
+          lng={lng as number}
+          enderecoAlvo={enderecoAlvo ?? ''}
+          radiusMeters={radiusMeters as number}
+        />
+      )}
+
+      {canResumo && (
+        <EntregavelExportSheet
+          kind="deck"
+          open={deckOpen}
+          onClose={() => setDeckOpen(false)}
+          comparaveis={comparaveis}
+          lat={lat as number}
+          lng={lng as number}
+          enderecoAlvo={enderecoAlvo ?? ''}
+          radiusMeters={radiusMeters as number}
+        />
+      )}
+
+      {canResumo && (
+        <EntregavelExportSheet
+          kind="didatico"
+          open={didaticoOpen}
+          onClose={() => setDidaticoOpen(false)}
+          comparaveis={comparaveis}
+          lat={lat as number}
+          lng={lng as number}
+          enderecoAlvo={enderecoAlvo ?? ''}
+          radiusMeters={radiusMeters as number}
+        />
+      )}
+
+      {canResumo && (
+        <PacoteExportSheet
+          open={pacoteOpen}
+          onClose={() => setPacoteOpen(false)}
+          comparaveis={comparaveis}
+          lat={lat as number}
+          lng={lng as number}
+          enderecoAlvo={enderecoAlvo ?? ''}
+          radiusMeters={radiusMeters as number}
+        />
+      )}
+
+      {planilhaOpen && (
+        <PlanilhaExportSheet
+          open={planilhaOpen}
+          onClose={() => setPlanilhaOpen(false)}
+          comparaveis={comparaveis}
+          enderecoAlvo={enderecoAlvo ?? ''}
+          radiusMeters={radiusMeters ?? 1000}
+        />
       )}
 
       {/* Toast */}

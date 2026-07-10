@@ -2,7 +2,13 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
+import { storeLeadPIIBatch } from '@/lib/vault'
 import type { Lead, LeadWithEdificio, OrigemLead, FonteFrog, PrazoUrgencia } from '@/lib/supabase/types'
+
+// NOTA PROD/LGPD: `leads.telefone`/`email` em claro NÃO existem em PROD (PII cifrada
+// via Vault — migration 014). Estas mutations escrevem/atualizam a PII de contato
+// pela RPC `fn_store_lead_pii` (wrapper `storeLeadPIIBatch`), nunca como coluna clara.
+// Ver [[project_prod-leads-pii-schema]] e useCaptarFromSearch.ts.
 
 // ---------------------------------------------------------------------------
 // Query keys
@@ -121,13 +127,12 @@ export function useCreateLead() {
     mutationFn: async (input: CreateLeadInput): Promise<Lead> => {
       const supabase = createClient()
 
+      // Sem telefone/email em claro (não existem em PROD) — vão p/ o Vault abaixo.
       const insertData = {
         consultant_id: input.consultant_id,
         edificio_id: input.edificio_id,
         nome: input.nome,
         unidade: input.unidade || null,
-        telefone: input.telefone || null,
-        email: input.email || null,
         origem: input.origem,
         fonte_frog: input.fonte_frog || null,
         informante_id: input.informante_id || null,
@@ -149,6 +154,18 @@ export function useCreateLead() {
 
       if (error) {
         throw new Error(`Failed to create lead: ${error.message}`)
+      }
+
+      // Cifra a PII de contato no Vault (best-effort — não invalida a criação).
+      const pii: { telefone?: string; email?: string } = {}
+      if (input.telefone) pii.telefone = input.telefone
+      if (input.email) pii.email = input.email
+      if (Object.keys(pii).length > 0) {
+        try {
+          await storeLeadPIIBatch(supabase, (data as Lead).id, pii)
+        } catch (e) {
+          console.warn(`createLead: falha ao cifrar PII do lead ${(data as Lead).id}:`, e)
+        }
       }
 
       return data as Lead
@@ -187,6 +204,10 @@ export function useCreateLead() {
         notas: input.notas || null,
         is_fisbo: input.is_fisbo ?? false,
         referral_id: null,
+        contato_status: 'nao_contatado',
+        contato_status_at: null,
+        contato_notas: null,
+        scraped_listing_id: null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       }
@@ -262,26 +283,40 @@ export function useUpdateLead() {
     mutationFn: async (input: UpdateLeadInput): Promise<Lead> => {
       const supabase = createClient()
 
-      const updateData: Record<string, unknown> = { ...input.updates }
-      if (input.updates.telefone !== undefined) {
-        updateData.telefone = input.updates.telefone || null
-      }
-      if (input.updates.email !== undefined) {
-        updateData.email = input.updates.email || null
+      // Separa PII (telefone/email → Vault) das colunas claras de `leads`.
+      const { telefone, email, ...leadUpdates } = input.updates
+
+      let lead: Lead
+      if (Object.keys(leadUpdates).length > 0) {
+        const { data, error } = await supabase
+          .from('leads')
+          .update(leadUpdates)
+          .eq('id', input.id)
+          .select()
+          .single()
+        if (error) throw new Error(`Failed to update lead: ${error.message}`)
+        lead = data as Lead
+      } else {
+        // Só PII mudou — busca o lead atual p/ retornar.
+        const { data, error } = await supabase.from('leads').select('*').eq('id', input.id).single()
+        if (error) throw new Error(`Failed to update lead: ${error.message}`)
+        lead = data as Lead
       }
 
-      const { data, error } = await supabase
-        .from('leads')
-        .update(updateData)
-        .eq('id', input.id)
-        .select()
-        .single()
-
-      if (error) {
-        throw new Error(`Failed to update lead: ${error.message}`)
+      // Atualiza a PII de contato no Vault (best-effort). Limpar PII (string vazia)
+      // não é suportado pelo wrapper — só grava valores não-vazios.
+      const pii: { telefone?: string; email?: string } = {}
+      if (telefone) pii.telefone = telefone
+      if (email) pii.email = email
+      if (Object.keys(pii).length > 0) {
+        try {
+          await storeLeadPIIBatch(supabase, input.id, pii)
+        } catch (e) {
+          console.warn(`updateLead: falha ao cifrar PII do lead ${input.id}:`, e)
+        }
       }
 
-      return data as Lead
+      return lead
     },
 
     onSettled: (_data, _error, input) => {

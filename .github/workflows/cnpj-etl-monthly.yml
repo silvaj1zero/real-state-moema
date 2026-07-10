@@ -1,15 +1,29 @@
 # =============================================================================
-# CNPJ ETL — monthly schedule (Story 7.5 AC8)
+# CNPJ ETL — monthly schedule (Story 7.5 AC6/AC7/AC9)
 #
-# STATUS: SCAFFOLD ONLY — `if: false` guard prevents execution.
-# Enable AFTER:
+# STATUS: Guarded by `CNPJ_ETL_ENABLED` repository secret. Workflow body runs
+# only when the secret is set to the literal string "true" — keeps the
+# scaffold safe-by-default until @devops finishes the prerequisites below.
+#
+# ACTIVATION STEPS (in order — do all four, then set the secret):
 #   1. Upstream scripts materialized in infrastructure/cnpj-etl/scripts-upstream
-#      (currently stubs — see infrastructure/cnpj-etl/README.md).
-#   2. Self-hosted runner (or Hetzner CPX21) provisioned by @devops.
-#   3. Secrets configured: DATABASE_URL, SUPABASE_STORAGE_URL, SUPABASE_SERVICE_ROLE_KEY.
+#      (currently stubs — see infrastructure/cnpj-etl/README.md §Setup).
+#   2. Self-hosted runner (or Hetzner CPX21) provisioned with label
+#      `self-hosted` + Docker + >=40 GB disk + >=8 GB RAM.
+#   3. Repository secrets configured:
+#        - DATABASE_URL                (Postgres URL for cnpj_enrichment UPSERT)
+#        - SUPABASE_STORAGE_URL        (e.g. https://<ref>.supabase.co/storage/v1)
+#        - SUPABASE_SERVICE_ROLE_KEY   (for storage upload + crawl_runs INSERT)
+#        - SUPABASE_REST_URL           (e.g. https://<ref>.supabase.co/rest/v1)
 #   4. PoC complete with real RFB dump (docs/poc/7.5-cnpj-etl-smoke.md).
 #
-# To enable: change `if: false` to `if: true` (or remove the guard).
+#   5. Finally: set repo secret `CNPJ_ETL_ENABLED=true` (any other value or
+#      unset keeps the workflow inert). To disable later, change the value or
+#      delete the secret — no code change required.
+#
+# Triggers:
+#   - schedule:           day 20 of each month at 02:00 UTC
+#   - workflow_dispatch:  manual run with optional `force` input
 # =============================================================================
 name: CNPJ ETL — Monthly
 
@@ -29,7 +43,8 @@ permissions:
 
 jobs:
   etl:
-    if: false   # SCAFFOLD GUARD — see header. Remove when prerequisites met.
+    # Activation gate — see header. Job runs only when CNPJ_ETL_ENABLED='true'.
+    if: ${{ secrets.CNPJ_ETL_ENABLED == 'true' }}
     name: Build + push CNPJ enrichment
     runs-on: self-hosted    # Free-tier GH runners are too small (RAM/disk).
     timeout-minutes: 240    # 4h cap — alert if exceeded (AC7).
@@ -37,6 +52,8 @@ jobs:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       SUPABASE_STORAGE_URL: ${{ secrets.SUPABASE_STORAGE_URL }}
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      SUPABASE_REST_URL: ${{ secrets.SUPABASE_REST_URL }}
+      BUCKET_NAME: cnpj-backups
 
     steps:
       - name: Checkout
@@ -44,6 +61,13 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
+      - name: Telemetry — open crawl_runs (status=running)
+        id: telemetry_open
+        env:
+          CRAWL_PORTAL: cnpj-etl
+          CRAWL_STATUS: running
+        run: ./scripts/epic7/cnpj-emit-telemetry.sh
 
       - name: Build container
         working-directory: infrastructure/cnpj-etl
@@ -55,8 +79,21 @@ jobs:
 
       - name: Backup filtered DB to Supabase Storage
         working-directory: infrastructure/cnpj-etl
-        run: ./backup_to_storage.sh  # NOTE: helper to be added by @devops when enabling
+        run: ./backup_to_storage.sh
 
-      - name: Telemetry — write crawl_runs row
-        run: |
-          echo "TODO: emit crawl_runs (portal=cnpj_rfb) via Supabase REST"
+      - name: Telemetry — close crawl_runs (status=completed)
+        if: success()
+        env:
+          CRAWL_RUN_ID: ${{ steps.telemetry_open.outputs.run_id }}
+          CRAWL_PORTAL: cnpj-etl
+          CRAWL_STATUS: completed
+        run: ./scripts/epic7/cnpj-emit-telemetry.sh
+
+      - name: Telemetry — close crawl_runs (status=failed)
+        if: failure()
+        env:
+          CRAWL_RUN_ID: ${{ steps.telemetry_open.outputs.run_id }}
+          CRAWL_PORTAL: cnpj-etl
+          CRAWL_STATUS: failed
+          CRAWL_ERROR_MESSAGE: "CNPJ ETL workflow failed — see job logs"
+        run: ./scripts/epic7/cnpj-emit-telemetry.sh

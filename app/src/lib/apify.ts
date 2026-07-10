@@ -5,6 +5,13 @@
  * Results are processed and inserted into scraped_listings.
  */
 
+import {
+  normalizePublisherType,
+  type PublisherType,
+} from '@/lib/scrapers/classify-advertiser'
+import { resolveApifyInputProxy } from '@/lib/scrapers/proxy-config'
+import { haversineMeters } from '@/lib/geo'
+
 const APIFY_BASE = 'https://api.apify.com/v2'
 
 interface ApifyRunResult {
@@ -64,6 +71,13 @@ export interface NormalizedListing {
   quartos: number | null
   descricao: string | null
   is_fisbo: boolean
+  /**
+   * Story 7.11 — `publisherType` nativo do feed (ZAP/VivaReal), normalizado
+   * para `owner | agency | developer`. `null` quando ausente/desconhecido
+   * (ex.: OLX/MercadoLivre sem o campo). Sinal deterministico que supera a
+   * heuristica 4-signal no `classifyAdvertiser`.
+   */
+  publisher_type: PublisherType | null
   lat: number | null
   lng: number | null
   // Epic 6 — Contact data from portal
@@ -212,6 +226,8 @@ export function normalizeListing(raw: ApifyListingRaw, portal: 'zap' | 'olx' | '
     quartos: quartos && quartos > 0 ? quartos : null,
     descricao: raw.title?.slice(0, 500) || raw.description?.slice(0, 500) || null,
     is_fisbo: tipo === 'proprietario',
+    // Story 7.11 — campo nativo deterministico (ZAP/VivaReal). null se ausente.
+    publisher_type: normalizePublisherType(raw.advertiserType) ?? null,
     lat: raw.latitude ?? null,
     lng: raw.longitude ?? null,
     // Epic 6 — Contact data (extracted from raw if available)
@@ -227,15 +243,8 @@ export function haversineDistance(
   lat1: number, lng1: number,
   lat2: number, lng2: number
 ): number {
-  const R = 6371000 // Earth radius in meters
-  const dLat = (lat2 - lat1) * Math.PI / 180
-  const dLng = (lng2 - lng1) * Math.PI / 180
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLng / 2) * Math.sin(dLng / 2)
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-  return R * c
+  // Delega à implementação canônica (@/lib/geo, Story 9.9); assinatura preservada.
+  return haversineMeters({ lat: lat1, lng: lng1 }, { lat: lat2, lng: lng2 })
 }
 
 /** Check if a point is within radius of a center */
@@ -267,6 +276,10 @@ export function buildParametricSearchInput(
   maxItems = 200
 ): Record<string, unknown> {
   const transactionType = params.tipo_transacao === 'aluguel' ? 'rent' : 'sale'
+  // Story 7.13 (AC3) — proxy residencial por alvo: zap/vivareal recebem
+  // RESIDENTIAL+BR (Cloudflare); olx fica datacenter. Fallback gracioso
+  // herdado de resolveProxySpec (7.12).
+  const proxyConfiguration = resolveApifyInputProxy(portal)
   return {
     sources: portal,
     state: 'sp',
@@ -275,6 +288,7 @@ export function buildParametricSearchInput(
     maxListings: maxItems,
     propertyType: 'all',
     includeDescription: false,
+    ...(proxyConfiguration && { proxyConfiguration }),
     ...(params.preco_min != null && { minPrice: params.preco_min }),
     ...(params.preco_max != null && { maxPrice: params.preco_max }),
     ...(params.area_min != null && { minArea: params.area_min }),

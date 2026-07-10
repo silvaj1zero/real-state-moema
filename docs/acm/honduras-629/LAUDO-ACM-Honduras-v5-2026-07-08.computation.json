@@ -1,0 +1,72 @@
+{
+  "geradoEm": "2026-07-08T03:33:02.949Z",
+  "homogeneizacao": {
+    "indice": "FipeZap — São Paulo · venda · residencial (Número-Índice Total)",
+    "dataReferencia": "2026-06",
+    "ajustados": 23,
+    "semAjuste": [],
+    "fatorMin": 1.0049681141129279,
+    "fatorMax": 1.10981785207319
+  },
+  "medianaPrecoM2": 19061.32,
+  "headline": {
+    "mercado": {
+      "min": 10922944,
+      "max": 12961698
+    },
+    "fechamento": {
+      "min": 8986472,
+      "max": 10663786
+    },
+    "referencia": {
+      "cenario": "top3",
+      "n": 3,
+      "medianaPrecoM2": 16063.15,
+      "valorMercado": 10922944,
+      "valorFechamento": 8986472,
+      "precoM2Fechamento": 11233
+    },
+    "teto": {
+      "cenario": "todos",
+      "n": 23,
+      "medianaPrecoM2": 19061.32,
+      "valorMercado": 12961698,
+      "valorFechamento": 10663786,
+      "precoM2Fechamento": 13330
+    }
+  },
+  "faixaSensibilidade": {
+    "mercadoMin": 10922944,
+    "mercadoMax": 12961698,
+    "fechamentoMin": 8986472,
+    "fechamentoMax": 10663786
+  },
+  "composicaoBairros": [
+    {
+      "bairro": "Jardim Paulista",
+      "n": 16,
+      "medianaPrecoM2": 19073.51
+    },
+    {
+      "bairro": "Jardim América",
+      "n": 5,
+      "medianaPrecoM2": 18272.15
+    },
+    {
+      "bairro": "Jardim Europa",
+      "n": 2,
+      "medianaPrecoM2": 21856.38
+    }
+  ],
+  "desagioMedidoPercent": -12.7,
+  "coAncoraTerreno": 9624000,
+  "autoReferenciasExcluidas": [],
+  "ancorasComerciaisV4": {
+    "precoAnuncioRecomendado": 11500000,
+    "metaFechamento": {
+      "min": 10000000,
+      "max": 10500000
+    },
+    "nota": "Mantidas do v4 — validar com a Luciana (H-3) frente à faixa homogeneizada."
+  }
+}

@@ -1,0 +1,37 @@
+# Handoff Artifact Registry — Real State Moema
+# Auto-maintained by /handoff skill (ATM-008)
+
+- id: "2026-05-19-epic7-wave-a-handoff"
+  date: "2026-05-19"
+  project: "real-state-moema"
+  scope: "intra_processo"
+  type: "session"
+  priority: "P1"
+  score: 10
+  status: "approved"
+  path: "docs/sessions/2026-05/2026-05-19-epic7-wave-a-handoff.md"
+  word_count: 3100
+  sections: "14/14"
+  ttl_days: 30
+  consumed: null
+- id: 2026-07-09-acm-wave123-p1-handoff
+  date: 2026-07-09
+  project: real-state-moema-acm
+  scope: self_continuation
+  score: 9
+  status: approved
+  path: docs/sessions/2026-07/2026-07-09-acm-wave123-p1-handoff.md
+  word_count: ~1200
+  sections: 10/10
+- id: 2026-07-09-acm-p2-fixtures-handoff
+  date: 2026-07-09
+  project: real-state-moema-acm
+  scope: self_continuation
+  score: 9
+  status: approved
+  path: docs/sessions/2026-07/2026-07-09-acm-p2-fixtures-handoff.md
+- id: 2026-07-10-acm-pos-h3-handoff
+  date: 2026-07-10
+  project: real-state-moema-acm
+  score: 9
+  path: docs/sessions/2026-07/2026-07-10-acm-pos-h3-handoff.md

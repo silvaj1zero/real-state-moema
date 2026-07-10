@@ -1,0 +1,28 @@
+# Journey Log — Real State Moema handoff lineage
+# Auto-maintained by /handoff skill (ATM-010)
+
+- event: birth
+  entity_type: handoff_artifact
+  entity_id: "2026-05-19-epic7-wave-a-handoff"
+  date: "2026-05-19"
+  producer: "Agent:current-session-claude-opus-4.7"
+  consumer: "Agent:next-session (pending)"
+  scope: "intra_processo"
+  type: "session"
+  score: 10
+  path: "docs/sessions/2026-05/2026-05-19-epic7-wave-a-handoff.md"
+  notes: "Epic 7 Wave A SDC YOLO concluido — 9/10 stories InReview + 9 QA gates + fixes/re-gate. Estado handoff antes de session clear."
+- event: birth
+  entity_type: handoff_artifact
+  entity_id: 2026-07-09-acm-wave123-p1-handoff
+  date: 2026-07-09
+  producer: Agent:session-acm-impl
+  consumer: Agent:next-session (pending)
+  scope: self_continuation
+  score: 9
+  path: docs/sessions/2026-07/2026-07-09-acm-wave123-p1-handoff.md
+  notes: ACM waves 1-3 + P-1 offline pushed ef26b0c
+- event: birth
+  entity_id: 2026-07-09-acm-p2-fixtures-handoff
+  date: 2026-07-09
+  notes: P-2 merge-back + AP fixtures; HEAD fc285a4

@@ -1,0 +1,73 @@
+{
+  "subject_id": "langgraph-day1",
+  "snapshot_at": "2026-05-14",
+  "github_metadata": {
+    "stars": 32003,
+    "forks": 5425,
+    "open_issues": 536,
+    "created_at": "2023-08-09",
+    "last_push": "2026-05-13",
+    "license": "MIT",
+    "language": "Python",
+    "source": "GitHub API repos/langchain-ai/langgraph 2026-05-14"
+  },
+  "model_options": {
+    "self_hosted": {
+      "type": "LangGraph as a library (Python or JS)",
+      "cost": "infra only (server + Postgres for checkpointer)",
+      "trade_offs": "you own scheduling, retries, observability, scaling"
+    },
+    "langgraph_platform_developer": {
+      "type": "Free tier on LangGraph Platform",
+      "limit": "first 100k node executions free",
+      "source": "https://www.langchain.com/pricing-langgraph-platform"
+    },
+    "langgraph_platform_plus": {
+      "type": "Plus tier",
+      "requires": "LangSmith Plus subscription ($39 per user / month)",
+      "per_node_cost": "$0.001 per node executed",
+      "standby_cost": "$0.0036 per minute production standby; $0.0007 per minute deployments",
+      "source": "https://www.langchain.com/pricing-langgraph-platform + https://www.zenml.io/blog/langgraph-pricing"
+    },
+    "enterprise": {
+      "type": "Custom — node + standby + seats negotiated",
+      "source": "https://www.langchain.com/pricing"
+    }
+  },
+  "additional_costs": {
+    "llm_tokens": "billed separately per provider (OpenAI/Anthropic/Gemini). Real ETL step running through an LLM adds $0.001-0.01+ per call",
+    "langsmith_tracing": "Plus $39/user/mo OR usage-based",
+    "checkpointer_storage": "Postgres or Redis depending on deployment"
+  },
+  "capability_profile": [
+    "Stateful graph workflows with checkpointers (durable state)",
+    "Human-in-the-loop pause/resume",
+    "Streaming",
+    "Time-travel debugging",
+    "Subgraphs",
+    "Map/reduce patterns",
+    "Production adopters: Uber, LinkedIn, Replit, Klarna, AppFolio (CQ-009)"
+  ],
+  "known_limitations_2026": [
+    "Checkpointers save state between nodes, NOT inside nodes — long loops inside one node restart from scratch on crash",
+    "For side-effecting production with retries across infra events, recommended pattern is LangGraph for reasoning + Temporal for orchestration",
+    "Determinism not enforced — workflow can be non-deterministic by design (which is the point for LLM steps)"
+  ],
+  "operational_characteristics_for_etl_use": [
+    "Overkill for deterministic ETL (no LLM, no branching dynamic on content)",
+    "Adds Python runtime to a TS-first stack OR forces langgraph-js (less mature)",
+    "$0.001/node * 7 steps * 10k anúncios/mês = $70/mês ($357 BRL) JUST on platform fees with zero LLM token usage",
+    "Plus LangSmith $39/user/mo minimum"
+  ],
+  "sources": [
+    "https://www.langchain.com/pricing-langgraph-platform",
+    "https://www.langchain.com/pricing",
+    "https://www.zenml.io/blog/langgraph-pricing",
+    "https://www.metacto.com/blogs/langgraph-pricing-explained-a-deep-dive-into-integration-maintenance-costs",
+    "https://docs.langchain.com/oss/python/langgraph/durable-execution",
+    "https://medium.com/data-science-collective/langgraph-vs-temporal-for-ai-agents-durable-execution-architecture-beyond-for-loops-a1f640d35f02",
+    "https://cordum.io/blog/temporal-vs-langgraph",
+    "https://blog.langchain.com/customers-appfolio/",
+    "https://www.zenml.io/llmops-database/building-a-property-management-ai-copilot-with-langgraph-and-langsmith"
+  ]
+}

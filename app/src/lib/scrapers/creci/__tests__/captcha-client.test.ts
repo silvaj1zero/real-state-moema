@@ -12,7 +12,7 @@ import {
 
 function makeFetch(responses: Array<{ ok?: boolean; json: unknown }>) {
   let i = 0
-  return vi.fn(async () => {
+  return vi.fn(async (_url?: string, _init?: { body?: URLSearchParams }) => {
     const r = responses[Math.min(i, responses.length - 1)]
     i++
     return {

@@ -1,0 +1,124 @@
+{
+  "bench_id": "BENCH-02-crawlee-selfhosted-vs-apify-cloud",
+  "tco_model": {
+    "currency": "BRL",
+    "fx_assumptions": {
+      "USD_BRL": 5.10,
+      "EUR_BRL": 5.50,
+      "snapshot_date": "2026-05-14",
+      "source": "indicative spot — recheck before final budget"
+    },
+    "page_mix_assumption": {
+      "http_share": 0.70,
+      "browser_share": 0.30,
+      "rationale": "MercadoLivre and ImovelWeb mix — listing pages can often be hit via JSON/HTML; detail pages sometimes need JS render",
+      "data_per_page_kb": 250,
+      "data_per_browser_page_kb": 1200
+    },
+    "engineer_cost": {
+      "br_mid_senior_day_brl": 1000,
+      "setup_days_selfhosted": 4,
+      "monthly_maintenance_h_selfhosted": 6,
+      "hourly_brl": 125,
+      "setup_amortization_months": 12
+    },
+    "scenarios": [
+      {
+        "volume_pages_month": 10000,
+        "selfhosted": {
+          "vps_eur": 21,
+          "vps_brl": 115.50,
+          "proxy_gb_consumed": "10000*0.7*0.25/1024 + 10000*0.3*1.2/1024 = 1.71 + 3.52 = 5.23 GB",
+          "proxy_unit_usd_gb": 7,
+          "proxy_usd": 36.6,
+          "proxy_brl": 186.66,
+          "maintenance_brl": 750,
+          "setup_amortized_brl": 333,
+          "monitoring_brl": 50,
+          "total_brl_month": 1435
+        },
+        "apify": {
+          "cu_consumption": "(10000*0.7/3000) + (10000*0.3/300) = 2.33 + 10 = 12.33 CU",
+          "plan": "Creator $50/mo + $0.20/CU",
+          "cu_cost_usd": 2.47,
+          "proxy_gb": 5.23,
+          "proxy_usd": 41.85,
+          "subtotal_usd": "50 + 2.47 + 41.85 = 94.32",
+          "total_brl_month": 481
+        },
+        "winner": "apify",
+        "delta_brl": 954
+      },
+      {
+        "volume_pages_month": 50000,
+        "selfhosted": {
+          "vps_eur": 21,
+          "vps_brl": 115.50,
+          "proxy_gb_consumed": "50000*0.7*0.25/1024 + 50000*0.3*1.2/1024 = 8.54 + 17.58 = 26.12 GB",
+          "proxy_unit_usd_gb": 5,
+          "proxy_usd": 130.6,
+          "proxy_brl": 666,
+          "maintenance_brl": 750,
+          "setup_amortized_brl": 333,
+          "monitoring_brl": 80,
+          "total_brl_month": 1944
+        },
+        "apify": {
+          "cu_consumption": "(50000*0.7/3000) + (50000*0.3/300) = 11.67 + 50 = 61.67 CU",
+          "plan": "Creator $50/mo + $0.20/CU (or Scale at $0.16/CU + $249 base)",
+          "cu_cost_usd_creator": 12.33,
+          "proxy_gb": 26.12,
+          "proxy_usd": 208.96,
+          "subtotal_usd_creator": "50 + 12.33 + 208.96 = 271.29",
+          "subtotal_usd_scale": "249 + 9.87 + 208.96 = 467.83",
+          "total_brl_month_creator": 1383,
+          "total_brl_month_scale": 2386,
+          "recommended_plan": "Creator at this volume",
+          "total_brl_month": 1383
+        },
+        "winner": "selfhosted (marginal: -R$ 561 if mature; apify is +R$ 561 but ZERO ops risk)",
+        "delta_brl": 561,
+        "tipping_point_estimate": "near 30-40k pgs/mês"
+      },
+      {
+        "volume_pages_month": 100000,
+        "selfhosted": {
+          "vps_eur": 32,
+          "vps_brl_cpx41": 176,
+          "comment": "may upgrade to CPX41 (8 vCPU/16 GB) for safe headroom",
+          "proxy_gb_consumed": "100000*0.7*0.25/1024 + 100000*0.3*1.2/1024 = 17.09 + 35.16 = 52.25 GB",
+          "proxy_unit_usd_gb": 3.5,
+          "proxy_usd": 182.88,
+          "proxy_brl": 933,
+          "maintenance_brl": 1000,
+          "setup_amortized_brl": 333,
+          "monitoring_brl": 100,
+          "total_brl_month": 2542
+        },
+        "apify": {
+          "cu_consumption": "(100000*0.7/3000) + (100000*0.3/300) = 23.33 + 100 = 123.33 CU",
+          "plan": "Scale $249/mo + $0.16/CU",
+          "cu_cost_usd": 19.73,
+          "proxy_gb": 52.25,
+          "proxy_usd": 418,
+          "subtotal_usd_scale": "249 + 19.73 + 418 = 686.73",
+          "total_brl_month": 3502
+        },
+        "winner": "selfhosted",
+        "delta_brl": 960
+      }
+    ]
+  },
+  "feature_matrix": [
+    {"capability": "Time to first scrape (new project)", "selfhosted": "3-5 dias", "apify": "minutes (for known Actors) to hours", "advantage": "apify"},
+    {"capability": "Per-page cost @ 50k pgs/mês", "selfhosted": "~R$ 0.039", "apify": "~R$ 0.028", "advantage": "apify (Creator plan)"},
+    {"capability": "Per-page cost @ 100k pgs/mês", "selfhosted": "~R$ 0.025", "apify": "~R$ 0.035", "advantage": "selfhosted"},
+    {"capability": "Proxy quality (residential)", "selfhosted": "IPRoyal $7→$1.75/GB, Bright Data, Smartproxy choice", "apify": "Apify Proxy $8/GB single vendor", "advantage": "selfhosted (cheaper + multi-vendor)"},
+    {"capability": "Anti-bot bypass (DataDome / Cloudflare)", "selfhosted": "Crawlee + Camoufox plug-in available", "apify": "Apify SDK uses same Crawlee + Apify Proxy; ImovelWeb still hard either way", "advantage": "tie"},
+    {"capability": "Scheduler", "selfhosted": "pg_cron + Edge Function (BYO)", "apify": "first-class Actor schedules with retries+webhooks", "advantage": "apify"},
+    {"capability": "Observability", "selfhosted": "Sentry + pino + Better Stack (BYO)", "apify": "Apify Console out-of-box", "advantage": "apify"},
+    {"capability": "Operational overhead", "selfhosted": "~6h/mês founder time", "apify": "near zero", "advantage": "apify"},
+    {"capability": "Vendor lock-in (code portability)", "selfhosted": "zero lock-in", "apify": "Actor packaging coupling, but Crawlee code portable", "advantage": "selfhosted"},
+    {"capability": "Geographic coverage / latency to BR portals", "selfhosted": "Hetzner EU adds ~150 ms; can move to AWS São Paulo (more $)", "apify": "Apify infra global (US-EU); similar latency", "advantage": "tie"}
+  ]
+}

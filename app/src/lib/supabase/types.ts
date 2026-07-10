@@ -107,6 +107,15 @@ export type CategoriaScript =
 
 export type TipoChecklist = 'preparacao_v2' | 'home_staging' | 'pre_safari'
 
+/** Story 10.1 — resultado da tentativa de contato na call list FISBO. */
+export type ContatoStatus =
+  | 'nao_contatado'
+  | 'atendeu'
+  | 'nao_atendeu'
+  | 'retornar'
+  | 'agendado'
+  | 'descartado'
+
 // Interfaces
 
 export interface Lead {
@@ -130,6 +139,11 @@ export interface Lead {
   notas: string | null
   is_fisbo: boolean
   referral_id: string | null
+  // Story 10.1 (Epic 10) — status de tentativa de contato (migration 022).
+  contato_status: ContatoStatus
+  contato_status_at: string | null
+  contato_notas: string | null
+  scraped_listing_id: string | null
   created_at: string
   updated_at: string
 }
@@ -249,6 +263,16 @@ export type PortalScraping = 'zap' | 'olx' | 'vivareal' | 'quintoandar' | 'outro
 
 export type TipoAnunciante = 'proprietario' | 'corretor' | 'imobiliaria' | 'desconhecido'
 
+/** Story 8.1 — Score da metodologia ACM (calculado na 8.2, persistido opcional). */
+export type AcmScore = 'AAA' | 'AA' | 'A' | 'B'
+
+/** Story 8.1 — status de recuperação do anúncio (pedido vs. fechado). */
+export type AcmStatusAnuncio =
+  | 'confirmado'
+  | 'parcial'
+  | 'off_market'
+  | 'nao_recuperavel'
+
 // Interfaces
 
 export interface AcmComparavel {
@@ -257,6 +281,7 @@ export interface AcmComparavel {
   edificio_referencia_id: string | null
   endereco: string
   coordinates: string | null // PostGIS geography as WKT
+  /** @deprecated Story 8.1 — usar `area_construida_m2`. Coluna legada por 1 release. */
   area_m2: number
   preco: number
   preco_m2: number | null
@@ -265,6 +290,29 @@ export interface AcmComparavel {
   scraped_listing_id: string | null
   data_referencia: string | null
   notas: string | null
+  // Story 8.1 — campos da metodologia ACM (migration 20260615000002).
+  // Todos nullable: linhas legadas / fontes sem o dado ficam NULL.
+  area_construida_m2?: number | null
+  area_terreno_m2?: number | null
+  preco_m2_terreno?: number | null
+  testada_m?: number | null
+  ano_construcao?: number | null
+  ano_referencia?: number | null
+  padrao_iptu?: number | null
+  valor_venal?: number | null
+  tipo?: string | null
+  sql_cadastral?: string | null
+  dormitorios?: number | null
+  suites?: number | null
+  vagas?: number | null
+  score?: AcmScore | null
+  preco_pedido?: number | null
+  desagio_percent?: number | null
+  status_anuncio?: AcmStatusAnuncio | null
+  // Story 9.4 ampliação R5 — colunas a popular no sink (podem ser NULL até o backfill).
+  complemento?: string | null
+  uso_iptu?: string | null
+  fracao_ideal?: number | null
   created_at: string
   updated_at: string
 }
@@ -273,16 +321,48 @@ export interface AcmComparavelComDistancia extends AcmComparavel {
   distancia_m: number
 }
 
-/** Result from fn_comparaveis_no_raio RPC */
+/**
+ * Result from fn_comparaveis_no_raio RPC.
+ *
+ * Story 8.1 (AC2) — campos da metodologia adicionados como opcionais: a RPC
+ * passa a retorná-los após o `CREATE OR REPLACE`, mas o tipo permanece
+ * tolerante para não quebrar consumidores enquanto a função não é atualizada
+ * (graceful — o adapter cai para `area_m2` quando `area_construida_m2` ausente).
+ */
 export interface ComparavelNoRaio {
   comparavel_id: string
   endereco: string
+  /** @deprecated Story 8.1 — preferir `area_construida_m2`. */
   area_m2: number
   preco: number
   preco_m2: number
   is_venda_real: boolean
   fonte: FonteComparavel
   distancia_m: number
+  // Story 8.1 — campos da metodologia (RPC pós-CREATE OR REPLACE).
+  area_construida_m2?: number | null
+  area_terreno_m2?: number | null
+  preco_m2_terreno?: number | null
+  dormitorios?: number | null
+  suites?: number | null
+  vagas?: number | null
+  score?: AcmScore | null
+  sql_cadastral?: string | null
+  ano_referencia?: number | null
+  preco_pedido?: number | null
+  desagio_percent?: number | null
+  status_anuncio?: AcmStatusAnuncio | null
+  // Story 8.7 — RPC fn_comparaveis_no_raio (migration 20260616000001): coords p/ pins
+  // do mapa + link do anúncio (revisão humana via scraped_listings).
+  latitude?: number | null
+  longitude?: number | null
+  anuncio_url?: string | null
+  // Story 9.4 ampliação R5 (opt-in na RPC após sink).
+  complemento?: string | null
+  uso_iptu?: string | null
+  fracao_ideal?: number | null
+  padrao_iptu?: string | number | null
+  tipo?: string | null
 }
 
 // =============================================================================
@@ -425,6 +505,8 @@ export interface ScrapedListing {
   external_id: string
   url: string | null
   tipo_anunciante: TipoAnunciante
+  /** Story 7.13 — publisherType nativo (ZAP/VivaReal). NULL se ausente. */
+  publisher_type: 'owner' | 'agency' | 'developer' | null
   endereco: string | null
   endereco_normalizado: string | null
   coordinates: string | null
@@ -473,7 +555,7 @@ export interface ListingCrossRef {
 }
 
 // Intelligence Feed (Story 3.7)
-export type TipoFeed = 'novo_fisbo' | 'reducao_preco' | 'ex_imobiliaria_fisbo' | 'novo_raio_desbloqueado' | 'lead_parado' | 'agendamento_proximo' | 'seed_completo' | 'sync_completo' | 'busca_parametrica'
+export type TipoFeed = 'novo_fisbo' | 'reducao_preco' | 'ex_imobiliaria_fisbo' | 'novo_raio_desbloqueado' | 'lead_parado' | 'agendamento_proximo' | 'seed_completo' | 'sync_completo' | 'busca_parametrica' | 'owner_lookup_completo' | 'owner_lookup_aberto'
 export type PrioridadeFeed = 'alta' | 'media' | 'baixa'
 
 export interface IntelligenceFeedEvent {
@@ -496,6 +578,55 @@ export interface IntelligenceFeedEvent {
 // =============================================================================
 // Epic 6 — Busca Parametrica On-Demand com Enriquecimento de Contatos
 // =============================================================================
+
+// Story 6.6 — Lookup de proprietario via cartorio (migration 023)
+export type OwnerLookupRowStatus = 'pending' | 'success' | 'failed' | 'not_found'
+
+export interface OwnerLookup {
+  id: string
+  consultant_id: string
+  edificio_id: string | null
+  sql_lote: string | null
+  endereco: string | null
+  matricula: string | null
+  nome_proprietario: string | null
+  cpf_cnpj_masked: string | null
+  cartorio: string | null
+  data_matricula: string | null
+  ultima_transacao: string | null
+  fonte: string
+  custo_brl: number
+  raw_response: Record<string, unknown> | null
+  status: OwnerLookupRowStatus
+  error_message: string | null
+  // Story 6.7 (migration 024) — telemetria de cache p/ o dashboard de consumo
+  cache_hit_count: number
+  last_cache_hit_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+// Story 6.7 — retorno de fn_enriched_contacts_by_edificio (migration 024)
+export interface EnrichedContactByEdificio {
+  listing_id: string
+  nome: string | null
+  telefone: string | null
+  whatsapp: string | null
+  email: string | null
+  portal: string | null
+  enriched_at: string | null
+}
+
+// Story 6.7 — retorno de fn_owner_lookup_stats (migration 024)
+export interface OwnerLookupStats {
+  consultas_mes: number
+  custo_mes: number
+  sucessos_mes: number
+  nao_encontrados_mes: number
+  falhas_mes: number
+  consultas_total: number
+  cache_hits_total: number
+}
 
 export type SearchStatus = 'pending' | 'running' | 'completed' | 'failed' | 'cancelled'
 

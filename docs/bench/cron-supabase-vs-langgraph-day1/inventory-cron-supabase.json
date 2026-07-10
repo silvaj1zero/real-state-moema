@@ -1,0 +1,54 @@
+{
+  "subject_id": "cron-supabase",
+  "snapshot_at": "2026-05-14",
+  "components": {
+    "pg_cron": {
+      "type": "Postgres extension (Citus-developed, GA in Supabase)",
+      "syntax": "POSIX cron strings inside SQL",
+      "execution": "in-database scheduler, single Postgres cluster",
+      "limits": [
+        "single PostgreSQL cluster; no cross-cluster orchestration",
+        "no native retry — must implement in job logic with execution IDs",
+        "5000 ms timeout when invoking Edge Functions via Supabase Cron UI (pg_net itself can go higher)"
+      ],
+      "source": "https://supabase.com/docs/guides/cron + https://github.com/orgs/supabase/discussions/37574"
+    },
+    "edge_functions": {
+      "type": "Deno-based serverless on Supabase",
+      "trigger": "HTTP via pg_net from pg_cron, or webhook, or API call",
+      "limits": "Wall time depends on plan; Free 25s, Pro 150s, Team/Enterprise 400s",
+      "patterns": [
+        "self-healing cron with status table + retry logic",
+        "execution ID logging for idempotency"
+      ],
+      "source": "https://supabase.com/docs/guides/functions + https://dev.to/domoniqueluchin/building-a-self-healing-cron-system-with-pgcron-and-supabase-edge-functions-5420"
+    },
+    "queue_optional": {
+      "type": "pgmq (Postgres Message Queue, Tembo)",
+      "use_case": "When >5s timeout needed; cron enqueues, worker drains async",
+      "source": "https://supabase.com/blog/processing-large-jobs-with-edge-functions"
+    },
+    "cost_model": {
+      "pg_cron": "FREE (included in Supabase plan, even free tier)",
+      "edge_functions_free_tier": "500k invocations/month free",
+      "edge_functions_pro": "$10/mo + $2/million invocations after 2M included",
+      "source": "https://supabase.com/pricing"
+    }
+  },
+  "operational_characteristics": [
+    "100% deterministic — same input = same output",
+    "Token cost: 0 (no LLM)",
+    "Native Supabase observability (Logs, Insights, Cron job_run_details)",
+    "Code lives in SQL functions or Edge Functions (TS) — already in stack",
+    "Replay via SELECT * FROM cron.job_run_details + manual re-trigger"
+  ],
+  "sources": [
+    "https://supabase.com/docs/guides/cron",
+    "https://supabase.com/docs/guides/functions/schedule-functions",
+    "https://supabase.com/docs/guides/database/extensions/pg_cron",
+    "https://supabase.com/blog/processing-large-jobs-with-edge-functions",
+    "https://dev.to/domoniqueluchin/building-a-self-healing-cron-system-with-pgcron-and-supabase-edge-functions-5420",
+    "https://github.com/orgs/supabase/discussions/37574",
+    "https://boringsql.com/posts/time-keepers-pg-cron-pg-timetable/"
+  ]
+}

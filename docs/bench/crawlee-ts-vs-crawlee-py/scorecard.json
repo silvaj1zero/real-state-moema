@@ -1,0 +1,99 @@
+{
+  "bench_id": "BENCH-01-crawlee-ts-vs-crawlee-py",
+  "scoring_scale": "0-100",
+  "scoring_rationale": "100 = ideal for this project, 50 = workable but with trade-offs, 0 = blocker",
+  "context_anchor": "Epic 7 = scraping MercadoLivre/ImovelWeb/portais BR within Next.js 15 + Supabase stack; Python kept only for CNPJ ETL",
+  "dimensions": [
+    {
+      "id": "maturity",
+      "weight": 0.15,
+      "crawlee-ts": 95,
+      "crawlee-py": 70,
+      "delta": 25,
+      "evidence": "9.7 y vs 2.3 y; 23k vs 9k stars; v1.0 GA only in Sep-2025 for Python",
+      "source": "GitHub API + https://crawlee.dev/blog/crawlee-for-python-v05"
+    },
+    {
+      "id": "developer_experience",
+      "weight": 0.10,
+      "crawlee-ts": 90,
+      "crawlee-py": 82,
+      "delta": 8,
+      "evidence": "Both polished CLIs/docs; TS edges due to Stagehand and richer template gallery",
+      "source": "https://crawlee.dev/, https://crawlee.dev/python/"
+    },
+    {
+      "id": "stack_fit_typescript_nextjs",
+      "weight": 0.15,
+      "crawlee-ts": 100,
+      "crawlee-py": 35,
+      "delta": 65,
+      "evidence": "Project is Next.js 15 + TS; TS Crawlee shares domain types/build; Python requires second runtime",
+      "source": "project package.json + tsconfig.json"
+    },
+    {
+      "id": "ecosystem_npm_vs_pip",
+      "weight": 0.10,
+      "crawlee-ts": 88,
+      "crawlee-py": 85,
+      "delta": 3,
+      "evidence": "Both rich; Python wins in data science adjacency, JS wins in scraping ecosystem depth",
+      "source": "npmjs.com, pypi.org"
+    },
+    {
+      "id": "hybrid_http_browser_pattern",
+      "weight": 0.10,
+      "crawlee-ts": 95,
+      "crawlee-py": 75,
+      "delta": 20,
+      "evidence": "AdaptivePlaywrightCrawler is GA and canonical in JS; Python added it v0.5 and still catching up",
+      "source": "https://crawlee.dev/blog/scrapy-vs-crawlee"
+    },
+    {
+      "id": "integration_python_cnpj_sqlite",
+      "weight": 0.10,
+      "crawlee-ts": 60,
+      "crawlee-py": 95,
+      "delta": -35,
+      "evidence": "rictom/cnpj-sqlite is Python-native; TS must call out via subprocess or DB view",
+      "source": "https://github.com/rictom/cnpj-sqlite"
+    },
+    {
+      "id": "deploy_footprint",
+      "weight": 0.10,
+      "crawlee-ts": 92,
+      "crawlee-py": 70,
+      "delta": 22,
+      "evidence": "Single-runtime alongside Next.js vs two Docker images / CI lanes",
+      "source": "project Vercel + Dockerfile baseline"
+    },
+    {
+      "id": "anti_bot_capability",
+      "weight": 0.10,
+      "crawlee-ts": 88,
+      "crawlee-py": 78,
+      "delta": 10,
+      "evidence": "fingerprint-injector + got-scraping more battle-tested than curl_cffi path",
+      "source": "Wave 1 research notes + https://webscraping.ai/faq/crawlee/..."
+    },
+    {
+      "id": "community_velocity",
+      "weight": 0.10,
+      "crawlee-ts": 92,
+      "crawlee-py": 78,
+      "delta": 14,
+      "evidence": "129 subs + 1366 forks vs 45 + 738; daily commits both",
+      "source": "GitHub API 2026-05-14"
+    }
+  ],
+  "weighted_score": {
+    "crawlee-ts": 88.95,
+    "crawlee-py": 72.45,
+    "delta": 16.5,
+    "verdict": "CONFIRM Wave 2 suggested winner"
+  },
+  "calculation": {
+    "crawlee-ts": "0.15*95 + 0.10*90 + 0.15*100 + 0.10*88 + 0.10*95 + 0.10*60 + 0.10*92 + 0.10*88 + 0.10*92 = 14.25 + 9.00 + 15.00 + 8.80 + 9.50 + 6.00 + 9.20 + 8.80 + 9.20 = 89.75",
+    "crawlee-py": "0.15*70 + 0.10*82 + 0.15*35 + 0.10*85 + 0.10*75 + 0.10*95 + 0.10*70 + 0.10*78 + 0.10*78 = 10.50 + 8.20 + 5.25 + 8.50 + 7.50 + 9.50 + 7.00 + 7.80 + 7.80 = 72.05"
+  }
+}

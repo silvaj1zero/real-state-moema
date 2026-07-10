@@ -1,0 +1,67 @@
+{
+  "repo_url": "https://github.com/ZacharyHampton/HomeHarvest",
+  "alias_original_request": "https://github.com/Bunsly/HomeHarvest",
+  "redirect_resolution": "Bunsly/HomeHarvest → ZacharyHampton/HomeHarvest (GitHub auto-redirect 2025-08+)",
+  "commit_sha": "8a6ac96db419b56a18d295935217649039bcdd0a",
+  "commit_message": "Refactor scraper to use direct requests and bump to 0.8.18",
+  "commit_date": "2025-12-26T07:29:53Z",
+  "default_branch": "master",
+  "analysis_date": "2026-05-13",
+  "analyst": "code-anatomist--decoder-chief",
+  "license": "MIT",
+  "license_verified_via": "gh api repos/ZacharyHampton/HomeHarvest --jq '.license.spdx_id'",
+  "maintainers": [
+    "Zachary Hampton <zachary@bunsly.com>",
+    "Cullen Watson <cullen@bunsly.com>"
+  ],
+  "stars": 679,
+  "forks": 158,
+  "language": "Python",
+  "python_version_required": ">=3.9",
+  "package_version": "0.8.18",
+  "package_manager": "Poetry",
+  "runtime_dependencies": {
+    "requests": "^2.32.4",
+    "pandas": "^2.3.1",
+    "pydantic": "^2.11.7",
+    "tenacity": "^9.1.2"
+  },
+  "files_analyzed": [
+    "README.md",
+    "pyproject.toml",
+    "LICENSE (verified MIT)",
+    "homeharvest/__init__.py",
+    "homeharvest/utils.py",
+    "homeharvest/exceptions.py",
+    "homeharvest/core/scrapers/__init__.py",
+    "homeharvest/core/scrapers/models.py",
+    "homeharvest/core/scrapers/realtor/__init__.py (partial — first 400 lines)",
+    "homeharvest/core/scrapers/realtor/processors.py",
+    "homeharvest/core/scrapers/realtor/parsers.py (referenced, not deep-read)",
+    "homeharvest/core/scrapers/realtor/queries.py (referenced, not deep-read)"
+  ],
+  "files_not_analyzed": [
+    "homeharvest/core/scrapers/realtor/introspection.json (GraphQL schema introspection — 1MB, structural only)",
+    "tests/test_realtor.py (E2E only)",
+    "examples/price_of_land.py (illustrative)"
+  ],
+  "extraction_method": "gh api (REST GitHub) — git clone blocked in sandbox",
+  "supported_sources_in_v0_8_18": ["realtor.com"],
+  "deprecated_sources_in_enum_only": ["zillow", "redfin"],
+  "key_findings": [
+    "FSBO detection is API-provided (advertiser.type==seller/community), NOT heuristic-inferred — confirms Wave 2 decision for BR heuristic approach.",
+    "7 HomeFlags booleanas (is_pending, is_contingent, is_new_construction, is_coming_soon, is_new_listing, is_price_reduced, is_foreclosure) — pattern transferível para Epic 7.",
+    "Composition pattern Agent + Broker + Office + Builder mapeia direto para BR (corretor + imobiliária + escritório + construtora).",
+    "Pagination cap of 10,000 results (hard) — equivalent in BR portals; chunking by date+location is required.",
+    "Date precision enhancement using last_status_change_date — pattern aplicável a portais BR que misturam dia/hora.",
+    "Threadpool of 20 workers, no async — não-otimizado para I/O-heavy crawls. Crawlee TS é superior."
+  ],
+  "transferability_to_epic7": "HIGH for schema design, LOW for code reuse",
+  "epic7_actions_recommended": [
+    "Transpile Property/Advertisers/HomeFlags Pydantic → Zod schemas in packages/shared/schemas/",
+    "Implement classifyAdvertiser() function inferring FSBO/agent/broker/builder via Wave 2 heuristics",
+    "Adopt 7 boolean discriminant flags (mapeamento BR em 02-domain-model.md)",
+    "Set explicit HTTP timeout (30s) — HomeHarvest omits, risky.",
+    "Use Crawlee AutoscaledPool em vez de ThreadPoolExecutor"
+  ]
+}

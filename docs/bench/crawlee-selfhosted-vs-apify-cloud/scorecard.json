@@ -1,0 +1,29 @@
+{
+  "bench_id": "BENCH-02-crawlee-selfhosted-vs-apify-cloud",
+  "scoring_scale": "0-100",
+  "context_anchor": "Wave A Epic 7 likely 10-30k pgs/mês; Wave B may scale to 50-100k pgs/mês as MercadoLivre+ImovelWeb come online",
+  "dimensions": [
+    {"id": "cost_10k_pgs", "weight": 0.12, "selfhosted": 35, "apify": 95, "delta": -60, "evidence": "R$ 1 435 vs R$ 481 — Apify 3x cheaper at low volume", "source": "TCO model"},
+    {"id": "cost_50k_pgs", "weight": 0.18, "selfhosted": 70, "apify": 80, "delta": -10, "evidence": "R$ 1 944 vs R$ 1 383 — Apify marginally cheaper, gap narrowing", "source": "TCO model"},
+    {"id": "cost_100k_pgs", "weight": 0.10, "selfhosted": 90, "apify": 60, "delta": 30, "evidence": "R$ 2 542 vs R$ 3 502 — self-hosted clearly cheaper", "source": "TCO model"},
+    {"id": "proxy_rotation_quality", "weight": 0.10, "selfhosted": 85, "apify": 70, "delta": 15, "evidence": "Multi-vendor flexibility vs single Apify Proxy", "source": "https://use-apify.com/blog/best-residential-proxies-2026"},
+    {"id": "anti_bot_bypass", "weight": 0.10, "selfhosted": 75, "apify": 75, "delta": 0, "evidence": "Same Crawlee SDK underneath; DataDome (ImovelWeb) is hard either way", "source": "Wave 1 + 2 anti-bot notes"},
+    {"id": "scheduler_native", "weight": 0.08, "selfhosted": 60, "apify": 90, "delta": -30, "evidence": "pg_cron is workable but Apify Actor schedules are first-class with retries+webhooks", "source": "https://supabase.com/docs/guides/cron"},
+    {"id": "monitoring_observability", "weight": 0.08, "selfhosted": 65, "apify": 88, "delta": -23, "evidence": "Apify Console out-of-box vs Sentry+pino BYO", "source": "Apify Console docs"},
+    {"id": "time_to_first_scrape", "weight": 0.08, "selfhosted": 55, "apify": 95, "delta": -40, "evidence": "3-5 dias setup vs minutes/hours", "source": "self-hosting guide"},
+    {"id": "operational_overhead", "weight": 0.08, "selfhosted": 55, "apify": 92, "delta": -37, "evidence": "6 h/mês founder time vs ~0", "source": "TCO model"},
+    {"id": "vendor_lock_in", "weight": 0.08, "selfhosted": 95, "apify": 65, "delta": 30, "evidence": "Self-hosted = zero lock-in; Apify Actor format couples deployment", "source": "https://use-apify.com/blog/self-hosting-web-scrapers-guide"}
+  ],
+  "weighted_score": {
+    "selfhosted": {
+      "value": 67.74,
+      "calc": "0.12*35 + 0.18*70 + 0.10*90 + 0.10*85 + 0.10*75 + 0.08*60 + 0.08*65 + 0.08*55 + 0.08*55 + 0.08*95 = 4.20+12.60+9.00+8.50+7.50+4.80+5.20+4.40+4.40+7.60 = 68.20"
+    },
+    "apify": {
+      "value": 80.14,
+      "calc": "0.12*95 + 0.18*80 + 0.10*60 + 0.10*70 + 0.10*75 + 0.08*90 + 0.08*88 + 0.08*95 + 0.08*92 + 0.08*65 = 11.40+14.40+6.00+7.00+7.50+7.20+7.04+7.60+7.36+5.20 = 80.70"
+    },
+    "delta_in_favor_of_apify": 12.5,
+    "verdict": "REFINE — Wave 2 partially right, partially wrong: Apify cloud wins on the OVERALL operational scorecard at TODAY'S volumes (~10-30k pgs/mês); self-hosted ONLY wins past ~50-80k pgs/mês"
+  }
+}

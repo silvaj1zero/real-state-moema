@@ -1,0 +1,121 @@
+storyId: STORY-8.4
+verdict: CONCERNS
+verdictReason: >
+  Deck Comercial RE/MAX (paisagem, 20 slides) e Material Didático (retrato, 5 partes)
+  implementados em PDF nativo React-PDF, fiéis ao `ACM_Apresentacao_Completa_Honduras_
+  RE-MAX_v2.pdf` e ao `MATERIAL_DIDATICO_ACM_Honduras.pdf` (texto-fonte extraído via
+  `pdftotext -layout` — Art. IV). Ambos derivam do MESMO `AcmLaudoComputation` (8.2) e
+  do mesmo `LaudoSourceComparable` do laudo (8.3b) — consistência total de números
+  testada (AC3). Reusa os primitivos da 8.3 (theme.ts/staticMap.ts) sem segunda stack
+  de PDF. O Didático explica a fórmula de aderência a partir dos pesos REAIS da
+  metodologia (`ADHERENCE_WEIGHTS`) — a fórmula explicada é a executada. AC1–AC6
+  atendidos. Aprovado com observações (nenhuma bloqueante): (1) o conteúdo institucional/
+  explicativo é template seed do caso Honduras — revisar/sobrescrever por caso antes da
+  entrega; (2) as estatísticas RE/MAX (mundo/Brasil) são constantes institucionais do
+  deck v2 — atualizar por fonte oficial periodicamente; (3) pins de comparáveis no mapa
+  e logo PNG herdados da 8.3 (limitações conhecidas). Status InReview → Done autorizado.
+
+reviewedAt: 2026-06-16
+reviewer: "@qa (Quinn)"
+splitContext: "Entregáveis comerciais/educativos do Epic 8. Reusam computeLaudo (8.2) + theme/staticMap (8.3)."
+
+testsScope:
+  acmFull: "114/114 (104 anteriores + 10 novos)"
+  novos: "deckDidatico: 3 deckModel + 4 didaticoModel + 3 smoke render = 10"
+  typecheck: "0 erros em src/ (filtro ^src/)"
+  lint: "0 (eslint pdf + components/acm alterados)"
+
+qualityChecks:
+  codeReview:
+    status: PASS
+    notes: >
+      Mesma arquitetura da 8.3: deckModel.ts/didaticoModel.ts (view-models PUROS) →
+      DeckDocument.tsx (paisagem) / DidaticoDocument.tsx (retrato) → EntregavelExportSheet.tsx
+      (sheet ÚNICA parametrizada por `kind`, evitando duplicar o form). Imports absolutos.
+      JSDoc traça à referência/ADR (Art. IV). Reuso real de AcmLaudoComputation,
+      LaudoSourceComparable, theme.ts e staticMap.ts. O didático importa ADHERENCE_WEIGHTS
+      para que a fórmula exibida derive da constante real (não de um literal divergente).
+  unitTests:
+    status: PASS
+    coverage: "10 testes novos"
+    notes: >
+      deckModel: duas-frentes/recomendação/sensibilidade = números da 8.2; institucional
+      templado presente. didaticoModel: fórmula com pesos 0,5/0,2/0,3; Score régua (4);
+      efeito-escala (3 faixas); validação Top 10 com SQL/status/fonte; sensibilidade = 8.2.
+      Render: deck (paisagem) e didático (retrato) Honduras completos → %PDF-; caso
+      n=2/NULL/sem-mapa/sem-residual → ambos %PDF- (não quebram).
+  acceptanceCriteria:
+    status: PASS
+    met: 6
+    partial: 0
+    failed: 0
+    notes: >
+      AC1 PASS (deck 20 slides com toda a pauta v2). AC2 PASS (didático 5 partes).
+      AC3 PASS (mesmo computeLaudo/source do laudo; consistência testada). AC4 PASS
+      (2 itens no menu sob guarda canResumo). AC5 PASS-com-nota (mapa estático + legenda;
+      pins do Top N omitidos por ausência de lat/lng na RPC — herdado). AC6 PASS (smokes).
+  noRegressions:
+    status: PASS
+    notes: >
+      114/114 ACM verdes (104 anteriores intactos). AcmExportMenu só ganhou 2 estados +
+      2 itens sob a mesma guarda canResumo + render das sheets; Resumo/Laudo/CSV/Copiar/
+      Dossiê e a lib 8.2 inalterados.
+  performance:
+    status: PASS
+    notes: >
+      Render cliente via toBlob; fontes nativas (Helvetica). Smokes do deck (paisagem,
+      20 págs) e didático (retrato, multipágina) concluem dentro do timeout de 30s no node.
+      Único custo de rede é 1 GET do mapa estático, pré-buscado e embutido como data URL.
+  security:
+    status: PASS
+    notes: >
+      Token Mapbox NEXT_PUBLIC pré-buscado (bytes no PDF, token não); inputs coagidos por
+      numOrUndef. Geração 100% cliente, sem novo endpoint. Sem PII além do que a consultora
+      digita.
+  documentation:
+    status: PASS
+    notes: >
+      Story 8.4 com File List, ACs marcados, QA Results e Change Log. JSDoc citando
+      referência/ADR/Art. IV em cada arquivo. Re-validação @po registrada.
+
+issues:
+  - severity: medium
+    category: requirements
+    description: >
+      O conteúdo institucional do deck (diferenciais, plano de marketing, garantia,
+      próximos passos) e o texto explicativo do didático são templates seed derivados do
+      caso/deck Honduras. Tracem à referência (Art. IV) e interpolam os números computados,
+      mas são SEEDS — não material comercial final por imóvel.
+    recommendation: >
+      A consultora deve revisar/sobrescrever via DeckInput/DidaticoInput antes de
+      apresentar ao proprietário (todos os campos são overridable). Considerar expor os
+      campos-chave no sheet numa fase seguinte.
+  - severity: low
+    category: requirements
+    description: >
+      As estatísticas RE/MAX (115+ países, 144 mil corretores, R$ 14,3 bi VGV etc.) são
+      constantes institucionais hardcoded do deck v2 — envelhecem com o tempo.
+    recommendation: >
+      Centralizar em um único módulo institucional e atualizar por fonte oficial RE/MAX a
+      cada ciclo; já são overridable por DeckInput.remaxMundo/remaxBrasil.
+  - severity: low
+    category: code
+    status: INHERITED
+    description: >
+      Mapa não plota pins dos comparáveis (Top N) e logo é tipográfico — herdado da 8.3
+      (RPC fn_comparaveis_no_raio sem lat/lng; asset PNG ausente).
+    recommendation: >
+      @data-engineer: lat/lng na RPC (fecha pins de 8.3a/8.3b/8.4); asset: logo oficial PNG.
+
+dependencies:
+  dependsOn:
+    - "8.0 (ADR-EPIC8-001 Accepted), 8.2 (cálculo) Done, 8.3a/8.3b (infra de PDF + branding) Done."
+  blocks: []
+
+nextSteps:
+  - "@devops: commit + push da 8.4 (6 novos + 1 alterado) — feat(epic8): Deck comercial + Material didático ACM [Story 8.4]."
+  - "@dev (fase seguinte): expor campos institucionais/explicativos no sheet ou aviso de revisão (issue medium)."
+  - "@data-engineer: lat/lng na RPC p/ pins do Top N (fecha 8.3a/8.3b/8.4)."
+  - "Epic 8: 8.5 (orquestração 1-clique) foi descopada na forma original pela ADR — avaliar com @pm se ainda há fatia."
+
+storyStatusTransition: "InReview -> Done (CONCERNS-approved; commit/push pendente @devops)"

@@ -28,8 +28,9 @@ describe('relativeTime', () => {
 })
 
 describe('FEED_TYPE_CONFIG', () => {
-  it('should have 8 event types', () => {
-    expect(Object.keys(FEED_TYPE_CONFIG)).toHaveLength(8)
+  it('should have 10 event types', () => {
+    // 8 originais (Story 3.7) + owner_lookup_completo (6.6) + owner_lookup_aberto (6.7)
+    expect(Object.keys(FEED_TYPE_CONFIG)).toHaveLength(10)
   })
 
   it('should have color and icon for each type', () => {

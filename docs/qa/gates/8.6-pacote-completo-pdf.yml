@@ -1,0 +1,95 @@
+storyId: STORY-8.6
+verdict: PASS
+verdictReason: >
+  Pacote completo ACM em 1 clique implementado como ORQUESTRAÇÃO PURA sobre os
+  builders já entregues e testados (resumo 8.3a, laudo 8.3b, deck + didático 8.4):
+  `buildAcmPackage` roda a partir de UM ÚNICO `AcmLaudoComputation` (8.2) e monta os
+  4 documentos React-PDF — garantindo consistência total de números (AC2). A sheet
+  (`PacoteExportSheet`) coleta um formulário único (superset), faz `toBlob` + download
+  sequencial dos 4 PDFs com progresso por entregável e tolerância a falha individual
+  (AC3/AC4). Nenhuma nova dependência (sem ZIP). Como é reuso puro, o risco é só de
+  integração — coberto por 3 testes (ordem/nomes + 4 docs `%PDF-` + robustez n=2/NULL).
+  AC1–AC6 met. PASS.
+
+reviewedAt: 2026-06-16
+reviewer: "@qa (Quinn)"
+splitContext: "Fatia de UX sobrevivente da 8.5 (Roadmap Passo 3.1), nativa — NÃO reabre orquestração de engine (descopada pela ADR-EPIC8-001)."
+
+testsScope:
+  acmFull: "117/117 (114 anteriores + 3 novos) com --no-file-parallelism"
+  novos: "acmPackage: 1 estrutura + 1 render 4x %PDF- + 1 robustez = 3"
+  typecheck: "0 erros em src/"
+  lint: "0 (eslint pdf + components/acm)"
+
+qualityChecks:
+  codeReview:
+    status: PASS
+    notes: >
+      `acmPackage.tsx` é um orquestrador PURO: recebe computation/source/input e
+      devolve os 4 elementos React-PDF + nomes — sem lógica de cálculo nem render
+      própria. A sheet reusa o pipeline-padrão (computeLaudo→build→toBlob). O `input`
+      é o superset LaudoInput (deck/didático só adicionam campos opcionais), evitando
+      drift de formulário. Import corrigido na implementação (`buildResumoModel` vem de
+      `resumoModel`, não de `laudoModel`). Imports absolutos, JSDoc com Art. IV/ADR.
+  unitTests:
+    status: PASS
+    coverage: "3 testes novos"
+    notes: >
+      buildAcmPackage: ordem ['resumo','laudo','deck','didatico'] e nomes de arquivo;
+      os 4 docs renderizam %PDF- a partir de UM computeLaudo (AC2/AC6); robustez
+      n=2/NULL/sem-residual → os 4 ainda renderizam.
+  acceptanceCriteria:
+    status: PASS
+    met: 6
+    partial: 0
+    failed: 0
+    notes: >
+      AC1 PASS (item destacado + form único). AC2 PASS (um computeLaudo → 4 docs,
+      testado). AC3 PASS (download sequencial, sem ZIP, nomes claros). AC4 PASS
+      (progresso por entregável + tolerância a falha individual). AC5 PASS (reuso puro
+      dos builders/staticMap). AC6 PASS (smoke).
+  noRegressions:
+    status: PASS
+    notes: >
+      117/117 ACM verdes. AcmExportMenu só ganhou 1 estado + 1 item sob a mesma guarda
+      canResumo + render da sheet; os 4 itens individuais e o resto intactos.
+  performance:
+    status: PASS
+    notes: >
+      4 renders cliente sequenciais via toBlob; micro-delay (400ms) entre downloads
+      evita descarte de downloads múltiplos pelo browser. Único computeLaudo (não 4).
+  security:
+    status: PASS
+    notes: >
+      Sem novo endpoint; geração 100% cliente. Token Mapbox pré-buscado (bytes no PDF).
+      Inputs coagidos por numOrUndef.
+  documentation:
+    status: PASS
+    notes: >
+      Story 8.6 com File List, ACs marcados, QA Results e Change Log (PM→PO→dev→QA).
+      JSDoc citando Roadmap 3.1/ADR/Art. IV.
+
+issues:
+  - severity: low
+    category: tests
+    description: >
+      A suíte de smokes `renderToBuffer` (laudo 18p + deck 20 slides + didático +
+      pacote 4×) é pesada; sob paralelismo de arquivos do vitest em máquina carregada,
+      alguns renders podem dar timeout (observado: 3 "errors" de contenção numa run
+      paralela; 0 com --no-file-parallelism).
+    recommendation: >
+      Rodar os smokes de PDF com `--no-file-parallelism` (ou aumentar testTimeout /
+      isolar o projeto de PDF no vitest config). Não é defeito de código — é contenção
+      de recursos. 117/117 determinístico no modo sequencial.
+
+dependencies:
+  dependsOn:
+    - "8.3a, 8.3b, 8.4 (builders/documentos) Done; 8.2 (cálculo) Done."
+  blocks: []
+
+nextSteps:
+  - "@devops: commit + push da 8.6 (3 novos + 1 alterado) — feat(epic8): pacote completo ACM em 1 clique [Story 8.6]."
+  - "Epic 8: fechar (8.0–8.4 + 8.6 Done; 8.5 Descoped)."
+  - "Fast-follow opcional: ZIP do pacote + anexar ao dossiê (eram AC da 8.5)."
+
+storyStatusTransition: "InReview -> Done (PASS; commit/push pendente @devops)"

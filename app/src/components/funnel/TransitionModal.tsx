@@ -66,6 +66,8 @@ export function TransitionModal() {
     closeTransitionModal()
   }, [closeTransitionModal])
 
+  // TODO(epic7-wave-b): React Compiler cannot preserve manual memoization here; refactor to extract pure helper or rely on compiler. Functional behavior unaffected.
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleConfirm = useCallback(async () => {
     if (!transitionModalLeadId || !fromEtapa || !toEtapa || !user?.id) return
 

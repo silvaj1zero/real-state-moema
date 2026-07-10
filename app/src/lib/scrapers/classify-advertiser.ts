@@ -50,6 +50,14 @@ export const BROKER_CNAES = new Set<string>([
 export type PhoneType = 'mobile' | 'landline' | 'unknown'
 
 /**
+ * Story 7.11 — tipo de anunciante DETERMINISTICO entregue nativamente pelo
+ * feed (campo `publisherType` de ZAP/VivaReal, backend Glue API da OLX).
+ * Quando presente, supera a heuristica 4-signal. Fontes sem o campo
+ * (ex.: MercadoLivre) deixam `undefined` -> cai na heuristica.
+ */
+export type PublisherType = 'owner' | 'agency' | 'developer'
+
+/**
  * AC2 — sinais coletados ANTES de classificar. Caller (crawler) e
  * responsavel por preencher `cnae` (via lookupCNAE) e `nameAppearsPersonal`
  * (via helper) — mantemos `classifyAdvertiser` 100% sincrono e puro.
@@ -69,6 +77,12 @@ export interface AdvertiserSignals {
   listingCountByPhone?: number
   /** Resultado de nameAppearsPersonal sobre o nome do anunciante. */
   nameAppearsPersonal: boolean
+  /**
+   * Story 7.11 — `publisherType` nativo do feed (ZAP/VivaReal). Quando
+   * presente, dispara o Passo 0 deterministico (confidence 0.95). Fontes
+   * sem o campo deixam `undefined` (segue heuristica 4-signal).
+   */
+  publisherType?: PublisherType
 }
 
 /** Sinais que justificam a decisao — vocabulario fechado (alinhado a schema 7.1). */
@@ -80,6 +94,12 @@ export type ClassificationSignal =
   | 'ddd_mobile'
   | 'single_listing'
   | 'name_appears_personal'
+  // Story 7.11 — sinais deterministicos via publisherType nativo
+  | 'publisher_type_owner'
+  | 'publisher_type_agency'
+  | 'publisher_type_developer'
+  /** publisherType=owner mas CRECI presente — conflito auditavel (AC5). */
+  | 'publisher_type_creci_conflict'
 
 export interface ClassificationResult {
   classification: AdvertiserClassification
@@ -105,6 +125,34 @@ export interface ClassificationResult {
 export function classifyAdvertiser(
   s: AdvertiserSignals,
 ): ClassificationResult {
+  // Passo 0 (Story 7.11) — publisherType nativo e DETERMINISTICO: precede
+  // a heuristica (nao a remove — fontes sem o campo caem nos passos 1-5).
+  // Mapeamento per ADR-EPIC7-004 (anotacao 7.11):
+  //   owner -> for_sale_by_owner | agency -> broker | developer -> builder.
+  if (s.publisherType) {
+    switch (s.publisherType) {
+      case 'owner': {
+        const signals: ClassificationSignal[] = ['publisher_type_owner']
+        // AC5 — owner com CRECI e suspeito (corretor anunciando como PF):
+        // publisherType vence, mas logamos o conflito para auditoria.
+        if (s.hasCRECI) signals.push('publisher_type_creci_conflict')
+        return { classification: 'for_sale_by_owner', confidence: 0.95, signals }
+      }
+      case 'agency':
+        return {
+          classification: 'broker',
+          confidence: 0.95,
+          signals: ['publisher_type_agency'],
+        }
+      case 'developer':
+        return {
+          classification: 'builder',
+          confidence: 0.95,
+          signals: ['publisher_type_developer'],
+        }
+    }
+  }
+
   // Passo 1/2 — CNPJ + CNAE conhecidos
   if (s.cnpj && s.cnae) {
     if (BUILDER_CNAES.has(s.cnae)) {
@@ -152,6 +200,37 @@ export function classifyAdvertiser(
     classification: 'unknown',
     confidence: 0.0,
     signals: [],
+  }
+}
+
+// ---------------------------------------------------------------------------
+// normalizePublisherType — AC3 (Story 7.11)
+// ---------------------------------------------------------------------------
+
+/**
+ * AC3 — normaliza o `publisherType` nativo do feed ZAP/VivaReal
+ * (`OWNER`/`AGENCY`/`DEVELOPER`, qualquer caixa) para o enum lower-case.
+ *
+ * Retorna `undefined` para valores ausentes ou desconhecidos (ex.: fontes
+ * como MercadoLivre que nao expoem o campo) — caller trata como "sem sinal
+ * deterministico" e cai na heuristica 4-signal.
+ *
+ * Art. IV (No Invention): os 3 valores vem do schema real dos actors
+ * (report FISBO F1) — nao inventamos categorias.
+ */
+export function normalizePublisherType(
+  raw: string | null | undefined,
+): PublisherType | undefined {
+  if (!raw) return undefined
+  switch (raw.trim().toLowerCase()) {
+    case 'owner':
+      return 'owner'
+    case 'agency':
+      return 'agency'
+    case 'developer':
+      return 'developer'
+    default:
+      return undefined
   }
 }
 

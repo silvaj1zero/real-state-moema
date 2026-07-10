@@ -1,0 +1,104 @@
+storyId: STORY-9.2
+verdict: CONCERNS
+verdictReason: >
+  Planilha XLSX canônica multi-aba entregue em TS nativo (exceljs), fechando a
+  maior lacuna da comparação 1:1 (antes só CSV plano). Modelo puro
+  (`planilhaModel.ts`) separado do writer (`buildPlanilhaWorkbook.ts`), com as 7
+  abas (Leia-me · Top 3/5/10 · Todos · Ofertas ativas · Terrenos), estilos da
+  referência (fill por faixa, cabeçalho navy, hyperlink, freeze, auto-filter) e
+  degradação graciosa validada por teste (campos 100% NULL → células vazias;
+  abas sem dado → "Nenhum registro no raio"). AC1/AC3/AC4/AC6/AC7/AC8 PASS.
+  CONCERNS por AC2 PARCIAL (desvio honesto): 18 colunas em vez das 21 da
+  referência — `Bairro`, `Programa:origem` e `Re-verif./Confere` foram omitidos
+  por não existirem no dado da RPC hoje; entram quando 9.4 (sink) / 9.5
+  (validação web) os popularem. Sem bloqueio de merge: 132/132 testes ACM, 0
+  tsc, 0 lint. Aprovado com observações.
+
+reviewedAt: 2026-06-17
+reviewer: "@qa (Quinn)"
+
+filesChanged:
+  - "app/src/lib/acm/xlsx/planilhaModel.ts — view-model puro das 7 abas (novo)"
+  - "app/src/lib/acm/xlsx/buildPlanilhaWorkbook.ts — writer exceljs (novo)"
+  - "app/src/lib/acm/xlsx/planilhaModel.test.ts — 7 testes (novo)"
+  - "app/src/components/acm/PlanilhaExportSheet.tsx — sheet de geração (novo)"
+  - "app/src/components/acm/AcmExportMenu.tsx — item 'Gerar Planilha (XLSX)' (alterado)"
+
+testsScope:
+  acm: "132/132 (src/lib/acm + src/components/acm, --no-file-parallelism)"
+  planilha: "7/7 (modelo + smoke do workbook: assinatura ZIP 'PK', NULL, vazio)"
+  typecheck: "0 erros em src/"
+  lint: "0 (xlsx/* + PlanilhaExportSheet + AcmExportMenu)"
+
+qualityChecks:
+  codeReview:
+    status: PASS
+    notes: >
+      Boa separação modelo puro × writer (testável), espelhando resumoModel/
+      laudoModel. Números 100% de AcmLaudoComputation (8.2) — zero recálculo.
+      Join ranking→comparável por endereço segue o padrão já usado em
+      sensitivityScenarios/buildAcmMapMarkers (consistente; ciente da duplicidade
+      de endereços flagada no 9.0 → dedup virá na 9.4). Helper `blank` evita
+      "nan". exceljs já era dependência (sem dep nova).
+  unitTests:
+    status: PASS
+    coverage: "7 testes novos (modelo + workbook)"
+    notes: >
+      Cobre ordem das 7 abas, omissão de Terrenos p/ apartamento, ranks 1..N,
+      células NULL → vazio, emptyNote, e smoke do .xlsx (PK) + caso vazio.
+  acceptanceCriteria:
+    status: CONCERNS
+    met: 7
+    partial: 1
+    failed: 0
+    notes: >
+      AC1 PASS (7 abas, ordem travada). AC2 PARTIAL (18/21 colunas — omissões por
+      ausência de dado na RPC, documentadas). AC3 PASS (fills/navy/hyperlink/
+      freeze/auto-filter). AC4 PASS (Leia-me + aviso de dado). AC5 PASS (Ofertas/
+      Terrenos com emptyNote; Terrenos omitida p/ apto). AC6 PASS (item no menu +
+      CSV mantido). AC7 PASS (degradação graciosa testada). AC8 PASS (testes).
+  noRegressions:
+    status: PASS
+    notes: "132/132 ACM verdes; CSV/PDFs intactos; mudança no menu é aditiva (novo item + sheet)."
+  performance:
+    status: PASS
+    notes: "Geração client-side O(N) sobre comparáveis do raio (<~1000). exceljs writeBuffer pontual no clique."
+  security:
+    status: PASS
+    notes: "Sem segredos; só dados já carregados via RPC (RLS a montante). Hyperlink validado por regex http(s)."
+  documentation:
+    status: PASS
+    notes: "Story com Completion Notes (stack, abas, desvio AC2), File List e Change Log atualizados."
+
+issues:
+  - severity: low
+    category: requirements
+    description: >
+      AC2 pede 21 colunas; entregues 18. `Bairro`, `Programa:origem` e
+      `Re-verif./Confere` da planilha de referência foram omitidos por não
+      existirem no dado atual da RPC.
+    recommendation: >
+      Reconciliar quando 9.4 (sink: bairro/SQL/programa) e 9.5 (validação web:
+      re-verif/confere) popularem os campos — então adicionar as 3 colunas. @po
+      pode amendar o texto do AC2 para "colunas disponíveis no dado" ou manter
+      como follow-up.
+  - severity: low
+    category: requirements
+    description: >
+      As abas `Ofertas ativas` e `Terrenos` são alimentadas por input do
+      consultor (`PlanilhaInput.ofertas/terrenos`); hoje a `PlanilhaExportSheet`
+      não coleta essas listas, então as abas saem com "Nenhum registro no raio".
+    recommendation: >
+      Follow-up: wirar a coleta de ofertas/terrenos (ou reusar as listas do
+      LaudoInput) na sheet. Não bloqueia — a estrutura e o emptyNote já existem.
+
+dependencies:
+  dependsOn:
+    - "9.0 (cobertura de dado), 8.2 (computeLaudo/ranking)"
+  relates:
+    - "9.4 (popula SQL/bairro/programa → colunas extras), 9.5 (status web/links → re-verif)"
+
+nextSteps:
+  - "@devops: commit/push da 9.2 quando autorizado → Status Done."
+  - "Loop encosta nos bloqueios reais: 9.4 (cross-repo acm-imobiliario) e 9.1 (elicit régua apto c/ Luciana)."
+  - "Follow-up: 3 colunas extras + coleta de ofertas/terrenos na sheet (pós 9.4/9.5)."

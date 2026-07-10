@@ -1,0 +1,101 @@
+storyId: STORY-9.0
+verdict: PASS
+verdictReason: >
+  Spike de auditoria de dados ACM (READ-ONLY) atingiu todos os objetivos com
+  evidência empírica reproduzível contra PROD. Os 6 AC estão atendidos: o
+  contrato vivo da RPC foi confirmado (AC1 — 23 colunas, latitude/longitude/
+  anuncio_url presentes; migration 8.7 está aplicada — resolve a contradição do
+  escopo e DESTRAVA a Story 9.3), a cobertura NULL foi medida por contagem
+  exata sobre as 3.618 linhas ITBI (AC2 — 100% NULL em todos os campos da
+  metodologia; só data_referencia/coordinates populados — confirma 9.4 como
+  gargalo de evidência), a (não) distinção apto×casa foi documentada (AC3 —
+  `tipo` 100% NULL → 9.1 depende de 9.4 p/ classificação automática), a amostra
+  real foi obtida sem inventar coordenadas (AC4 — geocode real de Moema + RPC),
+  o documento de achados foi entregue (AC5) e nenhuma alteração de schema/dado
+  ocorreu (AC6). Sem código de produção → sem testes unitários aplicáveis; a
+  "prova" é a query empírica documentada. Aprovado para Done (commit/push
+  pendente @devops).
+
+reviewedAt: 2026-06-17
+reviewer: "@qa (Quinn)"
+
+artifacts:
+  - "docs/acm/9.0-data-audit.md — achados (AC1–AC6)"
+  - "app/scripts/acm-audit/9.0-data-audit.mjs — script read-only reproduzível"
+
+testsScope:
+  unitTests: "N/A — spike sem código de produção"
+  evidence: "Contagem exata (count: exact, head: true) sobre 3.618 linhas ITBI + RPC viva em PROD"
+  schemaChanges: "Nenhuma (read-only)"
+
+qualityChecks:
+  codeReview:
+    status: PASS
+    notes: >
+      Script de auditoria reusa o padrão estabelecido em
+      app/scripts/acm-honduras/01-discover.mjs (supabase-js + SERVICE_ROLE_KEY
+      via PostgREST; DATABASE_URL direto obsoleto). Read-only puro
+      (SELECT/RPC/geocode). Sem inventar coordenadas — centro do raio vem de
+      geocode real. Limitação do PostgREST (cap 1000 linhas) reconhecida e
+      contornada com contagem exata head:true.
+  unitTests:
+    status: PASS
+    notes: >
+      Não aplicável a um spike read-only sem código de produção. A verificação
+      é empírica e reproduzível (re-rodar o script reproduz os números).
+  acceptanceCriteria:
+    status: PASS
+    met: 6
+    partial: 0
+    failed: 0
+    notes: >
+      AC1 PASS (RPC viva: 23 colunas, lat/lng/anuncio_url; 9.3 destravada).
+      AC2 PASS (100% NULL em area_construida/terreno, S/V/D, score,
+      sql_cadastral, padrao, ano, valor_venal, status, preco_pedido,
+      scraped_listing_id — contagem exata sobre 3.618). AC3 PASS (`tipo` 100%
+      NULL; 9.1 depende de 9.4). AC4 PASS (geocode real Moema + RPC raio 1000;
+      observada duplicidade de endereço → dedup por SQL entra na 9.4). AC5 PASS
+      (docs/acm/9.0-data-audit.md). AC6 PASS (zero alteração).
+  noRegressions:
+    status: PASS
+    notes: "Read-only; nenhuma alteração de schema/dado/RPC. Zero risco de regressão."
+  performance:
+    status: PASS
+    notes: "Queries simples (counts + RPC raio); sem impacto. Spike pontual."
+  security:
+    status: PASS
+    notes: >
+      Usa SUPABASE_SERVICE_ROLE_KEY lido de app/.env.local (gitignored — não
+      versionado). Nenhum segredo no código ou no doc. ITBI = endereço+valor
+      (LGPD) — mantido em repositório privado/local-only (waiver vigente).
+  documentation:
+    status: PASS
+    notes: >
+      docs/acm/9.0-data-audit.md consolida AC1–AC6 com tabela de cobertura,
+      amostra real e recomendações de reescopo por story (9.1/9.2/9.3/9.4) —
+      base direta para o refino do PRD do Epic 9.
+
+issues:
+  - severity: low
+    category: code
+    description: >
+      O script depende de GOOGLE_API_KEY/MAPBOX_TOKEN para o geocode do centro
+      (AC4). Sem token, AC4 degrada (sem amostra), embora AC1/AC2/AC3 sigam
+      válidos.
+    recommendation: >
+      Para reuso futuro, permitir passar lat/lng do alvo por argumento (evita
+      dependência de geocode quando já se conhece o ponto).
+
+dependencies:
+  blocks:
+    - "9.1 (classificação automática apto/casa depende de `tipo` populado → 9.4)"
+    - "9.2 (colunas da planilha virão vazias até 9.4)"
+  unblocks:
+    - "9.3 (mapa/pins) — lat/lng vivos confirmados em PROD"
+  feeds:
+    - "9.4 — adicionar dedup por sql_cadastral (duplicidade de endereço observada)"
+
+nextSteps:
+  - "@devops: commit/push dos artefatos da 9.0 quando autorizado → Status Done."
+  - "@po: aplicar o reescopo recomendado (sequência 9.3 ‖ 9.4 → 9.1 + 9.2) no PRD do Epic 9."
+  - "Seguir SDC: priorizar 9.3 (destravada) e 9.4 (gargalo, cross-repo)."

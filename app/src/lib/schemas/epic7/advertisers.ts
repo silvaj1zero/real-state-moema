@@ -49,9 +49,19 @@ export type AdvertiserClassification = z.infer<
 >
 
 /**
+ * Story 7.11 — `publisher_type` nativo do feed (ZAP/VivaReal). Sinal
+ * deterministico que supera a heuristica 4-signal. `null` para fontes sem
+ * o campo (ex.: MercadoLivre), que seguem a heuristica.
+ */
+export const PublisherTypeSchema = z.enum(['owner', 'agency', 'developer'])
+
+export type PublisherType = z.infer<typeof PublisherTypeSchema>
+
+/**
  * Vocabulario fechado de sinais que justificam a classificacao.
  * Story 7.3 (classifyAdvertiser) preenche este array; Story 7.7
- * (creciService) pode adicionar `has_creci`.
+ * (creciService) pode adicionar `has_creci`; Story 7.11 adiciona os
+ * sinais deterministicos `publisher_type_*`.
  *
  * Sinais alinhados a heuristica FISBO Wave 2 (ADR-EPIC7-004).
  */
@@ -63,6 +73,11 @@ export const ClassificationSignalSchema = z.enum([
   'cnpj_match_construtora',
   'cnpj_match_imobiliaria',
   'has_creci',
+  // Story 7.11 — sinais deterministicos via publisherType nativo
+  'publisher_type_owner',
+  'publisher_type_agency',
+  'publisher_type_developer',
+  'publisher_type_creci_conflict',
 ])
 
 export type ClassificationSignal = z.infer<typeof ClassificationSignalSchema>
@@ -75,6 +90,11 @@ export const AdvertisersSchema = z.object({
   classification: AdvertiserClassificationSchema,
   classification_confidence: z.number().min(0).max(1),
   classification_signals: z.array(ClassificationSignalSchema),
+  /**
+   * Story 7.11 (AC1) — `publisherType` nativo do feed, opcional e nullable.
+   * `null` quando a fonte nao expoe o campo (ex.: MercadoLivre).
+   */
+  publisher_type: PublisherTypeSchema.nullable().optional(),
 })
 
 export type Advertisers = z.infer<typeof AdvertisersSchema>

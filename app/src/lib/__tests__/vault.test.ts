@@ -114,7 +114,10 @@ describe('getLeadPII', () => {
 describe('storeLeadPIIBatch', () => {
   it('calls storeLeadPII for each defined field, skipping undefined/empty', async () => {
     const FAKE_UUID = '22222222-2222-2222-2222-222222222222'
-    const rpc = vi.fn(() => ({ data: FAKE_UUID, error: null }))
+    const rpc = vi.fn((_fn: string, _params: Record<string, unknown>) => ({
+      data: FAKE_UUID,
+      error: null,
+    }))
     const client = { rpc } as unknown as SupabaseClient
 
     await storeLeadPIIBatch(client, 'lead-1', {

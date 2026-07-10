@@ -16,6 +16,8 @@ export type TipoFeed =
   | 'agendamento_proximo'
   | 'seed_completo'
   | 'sync_completo'
+  | 'owner_lookup_completo'
+  | 'owner_lookup_aberto'
 
 export type PrioridadeFeed = 'alta' | 'media' | 'baixa'
 
@@ -63,6 +65,8 @@ export const FEED_TYPE_CONFIG: Record<TipoFeed, { icon: string; color: string; l
   agendamento_proximo: { icon: 'calendar', color: '#3B82F6', label: 'Agendamento' },
   seed_completo: { icon: 'database', color: '#6B7280', label: 'Seed' },
   sync_completo: { icon: 'refresh', color: '#6B7280', label: 'Sync' },
+  owner_lookup_completo: { icon: 'user-check', color: '#8B5CF6', label: 'Proprietário' },
+  owner_lookup_aberto: { icon: 'user-search', color: '#A78BFA', label: 'Dossiê aberto' },
 }
 
 export const PRIORIDADE_COLORS: Record<PrioridadeFeed, string> = {

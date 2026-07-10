@@ -35,6 +35,7 @@ import {
   createPortalCrawler,
   PORTAL_CRAWLER_DEFAULTS,
 } from '@/lib/scrapers/portal-crawler'
+import { AntiBotDetectedError } from '@/lib/scrapers/hooks/postNavigationHooks'
 import {
   Telemetry,
   type TelemetryClient,
@@ -293,6 +294,88 @@ describe('createPortalCrawler — telemetry wiring (AC3)', () => {
         requestHandler: async () => {},
       }),
     ).not.toThrow()
+  })
+})
+
+describe('createPortalCrawler — block telemetry (Story 7.12 AC4)', () => {
+  it('AC3: protected crawler usa sessionPool + persistCookies por padrao', () => {
+    createPortalCrawler({ portal: 'zap', requestHandler: async () => {} })
+    const cfg = lastConfig()
+    expect(cfg.useSessionPool).toBe(true)
+    expect(cfg.persistCookiesPerSession).toBe(true)
+  })
+
+  it('anti-bot no requestHandler conta como bloqueio no block-rate', async () => {
+    const client = new CaptureClient()
+    const tel = new Telemetry({ client })
+    await tel.startRun('zap')
+
+    createPortalCrawler({
+      portal: 'zap',
+      telemetry: tel,
+      requestHandler: async () => {
+        throw new AntiBotDetectedError('cloudflare-503', 'https://zap.test/x')
+      },
+    })
+
+    const cfg = lastConfig()
+    await expect(
+      cfg.requestHandler({
+        request: { url: 'https://zap.test/x' },
+        response: { status: () => 503 },
+      }),
+    ).rejects.toThrow(/anti-bot detected/i)
+    await Promise.resolve()
+    await Promise.resolve()
+
+    const snap = tel.snapshot()
+    expect(snap.requests_failed).toBe(1)
+    expect(snap.requests_blocked).toBe(1)
+    expect(snap.block_rate).toBe(1)
+  })
+
+  it('failedRequestHandler com Cloudflare block conta como bloqueio', async () => {
+    const client = new CaptureClient()
+    const tel = new Telemetry({ client })
+    await tel.startRun('vivareal')
+
+    createPortalCrawler({
+      portal: 'vivareal',
+      telemetry: tel,
+      requestHandler: async () => {},
+    })
+
+    const cfg = lastConfig()
+    await cfg.failedRequestHandler(
+      { request: { url: 'https://vr.test/x', noRetry: false } },
+      new AntiBotDetectedError('cloudflare-html', 'https://vr.test/x'),
+    )
+    await Promise.resolve()
+
+    expect(tel.snapshot().requests_blocked).toBe(1)
+  })
+
+  it('erro nao-bloqueio (parse) NAO conta como bloqueio', async () => {
+    const client = new CaptureClient()
+    const tel = new Telemetry({ client })
+    await tel.startRun('zap')
+
+    createPortalCrawler({
+      portal: 'zap',
+      telemetry: tel,
+      requestHandler: async () => {
+        throw new Error('parse failed')
+      },
+    })
+    const cfg = lastConfig()
+    await expect(
+      cfg.requestHandler({ request: { url: 'https://zap.test/y' } }),
+    ).rejects.toThrow('parse failed')
+    await Promise.resolve()
+    await Promise.resolve()
+
+    expect(tel.snapshot().requests_failed).toBe(1)
+    expect(tel.snapshot().requests_blocked).toBe(0)
   })
 })
 

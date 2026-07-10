@@ -1,0 +1,159 @@
+storyId: STORY-8.3a
+verdict: CONCERNS
+verdictReason: >
+  Resumo Executivo ACM (PDF nativo React-PDF) implementado de ponta a ponta e
+  fiel à referência `ACM_RESUMO_Honduras_RE-MAX.pdf` (3 páginas). A camada de
+  render consome o `AcmLaudoComputation` (8.2) sem recálculo (ADR-EPIC8-001) e
+  separa view-model puro (`buildResumoModel`) de render (`ResumoDocument`),
+  permitindo testes sem gerar PDF + 2 smokes reais via `renderToBuffer` (assina
+  `%PDF-`). AC1–AC4, AC6–AC8 PASS. Dois pontos de atenção, nenhum bloqueante:
+  (1) **AC5 PARTIAL** — branding correto em cores/CRECI/rodapé, mas o logo é um
+  lockup TIPOGRÁFICO (RE/[MAX]/GALERIA), não o balão RE/MAX oficial em PNG (asset
+  ausente no repo). (2) **Robustez do mapa** — o fallback testado cobre "sem
+  token → null → placeholder", mas com token presente o React-PDF busca a imagem
+  Mapbox DURANTE o render; se o fetch falhar (offline/rate-limit) o `toBlob()`
+  rejeita e ABORTA o PDF inteiro (o try/catch do sheet evita crash e mostra erro,
+  mas não degrada para "sem mapa"). Recomenda-se pré-buscar o mapa e cair para
+  `mapaUrl=null` em falha, garantindo que o PDF sempre gere. Aprovado com
+  observações; Status InReview → Done autorizado (commit/push pendente @devops).
+
+reviewedAt: 2026-06-16
+reviewer: "@qa (Quinn)"
+splitContext: "Fatia Resumo da Story 8.3 (8.3a). 8.3b (Laudo) reusa theme/staticMap/buildResumoModel."
+
+testsScope:
+  acmFull: "76/76 (44 da 8.2 + 32 novos)"
+  novos: "resumoModel 24 + staticMap 6 + ResumoDocument render 2 = 32"
+  typecheck: "0 erros em src/"
+  lint: "0 (eslint src/lib/acm src/components/acm)"
+
+qualityChecks:
+  codeReview:
+    status: PASS
+    notes: >
+      Separação limpa em `app/src/lib/acm/pdf/`: theme.ts (tokens + CONSULTORA +
+      registerBrandFonts opt-in) → resumoModel.ts (view-model PURO, zero deps de
+      render) → staticMap.ts (URL builder puro) → ResumoDocument.tsx (só layout)
+      → ResumoExportSheet.tsx (orquestra o pipeline na borda da UI). Imports
+      absolutos (@/). JSDoc por arquivo traça à referência/ADR (Art. IV). Zero
+      recálculo no template — `computeLaudo` é a única fonte dos números. Reuso
+      do adapter `toAcmComparables` (8.2) e do `formatBRL`. `buildResumoModel`
+      é determinístico (data de emissão injetada, sem Date na lib pura).
+  unitTests:
+    status: PASS
+    coverage: "32 testes novos"
+    notes: >
+      resumoModel: header/ficha/faixa(5)/Top N(estrelas+fonte+R$/m² terreno
+      derivado)/sensibilidade(3 rótulos)/conclusão(6)/parecer + robustez
+      (n=2, terreno NULL, co-âncora null, programa ausente, meta default =
+      faixaFechamento). staticMap: anel fechado, raio↑→distância↑, sem token →
+      null, URL light-v11/geojson/auto/@2x, ordem dos pins. ResumoDocument:
+      render real (renderToBuffer) do caso Honduras completo E do caso n=2/NULL/
+      sem-mapa → ambos produzem `%PDF-`.
+  acceptanceCriteria:
+    status: CONCERNS
+    met: 7
+    partial: 1
+    failed: 0
+    notes: >
+      AC1 PASS (ResumoDocument 3 págs, render verde). AC2 PASS (theme RE/MAX;
+      fontes Helvetica-default offline-safe + registerBrandFonts opt-in —
+      desvio justificado p/ nunca quebrar). AC3 PASS (AcmLaudoComputation
+      consumido; ResumoInput; meta default = faixaFechamento testado). AC4 PASS
+      (coluna Fonte com sql_cadastral/"consulta SQL"). AC5 PARTIAL (logo
+      tipográfico, não PNG oficial). AC6 PASS (Mapbox Static + fallback null
+      testado; pins de comparáveis omitidos por ausência de lat/lng na RPC —
+      documentado). AC7 PASS (item no menu + ResumoExportSheet com loading +
+      erro). AC8 PASS (robustez n<5/NULL + smoke render + model isolado).
+  noRegressions:
+    status: PASS
+    notes: >
+      76/76 ACM verdes. AcmScreen/AcmExportMenu só ganharam props opcionais +
+      item de menu sob guarda (`canResumo`); CSV/Copiar/Dossiê e a lib 8.2
+      intactos. AcmScreen.test e AcmExportMenu.test passam.
+  performance:
+    status: PASS
+    notes: >
+      Render cliente de 3 páginas via toBlob — rápido (smoke ~0,5s no node).
+      Único custo de rede é a imagem estática do mapa (1 GET). computeLaudo é
+      O(N log N) sobre N comparáveis no raio (<100). Sem N+1.
+  security:
+    status: PASS
+    notes: >
+      Token Mapbox é NEXT_PUBLIC (já público por design, mesmo do AcmMiniMap);
+      o React-PDF embute os BYTES da imagem no PDF — o token só é usado no fetch,
+      não fica no arquivo final. Inputs do form são Number()-coagidos (sem
+      injeção). Sem PII além do que a consultora digita. Geração 100% cliente,
+      sem novo endpoint.
+  documentation:
+    status: PASS
+    notes: >
+      Story com Dev Agent Record (decisões + 4 follow-ups), File List completa,
+      checkboxes de AC com notas de desvio. JSDoc citando referência/ADR. 8.3b
+      criada como continuação. ADR-EPIC8-001 referenciada.
+
+issues:
+  - severity: medium
+    category: code
+    status: RESOLVED
+    description: >
+      Robustez do mapa: com token presente, o React-PDF busca a imagem Mapbox
+      durante o render do PDF. Se esse fetch falhar (offline, rate-limit, 4xx),
+      `pdf().toBlob()` rejeita e o Resumo inteiro não gera. O try/catch do
+      ResumoExportSheet evita crash e exibe erro, mas o usuário perde o PDF por
+      uma falha transitória do mapa. Os smokes cobrem só o caminho mapaUrl=null.
+    recommendation: >
+      Pré-buscar a imagem do mapa no ResumoExportSheet (fetch → ok? mantém URL :
+      mapaUrl=null) ANTES de montar o modelo, degradando para "sem mapa" em vez
+      de abortar. Adicionar teste do caminho de falha de fetch.
+    resolution: >
+      RESOLVIDO pós-gate (@dev, 2026-06-16): `resolveStaticMapImage(url, deps)`
+      pré-busca a imagem e a embute como data URL; retorna null em QUALQUER falha
+      (sem token / !ok / throw / erro de leitura) → degrada para "sem mapa", nunca
+      aborta. Bônus: o token Mapbox deixa de chegar ao PDF (usado só no pré-fetch).
+      +4 testes (null, ok, !ok, throw). pdf suite 32 → 36; ACM 76 → 80.
+  - severity: low
+    category: requirements
+    description: >
+      AC5 parcial — logo RE/MAX é lockup tipográfico; o balão oficial em PNG não
+      está no repo. Cores/CRECI/rodapé/tipografia OK.
+    recommendation: >
+      Dropar o asset oficial em `public/` e trocar o lockup por <Image> quando a
+      consultora/franquia fornecer o logo aprovado (regras de uso no brand-guide).
+  - severity: low
+    category: requirements
+    description: >
+      Mapa não plota pins dos comparáveis (Top N) — a RPC fn_comparaveis_no_raio
+      retorna apenas distancia_m, sem lat/lng.
+    recommendation: >
+      @data-engineer estender a RPC com lat/lng (geometry) para habilitar os pins
+      ❶❷❸/★ do Top N no mapa, fechando 100% a paridade visual com a referência.
+  - severity: low
+    category: code
+    description: >
+      Tipografia usa Helvetica nativa (não Montserrat/Inter do brand-guide).
+      Decisão deliberada p/ offline-safety; registerBrandFonts() já existe.
+    recommendation: >
+      Vendorizar Montserrat/Inter TTF em `public/fonts/` e chamar
+      registerBrandFonts() no ponto de geração para fidelidade tipográfica plena.
+  - severity: low
+    category: code
+    description: >
+      Cast duplo `as unknown as AcmRpcRow[]` em ResumoExportSheet (mesmo padrão
+      da 8.2/AcmSimilarPanel).
+    recommendation: >
+      Limpar após regen de tipos (8.1 AC6) com mapeamento tipado explícito.
+
+dependencies:
+  dependsOn:
+    - "8.0 (ADR-EPIC8-001 Accepted), 8.1 (dados) Done, 8.2 (cálculo) Done/InReview."
+  blocks:
+    - "8.3b (Laudo) — reusa theme.ts, staticMap.ts e buildResumoModel."
+
+nextSteps:
+  - "@dev (recomendado antes do push): pré-buscar o mapa e degradar p/ null em falha de fetch (issue medium)."
+  - "@devops: commit + push da 8.3a (10 arquivos) e das stories do split."
+  - "@data-engineer: lat/lng na RPC fn_comparaveis_no_raio p/ pins do Top N."
+  - "8.3b: iniciar reusando os primitivos da 8.3a."
+
+storyStatusTransition: "InReview -> Done (CONCERNS-approved; commit/push pendente @devops)"

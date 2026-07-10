@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useAuthStore } from '@/store/auth'
+import { OwnerLookupButton } from '@/components/owner-lookup'
 import type {
   EdificioWithQualificacao,
   StatusVarredura,
@@ -56,6 +58,7 @@ const ABERTURA_LABELS: Record<AberturaCorretores, string> = {
 
 export function BuildingCard({ building, isOpen, onClose, onUpdate }: BuildingCardProps) {
   const qual = building.edificios_qualificacoes?.[0]
+  const consultantId = useAuthStore((s) => s.user?.id)
   const [isEditing, setIsEditing] = useState(false)
   const [editStatus, setEditStatus] = useState<StatusVarredura>(qual?.status_varredura || 'nao_visitado')
   const [editAbertura, setEditAbertura] = useState<AberturaCorretores>(qual?.abertura_corretores || 'desconhecido')
@@ -253,12 +256,24 @@ export function BuildingCard({ building, isOpen, onClose, onUpdate }: BuildingCa
                 </button>
               </>
             ) : (
-              <button
-                onClick={() => setIsEditing(true)}
-                className="flex-1 h-11 text-sm font-medium text-white bg-[#003DA5] rounded-lg"
-              >
-                Editar
-              </button>
+              <>
+                {/* Story 6.7 (AC1): dossiê de proprietário via cartório */}
+                {consultantId && (
+                  <OwnerLookupButton
+                    edificioId={building.id}
+                    edificioNome={building.nome}
+                    endereco={building.endereco}
+                    tipologia={qual?.tipologia}
+                    consultantId={consultantId}
+                  />
+                )}
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="flex-1 h-11 text-sm font-medium text-white bg-[#003DA5] rounded-lg"
+                >
+                  Editar
+                </button>
+              </>
             )}
           </div>
         </div>

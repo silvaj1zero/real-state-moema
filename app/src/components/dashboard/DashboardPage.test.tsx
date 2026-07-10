@@ -40,6 +40,9 @@ vi.mock('./FrogSection', () => ({
 vi.mock('./UpcomingSection', () => ({
   UpcomingSection: () => React.createElement('div', { 'data-testid': 'upcoming' }),
 }))
+vi.mock('./DashboardQuickActions', () => ({
+  DashboardQuickActions: () => React.createElement('div', { 'data-testid': 'quick-actions' }),
+}))
 
 function makeWrapper() {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } })

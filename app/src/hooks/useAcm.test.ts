@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import React from 'react'
-import { calculateAcmStats, useComparaveis } from './useAcm'
+import { calculateAcmStats, useComparaveis, useCreateComparavel } from './useAcm'
 import type { ComparavelNoRaio } from '@/lib/supabase/types'
 
 // Mock Supabase
@@ -141,5 +141,103 @@ describe('calculateAcmStats', () => {
     expect(stats.mediaPrecoM2).toBe(15000)
     expect(stats.medianaPrecoM2).toBe(15000)
     expect(stats.totalComparaveis).toBe(1)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Story 8.1 (AC5/AC7) — campos da metodologia no insert manual
+// ---------------------------------------------------------------------------
+
+function makeInsertCapture() {
+  const captured: { payload: Record<string, unknown> | null } = { payload: null }
+  const single = vi.fn().mockResolvedValue({ data: { id: 'c1' }, error: null })
+  const select = vi.fn(() => ({ single }))
+  const insert = vi.fn((payload: Record<string, unknown>) => {
+    captured.payload = payload
+    return { select }
+  })
+  const from = vi.fn(() => ({ insert }))
+  mockCreateClient.mockReturnValue({ from } as unknown as ReturnType<typeof createClient>)
+  return captured
+}
+
+describe('useCreateComparavel — campos da metodologia (Story 8.1)', () => {
+  it('persiste os campos novos + derivados (preco_m2_terreno, desagio)', async () => {
+    const captured = makeInsertCapture()
+    const { result } = renderHook(() => useCreateComparavel(), { wrapper: makeWrapper() })
+
+    await result.current.mutateAsync({
+      consultant_id: 'cons-1',
+      endereco: 'Rua dos Chanés, 1',
+      area_m2: 100,
+      preco: 1_000_000,
+      is_venda_real: true,
+      area_terreno_m2: 250,
+      dormitorios: 3,
+      suites: 1,
+      vagas: 2,
+      sql_cadastral: '123.456.0001-2',
+      ano_referencia: 2025,
+      preco_pedido: 1_100_000,
+    })
+
+    expect(captured.payload).toMatchObject({
+      area_construida_m2: 100,
+      area_terreno_m2: 250,
+      dormitorios: 3,
+      suites: 1,
+      vagas: 2,
+      sql_cadastral: '123.456.0001-2',
+      ano_referencia: 2025,
+      preco_pedido: 1_100_000,
+    })
+    // derivado: 1_000_000 / 250 = 4000
+    expect(captured.payload!.preco_m2_terreno).toBe(4000)
+    // deságio: (1_000_000 - 1_100_000) / 1_100_000 * 100 ≈ -9.09
+    expect(captured.payload!.desagio_percent).toBeCloseTo(-9.09, 1)
+  })
+
+  it('campos novos ausentes -> NULL (venda só com área construída não quebra)', async () => {
+    const captured = makeInsertCapture()
+    const { result } = renderHook(() => useCreateComparavel(), { wrapper: makeWrapper() })
+
+    await result.current.mutateAsync({
+      consultant_id: 'cons-1',
+      endereco: 'Rua X, 2',
+      area_m2: 80,
+      preco: 800_000,
+      is_venda_real: false,
+    })
+
+    expect(captured.payload).toMatchObject({
+      area_construida_m2: 80,
+      area_terreno_m2: null,
+      preco_m2_terreno: null,
+      dormitorios: null,
+      suites: null,
+      vagas: null,
+      sql_cadastral: null,
+      ano_referencia: null,
+      preco_pedido: null,
+      desagio_percent: null,
+      status_anuncio: null,
+    })
+  })
+
+  it('deságio só calcula em venda real com preço pedido', async () => {
+    const captured = makeInsertCapture()
+    const { result } = renderHook(() => useCreateComparavel(), { wrapper: makeWrapper() })
+
+    // pedido presente mas NÃO é venda real -> desagio null
+    await result.current.mutateAsync({
+      consultant_id: 'cons-1',
+      endereco: 'Rua Y, 3',
+      area_m2: 90,
+      preco: 900_000,
+      is_venda_real: false,
+      preco_pedido: 1_000_000,
+    })
+
+    expect(captured.payload!.desagio_percent).toBeNull()
   })
 })
