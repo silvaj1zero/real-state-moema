@@ -83,6 +83,7 @@ Renderização **nativa TS** no app; engine = só produtor de dados ITBI. Este �
 | 9.19 | ACM Lite + resumo “modo dono” | Render/UX | Must (adoção) | 9.10; soft 9.15/9.18 | @dev + @ux |
 
 > **Wave pós-avaliação crítica 09-Jul:** 9.14 ‖ 9.15 ‖ 9.16 → 9.17 (com 9.4) → 9.18 → 9.19.  
+> **QA batch 2026-07-09:** 9.14–9.21 + P-1/P-2 → **Done** (gate `docs/qa/gates/epic9-acm-wave-batch-20260709.yml`). **9.4** permanece Ready (cross-repo).  
 > **Sequência original:** 9.0 → (9.1 ‖ 9.2 ‖ 9.4) → (9.3 ‖ 9.5) → 9.6. 9.7 oportunístico.
 > **Caminho crítico mínimo p/ 1ª entrega premium:** 9.0 → 9.1 + 9.2 (laudo de apto + planilha canônica). 9.4 em paralelo (cross-repo). 9.3/9.5/9.6 enriquecem.
 > Stories detalhadas serão criadas por @sm em `docs/stories/9.0.story.md` … `9.7.story.md` após validação @po.

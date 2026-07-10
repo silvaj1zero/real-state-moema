@@ -1,0 +1,64 @@
+# QA Gate — batch ACM waves 1-3 + P-1/P-2
+schema: story-quality-gate-v1
+date: 2026-07-09
+branch: fix/epic7-v-crawl-health
+head: de99939
+reviewer: qa
+mode: batch
+
+evidence:
+  vitest_acm: "23 files / 269 tests passed"
+  typecheck: exit_0
+  eslint_acm: exit_0
+  smoke:
+    - "acm-validate 132 --json-only: n=56 R5 OK tese=abaixo subprec=forte EXIT 0"
+    - "acm-validate 113 --json-only: n=56 R5 OK EXIT 0"
+    - "merge-back-xlsx 132 --dry-run: EXIT 0"
+  honduras_regression: preserved
+  ap_fixtures: andradePertence.regression.test.ts
+
+stories:
+  - id: "9.15"
+    verdict: PASS
+    status_to: Done
+  - id: "9.14"
+    verdict: PASS
+    status_to: "Done (mecanismo)"
+    notes: "Defaults A-D ficha-provisoria-pre-H3 — tracking H-3, nao bloqueia mecanismo"
+  - id: "9.20"
+    verdict: PASS
+    status_to: Done
+  - id: "9.17"
+    verdict: PASS
+    status_to: Done
+    notes: "R5 canonico offline; escala PROD depende 9.4"
+  - id: "9.18"
+    verdict: PASS
+    status_to: Done
+  - id: "9.19"
+    verdict: PASS
+    status_to: Done
+    notes: "Copy modo dono revisavel em H-3"
+  - id: "9.16"
+    verdict: PASS
+    status_to: Done
+  - id: "9.21"
+    verdict: PASS
+    status_to: Done
+  - id: "P-1"
+    verdict: PASS
+    status_to: Done
+    notes: "offline only; RPC path apos 9.4"
+  - id: "P-2"
+    verdict: PASS
+    status_to: Done
+  - id: "9.4"
+    verdict: deferred
+    status_to: Ready
+    notes: "cross-repo acm-imobiliario"
+
+batch_verdict: PASS
+exceptions:
+  - H-3 Luciana (defaults 9.14 + copy Lite)
+  - 9.4 sink engine
+  - P-1 RPC-only path

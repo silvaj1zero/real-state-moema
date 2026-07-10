@@ -1,7 +1,7 @@
 # P-2 — Merge-back da planilha XLSX do corretor
 
 **Epic:** 9 / Wave 4  
-**Status:** InReview  
+**Status:** Done
 **Priority:** Must (fábrica)  
 **Implementado:** 2026-07-09
 
@@ -32,3 +32,12 @@ npx tsx scripts/acm/merge-back-xlsx.tsx docs/acm/andrade-pertence-132 --validate
 - `app/src/lib/acm/xlsx/mergeBack.test.ts`
 - `app/scripts/acm/merge-back-xlsx.tsx`
 - `docs/stories/p2-merge-back-xlsx.md`
+
+## QA Results
+
+**Date:** 2026-07-09  
+**Reviewer:** @qa (batch gate)  
+**Gate:** `docs/qa/gates/epic9-acm-wave-batch-20260709.yml` + `docs/qa/ACM-WAVE-QA-GATE-20260709.md`  
+**Verdict:** PASS  
+**Evidence:** vitest ACM 269/269 · tsc 0 · eslint acm 0 · smokes P-1/P-2  
+**Note:** Batch close waves 1-3 + fabrica offline. Excecoes: H-3 (9.14 defaults), 9.4 engine.

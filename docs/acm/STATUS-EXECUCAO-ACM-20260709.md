@@ -11,9 +11,9 @@
 
 | Story | Escopo | Validação (saída real) | Git |
 |-------|--------|------------------------|-----|
-| **9.15** — avisos[] + passaporte A/B/C | tipos `AvisoAcm`/`ComparavelPassport`; `derivarPassaporte`/`derivarPassaportes`/`agregarConfianca`/`coletarAvisos` (10 códigos canônicos); proveniência opt-in em `AcmComparable`; capa PDF (avisos + contagem A/B/C) | tsc 0 · eslint 0 · **192 tests** | ✅ commit `29ef25f` |
-| **9.14** — ficha + deságio explícito + três preços | ficha do alvo (`estadoConservacao` A–D/ano/reformas); `tratarDesagio` (cenários 0/−7,5/−15%); `desagioTratado` no computation; capa "Três preços & arbítrio de estado"; `estadoAlvoConfirmado` silencia aviso 9.15 | tsc 0 · eslint 0 · **199 tests** | ✅ commit `0f34c26` |
-| **9.20** — mediana ponderada A/B/C | `weightedMedian`; `derivarEvidencia` (`medianaPrincipal` só A/B, `medianaPonderada`, `nA/nB/nC`, `laterais[]`); aviso AC5 pool A/B<5 | tsc 0 · eslint 0 · **205 tests** | ✅ commit `71c44a2` |
+| **9.15** — avisos[] + passaporte A/B/C | tipos `AvisoAcm`/`ComparavelPassport`; … | 192 tests (época) | ✅ **Done** `29ef25f` |
+| **9.14** — ficha + deságio explícito + três preços | ficha + 3 preços; defaults H-3 tracking | 199 tests | ✅ **Done (mecanismo)** `0f34c26` |
+| **9.20** — mediana ponderada A/B/C | medianaPrincipal A/B + laterais C | 205 tests | ✅ **Done** `71c44a2` |
 
 **Regressão preservada em todas:** os números-âncora do caso Honduras permanecem intactos (mediana 18.264 · mercado R$ 12,4M · fechamento R$ 10,2M · co-âncora R$ 9,624M). As três stories são **camadas aditivas** ao `AcmLaudoComputation` — não repontam `valorMercado`. A fixture Honduras tem 0 comparáveis grau C, então `medianaPrincipal == medianaPrecoM2` (9.20) sem flag.
 
@@ -40,20 +40,23 @@
 ### Wave 2 — Anti-desastre em escala
 | Story | Título | Modelo recomendado | Status |
 |-------|--------|--------------------|--------|
-| **9.17** | R5 industrializado — tipologia por guia como **gate de pipeline** (não script de caso) | Opus | ✅ InReview |
-| **9.4** | Sink ITBI ampliado (Complemento, Uso IPTU, terreno, fração ideal, ACC) | Sonnet | 📋 contrato+coverage script neste repo; **sink `.py` ainda no engine** |
+| **9.17** | R5 industrializado — tipologia por guia como **gate de pipeline** (não script de caso) | Opus | ✅ **Done** (QA PASS) |
+| **9.4** | Sink ITBI ampliado (Complemento, Uso IPTU, terreno, fração ideal, ACC) | Sonnet | 📋 **Ready** — contrato neste repo; sink no engine |
 
 ### Wave 3 — Uso em campo
 | Story | Título | Modelo | Status |
 |-------|--------|--------|--------|
-| **9.19** | ACM Lite + modo dono + objeções v1 | Sonnet | ✅ InReview |
-| **9.18** | Tese automática acima/alinhado/abaixo na capa | Sonnet | ✅ InReview |
-| **9.16** | Pesos de aderência condicionais à tese (constr./terreno/apto) | Opus | ✅ InReview (default hibrido; 132→construcao) |
-| **9.21** | Radar de subprecificação (caso 132) | Sonnet | ✅ InReview (limiares 5/8/15%) |
+| **9.19** | ACM Lite + modo dono + objeções v1 | Sonnet | ✅ **Done** |
+| **9.18** | Tese automática acima/alinhado/abaixo na capa | Sonnet | ✅ **Done** |
+| **9.16** | Pesos de aderência condicionais à tese (constr./terreno/apto) | Opus | ✅ **Done** |
+| **9.21** | Radar de subprecificação (caso 132) | Sonnet | ✅ **Done** |
 
 ### Wave 4 — Fábrica
-- **P-1** CLI `acm-validate` **offline v1** ✅ — `scripts/acm/acm-validate.tsx` + `validatePipeline.ts`.
-- **P-2** merge-back XLSX corretor ✅ — `xlsx/mergeBack.ts` + `scripts/acm/merge-back-xlsx.tsx` (Confere✗ exclui; tipologia/correção=pares; backup `dataset.pre-merge-back.json`).
+- **P-1** CLI `acm-validate` offline ✅ **Done** (QA PASS offline)
+- **P-2** merge-back XLSX ✅ **Done** (QA PASS)
+
+### QA batch 2026-07-09
+Gate: `docs/qa/gates/epic9-acm-wave-batch-20260709.yml` · **PASS** · 9.14 Done (mecanismo; H-3 tracking)
 
 ### Fora da janela (não iniciar)
 9.22 (simulador 3 estratégias), 9.23 (tribunal/robustez), 9.5 (Fase 2 web + screenshots), skill/squad ACM, Ross-Heidecke, E2E no CI.
