@@ -158,10 +158,16 @@ guarda-chuva do ACM. Wave 4 = 2 stories novas a draftar (@sm `*draft` → @po
 
 | Story | Escopo | Status | Bloqueio |
 |---|---|---|---|
-| **9.22** (nova) | Guard-rail 9.8: `normalizeStreet()` reconhecer o formato do banco sem vírgula ("R DR ANDRADE PERTENCE 110") — hoje a regra R1 "mesma rua <50m" NUNCA dispara para comparáveis vindos do DB (gap descoberto no caso 132; regressão Honduras usa formato com vírgula) | a draftar | — |
-| **9.23** (nova) | UI in-app: expor headline em faixa H-3, homogeneização e guard-rails em `PacoteExportSheet`/`LaudoExportSheet` — a UI ainda emite o pacote no modelo pré-v5 (gap declarado desde H-2) | a draftar | — |
+| **9.22** | Guard-rail 9.8: `normalizeStreet()` reconhecer o formato do banco sem vírgula ("R DR ANDRADE PERTENCE 110") — hoje a regra R1 "mesma rua <50m" NUNCA dispara para comparáveis vindos do DB | **Ready** (draft+PO GO 10-Jul) | — |
+| **9.23** | UI in-app: fiação dos mecanismos v5 nos 5 export sheets (guard-rail 9.8, FipeZap, ficha A–F H-3, R5 opt-in, headline faixa + avisos pré-download) | **Ready** (draft+PO GO 10-Jul) | — |
 | **9.4** | Sink ITBI ampliado (Complemento, uso IPTU, terreno, fração ideal, ACC) | Ready | cross-repo `acm-imobiliario` |
 | **9.1** | Régua apto/casa (provisória autorizada na H-3) | Ready | 9.4 |
+
+**Execução (outra sessão/modelo — SDC fase 3):** as stories são autossuficientes
+(Dev Notes com file:line, armadilhas e gate Art. V). Kickoff sugerido em sessão
+nova: `@dev *develop-story 9.22` (YOLO, routing Sonnet) e depois
+`@dev *develop-story 9.23` (routing Opus). Independentes entre si — podem rodar
+em sessões paralelas; 9.23 não depende da 9.22.
 
 D-3 (skill `/acm-validate` + squad ACM) permanece "DEPOIS": pré-requisito N-5
 (medir variância do gate do `@acm-auditor` antes de automatizar veredito).
