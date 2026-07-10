@@ -22,3 +22,7 @@
   score: 9
   path: docs/sessions/2026-07/2026-07-09-acm-wave123-p1-handoff.md
   notes: ACM waves 1-3 + P-1 offline pushed ef26b0c
+- event: birth
+  entity_id: 2026-07-09-acm-p2-fixtures-handoff
+  date: 2026-07-09
+  notes: P-2 merge-back + AP fixtures; HEAD fc285a4
