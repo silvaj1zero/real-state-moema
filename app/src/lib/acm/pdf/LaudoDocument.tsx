@@ -123,7 +123,9 @@ const s = StyleSheet.create({
   cenarioChipHi: { borderColor: COLORS.dourado, backgroundColor: COLORS.fundoSuave },
   cenarioLabel: { fontSize: 6.5, color: COLORS.cinzaClaro, textTransform: 'uppercase', letterSpacing: 0.3 },
   cenarioValor: { fontSize: 8.5, fontFamily: FONTS.bodyMedium, color: COLORS.azulEscuro, marginTop: 2 },
-  arbitrioNota: { fontSize: 6.8, color: COLORS.cinzaClaro, marginTop: 6, fontStyle: 'italic' },
+  // Sem fontStyle italic: registerBrandFonts() só registra Inter no estilo normal —
+  // a variante ausente derruba o render offline (AC8: a geração nunca quebra).
+  arbitrioNota: { fontSize: 6.8, color: COLORS.cinzaClaro, marginTop: 6 },
   // Seções
   h2: { fontFamily: FONTS.heading, fontSize: 13, color: COLORS.azulEscuro, marginTop: 16, marginBottom: 5 },
   h3: { fontFamily: FONTS.bodyMedium, fontSize: 9.5, color: COLORS.azul, marginTop: 8, marginBottom: 3 },

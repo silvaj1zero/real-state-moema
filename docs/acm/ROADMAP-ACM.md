@@ -144,11 +144,31 @@ Achados da auditoria ainda sem dono, convertidos em itens acionáveis:
 ## 9. Sequência recomendada
 
 ```
-H-1 → H-2 → H-3 (Luciana) → H-4        ← captação Clarisia destravada
+H-1 → H-2 → H-3 (Luciana) → H-4        ← captação Clarisia destravada  [TODOS Done 10-Jul]
          ↘ P-1 → P-2 → D-3 (skill/squad)
 P-3 (9.4) → D-1 (9.1) → D-4            ← escala Moema/V.Olímpia/Brooklin
 N-1 (avisos) — encaixe curto a qualquer momento; N-4 antes de D-2
 ```
+
+### 9b. Wave 4 — backlog pós-H-3 (planejado 2026-07-10)
+
+Com H-1→H-4, P-1 e P-2 Done, **não há épico novo a abrir**: o Epic 9 segue como
+guarda-chuva do ACM. Wave 4 = 2 stories novas a draftar (@sm `*draft` → @po
+`*validate`) + 2 já Ready:
+
+| Story | Escopo | Status | Bloqueio |
+|---|---|---|---|
+| **9.22** (nova) | Guard-rail 9.8: `normalizeStreet()` reconhecer o formato do banco sem vírgula ("R DR ANDRADE PERTENCE 110") — hoje a regra R1 "mesma rua <50m" NUNCA dispara para comparáveis vindos do DB (gap descoberto no caso 132; regressão Honduras usa formato com vírgula) | a draftar | — |
+| **9.23** (nova) | UI in-app: expor headline em faixa H-3, homogeneização e guard-rails em `PacoteExportSheet`/`LaudoExportSheet` — a UI ainda emite o pacote no modelo pré-v5 (gap declarado desde H-2) | a draftar | — |
+| **9.4** | Sink ITBI ampliado (Complemento, uso IPTU, terreno, fração ideal, ACC) | Ready | cross-repo `acm-imobiliario` |
+| **9.1** | Régua apto/casa (provisória autorizada na H-3) | Ready | 9.4 |
+
+D-3 (skill `/acm-validate` + squad ACM) permanece "DEPOIS": pré-requisito N-5
+(medir variância do gate do `@acm-auditor` antes de automatizar veredito).
+
+**Casos (fora de story, SOP-OPERACAO-ACM-POS-H3):** 113 v3 emitido 10-Jul com
+C-1 declarado (paridade com o 132 v4 — assimetria fechada); pendências humanas:
+terreno real do 132 (condicionante nº 1) e Fase 1 das planilhas de validação.
 
 ---
 

@@ -1,5 +1,12 @@
 /**
- * LAUDO ACM v2 — Rua Dr. Andrade Pertence, 113 (Vila Olímpia) — modelo v5.
+ * LAUDO ACM — Rua Dr. Andrade Pertence, 113 (Vila Olímpia) — modelo v5.
+ *
+ * v3 (C-1 nível 1, portado do caso 132): sensibilidade DECLARADA ao estado de
+ * conservação (campo de arbítrio NBR) na Sec. 9 — três cenários explícitos
+ * (0/−7,5/−15%) sobre a mediana aderente, no lugar do −15% apenas embutido.
+ * Perfil do 113 (reforma geral, construção 1974): o −15% é a leitura CENTRAL,
+ * não o piso — os cenários mais altos indicam potencial pós-vistoria (ficha A–F
+ * da régua H-3). Rodar com LAUDO_VERSAO=v3 (default preserva v2).
  *
  * Segundo caso do pipeline (generalização do Honduras v5), com os mecanismos
  * novos ATIVOS:
@@ -47,6 +54,9 @@ const scriptDir = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(scriptDir, '..', '..', '..')
 const outDir = path.join(repoRoot, 'docs', 'acm', 'andrade-pertence-113')
 mkdirSync(outDir, { recursive: true })
+
+// Versão do laudo — parametrizável (LAUDO_VERSAO=v3 preserva os arquivos v2).
+const VERSAO = process.env.LAUDO_VERSAO ?? 'v2'
 
 // Fatores de Ajuste de Liquidez e Condição (Laudo Sec. 2) — OPÇÃO POR ACM.
 // Mecanismo idêntico ao do caso 132, porém VAZIO por ora: os critérios próprios
@@ -171,6 +181,17 @@ const banda500 = computation.efeitoEscalaTerreno.find((b) => b.faixa === '<500')
 const leituraTerreno =
   banda500 && banda500.n > 0 ? Math.round(banda500.medianaPrecoM2Terreno * T.areaTerreno) : null
 
+// C-1 nível 1 (portado do 132) — sensibilidade DECLARADA ao estado de conservação
+// (campo de arbítrio NBR, até ±15% para atributo relevante não modelado). Três
+// cenários explícitos sobre a mediana aderente. PERFIL DO 113 ≠ 132: reforma
+// geral (1974) → o −15% (Capex Score B) é a leitura CENTRAL/PROVÁVEL, não o
+// piso; −7,5% e 0% só se a vistoria (ficha A–F, régua H-3) apurar estado melhor.
+const medRefBruta = h.referencia.medianaPrecoM2 // R$/m² bruto do cenário aderente
+const valorDesagio = (f: number) => Math.round(medRefBruta * T.areaConstruida * f)
+const dCentral = valorDesagio(0.85) // −15% — reforma geral (PROVÁVEL) = h.referencia.valorMercado
+const dMelhor = valorDesagio(0.925) // −7,5% — se vistoria apurar estado C (régua H-3)
+const dTeto = valorDesagio(1.0) // 0% — apenas se reformado (estado A)
+
 const input: LaudoInput = {
   enderecoAlvo: T.endereco,
   bairro: `Vila Olímpia (CEP ${T.cep} — fronteira Moema)`,
@@ -255,7 +276,7 @@ const input: LaudoInput = {
     `O valor referenciado pela proprietária (${fmt(T.precoPretendido)}) é consistente com as duas lentes medidas nesta emissão.`,
   ],
   sensibilidadeLeitura:
-    `O cenário aderente de referência (${cenarioLabel(h.referencia)}) fica em ${fmt(h.referencia.valorMercado)} e o recorte amplo (${cenarioLabel(cenarioTodos)}) em ${fmt(cenarioTodos.valorMercado)} — o headline reporta a FAIXA entre os cenários, agora sobre amostra exclusivamente de CASAS (tipologia por guia oficial). O recorte amplo é o piso (inclui casas grandes de R$/m² menor); os comparáveis de porte próximo aos 80 m² do alvo negociam a R$/m² maior. O valor referenciado pela proprietária (${fmt(T.precoPretendido)}) está ${difPercent < 0 ? `apenas ${Math.abs(difPercent).toLocaleString('pt-BR')}% acima` : 'dentro'} do cenário aderente — compatível com a evidência.`,
+    `O cenário aderente de referência (${cenarioLabel(h.referencia)}) fica em ${fmt(h.referencia.valorMercado)} e o recorte amplo (${cenarioLabel(cenarioTodos)}) em ${fmt(cenarioTodos.valorMercado)} — o headline reporta a FAIXA entre os cenários, agora sobre amostra exclusivamente de CASAS (tipologia por guia oficial). O recorte amplo é o piso (inclui casas grandes de R$/m² menor); os comparáveis de porte próximo aos 80 m² do alvo negociam a R$/m² maior. O valor referenciado pela proprietária (${fmt(T.precoPretendido)}) está ${difPercent < 0 ? `apenas ${Math.abs(difPercent).toLocaleString('pt-BR')}% acima` : 'dentro'} do cenário aderente — compatível com a evidência. SENSIBILIDADE DECLARADA AO ESTADO DE CONSERVAÇÃO (campo de arbítrio NBR — C-1): o valor de mercado embute Capex de −15% (Score B); para o 113 — reforma geral, construção ${T.anoConstrucao} — esse é o cenário CENTRAL (${fmt(dCentral)}), não um piso. Os cenários −7,5% (${fmt(dMelhor)}) e 0% (${fmt(dTeto)}) só se aplicam se a vistoria (ficha A–F da régua H-3) apurar estado de conservação melhor que o descrito.`,
   ponderacaoValor:
     `Duas frentes de demanda medidas: o comprador-usuário (reforma para morar) referencia o cenário aderente da lente construção — ${fmt(h.referencia.valorMercado)}; o comprador-terreno referencia a leitura direta de terreno${leituraTerreno ? ` — ~${fmt(leituraTerreno)}` : ''} (guias oficiais, Sec. 8). O valor referenciado pela proprietária (${fmt(T.precoPretendido)}) converge com ambas — a captação pode ancorar nessa faixa, com fatores de liquidez a calibrar com a consultora.`,
   fundamentacao: [
@@ -278,9 +299,10 @@ const input: LaudoInput = {
     'Distâncias aproximadas: coordenadas da base geocodificadas por logradouro/CEP (precisão ±~200 m).',
     'Definir fatores de liquidez com a consultora — nesta emissão, fechamento = mercado.',
     'Leitura de terreno usa preço TOTAL/área de terreno (metodologia de referência) — para lotes com construção aproveitável ela superestima levemente a terra pura.',
+    `Deságio/Capex DECLARADO (campo de arbítrio NBR — C-1): o valor de mercado usa −15% (Score B), leitura CENTRAL para o perfil de reforma geral (${T.anoConstrucao}). Cenários −7,5% (${fmt(dMelhor)}) e 0% (${fmt(dTeto)}) apenas se a vistoria (ficha A–F, régua H-3) apurar estado melhor — confirmar o estado do alvo antes de fixar o fator final.`,
   ],
   parecerFinal:
-    `Emissão técnica v2 (amostra depurada por tipologia via guia oficial): a lente de construção — ${computation.totalComparaveis} fechamentos reais de CASAS homogeneizados — sustenta faixa de ${fmt(h.mercado.min)} a ${fmt(h.mercado.max)}, com cenário aderente em ${fmt(h.referencia.valorMercado)}; a leitura direta de terreno${leituraTerreno ? ` (~${fmt(leituraTerreno)})` : ''} converge. O valor referenciado pela proprietária (${fmt(T.precoPretendido)}) é DEFENSÁVEL pela evidência oficial. Recomenda-se confirmar as metragens na matrícula, validar as casas prováveis de 2026 (Fase 1) e calibrar fatores de liquidez com a consultora antes de firmar preço de anúncio e meta de fechamento.`,
+    `Emissão técnica ${VERSAO} (amostra depurada por tipologia via guia oficial): a lente de construção — ${computation.totalComparaveis} fechamentos reais de CASAS homogeneizados — sustenta faixa de ${fmt(h.mercado.min)} a ${fmt(h.mercado.max)}, com cenário aderente em ${fmt(h.referencia.valorMercado)}; a leitura direta de terreno${leituraTerreno ? ` (~${fmt(leituraTerreno)})` : ''} converge. O valor referenciado pela proprietária (${fmt(T.precoPretendido)}) é DEFENSÁVEL pela evidência oficial. Faixa por estado de conservação (deságio declarado — C-1): central ${fmt(dCentral)} (−15%, reforma geral — PROVÁVEL) · ${fmt(dMelhor)} (−7,5%, se vistoria apurar estado C) · ${fmt(dTeto)} (0%, apenas se reformado). Recomenda-se confirmar as metragens na matrícula, preencher a ficha de estado A–F na vistoria (régua H-3), validar as casas prováveis de 2026 (Fase 1) e calibrar fatores de liquidez com a consultora antes de firmar preço de anúncio e meta de fechamento.`,
 }
 
 // ---------------------------------------------------------------------------
@@ -338,9 +360,29 @@ async function main(): Promise<void> {
   if (mapaUrl) console.log(`Mapa: embutido (${(mapaUrl.length / 1024).toFixed(0)} KB base64)`)
 
   const model = buildLaudoModel(computation, source, { ...input, mapaUrl })
+
+  // C-1 nível 1: anexa a sensibilidade de deságio (estado de conservação) à Sec. 9.
+  // Campo de arbítrio DECLARADO — perfil reforma geral: −15% é o cenário CENTRAL.
+  const desagioRows = [
+    { rot: 'Deságio 0% — apenas se reformado (estado A, régua H-3)', f: 1 },
+    { rot: 'Deságio −7,5% — se vistoria apurar estado C (régua H-3)', f: 0.925 },
+    { rot: 'Deságio −15% — reforma geral / Capex Score B (CENTRAL)', f: 0.85 },
+  ]
+  for (const d of desagioRows) {
+    const v = Math.round(medRefBruta * T.areaConstruida * d.f)
+    model.sec9.cenarios.push({
+      cenario: d.rot,
+      n: h.referencia.n,
+      medianaPrecoM2: medRefBruta,
+      valorMercado: v,
+      valorFechamento: v,
+      precoM2Fechamento: Math.round(v / T.areaConstruida),
+    })
+  }
+
   const buf = await renderToBuffer(<LaudoDocument model={model} />)
   const pdfPath = escreverComFallback(
-    path.join(outDir, `LAUDO-ACM-AndradePertence113-v2-${hoje}.pdf`),
+    path.join(outDir, `LAUDO-ACM-AndradePertence113-${VERSAO}-${hoje}.pdf`),
     buf,
   )
 
@@ -369,7 +411,7 @@ async function main(): Promise<void> {
     pendencias: input.condicionantes,
   }
   const jsonPath = escreverComFallback(
-    path.join(outDir, `LAUDO-ACM-AndradePertence113-v2-${hoje}.computation.json`),
+    path.join(outDir, `LAUDO-ACM-AndradePertence113-${VERSAO}-${hoje}.computation.json`),
     JSON.stringify(revisao, null, 2),
   )
 
