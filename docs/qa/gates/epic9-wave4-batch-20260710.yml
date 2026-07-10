@@ -1,0 +1,54 @@
+# QA Gate — Epic 9 Wave 4 batch (Stories 9.22 + 9.23)
+schema: story-quality-gate-v1
+date: 2026-07-10
+branch: fix/epic7-v-crawl-health
+reviewer: qa
+mode: batch
+storyIds: ["9.22", "9.23"]
+
+# Números reais rodados pelo @qa (revisor independente), de app/
+evidence:
+  typecheck: exit_0            # npm run typecheck (tsc --noEmit) — 0 erros
+  eslint_acm: exit_0          # npx eslint src/lib/acm src/components/acm --max-warnings 0 — 0 warnings/errors
+  vitest_acm: "27 files / 301 tests passed (0 fail)"  # npx vitest run src/lib/acm src/components/acm --no-file-parallelism
+  vitest_duration: "52.51s"
+  honduras_regression: preserved   # fixture honduras.fixture.ts NÃO tocada por nenhum dos 2 commits; mediana 18.264 intacta
+  additive_tests_9_22: true        # diff de methodology.test.ts é puramente aditivo (nenhuma expectativa pré-existente editada)
+  file_lists_match_diff: true      # File List de ambas as stories == arquivos reais do commit
+  h3_desagio_C: 0.075              # estado C = −7,5% confirmado em ESTADO_DESAGIO_H3 e no teste AC3
+
+stories:
+  - id: "9.22"
+    commit: "4797904"
+    verdict: PASS
+    status_to: Done
+    checks:
+      code_review: PASS       # normalizeStreet v2 — pipeline documentado, spread condicional temVirgula; sem gambiarra
+      tests: PASS             # +8 testes AC1/AC3/AC5; suite lib verde
+      acceptance_criteria: PASS   # AC1 (equivalência formatos + prefixos AV/AL) ✓ · AC2 (zero regressão, Honduras vírgula) ✓ · AC3 (falso positivo BIS documentado + JSDoc) ✓ · AC4 (aviso removido, causa raiz eliminada, KISS documentado) ✓ · AC5 (nº 110/45 mesma rua; JURUENA negativo) ✓
+      regressions: PASS       # Honduras fixture intacta; test diff aditivo
+      performance: PASS       # regex puro em função pura, sem loop N²
+      security: PASS          # sem segredos/eval/PII nova
+      docs: PASS              # JSDoc ancorado; comentário AC4 no código; story coerente com diff
+    notes: "Guard-rail 9.8 agora cobre formato do banco sem vírgula. Aviso same_street_missing_due_normalization removido (AC4) — causa raiz eliminada, decisão KISS documentada no código e Change Log."
+
+  - id: "9.23"
+    commit: "b372e99"
+    verdict: PASS
+    status_to: Done
+    checks:
+      code_review: PASS       # helper buildComputeOptions (spread condicional Art. IV) + AcmAvisosPanel (zero recálculo, consome só AcmLaudoComputation); KISS respeitado (1 helper p/ 5 sheets)
+      tests: PASS             # computeOptions.test.ts 9 testes + AcmAvisosPanel.test.tsx 5 testes
+      acceptance_criteria: PASS   # AC1 (guard-rail wired + painel auto-refs) ✓ · AC2 (homogeneização default ON + toggle + semAjuste 9.11) ✓ · AC3 (select A–F → estado C −7,5%) ✓ · AC4 (tipologia R5 opt-in) ✓ · AC5 (headline faixa H-3 + avisos por severidade) ✓ · AC6 (backward-compat, teste de paridade formulário mínimo ≡ target puro) ✓ · AC7 (suite verde) ✓
+      backward_compat_test: PASS  # AC6 — computeOptions.test.ts "formulário mínimo é paridade com o target puro" verificado
+      regressions: PASS       # Honduras não tocada; baseline lib 271 permanece verde dentro dos 301
+      performance: PASS       # série FipeZap array estático pequeno; preview recomputa cálculo puro TS no client — desprezível
+      security: PASS          # sem segredos/eval/PII nova
+      docs: PASS              # JSDoc nos novos arquivos; achado do adapter (data_venda/bairro ausentes na RPC) documentado; File List coerente com diff
+    notes: "Fiação v5 nos 5 sheets via helper compartilhado. Achado documentado (Art. IV): RPC de PROD não expõe data_venda/bairro ao client — homogeneização degrada p/ semAjuste até a Story 9.4; mecanismo liga corretamente, dado que falta é da ingestão. Não bloqueante."
+
+issues: []   # nenhuma issue de severity medium/high/critical encontrada
+
+batch_verdict: PASS
+follow_ups:
+  - "9.4 (sink ITBI / adapter) habilita deflação real da homogeneização in-app (data_venda/bairro na RPC) — degradê já previsto e coberto pelo aviso 9.11. Não bloqueia 9.23."
