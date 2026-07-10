@@ -67,4 +67,5 @@
 3. **9.4 sink** no `acm-imobiliario` + `9.4-sink-coverage.mjs` neste repo.
 4. **@qa** fechar stories InReview · **P-2** merge-back XLSX · fixtures AP no vitest.
 
-> Uma frase: **Código ACM (waves 1–3 + P-1 offline) no GitHub · falta H-3, sink 9.4 no engine, P-2 e close QA.**
+> Uma frase: **Código ACM (waves 1–3 + P-1 + P-2 + fixtures AP) no GitHub @ 83cd34c · falta H-3, 9.4 engine, close QA.**  
+> QA prep: `docs/qa/ACM-WAVE-QA-GATE-20260709.md`

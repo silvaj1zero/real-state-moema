@@ -9,7 +9,7 @@
 | **scope** | `self_continuation` |
 | **from** | Agent:session-acm-p2 |
 | **to** | Agent:next-session |
-| **consumed** | null |
+| **consumed** | 2026-07-09 by Agent:continue-after-clear |
 | **parent_handoff** | `2026-07-09-acm-wave123-p1-handoff` |
 | **branch** | `fix/epic7-v-crawl-health` |
 | **HEAD** | `fc285a4` (= origin, sync) |
