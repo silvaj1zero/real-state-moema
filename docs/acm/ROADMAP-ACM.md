@@ -168,6 +168,46 @@ dev Sonnet/Opus em paralelo → QA Opus independente): gate batch
 `docs/qa/gates/epic9-wave4-batch-20260710.yml` PASS · 27 files / 301 tests ·
 tsc 0 · eslint 0. Restante do épico: 9.4 (cross-repo) e 9.1 (depende da 9.4).
 
+### 9c. Wave 5 — planejada 10-Jul (execução EXTERNA; PR #1 mergeado, base = master)
+
+> **Nota de renumeração:** o veredito ROI v3 usava "9.22 simulador" e "9.23
+> tribunal" para stories ainda não criadas; a Wave 4 ocupou esses números com
+> arquivos reais (normalizeStreet / UI v5). Os itens do veredito foram
+> renumerados: simulador = **9.24**, tribunal = **9.25**. Fonte permanece
+> `VEREDITO-ROI-UNICO-20260709.md`.
+
+| Story | Tema (fase do veredito) | Status | Routing | Bloqueio |
+|---|---|---|---|---|
+| **9.24** | Simulador de 3 estratégias de preço (F2 final) | Ready | Opus | — |
+| **9.25** | Tribunal: robustez leave-one-out + testemunhas A/B/C (F2, só V2) | Ready | Opus | — |
+| **9.26** | C-5 validação anúncio↔venda graduada (N-4, pré-D-2/9.5) | Ready | Sonnet | — |
+| **9.27** | C-3 índice de bairro = triangulação de coerência (nunca âncora) | Ready | Sonnet | — |
+| **9.28** | N-5: variância do gate @acm-auditor (playbook gate-determinism) | Ready | **Fable** | — |
+| **9.29** | D-3: skill `/acm-validate` + agentes ACM | **Draft (GATED)** | Fable | **9.28 Done** |
+| 9.4 | Sink ITBI ampliado — **spec portátil pronta**: `SPEC-EXEC-STORY-9.4-CROSS-REPO.md` | Ready | @data-engineer | repo `acm-imobiliario` |
+| 9.1 | Régua apto/casa | Ready | Sonnet | 9.4 |
+
+**Kickoff externo (1 story = 1 sessão, SDC fase 3):** `@dev *develop-story 9.2X`.
+Paralelizáveis: 9.24 ∥ 9.25 ∥ (9.26 → 9.27 tocam laudoModel — sequenciar entre si
+ou usar worktrees). 9.28 antes da 9.29 (gate duro). NÃO iniciar 9.5/D-2 antes da
+9.26 (N-4) nem Ross/C-2 antes da decisão N-3 (Luciana+founder) — anti-lista.
+
+**Fora de story (decisão pendente, NÃO draftar ainda):** C-2 Ross-Heidecke
+(aguarda N-3: fator de idade elicitado com a Luciana — draftar inventaria a
+curva, Art. IV); C-4 Índice de Atratividade Comercial (aguarda dados de
+concorrência ativa da Fase B → depois da 9.26+9.5).
+
+### 9d. Backlog operacional — Luciana / operador (anotado 10-Jul, decisões do founder)
+
+| # | Item | Detalhe | Status |
+|---|---|---|---|
+| 1 | **Matrícula/IPTU do 132** | Confirmar área de TERRENO real (~220 m² provisório; 6 vagas sugerem lote maior) e área construída (196 m² fixada na v4). Ao chegar, regerar laudo (a lente de terreno sobe proporcionalmente) | Aguardando Luciana |
+| 2 | **Estado do 132 na régua H-3** | **Manter E (−15%) por ora** — decisão do founder 10-Jul, coerente com a preferência H-3 de subavaliar; revisar na ficha A–F da vistoria. Laudo v4 vigente já usa o piso −15% como headline: NENHUMA regeração necessária até a vistoria | Decidido (provisório) |
+| 3 | **Fase 1 das planilhas** | Preencher "Confere?" nas casas 2026 sem guia pública: 13 no 113, 12 no 132 (`ACM-*-validacao-corretor*.xlsx`). Depois: operador roda `merge-back-xlsx.tsx` | Backlog Luciana |
+| 4 | **Fatores de liquidez do 113** | Elicitar com a consultora (emissão atual: fechamento = mercado; perfil reforma geral tende a Capex) | Backlog Luciana |
+| 5 | **XLSX rev2 do 132 (modificada)** | Cópia preservada para conferência futura: `ACM-AndradePertence132-validacao-corretor-rev2-OLD-modificada-20260710.xlsx` (134KB→32KB, provável re-save do Excel; stash também mantido). rev3 é a canônica. Conferir antes de qualquer merge-back | Preservado |
+| 6 | **Migrations 023/024** | Aplicadas em PROD 10-Jul e VALIDADAS via PostgREST (tabela 200 + `fn_owner_lookup_stats` OK). Conta de teste deletada, issue #2 fechado | ✅ Done |
+
 D-3 (skill `/acm-validate` + squad ACM) permanece "DEPOIS": pré-requisito N-5
 (medir variância do gate do `@acm-auditor` antes de automatizar veredito).
 
