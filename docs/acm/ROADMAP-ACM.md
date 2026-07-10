@@ -158,16 +158,15 @@ guarda-chuva do ACM. Wave 4 = 2 stories novas a draftar (@sm `*draft` → @po
 
 | Story | Escopo | Status | Bloqueio |
 |---|---|---|---|
-| **9.22** | Guard-rail 9.8: `normalizeStreet()` reconhecer o formato do banco sem vírgula ("R DR ANDRADE PERTENCE 110") — hoje a regra R1 "mesma rua <50m" NUNCA dispara para comparáveis vindos do DB | **Ready** (draft+PO GO 10-Jul) | — |
-| **9.23** | UI in-app: fiação dos mecanismos v5 nos 5 export sheets (guard-rail 9.8, FipeZap, ficha A–F H-3, R5 opt-in, headline faixa + avisos pré-download) | **Ready** (draft+PO GO 10-Jul) | — |
-| **9.4** | Sink ITBI ampliado (Complemento, uso IPTU, terreno, fração ideal, ACC) | Ready | cross-repo `acm-imobiliario` |
+| **9.22** | Guard-rail 9.8: `normalizeStreet()` reconhece o formato do banco sem vírgula — R1/R3 ativos p/ comparáveis do DB; aviso-sentinela removido (causa raiz eliminada) | **Done** (SDC completo 10-Jul: dev Sonnet YOLO + QA PASS, `4797904`) | — |
+| **9.23** | UI in-app: fiação v5 nos 5 export sheets — `buildComputeOptions()` compartilhado, `AcmAvisosPanel` (headline faixa H-3 + avisos + auto-refs pré-download), selects A–F/tipologia, toggle FipeZap default ON | **Done** (SDC completo 10-Jul: dev Opus + QA PASS, `b372e99`) | homogeneização in-app degrada p/ `semAjuste` até 9.4 (RPC sem `data_venda`/`bairro`) |
+| **9.4** | Sink ITBI ampliado (Complemento, uso IPTU, terreno, fração ideal, ACC) — **prioridade subiu de novo**: agora destrava também a homogeneização in-app (9.23) | Ready | cross-repo `acm-imobiliario` |
 | **9.1** | Régua apto/casa (provisória autorizada na H-3) | Ready | 9.4 |
 
-**Execução (outra sessão/modelo — SDC fase 3):** as stories são autossuficientes
-(Dev Notes com file:line, armadilhas e gate Art. V). Kickoff sugerido em sessão
-nova: `@dev *develop-story 9.22` (YOLO, routing Sonnet) e depois
-`@dev *develop-story 9.23` (routing Opus). Independentes entre si — podem rodar
-em sessões paralelas; 9.23 não depende da 9.22.
+**Wave 4 fechada em 10-Jul** com SDC ponta a ponta multi-modelo (draft/PO Fable →
+dev Sonnet/Opus em paralelo → QA Opus independente): gate batch
+`docs/qa/gates/epic9-wave4-batch-20260710.yml` PASS · 27 files / 301 tests ·
+tsc 0 · eslint 0. Restante do épico: 9.4 (cross-repo) e 9.1 (depende da 9.4).
 
 D-3 (skill `/acm-validate` + squad ACM) permanece "DEPOIS": pré-requisito N-5
 (medir variância do gate do `@acm-auditor` antes de automatizar veredito).
