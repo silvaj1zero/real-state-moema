@@ -184,8 +184,18 @@ tsc 0 · eslint 0. Restante do épico: 9.4 (cross-repo) e 9.1 (depende da 9.4).
 | **9.27** | C-3 índice de bairro = triangulação de coerência (nunca âncora) | **✅ Done (QA 11-Jul, re-review PASS pós-toggle test)** | Sonnet | — |
 | **9.28** | N-5: variância do gate @acm-auditor (playbook gate-determinism) | **✅ Done (QA 11-Jul, CONCERNS aceito — gate de entrada N=4 LLM na 9.29)** | **Fable** | — |
 | **9.29** | D-3: skill `/acm-validate` + agentes ACM | **✅ Done (QA PASS 7/7 11-Jul, PR #10 merged — gate N=4 LLM aprovado, checklist v1.1, veredito ativo; baluarte-400 ponta a ponta PASS 99)** | Fable | — |
-| 9.4 | Sink ITBI ampliado — **spec portátil pronta**: `SPEC-EXEC-STORY-9.4-CROSS-REPO.md` | Ready | @data-engineer | repo `acm-imobiliario` |
+| 9.4 | Sink ITBI ampliado — **spec portátil pronta**: `SPEC-EXEC-STORY-9.4-CROSS-REPO.md`. Baseline 11-Jul: **100% NULL** nos 3.618 ITBI + colunas `complemento`/`uso_iptu`/`fracao_ideal` AUSENTES (migration executável NESTE repo) | Ready | @data-engineer (app-side Opus) | **repo `acm-imobiliario` NÃO LOCALIZADO** (nem disco nem GitHub do operador) — input founder |
 | 9.1 | Régua apto/casa | Ready | Sonnet | 9.4 |
+
+### 9e. Wave 6 — draftada 11-Jul (execução pós-9.4, exceto 9.7)
+
+| Story | Escopo | Status | Executor | Bloqueio |
+|---|---|---|---|---|
+| **9.7** | Config geográfica validada contra ITBI real (inventário viewbox/whitelists → `geoConfig` canônica) | **Ready** (@po 10/10 GO) | Sonnet | **nenhum** — executável já |
+| **9.5** | D-2 Fase B: re-verificação web in-app (crawler Epic 7 + contrato C-5 da 9.26; cruzamento nunca-âncora) | **Ready** (@po 9/10 GO) | Opus | 9.4 · gate LGPD 7.10 (deploy PF proibido até counsel — AC5) |
+| **9.30** | D-4 cobertura ITBI parametrizável por bairro (mapa de cobertura + aviso `bairro_sem_cobertura`) | **Ready** (@po 9/10 GO) | Sonnet/@data-engineer | 9.4 · soft 9.7 |
+
+Sem draft (gates humanos — Art. IV): C-2 Ross (decisão N-3) · C-4 atratividade (dados da 9.5) · N-2 residual (elicitar Luciana).
 
 **Kickoff externo (1 story = 1 sessão, SDC fase 3):** `@dev *develop-story 9.2X`.
 Paralelizáveis: 9.24 ∥ 9.25 ∥ (9.26 → 9.27 tocam laudoModel — sequenciar entre si
