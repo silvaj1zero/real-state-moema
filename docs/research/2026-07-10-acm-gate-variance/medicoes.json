@@ -1,0 +1,64 @@
+{
+  "story": "9.28",
+  "date": "2026-07-10",
+  "checklist": "docs/acm/CHECKLIST-ACM-AUDITOR-v1.md",
+  "baseline": {
+    "G-BOM-legado-v5": {
+      "runs": [
+        { "run": 1, "veredito": "CONCERNS", "score": 90 },
+        { "run": 2, "veredito": "PASS", "score": 95 },
+        { "run": 3, "veredito": "CONCERNS", "score": 90 },
+        { "run": 4, "veredito": "PASS", "score": 95 }
+      ],
+      "amplitude_veredito_ordinal": 1,
+      "eixos": ["E1-legado-passaportes", "E2-prior-desagio"]
+    },
+    "G-RUIM": {
+      "runs": [
+        { "run": 1, "veredito": "FAIL", "score": 40, "blocking": ["C_PASSAPORTES", "C_TRES_PRECOS", "C_AUTOREF", "C_SUBPREC", "C_AVISOS_CANON"] },
+        { "run": 2, "veredito": "FAIL", "score": 40 },
+        { "run": 3, "veredito": "FAIL", "score": 40 },
+        { "run": 4, "veredito": "FAIL", "score": 40 }
+      ],
+      "amplitude_veredito_ordinal": 0
+    }
+  },
+  "pos_ancora": {
+    "G-BOM-fresco": {
+      "runs": [
+        { "run": 1, "veredito": "PASS", "score": 99 },
+        { "run": 2, "veredito": "PASS", "score": 99 },
+        { "run": 3, "veredito": "PASS", "score": 99 },
+        { "run": 4, "veredito": "PASS", "score": 99 }
+      ],
+      "amplitude_veredito_ordinal": 0,
+      "amplitude_score": 0
+    },
+    "G-BOM-legado-v5": {
+      "runs": [
+        { "run": 1, "veredito": "CONCERNS", "score": 90 },
+        { "run": 2, "veredito": "CONCERNS", "score": 90 },
+        { "run": 3, "veredito": "CONCERNS", "score": 90 },
+        { "run": 4, "veredito": "CONCERNS", "score": 90 }
+      ],
+      "amplitude_veredito_ordinal": 0,
+      "amplitude_score": 0
+    },
+    "G-RUIM": {
+      "runs": [
+        { "run": 1, "veredito": "FAIL", "score": 40 },
+        { "run": 2, "veredito": "FAIL", "score": 40 },
+        { "run": 3, "veredito": "FAIL", "score": 40 },
+        { "run": 4, "veredito": "FAIL", "score": 40 }
+      ],
+      "amplitude_veredito_ordinal": 0,
+      "amplitude_score": 0
+    }
+  },
+  "acuracia": {
+    "G-BOM-fresco": { "gabarito": "PASS", "convergencia": "PASS", "stable_but_wrong": false },
+    "G-BOM-legado-v5": { "gabarito": "CONCERNS", "convergencia": "CONCERNS", "stable_but_wrong": false },
+    "G-RUIM": { "gabarito": "FAIL", "convergencia": "FAIL", "stable_but_wrong": false }
+  },
+  "veredito_n5": "Done — checklist v1 ancorado, amplitude 0, acurácia 100%"
+}

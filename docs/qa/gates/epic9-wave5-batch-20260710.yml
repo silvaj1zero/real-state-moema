@@ -1,0 +1,152 @@
+# QA Gate — Epic 9 Wave 5 batch (Stories 9.24–9.28)
+schema: story-quality-gate-v1
+date: 2026-07-10
+branch: master (working tree dirty — uncommitted Wave 5)
+reviewer: qa
+mode: batch
+storyIds: ["9.24", "9.25", "9.26", "9.27", "9.28"]
+
+# Números reais rodados pelo @qa (revisor independente), de app/
+evidence:
+  typecheck: exit_0                # npm run typecheck (tsc --noEmit) — 0 erros
+  eslint_acm: exit_0               # npx eslint src/lib/acm --max-warnings 0 — 0 warnings/errors
+  vitest_acm: "27 files / 299 tests passed (0 fail)"  # npx vitest run src/lib/acm --no-file-parallelism
+  vitest_duration: "60.21s"
+  honduras_regression: preserved   # methodology.test.ts: desagioMedidoPercent ≈ −12,7 (±0,1) verde; mediana/headline intactos
+  zero_drift_c5: verified          # validacaoAnuncio.test.ts: desagioMedidoGraduado(HONDURAS) === desagioMedido(HONDURAS); computeLaudo idem
+  indice_nunca_ancora: verified    # estrutural: computeLaudo NÃO recebe índice (diff methodology.ts); triangulação só em buildLaudoModel
+  file_lists_match_diff: true      # File Lists das 5 stories == git status/diff real (agregado)
+  story_9_29_still_draft: true     # "Draft (GATED — não validar para Ready antes da 9.28 Done)" confirmado
+  out_of_scope_artifact: ".claude/settings.local.json.bak untracked — NÃO commitar (atenção @devops)"
+
+stories:
+  - id: "9.24"
+    verdict: PASS
+    status_to: Done
+    checks:
+      code_review: PASS       # simularEstrategias pura, model-level (laudo + lite), zero recálculo (padrão H-4); ordem garantida por clamp, sem % inventado
+      tests: PASS             # 5 testes: chaves canônicas, ordem rapida≤defensavel≤agressiva, Art. IV sem prazo numérico, AC4 sem corte, âncora no headline.referencia
+      acceptance_criteria: PASS   # AC1 (3 cenários) ✓ · AC2 (Art. IV — prazoNota qualitativa "sem dado de prazo nesta emissão", todo número do computation) ✓ · AC3 (seção Laudo V2 + Lite modo dono com rótulos) ✓ · AC4 (tese abaixo → "Subprecificado — não recomendo cortar") ✓ · AC5 (suite verde) ✓
+      regressions: PASS       # nenhum número âncora tocado; fixture Honduras intacta
+      performance: PASS       # composição O(1) sobre campos já computados
+      security: PASS          # sem segredos/eval/PII
+      docs: PASS              # JSDoc ancorado em Art. IV/ADR-EPIC8-001; File List coerente
+    notes: "Copy AC4 usa em-dash ('Subprecificado — não recomendo cortar') — é a copy H-3 CANÔNICA reproduzida de subprecificacao.ts/teseComercial.ts, exigida pelo AC4; não é violação da rule copy-style (reprodução de fonte, não copy nova)."
+
+  - id: "9.25"
+    verdict: PASS   # re-review 2026-07-11: CONCERNS→PASS — QA fixes verificados no código (didático robustezNota + seção 2.5b; snapshot Honduras 10,6%)
+    status_to: Done
+    checks:
+      code_review: PASS       # testarRobustez pura/determinística; fórmula leave-one-out no JSDoc (AC4); precoM2 aditivo em AdherenceBreakdown sem tocar índice de aderência
+      tests: CONCERNS         # caso sintético sensível ✓ e robusta→sem aviso ✓; MAS asserção Honduras fraca: aceita 'robusta' OU 'sensivel' e amplitude <50% (story esperava "amplitude esperada baixa")
+      acceptance_criteria: CONCERNS   # AC1 ✓ · AC2 ✓ (aviso reference_sensitive_to_single_comp anexado no MODEL, computation não mutado) · AC3 PARCIAL — seção 9x no Laudo V2 ✓ e fora do Lite ✓, porém o "Didático ganha 1 parágrafo" NÃO foi entregue: robustezNota vive em sec9 do laudoModel (V2), didaticoModel.ts não tem menção a robustez/leave-one-out · AC4 ✓ · AC5 ✓
+      regressions: PASS       # AP113/AP132/Honduras sem drift (suite verde)
+      performance: PASS       # O(n²) em n≤23 — desprezível
+      security: PASS
+      docs: PASS              # limiar 10% declarado como parâmetro de arbítrio (não verdade estatística) — exatamente como o AC1 pediu
+    notes: "Dev Record diz 'Parágrafo didático em sec9.robustezNota', mas sec9 é o Laudo V2 — o documento DIDÁTICO (didaticoModel.ts) ficou sem o parágrafo de transparência do AC3. Gap documental, não numérico."
+
+  - id: "9.26"
+    verdict: PASS
+    status_to: Done
+    checks:
+      code_review: PASS       # validarAnuncioVenda com 3 graduações §10.10; normalizeStreet exportada (mesma função do guard-rail 9.8, sem duplicação); desagioMedidoGraduado envolve o legado
+      tests: PASS             # 3 graduações sintéticas ✓ · desagioReal ✓ · prior-aviso dentro/fora da banda ✓ · zero drift em DOIS níveis (função e computeLaudo) ✓
+      acceptance_criteria: PASS   # AC1 (confirmado = número E (área±2% OU rua); parcial; nao_recuperavel) ✓ · AC2 (desagioMedidoPercent zero drift Honduras −12,7%; n por nível exposto em desagioGraduado aditivo) ✓ · AC3 (aviso info desagio_fora_prior_sp cita prior como referência externa, nunca ajusta) ✓ · AC4 (confiancaC5 aditivo no passaporte, A/B/C intacto) ✓ · AC5 ✓
+      regressions: PASS       # teste explícito r.desagioMedidoPercent === desagioMedido(HONDURAS_COMPARAVEIS)
+      performance: PASS
+      security: PASS
+      docs: PASS              # didático CONFIANCA_DEFAULT agora cita validarAnuncioVenda() (task ✓)
+    notes: "Aviso do prior anexado no COMPUTE (computeLaudo), não no model — AC3 não restringe o local; aceito. Honduras −12,7% dispara o aviso info (fora da banda 8–12%) por construção — comportamento especificado, severidade info. Contrato C-5 pronto para a Fase B (9.5/D-2)."
+
+  - id: "9.27"
+    verdict: PASS   # re-review 2026-07-11: CONCERNS→PASS — toggle real buildLaudoModel ON/OFF verificado + tipologia sem default silencioso (r5.propertyType ?? null)
+    status_to: Done
+    checks:
+      code_review: PASS       # calcularIndiceBairro puro (recebe vendas, não acessa dados); deflação reutiliza deflacionarComparaveis (sem 2ª cópia do fator); triangulação 100% model-level
+      tests: CONCERNS         # AC1/AC2/AC4/aviso ✓; MAS o teste do AC3 compara computeLaudo() com computeLaudo() idênticos (sem índice em nenhum dos lados) — prova determinismo, não "ligado/desligado". O guard real é ESTRUTURAL (computeLaudo não recebe índice — verificado no diff), mas o teste prometido pelo AC3 não exercita o toggle via buildLaudoModel
+      acceptance_criteria: CONCERNS   # AC1 ✓ · AC2 (banda 20% traçada ao protótipo, aviso bairro_incoerente atencao) ✓ · AC3 PARCIAL (garantia estrutural sólida; teste fraco) · AC4 (opt-in inerte testado) ✓ · AC5 (script 12 importa o canônico, fixture multi-bairro) ✓
+      regressions: PASS       # números âncora intactos; suite verde
+      performance: PASS
+      security: PASS
+      docs: PASS              # "Nunca âncora de valor" declarado no aviso, na nota de fundamentação e no JSDoc
+    notes: "tipologiaAlvoIndice default 'casa' hardcoded no laudoModel — correto p/ os casos atuais (132/113/Honduras são casas), mas vira bug silencioso num alvo apartamento sem o campo; cobrir na chamada quando a Fase B chegar."
+
+  - id: "9.28"
+    verdict: CONCERNS
+    status_to: Done
+    checks:
+      code_review: PASS       # (docs-only) 15 condições objetivas lendo campos do computation.json; bandas fixas + tie-break conservador declarado — anatomia gate-determinism correta
+      tests: N/A              # story de docs/medição; sem código
+      acceptance_criteria: CONCERNS   # AC1 ✓ (15 condições, todas objetivas) · AC2 ✓ (G-BOM + G-RUIM congelados ANTES, arquivos presentes) · AC3 PARCIAL — "sessões/modelos independentes" não ocorreu: as N=4 runs foram reexecuções manuais determinísticas da mesma tabela (README §Medição é honesto sobre isso) · AC4 ✓ (3 eixos E1–E3 ancorados; re-medição amplitude 0 em 3 alvos) · AC5 ✓ (acurácia 100%, stable_but_wrong=false nos 3) · AC6 ✓ (checklist + research pack + ROADMAP N-5 Done)
+      regressions: N/A
+      performance: N/A
+      security: PASS          # sem PII/segredos nos docs
+      docs: PASS              # medicoes.json com baseline PASS↔CONCERNS (amplitude 1) → pós-âncora 0 — trilha completa do playbook
+    notes: "A variância que o N-5 existe para medir é a INTERPRETATIVA de um LLM aplicando as 15 condições — e essa não foi medida (runs manuais mecânicos têm amplitude 0 por construção). Mitigação: o checklist proíbe julgamento LLM no veredito final (seção 'Uso pelo @acm-auditor'), o que reduz o risco a erro de leitura de campo. Follow-up obrigatório na 9.29: medir N=4 com execuções LLM reais do /acm-validate contra os mesmos gabaritos ANTES de confiar no veredito automatizado."
+
+issues:
+  - severity: medium
+    category: requirements
+    story: "9.25"
+    description: "AC3 parcial: documento didático (didaticoModel.ts) sem o parágrafo do leave-one-out; a robustezNota foi para sec9 do Laudo V2."
+    recommendation: "Adicionar 1 parágrafo em didaticoModel.ts explicando o teste (transparência) — fix pequeno; pode entrar no commit da wave ou como follow-up imediato."
+  - severity: low
+    category: tests
+    story: "9.27"
+    description: "Teste do AC3 não exercita índice ligado/desligado — compara dois computeLaudo idênticos (tautológico). Guard estrutural existe e é verificável no diff."
+    recommendation: "Reforçar: buildLaudoModel com e sem input.indiceBairro assertando que headline/mediana/faixa do model não mudam (só avisos/fundamentação)."
+  - severity: low
+    category: tests
+    story: "9.25"
+    description: "Asserção Honduras aceita ambos veredictos ('robusta'|'sensivel') e amplitude <50% — não fixa o comportamento esperado da amostra homogênea."
+    recommendation: "Fixar o valor esperado (snapshot da amplitude Honduras) para virar regressão real."
+  - severity: medium
+    category: docs
+    story: "9.28"
+    description: "AC3: medição baseline não usou sessões LLM independentes — amplitude 0 vale para aplicação mecânica, não para variância interpretativa de LLM."
+    recommendation: "Na 9.29, rodar N=4 execuções LLM reais do checklist contra G-BOM/G-RUIM e registrar no research pack antes de ativar o veredito automatizado."
+  - severity: low
+    category: code
+    story: "9.27"
+    description: "tipologiaAlvoIndice default 'casa' hardcoded em buildLaudoModel."
+    recommendation: "Passar tipologia do alvo explicitamente quando a triangulação for usada em apartamentos."
+
+batch_verdict: CONCERNS   # aprovado — nenhuma issue high/critical; 5 stories seguem para Done. Re-review 11-Jul: concerns de CÓDIGO todos resolvidos (9.25/9.27 → PASS); CONCERNS remanescente é só o follow-up deliberado da 9.28 (N=4 LLM = gate de entrada da 9.29, não bloqueia a wave)
+follow_ups:
+  - "9.25: parágrafo do leave-one-out no didaticoModel.ts (fix pequeno, pode entrar antes do commit)." # RESOLVED 2026-07-11 @dev — didaticoModel + DidaticoDocument 2.5b + snapshot Honduras
+  - "9.27: teste de toggle do índice via buildLaudoModel." # RESOLVED 2026-07-11 @dev — indiceBairro.test AC3 toggle + tipologia sem default 'casa'
+  - "9.29 (gate de entrada): medição N=4 LLM real do CHECKLIST-ACM-AUDITOR-v1 vs gabaritos congelados — condição para ativar veredito automatizado." # OPEN — registrado em research pack + 9.29 Dependencies
+  - "@devops: NÃO commitar .claude/settings.local.json.bak (artefato local fora de escopo)."
+  - "9.29 permanece Draft até este gate ser processado e 9.28 marcada Done (aí desbloqueia formalmente)."
+qa_fixes_applied:
+  date: "2026-07-11"
+  agent: dev
+  resolved:
+    - story: "9.25"
+      items: ["didatico robustezNota", "Honduras amplitude snapshot 10.6"]
+    - story: "9.27"
+      items: ["buildLaudoModel toggle test", "tipologiaAlvo without silent casa default"]
+    - story: "9.28"
+      items: ["documented 9.29 LLM N=4 entry gate (not code)"]
+  remaining_open:
+    - "9.29 entry: N=4 LLM runs of checklist vs gabaritos before automated verdict"
+
+# Re-verificação independente @qa (Art. V — saída real, pós QA-fixes)
+qa_reverification:
+  date: "2026-07-11"
+  reviewer: qa
+  evidence:
+    typecheck: exit_0                       # tsc --noEmit — 0 erros
+    eslint_acm: exit_0                      # npx eslint src/lib/acm --max-warnings 0
+    vitest_acm: "27 files / 299 tests passed (0 fail)"   # 51.22s
+  fixes_verified_in_code:
+    - "9.25 didático: didaticoModel.parte2.sensibilidade.robustezNota (usa testarRobustez, sem recomputar mediana) + seção 2.5b em DidaticoDocument.tsx"
+    - "9.25 snapshot: robustezTese.test.ts congela amplitude 10,6% / sensivel / top3 n=3 / influente 'R. Maestro Chiaffarelli, 86'"
+    - "9.27 toggle: indiceBairro.test.ts constrói buildLaudoModel com/sem indiceBairro — sec1/faixa/sec9 idênticos; triangulação e nota de fundamentação SÓ com índice ON"
+    - "9.27 tipologia: laudoModel usa input.tipologiaAlvoIndice ?? r5.propertyType (se aplicado) ?? null — sem hardcode 'casa'"
+    - "9.28: research pack §'Gate de entrada da 9.29' + medicoes-llm-9.29.json previsto + Dependencies da 9.29 — documentado sem inventar runs (Art. IV respeitado)"
+  finding_expected_behavior:
+    - "Honduras V2 agora carrega aviso reference_sensitive_to_single_comp por construção: conjunto de referência é top3 (n=3), amplitude 10,6% > limiar 10%. NÃO é defeito — leave-one-out em n=3 é intrinsecamente sensível; o aviso é exatamente o comportamento honesto que a 9.25 especificou. Observação: com n=3, retirar 1 ponto move a mediana para média de 2 — sensibilidade estrutural do recorte, transparente no laudo."
+  verdicts_updated: { "9.25": "PASS", "9.27": "PASS", "9.28": "CONCERNS (follow-up deliberado 9.29)" }
+  release: "Batch LIBERADO para @devops — commit Wave 5 (código + docs + gate); EXCLUIR .claude/settings.local.json.bak do commit"

@@ -301,6 +301,29 @@ export function LiteDocument({ model }: { model: LiteModel }) {
           </View>
         )}
 
+        {/* Story 9.24 — estratégias modo dono (Lite V1) */}
+        <Text style={s.h2}>Estratégias de preço</Text>
+        <View style={s.table}>
+          <View style={[s.tr, s.trHead]}>
+            <Text style={[s.th, { width: '22%' }]}>Estratégia</Text>
+            <Text style={[s.th, { width: '22%', textAlign: 'right' }]}>Anúncio</Text>
+            <Text style={[s.th, { width: '26%', textAlign: 'right' }]}>Fechamento</Text>
+            <Text style={[s.th, { width: '30%' }]}>Por quê</Text>
+          </View>
+          {model.estrategiasPreco.map((e) => (
+            <View key={e.chave} style={s.tr} wrap={false}>
+              <Text style={[s.tdStrong, { width: '22%' }]}>{e.rotulo}</Text>
+              <Text style={[s.td, { width: '22%', textAlign: 'right' }]}>
+                {formatBRL(e.precoAnuncio)}
+              </Text>
+              <Text style={[s.td, { width: '26%', textAlign: 'right' }]}>
+                {`${formatBRL(e.faixaFechamento.min)}–${formatBRL(e.faixaFechamento.max)}`}
+              </Text>
+              <Text style={[s.td, { width: '30%', fontSize: 7.5 }]}>{e.racional}</Text>
+            </View>
+          ))}
+        </View>
+
         <Text style={s.h2}>3 vendas mais parecidas</Text>
         <View style={s.table}>
           <View style={[s.tr, s.trHead]}>

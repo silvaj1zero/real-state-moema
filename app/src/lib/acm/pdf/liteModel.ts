@@ -7,6 +7,7 @@
 import { formatBRL } from '@/lib/format'
 import type { AcmLaudoComputation, AvisoAcm } from '@/lib/acm/methodology'
 import { classificarTeseComercial, type TeseComercial } from '@/lib/acm/teseComercial'
+import { simularEstrategias, type EstrategiaPreco } from '@/lib/acm/simuladorEstrategias'
 import type { ResumoSourceComparable } from './resumoModel'
 
 // ---------------------------------------------------------------------------
@@ -71,6 +72,16 @@ export interface LiteModel {
     acaoRecomendada: string | null
     narrativa: string | null
   }
+  /**
+   * Story 9.24 — 3 estratégias em linguagem de dono (decisão H-3 E: Lite na V1).
+   * Tribunal (9.25) NÃO entra no Lite.
+   */
+  estrategiasPreco: Array<
+    Pick<EstrategiaPreco, 'chave' | 'precoAnuncio' | 'faixaFechamento' | 'racional'> & {
+      /** Rótulo curto modo dono. */
+      rotulo: string
+    }
+  >
   modoDono: LiteModoDono
   disclaimer: string
 }
@@ -193,6 +204,19 @@ export function buildLiteModel(
       acaoRecomendada: computation.subprecificacao.acaoRecomendada,
       narrativa: computation.subprecificacao.narrativa,
     },
+    estrategiasPreco: simularEstrategias(computation).map((e) => ({
+      chave: e.chave,
+      precoAnuncio: e.precoAnuncio,
+      faixaFechamento: e.faixaFechamento,
+      // Lite: racional enxuto, sem jargão de tribunal
+      racional: e.racional,
+      rotulo:
+        e.chave === 'rapida'
+          ? 'Rápida (piso)'
+          : e.chave === 'defensavel'
+            ? 'Defensável (referência)'
+            : 'Agressiva (teto)',
+    })),
     modoDono,
     disclaimer: DISCLAIMER_DEFAULT,
   }
