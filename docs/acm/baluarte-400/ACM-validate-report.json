@@ -1,0 +1,124 @@
+{
+  "geradoEm": "2026-07-11T04:23:28.992Z",
+  "meta": {
+    "enderecoAlvo": "Rua Baluarte, 400",
+    "bairro": "Vila Olímpia",
+    "areaConstruida": 180,
+    "areaTerreno": 250,
+    "propertyType": "casa",
+    "tese": "construcao"
+  },
+  "resumo": {
+    "totalComparaveis": 68,
+    "medianaPrecoM2": 10244.9,
+    "valorMercado": 1567470,
+    "valorFechamento": 1567470,
+    "teseComercial": "acima",
+    "subprecificacao": null,
+    "nAvisosCriticos": 0,
+    "r5Excluidos": 0
+  },
+  "gates": [
+    {
+      "id": "R5",
+      "ok": true,
+      "severidade": "info",
+      "detalhe": "aplicado · aceitos=68 · excluídos=0 · R5 Tipologia — Uso/padrão IPTU e Complemento da guia oficial (SF/PMSP) por SQL: só mesma tipologia do alvo; sem guia pública = heurística de lote declarada + conferência humana (Fase 1)."
+    },
+    {
+      "id": "sample_size",
+      "ok": true,
+      "severidade": "info",
+      "detalhe": "n=68 · top3=3"
+    },
+    {
+      "id": "avisos_criticos",
+      "ok": true,
+      "severidade": "info",
+      "detalhe": "nenhum"
+    },
+    {
+      "id": "auto_ref_9.8",
+      "ok": true,
+      "severidade": "info",
+      "detalhe": "excluídos=0"
+    },
+    {
+      "id": "tese_comercial",
+      "ok": true,
+      "severidade": "info",
+      "detalhe": "acima · Acima do mercado"
+    },
+    {
+      "id": "subprecificacao",
+      "ok": true,
+      "severidade": "info",
+      "detalhe": "sem gap relevante / sem preço"
+    }
+  ],
+  "avisos": [
+    {
+      "codigo": "typology_heuristic_present",
+      "severidade": "atencao",
+      "mensagem": "Há comparáveis com tipologia por heurística (não confirmada em guia oficial — ver Regra R5)."
+    },
+    {
+      "codigo": "temporal_dispersion_high",
+      "severidade": "atencao",
+      "mensagem": "Vendas dispersas em mais de 12 meses sem homogeneização temporal (índice off)."
+    },
+    {
+      "codigo": "liquidity_factors_unvalidated",
+      "severidade": "atencao",
+      "mensagem": "Fatores de liquidez/condição não elicitados — valor de fechamento = valor de mercado (sem ajuste)."
+    },
+    {
+      "codigo": "target_condition_unconfirmed",
+      "severidade": "atencao",
+      "mensagem": "Estado/ficha do imóvel-alvo não confirmado — faixa reportada de forma conservadora (ver Story 9.14)."
+    },
+    {
+      "codigo": "typology_r5_incomplete",
+      "severidade": "atencao",
+      "mensagem": "R5 ativo só com heurística de lote (sem guia oficial) — conferência humana Fase 1 obrigatória."
+    }
+  ],
+  "r5": {
+    "aplicado": true,
+    "propertyType": "casa",
+    "nEntrada": 68,
+    "nAceitos": 68,
+    "nExcluidos": 0,
+    "nHeuristica": 68,
+    "nIndefinido": 0,
+    "regraUmaLinha": "R5 Tipologia — Uso/padrão IPTU e Complemento da guia oficial (SF/PMSP) por SQL: só mesma tipologia do alvo; sem guia pública = heurística de lote declarada + conferência humana (Fase 1)."
+  },
+  "teseComercial": {
+    "tese": "acima",
+    "deltaPct": 96.1,
+    "label": "Acima do mercado",
+    "frase": "Preço +96.1% vs referência ACM — tese de realismo de mercado (deságio de captura).",
+    "precoComercial": 2200000,
+    "referencia": 1122000,
+    "fontePreco": "anuncio"
+  },
+  "subprecificacao": {
+    "nivel": null,
+    "deltaPct": 96.1,
+    "acaoRecomendada": null,
+    "narrativa": null,
+    "gaps": {
+      "vsReferencia": 96.1,
+      "vsTop5": 43.8,
+      "vsTerreno": null
+    },
+    "tempoExposicaoDias": null,
+    "nAnuncios": null,
+    "concorrenciaAlta": false
+  },
+  "top3": [
+    "TV SEBASTIAO EMILIO FORLI 58",
+    "AV COTOVIA 726",
+    "R PROF VAHIA DE ABREU 741"
+  ]
+}

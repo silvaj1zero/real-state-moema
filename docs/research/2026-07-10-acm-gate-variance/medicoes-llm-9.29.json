@@ -1,0 +1,122 @@
+{
+  "story": "9.29",
+  "date": "2026-07-11",
+  "checklist": "docs/acm/CHECKLIST-ACM-AUDITOR-v1.md",
+  "protocolo": "N=4 execuções LLM REAIS por alvo (subagentes opus independentes, contexto fresco, cegos ao gabarito; prompt = persona acm-auditor). Difere da 9.28, cujas runs eram mecânicas.",
+  "alvos": {
+    "G-BOM-fresco": "docs/research/2026-07-10-acm-gate-variance/computation-honduras-fresco.json (computeLaudo + fixture canônica, gerado 2026-07-11; n=23, mediana 18264.3)",
+    "G-BOM-legado-v5": "docs/acm/honduras-629/LAUDO-ACM-Honduras-v5-2026-07-08.computation.json",
+    "G-RUIM": "docs/research/2026-07-10-acm-gate-variance/gabarito-defeituoso.json"
+  },
+  "baseline_v1": {
+    "G-BOM-fresco": {
+      "runs": [
+        { "run": 1, "veredito": "PASS", "score": 98 },
+        { "run": 2, "veredito": "PASS", "score": 98 },
+        { "run": 3, "veredito": "PASS", "score": 98 },
+        { "run": 4, "veredito": "PASS", "score": 98 }
+      ],
+      "amplitude_veredito": 0,
+      "amplitude_score": 0
+    },
+    "G-BOM-legado-v5": {
+      "runs": [
+        { "run": 1, "veredito": "FAIL", "score": 54, "blocking": ["C_TRES_PRECOS", "C_PASSAPORTES"] },
+        { "run": 2, "veredito": "FAIL", "score": 63, "blocking": ["C_PASSAPORTES"] },
+        { "run": 3, "veredito": "FAIL", "score": 59, "blocking": ["C_PASSAPORTES"] },
+        { "run": 4, "veredito": "FAIL", "score": 53, "blocking": ["C_TRES_PRECOS", "C_PASSAPORTES"] }
+      ],
+      "amplitude_veredito": 0,
+      "amplitude_score": 10,
+      "gabarito": "CONCERNS",
+      "resultado": "STABLE-BUT-WRONG — FAIL x4 vs gabarito CONCERNS. Eixo E4: os 4 LLMs leram a exceção do tie-break 2 v1 ('exceto C3/C4/C5 quando a story já é Done') como aplicável ao arquivo legado (stories estão Done hoje), invertendo a intenção do eixo E1 da 9.28 (exceção só para pipeline atual)."
+    },
+    "G-RUIM": {
+      "runs": [
+        { "run": 1, "veredito": "FAIL", "score": -15 },
+        { "run": 2, "veredito": "FAIL", "score": -12 },
+        { "run": 3, "veredito": "FAIL", "score": -13 },
+        { "run": 4, "veredito": "FAIL", "score": -15 }
+      ],
+      "amplitude_veredito": 0,
+      "amplitude_score": 3,
+      "eixos_score": ["E5 não-aplicável = ok vs info (C8/C11)", "E6 C_HOMOG sem dataVenda: info vs atenção"]
+    }
+  },
+  "ancoras_v1_1": {
+    "E4": "Tie-break 2 reescrito: proveniência explícita — pipeline atual (ACM-computation.json do run corrente) = banda da tabela; legado/arquivo (LAUDO-*-v*.computation.json histórico) = atenção sempre, inclusive C3/C4/C5.",
+    "E5": "Tie-break 4 novo: condição não aplicável = ok (não info); bandas info só onde a tabela declara; C_DESAGIO_PRIOR null = ok.",
+    "E6": "Tie-break 5 novo: 'dataVenda utilizáveis' = ≥1 comparável/passaporte com dataVenda não-nula.",
+    "E7": "Tie-break 4 estendido: 'opcional' = só condições 'Se model expõe' ou gatilho condicional explícito; evidencia/avisos/passaportes/teseComercial/desagioTratado NÃO são opcionais.",
+    "E8": "Tie-break 7 novo: C_SAMPLE deriva top3.length=headline.referencia.n e totalComparaveis=headline.teto.n quando campos diretos ausentes."
+  },
+  "pos_ancora_v1_1_final": {
+    "G-BOM-fresco": {
+      "runs": [
+        { "run": 1, "veredito": "PASS", "score": 98 },
+        { "run": 2, "veredito": "PASS", "score": 98 },
+        { "run": 3, "veredito": "PASS", "score": 98 },
+        { "run": 4, "veredito": "PASS", "score": 98 }
+      ],
+      "amplitude_veredito": 0,
+      "amplitude_score": 0
+    },
+    "G-BOM-legado-v5": {
+      "rodada_E4_E6": {
+        "runs": [
+          { "run": 1, "veredito": "CONCERNS", "score": 84 },
+          { "run": 2, "veredito": "CONCERNS", "score": 84 },
+          { "run": 3, "veredito": "CONCERNS", "score": 74 },
+          { "run": 4, "veredito": "CONCERNS", "score": 74 }
+        ],
+        "amplitude_veredito": 0,
+        "amplitude_score": 10,
+        "eixo_residual": "E7 — evidencia/avisos ausentes: exigido (atenção) vs não-aplicável (ok)"
+      },
+      "rodada_E7": {
+        "runs": [
+          { "run": 1, "veredito": "CONCERNS", "score": 69 },
+          { "run": 2, "veredito": "CONCERNS", "score": 69 },
+          { "run": 3, "veredito": "CONCERNS", "score": 69 },
+          { "run": 4, "veredito": "CONCERNS", "score": 64 }
+        ],
+        "amplitude_veredito": 0,
+        "amplitude_score": 5,
+        "eixo_residual": "E8 — C_SAMPLE com top3/totalComparaveis não expostos diretamente"
+      },
+      "rodada_E8_final": {
+        "runs": [
+          { "run": 1, "veredito": "CONCERNS", "score": 69 },
+          { "run": 2, "veredito": "CONCERNS", "score": 74 },
+          { "run": 3, "veredito": "CONCERNS", "score": 73 },
+          { "run": 4, "veredito": "CONCERNS", "score": 69 }
+        ],
+        "amplitude_veredito": 0,
+        "amplitude_score": 5,
+        "eixo_residual": "C_HOMOG em legado sem subcampo 'aplicada': 2 runs seguiram o tie-break 5 (atenção), 1 leu 'ajustados=23 → satisfeita' (ok), 1 aplicou tie-break 5 parcial (info). Texto já ancora (atenção); desvio é de aderência, não de spec."
+      }
+    },
+    "G-RUIM": {
+      "runs": [
+        { "run": 1, "veredito": "FAIL", "score": -11 },
+        { "run": 2, "veredito": "FAIL", "score": -11 },
+        { "run": 3, "veredito": "FAIL", "score": -11 },
+        { "run": 4, "veredito": "FAIL", "score": -11 }
+      ],
+      "amplitude_veredito": 0,
+      "amplitude_score": 0,
+      "blocking_convergente": ["C_AUTOREF", "C_HEADLINE_FAIXA", "C_TRES_PRECOS", "C_PASSAPORTES", "C_AVISOS_CANON", "C_SUBPREC", "C_SAMPLE"]
+    }
+  },
+  "acuracia_final": {
+    "G-BOM-fresco": { "gabarito": "PASS", "convergencia": "PASS", "stable_but_wrong": false },
+    "G-BOM-legado-v5": { "gabarito": "CONCERNS", "convergencia": "CONCERNS", "stable_but_wrong": false },
+    "G-RUIM": { "gabarito": "FAIL", "convergencia": "FAIL", "stable_but_wrong": false }
+  },
+  "decisao": {
+    "veredito_gate": "APROVADO para ativar o veredito automatizado do @acm-auditor na skill /acm-validate",
+    "criterio_binding": "Veredito PASS/CONCERNS/FAIL (o output que a skill consome): amplitude 0 em TODAS as rodadas e alvos (20 runs), acurácia 100% vs gabaritos congelados. Score é 'pontuação auxiliar só para medição de variância' (texto do próprio checklist).",
+    "limitacao_documentada": "Score auxiliar tem amplitude residual ≤5 APENAS no alvo legado-arquivo (eixo C_HOMOG/aplicada), classe de alvo fora do caminho operacional da skill — ela só audita ACM-computation.json fresco, onde veredito E score têm amplitude 0. Auditoria de arquivos legado permanece possível com veredito estável; o score não deve ser usado como critério nesses arquivos.",
+    "nota_qa": "Baseline v1 LLM reproduziu o fenômeno stable-but-wrong previsto pela rule gate-determinism (FAIL x4 estável vs gabarito CONCERNS) — o gate de entrada cumpriu exatamente sua função antes da ativação."
+  }
+}

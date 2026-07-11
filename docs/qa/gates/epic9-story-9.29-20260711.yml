@@ -1,0 +1,40 @@
+# QA Gate — Story 9.29 (D-3: skill /acm-validate + agentes ACM)
+schema: story-quality-gate-v1
+date: 2026-07-11
+branch: feat/story-9.29-acm-validate-skill
+commits: [62fcd4f, b8168e1]
+reviewer: qa (opus, revisor independente)
+storyIds: ["9.29"]
+
+verdict: PASS
+
+# Números reais rodados pelo @qa (revisor independente)
+evidence:
+  vitest_acm: "27 files / 299 tests PASS (54.6s)"          # npx vitest run src/lib/acm --no-file-parallelism
+  cli_smoke_baluarte: "exit 0 · n=68 · mediana 10244.9 · 6 gates OK"
+  cli_smoke_regression_132: "exit 0 · n=56 · mediana 10294.37 (= Dev Record, intocado)"
+  app_diff: "git diff master..HEAD -- app/ = VAZIO (AC3 forte — zero lógica de cálculo)"
+  skill_description: "177 chars ≤ 180, trigger-first (medido)"
+  auditoria_baluarte: "PASS 99 re-derivado independentemente do checklist (100 − 1 info C_HOMOG) — coerente"
+  gate_entrada_llm: "20 runs · amplitude veredito 0 · acurácia 100% vs gabaritos congelados · baseline reproduziu stable-but-wrong (playbook aplicado corretamente)"
+  secrets_scan: "limpo (dataset.json, SKILL.md, research pack; .env.local fora do diff)"
+  cited_paths_exist: "SOP, H-3, checklist v1.1, CLIs — todos presentes"
+
+checks:
+  code_review: PASS       # skill enxuta (progressive disclosure); 2 agentes com KISS justificado; auditor opus pinado + tools read-only + proibições explícitas
+  tests: PASS             # suíte 299/299; smokes CLI exit 0 (baluarte n=68, 132 n=56)
+  acceptance_criteria: PASS   # AC1–AC6 verificados um a um com evidência (ver story QA Results)
+  regressions: PASS       # zero drift — nenhum arquivo de app/ no diff; Honduras/132 intactos
+  performance: PASS       # N/A — só orquestração/docs
+  security: PASS          # sem segredos em arquivos novos
+  docs: PASS              # File List == diff (15 arquivos); Change Log/Dev Record/ROADMAP coerentes
+
+pontos_de_atencao:
+  score_residual_legado: "CONCERNS não-blocking — score auxiliar amplitude ≤5 SÓ em computation legado (eixo C_HOMOG/aplicada); critério binding é o veredito (amplitude 0 + acurácia 100% em todos os alvos); alvo ruidoso fora do caminho operacional da skill; failure policy do @dev correta (2 iterações de âncora)."
+  validate_skills_owner_squad: "PASS — check 5 N/A estrutural (repo de projeto sem squads/ecosystem-registry; colocation rule exige skill aqui)."
+
+notes:
+  - "3 untracked ambientais NÃO são deliverables (settings.local.json.bak pré-existente + 2 JSONs do smoke 132) — não commitar."
+  - "Follow-ups pré-existentes fora do escopo D-3: homogeneização FipeZap inerte; acm-operator depende de .env.local."
+
+next_action: "@devops push/PR → merge → Status Done."

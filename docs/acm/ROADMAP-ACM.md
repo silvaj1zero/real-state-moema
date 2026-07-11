@@ -183,7 +183,7 @@ tsc 0 · eslint 0. Restante do épico: 9.4 (cross-repo) e 9.1 (depende da 9.4).
 | **9.26** | C-5 validação anúncio↔venda graduada (N-4, pré-D-2/9.5) | **✅ Done (QA 11-Jul, PASS — zero drift Honduras)** | Sonnet | — |
 | **9.27** | C-3 índice de bairro = triangulação de coerência (nunca âncora) | **✅ Done (QA 11-Jul, re-review PASS pós-toggle test)** | Sonnet | — |
 | **9.28** | N-5: variância do gate @acm-auditor (playbook gate-determinism) | **✅ Done (QA 11-Jul, CONCERNS aceito — gate de entrada N=4 LLM na 9.29)** | **Fable** | — |
-| **9.29** | D-3: skill `/acm-validate` + agentes ACM | **Ready (@po 10/10 GO 11-Jul; gate de entrada N=4 LLM dentro da execução)** | Fable | ~~9.28 Done~~ ✓ |
+| **9.29** | D-3: skill `/acm-validate` + agentes ACM | **InReview (@dev Fable 11-Jul — gate N=4 LLM APROVADO: checklist v1.1, veredito amplitude 0, acurácia 100%; skill ativa; caso novo baluarte-400 ponta a ponta PASS 99)** | Fable | — |
 | 9.4 | Sink ITBI ampliado — **spec portátil pronta**: `SPEC-EXEC-STORY-9.4-CROSS-REPO.md` | Ready | @data-engineer | repo `acm-imobiliario` |
 | 9.1 | Régua apto/casa | Ready | Sonnet | 9.4 |
 
@@ -208,10 +208,13 @@ concorrência ativa da Fase B → depois da 9.26+9.5).
 | 5 | **XLSX rev2 do 132 (modificada)** | Cópia preservada para conferência futura: `ACM-AndradePertence132-validacao-corretor-rev2-OLD-modificada-20260710.xlsx` (134KB→32KB, provável re-save do Excel; stash também mantido). rev3 é a canônica. Conferir antes de qualquer merge-back | Preservado |
 | 6 | **Migrations 023/024** | Aplicadas em PROD 10-Jul e VALIDADAS via PostgREST (tabela 200 + `fn_owner_lookup_stats` OK). Conta de teste deletada, issue #2 fechado | ✅ Done |
 
-D-3 (skill `/acm-validate` + squad ACM): N-5 **Done (9.28, gate Wave 5 11-Jul)** —
-checklist ancorado; 9.29 DESBLOQUEADA (Draft, elegível p/ validação @po). Gate de
-entrada obrigatório antes de ativar o veredito automatizado: N=4 execuções LLM
-reais vs gabaritos congelados (ver research pack § "Gate de entrada da 9.29").
+D-3 (skill `/acm-validate` + agentes ACM): **implementado na 9.29 (InReview 11-Jul)** —
+skill `.claude/skills/acm-validate/` + agentes `acm-operator`/`acm-auditor` (2, não 4 — KISS,
+ver Dev Record da story). Gate de entrada N=4 LLM executado: baseline v1 reproduziu
+stable-but-wrong (FAIL×4 vs gabarito CONCERNS no legado) → checklist ancorado a v1.1
+(eixos E4–E8) → veredito amplitude 0 + acurácia 100% → **veredito automatizado ATIVADO**.
+Prova ponta a ponta: caso novo `docs/acm/baluarte-400/` (n=68, auditor PASS 99, Lite emitido)
+sem copiar pasta de scripts. Medições: `medicoes-llm-9.29.json` no research pack.
 
 **Casos (fora de story, SOP-OPERACAO-ACM-POS-H3):** 113 v3 emitido 10-Jul com
 C-1 declarado (paridade com o 132 v4 — assimetria fechada); pendências humanas:
