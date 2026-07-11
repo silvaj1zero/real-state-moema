@@ -218,6 +218,9 @@ export function DidaticoDocument({ model }: { model: DidaticoModel }) {
           ))}
         </View>
         <Text style={s.paragraph}>{m.parte2.sensibilidade.nota}</Text>
+        {/* Story 9.25 AC3 — parágrafo leave-one-out no didático */}
+        <Text style={s.h2}>2.5b Teste de robustez da tese</Text>
+        <Text style={s.paragraph}>{m.parte2.sensibilidade.robustezNota}</Text>
         <Text style={s.h2}>2.6 Deságio medido (anúncio → fechamento)</Text>
         <Text style={s.paragraph}>{m.parte2.desagio}</Text>
 

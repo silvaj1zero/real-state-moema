@@ -129,7 +129,7 @@ Achados da auditoria ainda sem dono, convertidos em itens acionáveis:
 | **N-2** | **Fontes dos parâmetros do residual** | VGV 34.000/m², obra 10.500/m², margem 20% não têm fonte citada (§3.2) — a co-âncora de terreno herda o risco | Elicit com a Luciana + campo `fonte` por parâmetro do `ResidualLandParams`, impresso na Sec. 8 |
 | **N-3** | **Ajuste por idade/padrão construtivo** | Parte da Frente 1.3 não coberta pela 9.11 — imóveis 1960–2023 na mesma mediana | Decisão metodológica pendente: fator elicitado com a Luciana × Ross-Heidecke simplificado (NBR 14653-2). Não implementar antes da decisão (Art. IV) |
 | **N-4** | **Confirmação graduada na Fase 2** | "Confirmado" hoje é booleano e mal definido (§3.2 — 3/10 confirmados, todos com ressalvas) | Antecipar o schema `confianca: alta/média/baixa + ressalvas[]` já no workflow externo, antes da 9.5 — evita migração de dados depois |
-| **N-5** | **Variância dos gates ACM medida antes de automatizar** | Gates de julgamento não-ancorados oscilam até 40 pts (evidência framework 03-Jul) | Quando o checklist do `@acm-auditor` nascer (D-3), rodar o playbook: medir N=4, ancorar condições→banda, re-medir amplitude→0, validar contra gabarito congelado (caso Honduras) |
+| **N-5** | **Variância dos gates ACM medida antes de automatizar** | Gates de julgamento não-ancorados oscilam até 40 pts (evidência framework 03-Jul) | **Done (9.28, 10-Jul):** checklist ancorado `docs/acm/CHECKLIST-ACM-AUDITOR-v1.md` + medições `docs/research/2026-07-10-acm-gate-variance/` (amplitude 0, acurácia 100% vs gabaritos). Desbloqueia 9.29. |
 
 ## 8. Decisões pendentes
 
@@ -178,12 +178,12 @@ tsc 0 · eslint 0. Restante do épico: 9.4 (cross-repo) e 9.1 (depende da 9.4).
 
 | Story | Tema (fase do veredito) | Status | Routing | Bloqueio |
 |---|---|---|---|---|
-| **9.24** | Simulador de 3 estratégias de preço (F2 final) | Ready | Opus | — |
-| **9.25** | Tribunal: robustez leave-one-out + testemunhas A/B/C (F2, só V2) | Ready | Opus | — |
-| **9.26** | C-5 validação anúncio↔venda graduada (N-4, pré-D-2/9.5) | Ready | Sonnet | — |
-| **9.27** | C-3 índice de bairro = triangulação de coerência (nunca âncora) | Ready | Sonnet | — |
-| **9.28** | N-5: variância do gate @acm-auditor (playbook gate-determinism) | Ready | **Fable** | — |
-| **9.29** | D-3: skill `/acm-validate` + agentes ACM | **Draft (GATED)** | Fable | **9.28 Done** |
+| **9.24** | Simulador de 3 estratégias de preço (F2 final) | **✅ Done (QA 11-Jul, gate Wave 5 PASS)** | Opus | — |
+| **9.25** | Tribunal: robustez leave-one-out + testemunhas A/B/C (F2, só V2) | **✅ Done (QA 11-Jul, re-review PASS pós-fix didático)** | Opus | — |
+| **9.26** | C-5 validação anúncio↔venda graduada (N-4, pré-D-2/9.5) | **✅ Done (QA 11-Jul, PASS — zero drift Honduras)** | Sonnet | — |
+| **9.27** | C-3 índice de bairro = triangulação de coerência (nunca âncora) | **✅ Done (QA 11-Jul, re-review PASS pós-toggle test)** | Sonnet | — |
+| **9.28** | N-5: variância do gate @acm-auditor (playbook gate-determinism) | **✅ Done (QA 11-Jul, CONCERNS aceito — gate de entrada N=4 LLM na 9.29)** | **Fable** | — |
+| **9.29** | D-3: skill `/acm-validate` + agentes ACM | **Draft (DESBLOQUEADA 11-Jul — elegível p/ @po; gate de entrada N=4 LLM nas Dependencies)** | Fable | ~~9.28 Done~~ ✓ |
 | 9.4 | Sink ITBI ampliado — **spec portátil pronta**: `SPEC-EXEC-STORY-9.4-CROSS-REPO.md` | Ready | @data-engineer | repo `acm-imobiliario` |
 | 9.1 | Régua apto/casa | Ready | Sonnet | 9.4 |
 
@@ -208,8 +208,10 @@ concorrência ativa da Fase B → depois da 9.26+9.5).
 | 5 | **XLSX rev2 do 132 (modificada)** | Cópia preservada para conferência futura: `ACM-AndradePertence132-validacao-corretor-rev2-OLD-modificada-20260710.xlsx` (134KB→32KB, provável re-save do Excel; stash também mantido). rev3 é a canônica. Conferir antes de qualquer merge-back | Preservado |
 | 6 | **Migrations 023/024** | Aplicadas em PROD 10-Jul e VALIDADAS via PostgREST (tabela 200 + `fn_owner_lookup_stats` OK). Conta de teste deletada, issue #2 fechado | ✅ Done |
 
-D-3 (skill `/acm-validate` + squad ACM) permanece "DEPOIS": pré-requisito N-5
-(medir variância do gate do `@acm-auditor` antes de automatizar veredito).
+D-3 (skill `/acm-validate` + squad ACM): N-5 **Done (9.28, gate Wave 5 11-Jul)** —
+checklist ancorado; 9.29 DESBLOQUEADA (Draft, elegível p/ validação @po). Gate de
+entrada obrigatório antes de ativar o veredito automatizado: N=4 execuções LLM
+reais vs gabaritos congelados (ver research pack § "Gate de entrada da 9.29").
 
 **Casos (fora de story, SOP-OPERACAO-ACM-POS-H3):** 113 v3 emitido 10-Jul com
 C-1 declarado (paridade com o 132 v4 — assimetria fechada); pendências humanas:

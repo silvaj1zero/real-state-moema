@@ -30,6 +30,17 @@ import type {
 } from '@/lib/acm/methodology'
 import { agregarConfianca } from '@/lib/acm/methodology'
 import { classificarTeseComercial } from '@/lib/acm/teseComercial'
+import { simularEstrategias, type EstrategiaPreco } from '@/lib/acm/simuladorEstrategias'
+import {
+  avisoRobustezSensivel,
+  testarRobustez,
+  type RobustezTese,
+} from '@/lib/acm/robustezTese'
+import {
+  triangularComIndiceBairro,
+  type IndiceBairroResult,
+  type TriangulacaoBairro,
+} from '@/lib/acm/indiceBairro'
 import type { ResumoFaixaItem, ResumoInput, ResumoSourceComparable } from './resumoModel'
 
 // ===========================================================================
@@ -155,6 +166,16 @@ export interface LaudoInput extends ResumoInput {
 
   // --- Sec. 9 Sensibilidade
   sensibilidadeLeitura?: string | null
+
+  /**
+   * Índice de bairro pré-calculado (Story 9.27) — opt-in.
+   * Só triangulação; nunca altera números do computation.
+   */
+  indiceBairro?: IndiceBairroResult | null
+  /** Bairro do alvo p/ casar o índice (se diferente de input.bairro). */
+  bairroAlvoIndice?: string | null
+  /** Tipologia do alvo p/ o índice (casa/apartamento). */
+  tipologiaAlvoIndice?: string | null
 
   // --- Sec. 10 Parecer
   ponderacaoValor?: string | null
@@ -311,6 +332,12 @@ export interface LaudoModel {
     acaoRecomendada: string | null
     narrativa: string | null
   }
+  /** 3 estratégias de preço (Story 9.24) — model-level, zero recálculo. */
+  estrategiasPreco: EstrategiaPreco[]
+  /** Teste de robustez da tese / tribunal (Story 9.25) — só V2. */
+  robustezTese: RobustezTese
+  /** Triangulação índice de bairro (Story 9.27) — informativo, nunca âncora. */
+  triangulacaoBairro: TriangulacaoBairro
   faixa: ResumoFaixaItem[]
   sumario: {
     objetivos: string[]
@@ -385,6 +412,8 @@ export interface LaudoModel {
     intro: string
     cenarios: LaudoSensRow[]
     leitura: string
+    /** Parágrafo didático do leave-one-out (Story 9.25 AC3). */
+    robustezNota: string
   }
   sec10: {
     intro: string
@@ -979,6 +1008,36 @@ export function buildLaudoModel(
   // --- Montagem ----------------------------------------------------------
   const imovelLoc = input.enderecoAlvo
 
+  // Stories 9.24/9.25/9.27 — view-model only (zero recálculo de mediana/headline)
+  const estrategiasPreco = simularEstrategias(computation)
+  const robustezTese = testarRobustez(computation)
+  // Story 9.27 QA: sem default silencioso 'casa' — usa R5 do computation quando
+  // aplicado; senão null (triangulação casa por tipologia fica inerte no match
+  // estrito, ou casa no fallback de linha 'todas' / primeiro bairro).
+  const tipologiaParaIndice =
+    input.tipologiaAlvoIndice ??
+    (computation.r5.aplicado && computation.r5.propertyType
+      ? computation.r5.propertyType
+      : null)
+  const triangulacaoBairro = triangularComIndiceBairro(input.indiceBairro, {
+    bairroAlvo: input.bairroAlvoIndice ?? input.bairro,
+    tipologiaAlvo: tipologiaParaIndice,
+    headlinePrecoM2: h.referencia.medianaPrecoM2,
+  })
+  const confiabilidade = agregarConfianca(computation.passaportes)
+  const avisosModel = [...computation.avisos]
+  const avisoSens = avisoRobustezSensivel(robustezTese)
+  if (avisoSens && !avisosModel.some((a) => a.codigo === avisoSens.codigo)) {
+    avisosModel.push(avisoSens)
+  }
+  if (triangulacaoBairro.aviso && !avisosModel.some((a) => a.codigo === triangulacaoBairro.aviso!.codigo)) {
+    avisosModel.push(triangulacaoBairro.aviso)
+  }
+  const fundamentacaoComTri = [
+    ...(input.fundamentacao ?? fundamentacaoDefault),
+    ...(triangulacaoBairro.notaFundamentacao ? [triangulacaoBairro.notaFundamentacao] : []),
+  ]
+
   return {
     header: {
       titulo: `Análise Comparativa de Mercado (ACM)`,
@@ -1004,14 +1063,11 @@ export function buildLaudoModel(
       score: computation.scoreAlvo,
       classeTexto: input.classeTexto ?? input.classeNota ?? null,
     },
-    robustez: (() => {
-      const confiabilidade = agregarConfianca(computation.passaportes)
-      return {
-        avisos: computation.avisos,
-        confiabilidade,
-        totalIncluidos: confiabilidade.A + confiabilidade.B + confiabilidade.C,
-      }
-    })(),
+    robustez: {
+      avisos: avisosModel,
+      confiabilidade,
+      totalIncluidos: confiabilidade.A + confiabilidade.B + confiabilidade.C,
+    },
     desagio: buildDesagio(computation.desagioTratado, {
       tecnico: mercadoFaixa ? null : h.referencia.valorMercado,
       tecnicoFaixa: mercadoFaixa,
@@ -1045,6 +1101,9 @@ export function buildLaudoModel(
       acaoRecomendada: computation.subprecificacao.acaoRecomendada,
       narrativa: computation.subprecificacao.narrativa,
     },
+    estrategiasPreco,
+    robustezTese,
+    triangulacaoBairro,
     faixa,
     sumario: {
       objetivos: input.objetivos ?? OBJETIVOS_DEFAULT,
@@ -1202,12 +1261,14 @@ export function buildLaudoModel(
               )}) é a referência principal e o recorte amplo (${cenarioCurto(h.teto)}) é o teto.`
             : ''
         }`,
+      // Story 9.25 AC3 — parágrafo didático do leave-one-out
+      robustezNota: `Teste de robustez da tese (leave-one-out no ${robustezTese.cenarioReferencia}): a mediana de referência se move no máximo ${robustezTese.amplitudeLeaveOneOutPct}% ao retirar cada comparável do conjunto (limiar ${robustezTese.limiarPct}%). Veredito: ${robustezTese.veredicto === 'robusta' ? 'tese robusta' : 'tese sensível a um ponto'}${robustezTese.comparavelMaisInfluente ? ` — mais influente: ${robustezTese.comparavelMaisInfluente}` : ''}. Cada comparável é uma testemunha com admissibilidade A/B/C no passaporte.`,
     },
     sec10: {
       intro: sec10IntroDefault,
       ponderacao: ponderacaoDefault,
       tabela: tabelaConclusao,
-      fundamentacao: fundamentacaoDefault,
+      fundamentacao: fundamentacaoComTri,
       estrategia: estrategiaDefault,
       condicionantes: input.condicionantes ?? CONDICIONANTES_DEFAULT,
       parecerFinal: parecerFinalDefault,

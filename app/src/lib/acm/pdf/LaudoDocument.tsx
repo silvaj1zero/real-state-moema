@@ -894,6 +894,53 @@ export function LaudoDocument({ model }: { model: LaudoModel }) {
         </View>
         <Paragraphs text={model.sec9.leitura} />
 
+        {/* Story 9.25 — Teste de Robustez da Tese (só V2) */}
+        <Text style={s.h3}>9x. Teste de Robustez da Tese (leave-one-out)</Text>
+        <Paragraphs text={model.sec9.robustezNota} />
+        <View style={s.table}>
+          <View style={[s.tr, s.trHead]} wrap={false}>
+            <Text style={[s.th, { width: '50%' }]}>Testemunha</Text>
+            <Text style={[s.th, { width: '15%', textAlign: 'center' }]}>Nível</Text>
+            <Text style={[s.th, { width: '35%' }]}>Status</Text>
+          </View>
+          {model.robustezTese.testemunhas
+            .filter((t) => t.status === 'incluido')
+            .slice(0, 12)
+            .map((t, i) => (
+              <View key={i} style={s.tr} wrap={false}>
+                <Text style={[s.td, { width: '50%' }]}>{t.endereco}</Text>
+                <Text style={[s.tdStrong, { width: '15%', textAlign: 'center' }]}>{t.nivel}</Text>
+                <Text style={[s.td, { width: '35%' }]}>{t.status}</Text>
+              </View>
+            ))}
+        </View>
+        <Text style={{ fontSize: 7.5, color: COLORS.corpo, marginTop: 4 }}>
+          {`Amplitude leave-one-out: ${model.robustezTese.amplitudeLeaveOneOutPct}% · veredito: ${model.robustezTese.veredicto} · limiar ${model.robustezTese.limiarPct}% (parâmetro de arbítrio).`}
+        </Text>
+
+        {/* Story 9.24 — Estratégias de Preço */}
+        <SectionTitle>Estratégias de Preço (rápida · defensável · agressiva)</SectionTitle>
+        <View style={s.table}>
+          <View style={[s.tr, s.trHead]} wrap={false}>
+            <Text style={[s.th, { width: '16%' }]}>Estratégia</Text>
+            <Text style={[s.th, { width: '20%', textAlign: 'right' }]}>Anúncio</Text>
+            <Text style={[s.th, { width: '24%', textAlign: 'right' }]}>Fechamento</Text>
+            <Text style={[s.th, { width: '40%' }]}>Racional</Text>
+          </View>
+          {model.estrategiasPreco.map((e) => (
+            <View key={e.chave} style={s.tr} wrap={false}>
+              <Text style={[s.tdStrong, { width: '16%' }]}>
+                {e.chave === 'rapida' ? 'Rápida' : e.chave === 'defensavel' ? 'Defensável' : 'Agressiva'}
+              </Text>
+              <Text style={[s.td, { width: '20%', textAlign: 'right' }]}>{fmt(e.precoAnuncio)}</Text>
+              <Text style={[s.td, { width: '24%', textAlign: 'right' }]}>
+                {`${fmt(e.faixaFechamento.min)}–${fmt(e.faixaFechamento.max)}`}
+              </Text>
+              <Text style={[s.td, { width: '40%', fontSize: 7 }]}>{e.racional}</Text>
+            </View>
+          ))}
+        </View>
+
         {/* --- Sec. 10 --- */}
         <SectionTitle>10. Parecer Conclusivo e Recomendação Estratégica</SectionTitle>
         <Paragraphs text={model.sec10.intro} />

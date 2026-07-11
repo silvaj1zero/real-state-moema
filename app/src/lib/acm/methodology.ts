@@ -30,11 +30,24 @@ import {
   classificarSubprecificacao,
   type SubprecificacaoRadar,
 } from './subprecificacao'
+import {
+  avisoDesagioForaPrior,
+  desagioMedidoGraduado,
+  validarAnuncioVenda,
+  type DesagioMedidoGraduado,
+} from './validacaoAnuncio'
 
 export type { TeseComercial, TeseComercialLimiares } from './teseComercial'
 export { classificarTeseComercial, TESE_LIMIARES_DEFAULT } from './teseComercial'
 export type { SubprecificacaoRadar, NivelSubprecificacao } from './subprecificacao'
 export { classificarSubprecificacao, SUBPRECIFICACAO_LIMIARES } from './subprecificacao'
+export type { DesagioMedidoGraduado, NivelConfiancaC5, ValidacaoAnuncioVenda } from './validacaoAnuncio'
+export {
+  validarAnuncioVenda,
+  desagioMedidoGraduado,
+  avisoDesagioForaPrior,
+  DESAGIO_PRIOR_SP,
+} from './validacaoAnuncio'
 
 // ---------------------------------------------------------------------------
 // Tipos
@@ -146,6 +159,11 @@ export interface AdherenceBreakdown {
   pesos: AdherencePesos
   /** Tese que gerou os pesos. */
   tese: AcmTese
+  /**
+   * R$/m² do comparável (preço/área) — aditivo Story 9.25 p/ leave-one-out
+   * sem reconsultar a lista original. Não entra no índice de aderência.
+   */
+  precoM2?: number
 }
 
 export interface LotSizeBand {
@@ -319,6 +337,10 @@ export interface ComparavelPassport {
   status: 'incluido' | 'excluido'
   motivos: string[]
   confianca: ConfiancaGrau
+  /**
+   * Nível C-5 anúncio↔venda (Story 9.26) — campo ADITIVO; ausente = sem dado de anúncio.
+   */
+  confiancaC5?: 'confirmado' | 'parcial' | 'nao_recuperavel' | null
 }
 
 // ---------------------------------------------------------------------------
@@ -516,6 +538,11 @@ export interface AcmLaudoComputation {
    * Radar de subprecificação (Story 9.21). `nivel: null` sem anúncio ou sem gap.
    */
   subprecificacao: SubprecificacaoRadar
+  /**
+   * Deságio medido com confiança graduada C-5 (Story 9.26). Aditivo;
+   * `desagioMedidoPercent` permanece a mediana legada/confirmados p/ zero drift.
+   */
+  desagioGraduado: DesagioMedidoGraduado
 }
 
 // ---------------------------------------------------------------------------
@@ -646,7 +673,11 @@ const STREET_PREFIX_RE =
  * token "14". R1 ainda exige distancia < 50 m e R3 exige área + vagas/preço; a
  * exclusão indevida requer coincidência múltipla (risco residual aceito, Art. IV).
  */
-function normalizeStreet(endereco: string): string {
+/**
+ * Nome da via normalizado (Story 9.22). Exportado p/ C-5 matching de rua
+ * (Story 9.26) — mesma função usada pelo guard-rail 9.8.
+ */
+export function normalizeStreet(endereco: string): string {
   const temVirgula = endereco.includes(',')
   const base = endereco
     .toLowerCase()
@@ -860,6 +891,11 @@ export function adherenceIndex(
     indice,
     pesos,
     tese,
+    // Story 9.25 — leave-one-out no tribunal sem reconsultar comparáveis
+    precoM2:
+      comp.areaConstruida > 0
+        ? Math.round((comp.preco / comp.areaConstruida) * 100) / 100
+        : undefined,
   }
 }
 
@@ -1068,6 +1104,25 @@ export function derivarPassaporte(
     confianca = 'B' // ITBI fechado, porém esparso
   }
 
+  // Story 9.26 AC4 — nível C-5 aditivo no passaporte (sem quebrar A/B/C).
+  let confiancaC5: ComparavelPassport['confiancaC5'] = null
+  if (status === 'incluido' && comp.precoPedido != null && comp.precoPedido > 0) {
+    confiancaC5 = validarAnuncioVenda(
+      {
+        endereco: comp.endereco,
+        areaConstruida: comp.areaConstruida,
+        preco: comp.preco,
+        precoPedido: comp.precoPedido,
+        isVendaReal: comp.isVendaReal,
+      },
+      {
+        endereco: comp.endereco,
+        precoPedido: comp.precoPedido,
+        area: comp.areaConstruida,
+      },
+    ).nivel
+  }
+
   return {
     endereco: comp.endereco,
     fontePreco,
@@ -1083,6 +1138,7 @@ export function derivarPassaporte(
     status,
     motivos,
     confianca,
+    confiancaC5,
   }
 }
 
@@ -1510,6 +1566,13 @@ export function computeLaudo(opts: ComputeLaudoOptions): AcmLaudoComputation {
     excluidosTipologia,
   })
 
+  // Story 9.26 — deságio graduado C-5 (envolve desagioMedido; zero drift no agregado).
+  const desagioGraduado = desagioMedidoGraduado(comparaveis)
+  const desagioMedidoPercent =
+    desagioGraduado.percent != null ? desagioGraduado.percent : desagioMedido(comparaveis)
+  const avisoPrior = avisoDesagioForaPrior(desagioMedidoPercent)
+  if (avisoPrior) avisos.push(avisoPrior)
+
   const headline = headlineFaixa(sensibilidade)
   // Story 9.18 — tese vs referência do headline (cenário aderente).
   const teseComercial = classificarTeseComercial(
@@ -1554,7 +1617,7 @@ export function computeLaudo(opts: ComputeLaudoOptions): AcmLaudoComputation {
     sensibilidade,
     faixaSensibilidade,
     headline,
-    desagioMedidoPercent: desagioMedido(comparaveis),
+    desagioMedidoPercent,
     autoReferenciasExcluidas,
     homogeneizacao,
     composicaoBairros,
@@ -1568,5 +1631,6 @@ export function computeLaudo(opts: ComputeLaudoOptions): AcmLaudoComputation {
     teseAvaliacao,
     pesosAderencia,
     subprecificacao,
+    desagioGraduado,
   }
 }

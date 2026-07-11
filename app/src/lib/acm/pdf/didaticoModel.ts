@@ -11,6 +11,7 @@
  */
 import { ADHERENCE_WEIGHTS } from '@/lib/acm/methodology'
 import type { AcmLaudoComputation } from '@/lib/acm/methodology'
+import { testarRobustez } from '@/lib/acm/robustezTese'
 import type { LaudoInput, LaudoSourceComparable } from './laudoModel'
 
 // ---------------------------------------------------------------------------
@@ -85,7 +86,16 @@ export interface DidaticoModel {
     terreno: { intro: string; faixas: DidaticoEscalaRow[]; nota: string }
     residual: string
     liquidez: string
-    sensibilidade: { intro: string; cenarios: DidaticoSensRow[]; nota: string }
+    sensibilidade: {
+      intro: string
+      cenarios: DidaticoSensRow[]
+      nota: string
+      /**
+       * Story 9.25 AC3 — parágrafo de transparência do leave-one-out (didático).
+       * Camada técnica no laudo V2; aqui só a explicação pedagógica.
+       */
+      robustezNota: string
+    }
     desagio: string
   }
   parte3: {
@@ -137,10 +147,21 @@ const HIERARQUIA_DEFAULT: DidaticoHierarquiaRow[] = [
   { nivel: '3', fonte: 'BNSir (régua)', papel: 'Calibra o Score.' },
 ]
 
+// Story 9.26 AC4 — critérios alinham a `validarAnuncioVenda` (C-5 canônico).
 const CONFIANCA_DEFAULT: DidaticoConfiancaRow[] = [
-  { nivel: 'CONFIRMADO', criterio: 'Anúncio recuperado com nº e/ou área batendo com o ITBI.' },
-  { nivel: 'PARCIAL', criterio: 'Anúncio na mesma rua/vizinho, sem casar o número exato.' },
-  { nivel: 'NÃO RECUPERÁVEL', criterio: 'Venda off-market / nº não indexado; vale o ITBI.' },
+  {
+    nivel: 'CONFIRMADO',
+    criterio:
+      'C-5: número da porta bate E (área ±2% OU mesma rua) — ver validarAnuncioVenda().',
+  },
+  {
+    nivel: 'PARCIAL',
+    criterio: 'C-5: mesma rua sem casar o número exato — ver validarAnuncioVenda().',
+  },
+  {
+    nivel: 'NÃO RECUPERÁVEL',
+    criterio: 'C-5: sem anúncio/sem pista espacial; vale o ITBI — ver validarAnuncioVenda().',
+  },
 ]
 
 const METODO_BUSCA_DEFAULT = [
@@ -322,6 +343,11 @@ export function buildDidaticoModel(
         nota: `Convergência: mercado em ${mercadoTexto}; faixa de fechamento de ${milhoesCompact(
           metaFechamento.min,
         )}–${milhoesCompact(metaFechamento.max)}.`,
+        // Story 9.25 AC3 — transparência do leave-one-out no didático (não só no laudo V2)
+        robustezNota: (() => {
+          const r = testarRobustez(computation)
+          return `Teste de robustez da tese (leave-one-out): retiramos cada comparável do recorte de referência (${r.cenarioReferencia}, n=${r.nConjunto}) e recalculamos a mediana. A amplitude máxima de movimento foi ${r.amplitudeLeaveOneOutPct}% (limiar declarado ${r.limiarPct}% — parâmetro de arbítrio, não verdade estatística). Veredito: ${r.veredicto === 'robusta' ? 'a referência não depende de um único ponto' : 'a referência é sensível a um comparável isolado'}${r.comparavelMaisInfluente ? ` (mais influente: ${r.comparavelMaisInfluente})` : ''}. Cada venda entra como testemunha com admissibilidade A/B/C no passaporte — o detalhe técnico completo fica no laudo V2.`
+        })(),
       },
       desagio: desagioTxt,
     },

@@ -18,6 +18,8 @@ import {
   FIPEZAP_SP_VENDA_RESIDENCIAL,
   FIPEZAP_SP_ULTIMA_COMPETENCIA,
 } from '../../src/lib/acm/data/fipezapSpVendaResidencial.ts'
+// Story 9.27 — canônico (sem 2ª cópia da agregação bairro×tipologia)
+import { calcularIndiceBairro } from '../../src/lib/acm/indiceBairro.ts'
 
 const TARGET = { lat: -23.604158, lng: -46.676145 }
 const RAIO_M = 1500
@@ -118,22 +120,34 @@ const regs = r2.map((r) => {
   }
 })
 
-// agrupa por bairro
+// agrupa por bairro (legado do protótipo — mantido p/ média e série temporal)
 const grupos = new Map()
 for (const g of regs) {
   const lista = grupos.get(g.bairro) ?? []
   lista.push(g)
   grupos.set(g.bairro, lista)
 }
+// Story 9.27 AC5 — agregação canônica (tipologia=todas neste script de diagnóstico)
+const indiceCanonico = calcularIndiceBairro(
+  regs.map((g) => ({
+    bairroReal: g.bairro,
+    tipologia: 'todas',
+    preco: g.m2Def, // já deflacionado no reg; área=1 → m2 = preco
+    areaConstruida: 1,
+  })),
+  { segmentarTipologia: false },
+)
 const fmt = (v) => v.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
 console.log(`\n=== MEDIANA R$/m² POR BAIRRO (ITBI, raio ${RAIO_M}m, todas tipologias) ===`)
-console.log('Bairro                | n   | mediana bruta | mediana defl. 2026-06 | média defl.')
+console.log('Bairro                | n   | mediana bruta | mediana defl. 2026-06 | média defl. | canônico 9.27')
 const linhas = [...grupos.entries()].sort((a, b) => b[1].length - a[1].length)
 for (const [bairro, lista] of linhas) {
   const med = median(lista.map((x) => x.m2))
   const medDef = median(lista.map((x) => x.m2Def))
   const avgDef = mean(lista.map((x) => x.m2Def))
-  console.log(`${bairro.padEnd(21)} | ${String(lista.length).padStart(3)} | ${fmt(med).padStart(13)} | ${fmt(medDef).padStart(21)} | ${fmt(avgDef).padStart(11)}`)
+  const can = indiceCanonico.porBairro.find((l) => l.bairro === bairro)
+  const canTxt = can ? fmt(can.medianaPrecoM2) : '—'
+  console.log(`${bairro.padEnd(21)} | ${String(lista.length).padStart(3)} | ${fmt(med).padStart(13)} | ${fmt(medDef).padStart(21)} | ${fmt(avgDef).padStart(11)} | ${canTxt.padStart(12)}`)
 }
 const todos = regs.map((x) => x.m2Def)
 console.log(`\nGLOBAL (raio ${RAIO_M}m): n=${regs.length} | mediana defl.=${fmt(median(todos))} | média defl.=${fmt(mean(todos))}`)

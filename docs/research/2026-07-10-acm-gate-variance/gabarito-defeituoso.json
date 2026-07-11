@@ -1,0 +1,65 @@
+{
+  "_meta": {
+    "story": "9.28",
+    "papel": "G-RUIM — computation sintético defeituoso",
+    "vereditoEsperado": "FAIL",
+    "congeladoEm": "2026-07-10",
+    "defeitosPlantados": [
+      "headline colapsado em ponto único sem faixa real",
+      "autoReferenciasExcluidas omitido (guard 9.8 ausente)",
+      "passaportes ausente",
+      "desagioTratado ausente (três preços colapsados)",
+      "homogeneizacao.aplicada false com dataVenda presentes e sem semAjuste",
+      "avisos shape inválido",
+      "tese abaixo com acaoRecomendada pedindo corte (anti H-3)"
+    ]
+  },
+  "target": { "areaConstruida": 100, "areaTerreno": 200, "endereco": "R. Defeito, 1" },
+  "totalComparaveis": 5,
+  "medianaPrecoM2": 10000,
+  "valorMercado": 1000000,
+  "valorFechamento": 1000000,
+  "faixaFechamento": { "min": 1000000, "max": 1000000 },
+  "headline": {
+    "mercado": { "min": 1000000, "max": 1000000 },
+    "fechamento": { "min": 1000000, "max": 1000000 },
+    "referencia": {
+      "cenario": "top5",
+      "n": 5,
+      "medianaPrecoM2": 10000,
+      "valorMercado": 1000000,
+      "valorFechamento": 1000000,
+      "precoM2Fechamento": 10000
+    },
+    "teto": {
+      "cenario": "top5",
+      "n": 5,
+      "medianaPrecoM2": 10000,
+      "valorMercado": 1000000,
+      "valorFechamento": 1000000,
+      "precoM2Fechamento": 10000
+    }
+  },
+  "homogeneizacao": {
+    "aplicada": false,
+    "indice": null,
+    "dataReferencia": null,
+    "ajustes": [],
+    "semAjuste": []
+  },
+  "desagioMedidoPercent": null,
+  "top3": [{ "endereco": "A" }, { "endereco": "B" }],
+  "top5": [],
+  "avisos": [{ "codigo": "x", "severidade": "???", "mensagem": 123 }],
+  "teseComercial": {
+    "tese": "abaixo",
+    "label": "Abaixo",
+    "frase": "Subprecificado"
+  },
+  "subprecificacao": {
+    "nivel": "forte",
+    "deltaPct": -18,
+    "acaoRecomendada": "Cortar o preço do anúncio em 15% para acelerar a venda.",
+    "narrativa": "defeito plantado"
+  }
+}
