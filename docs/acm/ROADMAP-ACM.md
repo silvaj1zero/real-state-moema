@@ -183,7 +183,7 @@ tsc 0 · eslint 0. Restante do épico: 9.4 (cross-repo) e 9.1 (depende da 9.4).
 | **9.26** | C-5 validação anúncio↔venda graduada (N-4, pré-D-2/9.5) | **✅ Done (QA 11-Jul, PASS — zero drift Honduras)** | Sonnet | — |
 | **9.27** | C-3 índice de bairro = triangulação de coerência (nunca âncora) | **✅ Done (QA 11-Jul, re-review PASS pós-toggle test)** | Sonnet | — |
 | **9.28** | N-5: variância do gate @acm-auditor (playbook gate-determinism) | **✅ Done (QA 11-Jul, CONCERNS aceito — gate de entrada N=4 LLM na 9.29)** | **Fable** | — |
-| **9.29** | D-3: skill `/acm-validate` + agentes ACM | **Draft (DESBLOQUEADA 11-Jul — elegível p/ @po; gate de entrada N=4 LLM nas Dependencies)** | Fable | ~~9.28 Done~~ ✓ |
+| **9.29** | D-3: skill `/acm-validate` + agentes ACM | **Ready (@po 10/10 GO 11-Jul; gate de entrada N=4 LLM dentro da execução)** | Fable | ~~9.28 Done~~ ✓ |
 | 9.4 | Sink ITBI ampliado — **spec portátil pronta**: `SPEC-EXEC-STORY-9.4-CROSS-REPO.md` | Ready | @data-engineer | repo `acm-imobiliario` |
 | 9.1 | Régua apto/casa | Ready | Sonnet | 9.4 |
 
