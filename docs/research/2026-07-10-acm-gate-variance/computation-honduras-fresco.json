@@ -1,0 +1,1033 @@
+{
+  "target": {
+    "areaConstruida": 800,
+    "areaTerreno": 1000
+  },
+  "totalComparaveis": 23,
+  "medianaPrecoM2": 18264.3,
+  "scoreAlvo": "B",
+  "valorMercado": 12419724,
+  "valorFechamento": 10217896,
+  "faixaFechamento": {
+    "min": 10217896,
+    "max": 12419724
+  },
+  "ranking": [
+    {
+      "endereco": "R. Maestro Chiaffarelli, 86",
+      "simAreaConstruida": 0.5825,
+      "simAreaTerreno": 0.942,
+      "proximidade": 0.834,
+      "indice": 0.72985,
+      "pesos": {
+        "areaConstruida": 0.5,
+        "areaTerreno": 0.2,
+        "proximidade": 0.3
+      },
+      "tese": "hibrido",
+      "precoM2": 13948.5
+    },
+    {
+      "endereco": "R. Marechal Bitencourt, 101",
+      "simAreaConstruida": 0.7887500000000001,
+      "simAreaTerreno": 0.488,
+      "proximidade": 0.366,
+      "indice": 0.6017750000000001,
+      "pesos": {
+        "areaConstruida": 0.5,
+        "areaTerreno": 0.2,
+        "proximidade": 0.3
+      },
+      "tese": "hibrido",
+      "precoM2": 17543.86
+    },
+    {
+      "endereco": "R. Cons. Torres Homem, 399",
+      "simAreaConstruida": 0.665,
+      "simAreaTerreno": 0.585,
+      "proximidade": 0.40900000000000003,
+      "indice": 0.5722,
+      "pesos": {
+        "areaConstruida": 0.5,
+        "areaTerreno": 0.2,
+        "proximidade": 0.3
+      },
+      "tese": "hibrido",
+      "precoM2": 14473.68
+    },
+    {
+      "endereco": "R. Henrique Martins",
+      "simAreaConstruida": 0.86125,
+      "simAreaTerreno": 0.585,
+      "proximidade": 0.06599999999999995,
+      "indice": 0.5674250000000001,
+      "pesos": {
+        "areaConstruida": 0.5,
+        "areaTerreno": 0.2,
+        "proximidade": 0.3
+      },
+      "tese": "hibrido",
+      "precoM2": 21624.59
+    },
+    {
+      "endereco": "R. Canadá, 111",
+      "simAreaConstruida": 0.63375,
+      "simAreaTerreno": 0.8220000000000001,
+      "proximidade": 0.28400000000000003,
+      "indice": 0.5664750000000001,
+      "pesos": {
+        "areaConstruida": 0.5,
+        "areaTerreno": 0.2,
+        "proximidade": 0.3
+      },
+      "tese": "hibrido",
+      "precoM2": 18264.3
+    },
+    {
+      "endereco": "R. Groenlândia, 1235",
+      "simAreaConstruida": 0.6875,
+      "simAreaTerreno": 0,
+      "proximidade": 0,
+      "indice": 0.34375,
+      "pesos": {
+        "areaConstruida": 0.5,
+        "areaTerreno": 0.2,
+        "proximidade": 0.3
+      },
+      "tese": "hibrido",
+      "precoM2": 18181.82
+    },
+    {
+      "endereco": "R. Cons. Torres Homem, 228",
+      "simAreaConstruida": 0.6225,
+      "simAreaTerreno": 0,
+      "proximidade": 0,
+      "indice": 0.31125,
+      "pesos": {
+        "areaConstruida": 0.5,
+        "areaTerreno": 0.2,
+        "proximidade": 0.3
+      },
+      "tese": "hibrido",
+      "precoM2": 17068.27
+    },
+    {
+      "endereco": "R. Chile, 113",
+      "simAreaConstruida": 0.6125,
+      "simAreaTerreno": 0,
+      "proximidade": 0,
+      "indice": 0.30625,
+      "pesos": {
+        "areaConstruida": 0.5,
+        "areaTerreno": 0.2,
+        "proximidade": 0.3
+      },
+      "tese": "hibrido",
+      "precoM2": 17959.18
+    },
+    {
+      "endereco": "R. Veneza, 287",
+      "simAreaConstruida": 0.55125,
+      "simAreaTerreno": 0,
+      "proximidade": 0,
+      "indice": 0.275625,
+      "pesos": {
+        "areaConstruida": 0.5,
+        "areaTerreno": 0.2,
+        "proximidade": 0.3
+      },
+      "tese": "hibrido",
+      "precoM2": 11972.79
+    },
+    {
+      "endereco": "R. Marechal Bitencourt, 473",
+      "simAreaConstruida": 0.5387500000000001,
+      "simAreaTerreno": 0,
+      "proximidade": 0,
+      "indice": 0.26937500000000003,
+      "pesos": {
+        "areaConstruida": 0.5,
+        "areaTerreno": 0.2,
+        "proximidade": 0.3
+      },
+      "tese": "hibrido",
+      "precoM2": 15081.21
+    },
+    {
+      "endereco": "R. Cuba, 110",
+      "simAreaConstruida": 0.5137499999999999,
+      "simAreaTerreno": 0,
+      "proximidade": 0,
+      "indice": 0.25687499999999996,
+      "pesos": {
+        "areaConstruida": 0.5,
+        "areaTerreno": 0.2,
+        "proximidade": 0.3
+      },
+      "tese": "hibrido",
+      "precoM2": 18734.79
+    },
+    {
+      "endereco": "R. Marechal Bitencourt, 588",
+      "simAreaConstruida": 0.505,
+      "simAreaTerreno": 0,
+      "proximidade": 0,
+      "indice": 0.2525,
+      "pesos": {
+        "areaConstruida": 0.5,
+        "areaTerreno": 0.2,
+        "proximidade": 0.3
+      },
+      "tese": "hibrido",
+      "precoM2": 19801.98
+    },
+    {
+      "endereco": "R. Holanda, 328",
+      "simAreaConstruida": 0.5,
+      "simAreaTerreno": 0,
+      "proximidade": 0,
+      "indice": 0.25,
+      "pesos": {
+        "areaConstruida": 0.5,
+        "areaTerreno": 0.2,
+        "proximidade": 0.3
+      },
+      "tese": "hibrido",
+      "precoM2": 20000
+    },
+    {
+      "endereco": "R. Maestro Elias Lobo, 921",
+      "simAreaConstruida": 0.495,
+      "simAreaTerreno": 0,
+      "proximidade": 0,
+      "indice": 0.2475,
+      "pesos": {
+        "areaConstruida": 0.5,
+        "areaTerreno": 0.2,
+        "proximidade": 0.3
+      },
+      "tese": "hibrido",
+      "precoM2": 17297.98
+    },
+    {
+      "endereco": "R. Marechal Bitencourt, 432",
+      "simAreaConstruida": 0.485,
+      "simAreaTerreno": 0,
+      "proximidade": 0,
+      "indice": 0.2425,
+      "pesos": {
+        "areaConstruida": 0.5,
+        "areaTerreno": 0.2,
+        "proximidade": 0.3
+      },
+      "tese": "hibrido",
+      "precoM2": 20618.56
+    },
+    {
+      "endereco": "R. Martinica, 49",
+      "simAreaConstruida": 0.48250000000000004,
+      "simAreaTerreno": 0,
+      "proximidade": 0,
+      "indice": 0.24125000000000002,
+      "pesos": {
+        "areaConstruida": 0.5,
+        "areaTerreno": 0.2,
+        "proximidade": 0.3
+      },
+      "tese": "hibrido",
+      "precoM2": 16321.24
+    },
+    {
+      "endereco": "R. Cons. Torres Homem, 462",
+      "simAreaConstruida": 0.43000000000000005,
+      "simAreaTerreno": 0,
+      "proximidade": 0,
+      "indice": 0.21500000000000002,
+      "pesos": {
+        "areaConstruida": 0.5,
+        "areaTerreno": 0.2,
+        "proximidade": 0.3
+      },
+      "tese": "hibrido",
+      "precoM2": 19180.28
+    },
+    {
+      "endereco": "Av. Nove de Julho, 5144",
+      "simAreaConstruida": 0.42500000000000004,
+      "simAreaTerreno": 0,
+      "proximidade": 0,
+      "indice": 0.21250000000000002,
+      "pesos": {
+        "areaConstruida": 0.5,
+        "areaTerreno": 0.2,
+        "proximidade": 0.3
+      },
+      "tese": "hibrido",
+      "precoM2": 20000
+    },
+    {
+      "endereco": "R. Marina Cintra, 57",
+      "simAreaConstruida": 0.38749999999999996,
+      "simAreaTerreno": 0,
+      "proximidade": 0,
+      "indice": 0.19374999999999998,
+      "pesos": {
+        "areaConstruida": 0.5,
+        "areaTerreno": 0.2,
+        "proximidade": 0.3
+      },
+      "tese": "hibrido",
+      "precoM2": 20645.16
+    },
+    {
+      "endereco": "R. Madre Teodora, 259",
+      "simAreaConstruida": 0.375,
+      "simAreaTerreno": 0,
+      "proximidade": 0,
+      "indice": 0.1875,
+      "pesos": {
+        "areaConstruida": 0.5,
+        "areaTerreno": 0.2,
+        "proximidade": 0.3
+      },
+      "tese": "hibrido",
+      "precoM2": 17500
+    },
+    {
+      "endereco": "R. Gal. Fonseca Teles, 347",
+      "simAreaConstruida": 0.36250000000000004,
+      "simAreaTerreno": 0,
+      "proximidade": 0,
+      "indice": 0.18125000000000002,
+      "pesos": {
+        "areaConstruida": 0.5,
+        "areaTerreno": 0.2,
+        "proximidade": 0.3
+      },
+      "tese": "hibrido",
+      "precoM2": 18275.86
+    },
+    {
+      "endereco": "R. Antônio Bento, 589",
+      "simAreaConstruida": 0.32499999999999996,
+      "simAreaTerreno": 0,
+      "proximidade": 0,
+      "indice": 0.16249999999999998,
+      "pesos": {
+        "areaConstruida": 0.5,
+        "areaTerreno": 0.2,
+        "proximidade": 0.3
+      },
+      "tese": "hibrido",
+      "precoM2": 19423.08
+    },
+    {
+      "endereco": "R. Antônio Bento, 332",
+      "simAreaConstruida": 0.26125,
+      "simAreaTerreno": 0,
+      "proximidade": 0,
+      "indice": 0.130625,
+      "pesos": {
+        "areaConstruida": 0.5,
+        "areaTerreno": 0.2,
+        "proximidade": 0.3
+      },
+      "tese": "hibrido",
+      "precoM2": 24287.08
+    }
+  ],
+  "top5": [
+    {
+      "endereco": "R. Maestro Chiaffarelli, 86",
+      "simAreaConstruida": 0.5825,
+      "simAreaTerreno": 0.942,
+      "proximidade": 0.834,
+      "indice": 0.72985,
+      "pesos": {
+        "areaConstruida": 0.5,
+        "areaTerreno": 0.2,
+        "proximidade": 0.3
+      },
+      "tese": "hibrido",
+      "precoM2": 13948.5
+    },
+    {
+      "endereco": "R. Marechal Bitencourt, 101",
+      "simAreaConstruida": 0.7887500000000001,
+      "simAreaTerreno": 0.488,
+      "proximidade": 0.366,
+      "indice": 0.6017750000000001,
+      "pesos": {
+        "areaConstruida": 0.5,
+        "areaTerreno": 0.2,
+        "proximidade": 0.3
+      },
+      "tese": "hibrido",
+      "precoM2": 17543.86
+    },
+    {
+      "endereco": "R. Cons. Torres Homem, 399",
+      "simAreaConstruida": 0.665,
+      "simAreaTerreno": 0.585,
+      "proximidade": 0.40900000000000003,
+      "indice": 0.5722,
+      "pesos": {
+        "areaConstruida": 0.5,
+        "areaTerreno": 0.2,
+        "proximidade": 0.3
+      },
+      "tese": "hibrido",
+      "precoM2": 14473.68
+    },
+    {
+      "endereco": "R. Henrique Martins",
+      "simAreaConstruida": 0.86125,
+      "simAreaTerreno": 0.585,
+      "proximidade": 0.06599999999999995,
+      "indice": 0.5674250000000001,
+      "pesos": {
+        "areaConstruida": 0.5,
+        "areaTerreno": 0.2,
+        "proximidade": 0.3
+      },
+      "tese": "hibrido",
+      "precoM2": 21624.59
+    },
+    {
+      "endereco": "R. Canadá, 111",
+      "simAreaConstruida": 0.63375,
+      "simAreaTerreno": 0.8220000000000001,
+      "proximidade": 0.28400000000000003,
+      "indice": 0.5664750000000001,
+      "pesos": {
+        "areaConstruida": 0.5,
+        "areaTerreno": 0.2,
+        "proximidade": 0.3
+      },
+      "tese": "hibrido",
+      "precoM2": 18264.3
+    }
+  ],
+  "top3": [
+    {
+      "endereco": "R. Maestro Chiaffarelli, 86",
+      "simAreaConstruida": 0.5825,
+      "simAreaTerreno": 0.942,
+      "proximidade": 0.834,
+      "indice": 0.72985,
+      "pesos": {
+        "areaConstruida": 0.5,
+        "areaTerreno": 0.2,
+        "proximidade": 0.3
+      },
+      "tese": "hibrido",
+      "precoM2": 13948.5
+    },
+    {
+      "endereco": "R. Marechal Bitencourt, 101",
+      "simAreaConstruida": 0.7887500000000001,
+      "simAreaTerreno": 0.488,
+      "proximidade": 0.366,
+      "indice": 0.6017750000000001,
+      "pesos": {
+        "areaConstruida": 0.5,
+        "areaTerreno": 0.2,
+        "proximidade": 0.3
+      },
+      "tese": "hibrido",
+      "precoM2": 17543.86
+    },
+    {
+      "endereco": "R. Cons. Torres Homem, 399",
+      "simAreaConstruida": 0.665,
+      "simAreaTerreno": 0.585,
+      "proximidade": 0.40900000000000003,
+      "indice": 0.5722,
+      "pesos": {
+        "areaConstruida": 0.5,
+        "areaTerreno": 0.2,
+        "proximidade": 0.3
+      },
+      "tese": "hibrido",
+      "precoM2": 14473.68
+    }
+  ],
+  "efeitoEscalaTerreno": [
+    {
+      "faixa": "<500",
+      "n": 1,
+      "medianaPrecoM2Terreno": 34836.07
+    },
+    {
+      "faixa": "500-800",
+      "n": 2,
+      "medianaPrecoM2Terreno": 23418.8
+    },
+    {
+      "faixa": ">800",
+      "n": 2,
+      "medianaPrecoM2Terreno": 8704.44
+    }
+  ],
+  "coAncoraTerreno": 9624000,
+  "sensibilidade": [
+    {
+      "cenario": "todos",
+      "n": 23,
+      "medianaPrecoM2": 18264.3,
+      "valorMercado": 12419724,
+      "valorFechamento": 10217896,
+      "precoM2Fechamento": 12772
+    },
+    {
+      "cenario": "top5",
+      "n": 5,
+      "medianaPrecoM2": 17543.86,
+      "valorMercado": 11929825,
+      "valorFechamento": 9814848,
+      "precoM2Fechamento": 12269
+    },
+    {
+      "cenario": "top3",
+      "n": 3,
+      "medianaPrecoM2": 14473.68,
+      "valorMercado": 9842105,
+      "valorFechamento": 8097249,
+      "precoM2Fechamento": 10122
+    }
+  ],
+  "faixaSensibilidade": {
+    "mercadoMin": 9842105,
+    "mercadoMax": 12419724,
+    "fechamentoMin": 8097249,
+    "fechamentoMax": 10217896
+  },
+  "headline": {
+    "mercado": {
+      "min": 9842105,
+      "max": 12419724
+    },
+    "fechamento": {
+      "min": 8097249,
+      "max": 10217896
+    },
+    "referencia": {
+      "cenario": "top3",
+      "n": 3,
+      "medianaPrecoM2": 14473.68,
+      "valorMercado": 9842105,
+      "valorFechamento": 8097249,
+      "precoM2Fechamento": 10122
+    },
+    "teto": {
+      "cenario": "todos",
+      "n": 23,
+      "medianaPrecoM2": 18264.3,
+      "valorMercado": 12419724,
+      "valorFechamento": 10217896,
+      "precoM2Fechamento": 12772
+    }
+  },
+  "desagioMedidoPercent": -12.7,
+  "autoReferenciasExcluidas": [],
+  "homogeneizacao": {
+    "aplicada": false,
+    "indice": null,
+    "dataReferencia": null,
+    "ajustes": [],
+    "semAjuste": []
+  },
+  "composicaoBairros": [
+    {
+      "bairro": "não verificado",
+      "n": 23,
+      "medianaPrecoM2": 18264.3
+    }
+  ],
+  "desagioTratado": {
+    "cenarios": {
+      "conservador": 0.15,
+      "provavel": 0.075,
+      "agressivo": 0
+    },
+    "valorMercadoPorCenario": {
+      "conservador": 10556765,
+      "provavel": 11488245,
+      "agressivo": 12419724
+    },
+    "cenarioAplicado": null,
+    "desagioEstadoPct": null,
+    "valorMercadoAjustadoEstado": null,
+    "estadoConservacao": null,
+    "origemDefault": "sem-ficha",
+    "foraDaReguaSimples": false
+  },
+  "evidencia": {
+    "medianaPrincipal": 18264.3,
+    "medianaPonderada": 17959.18,
+    "nA": 5,
+    "nB": 18,
+    "nC": 0,
+    "laterais": []
+  },
+  "avisos": [
+    {
+      "codigo": "terrain_lens_low_n",
+      "severidade": "atencao",
+      "mensagem": "Lente de terreno com base fraca: banda >800 tem n=2 (<3). Co-âncora indicativa."
+    },
+    {
+      "codigo": "target_condition_unconfirmed",
+      "severidade": "atencao",
+      "mensagem": "Estado/ficha do imóvel-alvo não confirmado — faixa reportada de forma conservadora (ver Story 9.14)."
+    },
+    {
+      "codigo": "desagio_fora_prior_sp",
+      "severidade": "info",
+      "mensagem": "Deságio medido -12,7% está fora do prior SP 8–12% (referência externa declarada §10.10 — não ajusta o número)."
+    }
+  ],
+  "passaportes": [
+    {
+      "endereco": "R. Maestro Chiaffarelli, 86",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "desconhecida",
+        "confianca": "baixa",
+        "fonte": "ausente"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "estimada",
+      "dataVendaFonte": "ausente",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "A",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R. Marechal Bitencourt, 101",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "desconhecida",
+        "confianca": "baixa",
+        "fonte": "ausente"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "estimada",
+      "dataVendaFonte": "ausente",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "A",
+      "confiancaC5": "confirmado"
+    },
+    {
+      "endereco": "R. Cons. Torres Homem, 399",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "desconhecida",
+        "confianca": "baixa",
+        "fonte": "ausente"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "estimada",
+      "dataVendaFonte": "ausente",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "A",
+      "confiancaC5": "confirmado"
+    },
+    {
+      "endereco": "R. Henrique Martins",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "desconhecida",
+        "confianca": "baixa",
+        "fonte": "ausente"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "estimada",
+      "dataVendaFonte": "ausente",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "A",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R. Canadá, 111",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "desconhecida",
+        "confianca": "baixa",
+        "fonte": "ausente"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "estimada",
+      "dataVendaFonte": "ausente",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "A",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R. Groenlândia, 1235",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "desconhecida",
+        "confianca": "baixa",
+        "fonte": "ausente"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "ausente",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R. Chile, 113",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "desconhecida",
+        "confianca": "baixa",
+        "fonte": "ausente"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "ausente",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R. Cons. Torres Homem, 228",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "desconhecida",
+        "confianca": "baixa",
+        "fonte": "ausente"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "ausente",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R. Marechal Bitencourt, 588",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "desconhecida",
+        "confianca": "baixa",
+        "fonte": "ausente"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "ausente",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R. Holanda, 328",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "desconhecida",
+        "confianca": "baixa",
+        "fonte": "ausente"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "ausente",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R. Marechal Bitencourt, 432",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "desconhecida",
+        "confianca": "baixa",
+        "fonte": "ausente"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "ausente",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R. Cuba, 110",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "desconhecida",
+        "confianca": "baixa",
+        "fonte": "ausente"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "ausente",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R. Maestro Elias Lobo, 921",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "desconhecida",
+        "confianca": "baixa",
+        "fonte": "ausente"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "ausente",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "Av. Nove de Julho, 5144",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "desconhecida",
+        "confianca": "baixa",
+        "fonte": "ausente"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "ausente",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R. Cons. Torres Homem, 462",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "desconhecida",
+        "confianca": "baixa",
+        "fonte": "ausente"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "ausente",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R. Marechal Bitencourt, 473",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "desconhecida",
+        "confianca": "baixa",
+        "fonte": "ausente"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "ausente",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R. Marina Cintra, 57",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "desconhecida",
+        "confianca": "baixa",
+        "fonte": "ausente"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "ausente",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R. Martinica, 49",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "desconhecida",
+        "confianca": "baixa",
+        "fonte": "ausente"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "ausente",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R. Gal. Fonseca Teles, 347",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "desconhecida",
+        "confianca": "baixa",
+        "fonte": "ausente"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "ausente",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R. Veneza, 287",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "desconhecida",
+        "confianca": "baixa",
+        "fonte": "ausente"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "ausente",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R. Madre Teodora, 259",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "desconhecida",
+        "confianca": "baixa",
+        "fonte": "ausente"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "ausente",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R. Antônio Bento, 332",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "desconhecida",
+        "confianca": "baixa",
+        "fonte": "ausente"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "ausente",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R. Antônio Bento, 589",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "desconhecida",
+        "confianca": "baixa",
+        "fonte": "ausente"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "ausente",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    }
+  ],
+  "r5": {
+    "aplicado": false,
+    "propertyType": null,
+    "nEntrada": 23,
+    "nAceitos": 23,
+    "nExcluidos": 0,
+    "nHeuristica": 0,
+    "nIndefinido": 0,
+    "regraUmaLinha": "R5 Tipologia — Uso/padrão IPTU e Complemento da guia oficial (SF/PMSP) por SQL: só mesma tipologia do alvo; sem guia pública = heurística de lote declarada + conferência humana (Fase 1)."
+  },
+  "excluidosTipologia": [],
+  "teseComercial": {
+    "tese": "indefinida",
+    "deltaPct": null,
+    "label": "Tese indefinida",
+    "frase": "Sem preço comercial e/ou referência ACM — tese não classificada.",
+    "precoComercial": null,
+    "referencia": 9842105,
+    "fontePreco": "nenhum"
+  },
+  "teseAvaliacao": "hibrido",
+  "pesosAderencia": {
+    "areaConstruida": 0.5,
+    "areaTerreno": 0.2,
+    "proximidade": 0.3
+  },
+  "subprecificacao": {
+    "nivel": null,
+    "deltaPct": null,
+    "acaoRecomendada": null,
+    "narrativa": null,
+    "gaps": {
+      "vsReferencia": null,
+      "vsTop5": null,
+      "vsTerreno": null
+    },
+    "tempoExposicaoDias": null,
+    "nAnuncios": null,
+    "concorrenciaAlta": false
+  },
+  "desagioGraduado": {
+    "percent": -12.7,
+    "nConfirmado": 2,
+    "nParcial": 0,
+    "nNaoRecuperavel": 21,
+    "desagiosReais": [
+      0.1496,
+      0.1047
+    ]
+  }
+}

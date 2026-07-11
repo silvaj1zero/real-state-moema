@@ -1,0 +1,2438 @@
+{
+  "target": {
+    "areaConstruida": 180,
+    "areaTerreno": 250,
+    "endereco": "Rua Baluarte, 400",
+    "vagas": 2,
+    "precoPretendido": 2200000
+  },
+  "totalComparaveis": 68,
+  "medianaPrecoM2": 10244.9,
+  "scoreAlvo": "B",
+  "valorMercado": 1567470,
+  "valorFechamento": 1567470,
+  "faixaFechamento": {
+    "min": 1567470,
+    "max": 1567470
+  },
+  "ranking": [
+    {
+      "endereco": "TV SEBASTIAO EMILIO FORLI 58",
+      "simAreaConstruida": 0.9833333333333333,
+      "simAreaTerreno": 0,
+      "proximidade": 0.783,
+      "indice": 0.9232333333333332,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 16384.18
+    },
+    {
+      "endereco": "AV COTOVIA 726",
+      "simAreaConstruida": 1,
+      "simAreaTerreno": 0,
+      "proximidade": 0.618,
+      "indice": 0.8854,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 5555.56
+    },
+    {
+      "endereco": "R PROF VAHIA DE ABREU 741",
+      "simAreaConstruida": 1,
+      "simAreaTerreno": 0,
+      "proximidade": 0.54,
+      "indice": 0.862,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 7333.33
+    },
+    {
+      "endereco": "R JURUENA 87",
+      "simAreaConstruida": 1,
+      "simAreaTerreno": 0,
+      "proximidade": 0.5329999999999999,
+      "indice": 0.8598999999999999,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 10000
+    },
+    {
+      "endereco": "R ARAGUARI 239",
+      "simAreaConstruida": 0.9444444444444444,
+      "simAreaTerreno": 0,
+      "proximidade": 0.29600000000000004,
+      "indice": 0.7499111111111111,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 10000
+    },
+    {
+      "endereco": "R ILAMONIA 203",
+      "simAreaConstruida": 0.9777777777777777,
+      "simAreaTerreno": 0,
+      "proximidade": 0.20699999999999996,
+      "indice": 0.7465444444444445,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 8152.17
+    },
+    {
+      "endereco": "R PARIQUERA-ACU 41",
+      "simAreaConstruida": 0.8833333333333333,
+      "simAreaTerreno": 0,
+      "proximidade": 0.41000000000000003,
+      "indice": 0.7413333333333333,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 12437.81
+    },
+    {
+      "endereco": "PC CEL FERNANDES DE LIMA 100",
+      "simAreaConstruida": 0.8555555555555556,
+      "simAreaTerreno": 0,
+      "proximidade": 0.472,
+      "indice": 0.7404888888888889,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 8311.69
+    },
+    {
+      "endereco": "R NOVA CIDADE 351",
+      "simAreaConstruida": 0.8666666666666667,
+      "simAreaTerreno": 0,
+      "proximidade": 0.43100000000000005,
+      "indice": 0.7359666666666667,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 8333.33
+    },
+    {
+      "endereco": "R ELIAS FAUSTO 34",
+      "simAreaConstruida": 0.9111111111111111,
+      "simAreaTerreno": 0,
+      "proximidade": 0.30300000000000005,
+      "indice": 0.7286777777777778,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 11737.8
+    },
+    {
+      "endereco": "R ELIAS FAUSTO 40",
+      "simAreaConstruida": 0.8888888888888888,
+      "simAreaTerreno": 0,
+      "proximidade": 0.30300000000000005,
+      "indice": 0.7131222222222221,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 12031.25
+    },
+    {
+      "endereco": "R QUICABA 37",
+      "simAreaConstruida": 0.9055555555555556,
+      "simAreaTerreno": 0,
+      "proximidade": 0.22199999999999998,
+      "indice": 0.7004888888888888,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 17177.91
+    },
+    {
+      "endereco": "R STA JUSTINA 123",
+      "simAreaConstruida": 0.9444444444444444,
+      "simAreaTerreno": 0,
+      "proximidade": 0.12,
+      "indice": 0.6971111111111111,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 8235.29
+    },
+    {
+      "endereco": "R EMB RIBEIRO COUTO 286",
+      "simAreaConstruida": 0.9166666666666666,
+      "simAreaTerreno": 0,
+      "proximidade": 0.15400000000000003,
+      "indice": 0.6878666666666666,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 10303.03
+    },
+    {
+      "endereco": "R TUIM 229",
+      "simAreaConstruida": 0.9166666666666666,
+      "simAreaTerreno": 0,
+      "proximidade": 0.08999999999999997,
+      "indice": 0.6686666666666666,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 14848.48
+    },
+    {
+      "endereco": "R DR JOSE CANDIDO DE SOUZA 476",
+      "simAreaConstruida": 0.9444444444444444,
+      "simAreaTerreno": 0,
+      "proximidade": 0.02300000000000002,
+      "indice": 0.6680111111111111,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 7894.74
+    },
+    {
+      "endereco": "R RIBEIRAO CLARO 684",
+      "simAreaConstruida": 0.7388888888888889,
+      "simAreaTerreno": 0,
+      "proximidade": 0.484,
+      "indice": 0.6624222222222222,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 10902.26
+    },
+    {
+      "endereco": "R GRAUNA 262",
+      "simAreaConstruida": 0.7055555555555555,
+      "simAreaTerreno": 0,
+      "proximidade": 0.5429999999999999,
+      "indice": 0.6567888888888888,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 6051.5
+    },
+    {
+      "endereco": "R CEL ARTUR DE PAULA FERREIRA 149",
+      "simAreaConstruida": 0.8888888888888888,
+      "simAreaTerreno": 0,
+      "proximidade": 0.09699999999999998,
+      "indice": 0.6513222222222221,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 10000
+    },
+    {
+      "endereco": "AV ROUXINOL 388",
+      "simAreaConstruida": 0.7166666666666667,
+      "simAreaTerreno": 0,
+      "proximidade": 0.488,
+      "indice": 0.6480666666666666,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 10852.71
+    },
+    {
+      "endereco": "R GAIVOTA 1622",
+      "simAreaConstruida": 0.8333333333333334,
+      "simAreaTerreno": 0,
+      "proximidade": 0.20399999999999996,
+      "indice": 0.6445333333333334,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 11000
+    },
+    {
+      "endereco": "R EMB RIBEIRO COUTO 302",
+      "simAreaConstruida": 0.8611111111111112,
+      "simAreaTerreno": 0,
+      "proximidade": 0.138,
+      "indice": 0.6441777777777777,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 9935.48
+    },
+    {
+      "endereco": "AV PAVAO 700",
+      "simAreaConstruida": 0.8333333333333334,
+      "simAreaTerreno": 0,
+      "proximidade": 0.16100000000000003,
+      "indice": 0.6316333333333334,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 5238.1
+    },
+    {
+      "endereco": "R ALEIXO GARCIA 51",
+      "simAreaConstruida": 0.7666666666666666,
+      "simAreaTerreno": 0,
+      "proximidade": 0.31299999999999994,
+      "indice": 0.6305666666666666,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 8260.87
+    },
+    {
+      "endereco": "R SILVANIA 65",
+      "simAreaConstruida": 0.75,
+      "simAreaTerreno": 0,
+      "proximidade": 0.33299999999999996,
+      "indice": 0.6248999999999999,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 18518.52
+    },
+    {
+      "endereco": "R MARCOS LOPES 204",
+      "simAreaConstruida": 0.8055555555555556,
+      "simAreaTerreno": 0,
+      "proximidade": 0.19899999999999995,
+      "indice": 0.6235888888888889,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 14482.76
+    },
+    {
+      "endereco": "R MARCOS LOPES 212",
+      "simAreaConstruida": 0.8055555555555556,
+      "simAreaTerreno": 0,
+      "proximidade": 0.19899999999999995,
+      "indice": 0.6235888888888889,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 14482.76
+    },
+    {
+      "endereco": "R IRAUNA 615",
+      "simAreaConstruida": 0.7777777777777778,
+      "simAreaTerreno": 0,
+      "proximidade": 0.24,
+      "indice": 0.6164444444444444,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 10285.71
+    },
+    {
+      "endereco": "R DR JOSE CANDIDO DE SOUZA 453",
+      "simAreaConstruida": 0.85,
+      "simAreaTerreno": 0,
+      "proximidade": 0.04200000000000004,
+      "indice": 0.6076,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 9178.74
+    },
+    {
+      "endereco": "R INHAMBU 1208",
+      "simAreaConstruida": 0.65,
+      "simAreaTerreno": 0,
+      "proximidade": 0.493,
+      "indice": 0.6029,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 11025.64
+    },
+    {
+      "endereco": "R VALOIS DE CASTRO 51",
+      "simAreaConstruida": 0.8166666666666667,
+      "simAreaTerreno": 0,
+      "proximidade": 0.06000000000000005,
+      "indice": 0.5896666666666667,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 20408.16
+    },
+    {
+      "endereco": "R UBAIRA 60",
+      "simAreaConstruida": 0.6111111111111112,
+      "simAreaTerreno": 0,
+      "proximidade": 0.534,
+      "indice": 0.5879777777777778,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 13600
+    },
+    {
+      "endereco": "R ELIZABETH TROVAO USUI 65",
+      "simAreaConstruida": 0.6166666666666667,
+      "simAreaTerreno": 0,
+      "proximidade": 0.518,
+      "indice": 0.5870666666666666,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 14054.05
+    },
+    {
+      "endereco": "R ELIZABETH TROVAO USUI 55",
+      "simAreaConstruida": 0.6166666666666667,
+      "simAreaTerreno": 0,
+      "proximidade": 0.518,
+      "indice": 0.5870666666666666,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 16216.22
+    },
+    {
+      "endereco": "R ELIZABETH TROVAO USUI 64",
+      "simAreaConstruida": 0.6166666666666667,
+      "simAreaTerreno": 0,
+      "proximidade": 0.518,
+      "indice": 0.5870666666666666,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 15765.77
+    },
+    {
+      "endereco": "R FIANDEIRAS 157",
+      "simAreaConstruida": 0.7833333333333333,
+      "simAreaTerreno": 0,
+      "proximidade": 0.10899999999999999,
+      "indice": 0.5810333333333333,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 13576.72
+    },
+    {
+      "endereco": "R IRAUNA 669",
+      "simAreaConstruida": 0.7166666666666667,
+      "simAreaTerreno": 0,
+      "proximidade": 0.19399999999999995,
+      "indice": 0.5598666666666666,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 6060.61
+    },
+    {
+      "endereco": "R PINTASSILGO 295",
+      "simAreaConstruida": 0.5444444444444445,
+      "simAreaTerreno": 0,
+      "proximidade": 0.5760000000000001,
+      "indice": 0.5539111111111111,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 10204.08
+    },
+    {
+      "endereco": "R DR JOSE CANDIDO DE SOUZA 74",
+      "simAreaConstruida": 0.6277777777777778,
+      "simAreaTerreno": 0,
+      "proximidade": 0.346,
+      "indice": 0.5432444444444444,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 4858.3
+    },
+    {
+      "endereco": "R GAIVOTA 754",
+      "simAreaConstruida": 0.7444444444444445,
+      "simAreaTerreno": 0,
+      "proximidade": 0.06599999999999995,
+      "indice": 0.5409111111111111,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 7462.69
+    },
+    {
+      "endereco": "R STA JUSTINA 472",
+      "simAreaConstruida": 0.6666666666666667,
+      "simAreaTerreno": 0,
+      "proximidade": 0.21799999999999997,
+      "indice": 0.5320666666666667,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 9583.33
+    },
+    {
+      "endereco": "R DR JOSE CANDIDO DE SOUZA 77",
+      "simAreaConstruida": 0.6111111111111112,
+      "simAreaTerreno": 0,
+      "proximidade": 0.344,
+      "indice": 0.5309777777777778,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 5080
+    },
+    {
+      "endereco": "R MARIA NOSCHESE 315",
+      "simAreaConstruida": 0.7222222222222222,
+      "simAreaTerreno": 0,
+      "proximidade": 0.007000000000000006,
+      "indice": 0.5076555555555555,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 6086.96
+    },
+    {
+      "endereco": "R FIANDEIRAS 267",
+      "simAreaConstruida": 0.6666666666666667,
+      "simAreaTerreno": 0,
+      "proximidade": 0.10899999999999999,
+      "indice": 0.4993666666666667,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 11541.67
+    },
+    {
+      "endereco": "R IRAUNA 655",
+      "simAreaConstruida": 0.6222222222222222,
+      "simAreaTerreno": 0,
+      "proximidade": 0.20599999999999996,
+      "indice": 0.4973555555555555,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 9475.81
+    },
+    {
+      "endereco": "R AFONSO BRAZ 505",
+      "simAreaConstruida": 0.6833333333333333,
+      "simAreaTerreno": 0,
+      "proximidade": 0.050000000000000044,
+      "indice": 0.49333333333333335,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 9268.29
+    },
+    {
+      "endereco": "TV FRANCIS PLANTE 1",
+      "simAreaConstruida": 0.6666666666666667,
+      "simAreaTerreno": 0,
+      "proximidade": 0.04300000000000004,
+      "indice": 0.4795666666666667,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 21250
+    },
+    {
+      "endereco": "R JOSE GONCALVES PEREIRA 59",
+      "simAreaConstruida": 0.6333333333333333,
+      "simAreaTerreno": 0,
+      "proximidade": 0.07699999999999996,
+      "indice": 0.4664333333333333,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 12982.46
+    },
+    {
+      "endereco": "R CANARIO 639",
+      "simAreaConstruida": 0.6388888888888888,
+      "simAreaTerreno": 0,
+      "proximidade": 0.020000000000000018,
+      "indice": 0.45322222222222214,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 12800
+    },
+    {
+      "endereco": "R CEL ARTUR DE PAULA FERREIRA 78",
+      "simAreaConstruida": 0.5888888888888889,
+      "simAreaTerreno": 0,
+      "proximidade": 0.09699999999999998,
+      "indice": 0.4413222222222222,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 14150.94
+    },
+    {
+      "endereco": "R CEL DAVIO ESPIRIDIAO 10",
+      "simAreaConstruida": 0.4722222222222222,
+      "simAreaTerreno": 0,
+      "proximidade": 0.30800000000000005,
+      "indice": 0.42295555555555553,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 13636.36
+    },
+    {
+      "endereco": "R MILTON SILVEIRA 53",
+      "simAreaConstruida": 0.5555555555555556,
+      "simAreaTerreno": 0,
+      "proximidade": 0.08799999999999997,
+      "indice": 0.4152888888888889,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 13000
+    },
+    {
+      "endereco": "R IRAUNA 550",
+      "simAreaConstruida": 0.44999999999999996,
+      "simAreaTerreno": 0,
+      "proximidade": 0.29800000000000004,
+      "indice": 0.4044,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 6810.04
+    },
+    {
+      "endereco": "TV FRANCIS PLANTE 2",
+      "simAreaConstruida": 0.5444444444444445,
+      "simAreaTerreno": 0,
+      "proximidade": 0.04300000000000004,
+      "indice": 0.39401111111111115,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 17857.14
+    },
+    {
+      "endereco": "R GOMES DE CARVALHO 100",
+      "simAreaConstruida": 0.4444444444444444,
+      "simAreaTerreno": 0,
+      "proximidade": 0.17900000000000005,
+      "indice": 0.3648111111111111,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 15000
+    },
+    {
+      "endereco": "R ILAMONIA 153",
+      "simAreaConstruida": 0.33333333333333337,
+      "simAreaTerreno": 0,
+      "proximidade": 0.254,
+      "indice": 0.3095333333333333,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 6666.67
+    },
+    {
+      "endereco": "R EMB RIBEIRO COUTO 50",
+      "simAreaConstruida": 0.2222222222222222,
+      "simAreaTerreno": 0,
+      "proximidade": 0.394,
+      "indice": 0.27375555555555553,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 9062.5
+    },
+    {
+      "endereco": "AL JAUAPERI 1105",
+      "simAreaConstruida": 0.36111111111111116,
+      "simAreaTerreno": 0,
+      "proximidade": 0.04400000000000004,
+      "indice": 0.2659777777777778,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 4768.75
+    },
+    {
+      "endereco": "R IRAUNA 83",
+      "simAreaConstruida": 0.11111111111111116,
+      "simAreaTerreno": 0,
+      "proximidade": 0.5780000000000001,
+      "indice": 0.25117777777777783,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 3459.19
+    },
+    {
+      "endereco": "AV JACUTINGA 121",
+      "simAreaConstruida": 0.19999999999999996,
+      "simAreaTerreno": 0,
+      "proximidade": 0.16800000000000004,
+      "indice": 0.19039999999999996,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 6172.84
+    },
+    {
+      "endereco": "R GRAUNA 29",
+      "simAreaConstruida": 0,
+      "simAreaTerreno": 0,
+      "proximidade": 0.5780000000000001,
+      "indice": 0.17340000000000003,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 6111.11
+    },
+    {
+      "endereco": "R GOMES DE CARVALHO 585",
+      "simAreaConstruida": 0.1333333333333333,
+      "simAreaTerreno": 0,
+      "proximidade": 0.17900000000000005,
+      "indice": 0.14703333333333332,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 14880.95
+    },
+    {
+      "endereco": "AV MACUCO 426",
+      "simAreaConstruida": 0.15000000000000002,
+      "simAreaTerreno": 0,
+      "proximidade": 0.016000000000000014,
+      "indice": 0.10980000000000001,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 8324.32
+    },
+    {
+      "endereco": "R GOMES DE CARVALHO 567",
+      "simAreaConstruida": 0.05555555555555558,
+      "simAreaTerreno": 0,
+      "proximidade": 0.17900000000000005,
+      "indice": 0.09258888888888891,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 17142.86
+    },
+    {
+      "endereco": "R MARCOS LOPES 189",
+      "simAreaConstruida": 0,
+      "simAreaTerreno": 0,
+      "proximidade": 0.19899999999999995,
+      "indice": 0.05969999999999998,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 16973.24
+    },
+    {
+      "endereco": "AL JAUAPERI 1317",
+      "simAreaConstruida": 0,
+      "simAreaTerreno": 0,
+      "proximidade": 0.10999999999999999,
+      "indice": 0.032999999999999995,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 5090.44
+    },
+    {
+      "endereco": "R TUIM 186",
+      "simAreaConstruida": 0,
+      "simAreaTerreno": 0,
+      "proximidade": 0.06399999999999995,
+      "indice": 0.019199999999999984,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 8333.33
+    },
+    {
+      "endereco": "R AFONSO BRAZ 693",
+      "simAreaConstruida": 0,
+      "simAreaTerreno": 0,
+      "proximidade": 0.04800000000000004,
+      "indice": 0.014400000000000012,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 14883.56
+    }
+  ],
+  "top5": [
+    {
+      "endereco": "TV SEBASTIAO EMILIO FORLI 58",
+      "simAreaConstruida": 0.9833333333333333,
+      "simAreaTerreno": 0,
+      "proximidade": 0.783,
+      "indice": 0.9232333333333332,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 16384.18
+    },
+    {
+      "endereco": "AV COTOVIA 726",
+      "simAreaConstruida": 1,
+      "simAreaTerreno": 0,
+      "proximidade": 0.618,
+      "indice": 0.8854,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 5555.56
+    },
+    {
+      "endereco": "R PROF VAHIA DE ABREU 741",
+      "simAreaConstruida": 1,
+      "simAreaTerreno": 0,
+      "proximidade": 0.54,
+      "indice": 0.862,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 7333.33
+    },
+    {
+      "endereco": "R JURUENA 87",
+      "simAreaConstruida": 1,
+      "simAreaTerreno": 0,
+      "proximidade": 0.5329999999999999,
+      "indice": 0.8598999999999999,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 10000
+    },
+    {
+      "endereco": "R ARAGUARI 239",
+      "simAreaConstruida": 0.9444444444444444,
+      "simAreaTerreno": 0,
+      "proximidade": 0.29600000000000004,
+      "indice": 0.7499111111111111,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 10000
+    }
+  ],
+  "top3": [
+    {
+      "endereco": "TV SEBASTIAO EMILIO FORLI 58",
+      "simAreaConstruida": 0.9833333333333333,
+      "simAreaTerreno": 0,
+      "proximidade": 0.783,
+      "indice": 0.9232333333333332,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 16384.18
+    },
+    {
+      "endereco": "AV COTOVIA 726",
+      "simAreaConstruida": 1,
+      "simAreaTerreno": 0,
+      "proximidade": 0.618,
+      "indice": 0.8854,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 5555.56
+    },
+    {
+      "endereco": "R PROF VAHIA DE ABREU 741",
+      "simAreaConstruida": 1,
+      "simAreaTerreno": 0,
+      "proximidade": 0.54,
+      "indice": 0.862,
+      "pesos": {
+        "areaConstruida": 0.7,
+        "areaTerreno": 0,
+        "proximidade": 0.3
+      },
+      "tese": "construcao",
+      "precoM2": 7333.33
+    }
+  ],
+  "efeitoEscalaTerreno": [
+    {
+      "faixa": "<500",
+      "n": 0,
+      "medianaPrecoM2Terreno": 0
+    },
+    {
+      "faixa": "500-800",
+      "n": 0,
+      "medianaPrecoM2Terreno": 0
+    },
+    {
+      "faixa": ">800",
+      "n": 0,
+      "medianaPrecoM2Terreno": 0
+    }
+  ],
+  "coAncoraTerreno": null,
+  "sensibilidade": [
+    {
+      "cenario": "todos",
+      "n": 68,
+      "medianaPrecoM2": 10244.9,
+      "valorMercado": 1567469,
+      "valorFechamento": 1567469,
+      "precoM2Fechamento": 8708
+    },
+    {
+      "cenario": "top5",
+      "n": 5,
+      "medianaPrecoM2": 10000,
+      "valorMercado": 1530000,
+      "valorFechamento": 1530000,
+      "precoM2Fechamento": 8500
+    },
+    {
+      "cenario": "top3",
+      "n": 3,
+      "medianaPrecoM2": 7333.33,
+      "valorMercado": 1122000,
+      "valorFechamento": 1122000,
+      "precoM2Fechamento": 6233
+    }
+  ],
+  "faixaSensibilidade": {
+    "mercadoMin": 1122000,
+    "mercadoMax": 1567469,
+    "fechamentoMin": 1122000,
+    "fechamentoMax": 1567469
+  },
+  "headline": {
+    "mercado": {
+      "min": 1122000,
+      "max": 1567469
+    },
+    "fechamento": {
+      "min": 1122000,
+      "max": 1567469
+    },
+    "referencia": {
+      "cenario": "top3",
+      "n": 3,
+      "medianaPrecoM2": 7333.33,
+      "valorMercado": 1122000,
+      "valorFechamento": 1122000,
+      "precoM2Fechamento": 6233
+    },
+    "teto": {
+      "cenario": "todos",
+      "n": 68,
+      "medianaPrecoM2": 10244.9,
+      "valorMercado": 1567469,
+      "valorFechamento": 1567469,
+      "precoM2Fechamento": 8708
+    }
+  },
+  "desagioMedidoPercent": null,
+  "autoReferenciasExcluidas": [],
+  "homogeneizacao": {
+    "aplicada": false,
+    "indice": null,
+    "dataReferencia": null,
+    "ajustes": [],
+    "semAjuste": []
+  },
+  "composicaoBairros": [
+    {
+      "bairro": "não verificado",
+      "n": 68,
+      "medianaPrecoM2": 10244.9
+    }
+  ],
+  "desagioTratado": {
+    "cenarios": {
+      "conservador": 0.15,
+      "provavel": 0.075,
+      "agressivo": 0
+    },
+    "valorMercadoPorCenario": {
+      "conservador": 1332350,
+      "provavel": 1449910,
+      "agressivo": 1567470
+    },
+    "cenarioAplicado": null,
+    "desagioEstadoPct": null,
+    "valorMercadoAjustadoEstado": null,
+    "estadoConservacao": null,
+    "origemDefault": "sem-ficha",
+    "foraDaReguaSimples": false
+  },
+  "evidencia": {
+    "medianaPrincipal": 10244.9,
+    "medianaPonderada": 10285.71,
+    "nA": 0,
+    "nB": 68,
+    "nC": 0,
+    "laterais": []
+  },
+  "avisos": [
+    {
+      "codigo": "typology_heuristic_present",
+      "severidade": "atencao",
+      "mensagem": "Há comparáveis com tipologia por heurística (não confirmada em guia oficial — ver Regra R5)."
+    },
+    {
+      "codigo": "temporal_dispersion_high",
+      "severidade": "atencao",
+      "mensagem": "Vendas dispersas em mais de 12 meses sem homogeneização temporal (índice off)."
+    },
+    {
+      "codigo": "liquidity_factors_unvalidated",
+      "severidade": "atencao",
+      "mensagem": "Fatores de liquidez/condição não elicitados — valor de fechamento = valor de mercado (sem ajuste)."
+    },
+    {
+      "codigo": "target_condition_unconfirmed",
+      "severidade": "atencao",
+      "mensagem": "Estado/ficha do imóvel-alvo não confirmado — faixa reportada de forma conservadora (ver Story 9.14)."
+    },
+    {
+      "codigo": "typology_r5_incomplete",
+      "severidade": "atencao",
+      "mensagem": "R5 ativo só com heurística de lote (sem guia oficial) — conferência humana Fase 1 obrigatória."
+    }
+  ],
+  "passaportes": [
+    {
+      "endereco": "TV SEBASTIAO EMILIO FORLI 58",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "AV COTOVIA 726",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R GRAUNA 29",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R IRAUNA 83",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R PINTASSILGO 295",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R GRAUNA 262",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R PROF VAHIA DE ABREU 741",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R UBAIRA 60",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R JURUENA 87",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R ELIZABETH TROVAO USUI 65",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R ELIZABETH TROVAO USUI 55",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R ELIZABETH TROVAO USUI 64",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R INHAMBU 1208",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "AV ROUXINOL 388",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R RIBEIRAO CLARO 684",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "PC CEL FERNANDES DE LIMA 100",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R NOVA CIDADE 351",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R PARIQUERA-ACU 41",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R EMB RIBEIRO COUTO 50",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R DR JOSE CANDIDO DE SOUZA 74",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R DR JOSE CANDIDO DE SOUZA 77",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R SILVANIA 65",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R ALEIXO GARCIA 51",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R CEL DAVIO ESPIRIDIAO 10",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R ELIAS FAUSTO 40",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R ELIAS FAUSTO 34",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R IRAUNA 550",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R ARAGUARI 239",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R ILAMONIA 153",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R IRAUNA 615",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R QUICABA 37",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R STA JUSTINA 472",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R ILAMONIA 203",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R IRAUNA 655",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R GAIVOTA 1622",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R MARCOS LOPES 204",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R MARCOS LOPES 189",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R MARCOS LOPES 212",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R IRAUNA 669",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R GOMES DE CARVALHO 100",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R GOMES DE CARVALHO 567",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R GOMES DE CARVALHO 585",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "AV JACUTINGA 121",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "AV PAVAO 700",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R EMB RIBEIRO COUTO 286",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R EMB RIBEIRO COUTO 302",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R STA JUSTINA 123",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "AL JAUAPERI 1317",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R FIANDEIRAS 157",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R FIANDEIRAS 267",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R CEL ARTUR DE PAULA FERREIRA 149",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R CEL ARTUR DE PAULA FERREIRA 78",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R TUIM 229",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R MILTON SILVEIRA 53",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R JOSE GONCALVES PEREIRA 59",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R GAIVOTA 754",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R TUIM 186",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R VALOIS DE CASTRO 51",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R AFONSO BRAZ 505",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R AFONSO BRAZ 693",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "AL JAUAPERI 1105",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "TV FRANCIS PLANTE 1",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "TV FRANCIS PLANTE 2",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R DR JOSE CANDIDO DE SOUZA 453",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R DR JOSE CANDIDO DE SOUZA 476",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R CANARIO 639",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "AV MACUCO 426",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    },
+    {
+      "endereco": "R MARIA NOSCHESE 315",
+      "fontePreco": "itbi_oficial",
+      "tipologia": {
+        "valor": "casa",
+        "confianca": "baixa",
+        "fonte": "heuristica"
+      },
+      "areaConstrFonte": "nao_rastreada",
+      "areaTerrenoFonte": "ausente",
+      "dataVendaFonte": "inferida",
+      "geocode": "ausente",
+      "status": "incluido",
+      "motivos": [],
+      "confianca": "B",
+      "confiancaC5": null
+    }
+  ],
+  "r5": {
+    "aplicado": true,
+    "propertyType": "casa",
+    "nEntrada": 68,
+    "nAceitos": 68,
+    "nExcluidos": 0,
+    "nHeuristica": 68,
+    "nIndefinido": 0,
+    "regraUmaLinha": "R5 Tipologia — Uso/padrão IPTU e Complemento da guia oficial (SF/PMSP) por SQL: só mesma tipologia do alvo; sem guia pública = heurística de lote declarada + conferência humana (Fase 1)."
+  },
+  "excluidosTipologia": [],
+  "teseComercial": {
+    "tese": "acima",
+    "deltaPct": 96.1,
+    "label": "Acima do mercado",
+    "frase": "Preço +96.1% vs referência ACM — tese de realismo de mercado (deságio de captura).",
+    "precoComercial": 2200000,
+    "referencia": 1122000,
+    "fontePreco": "anuncio"
+  },
+  "teseAvaliacao": "construcao",
+  "pesosAderencia": {
+    "areaConstruida": 0.7,
+    "areaTerreno": 0,
+    "proximidade": 0.3
+  },
+  "subprecificacao": {
+    "nivel": null,
+    "deltaPct": 96.1,
+    "acaoRecomendada": null,
+    "narrativa": null,
+    "gaps": {
+      "vsReferencia": 96.1,
+      "vsTop5": 43.8,
+      "vsTerreno": null
+    },
+    "tempoExposicaoDias": null,
+    "nAnuncios": null,
+    "concorrenciaAlta": false
+  },
+  "desagioGraduado": {
+    "percent": null,
+    "nConfirmado": 0,
+    "nParcial": 0,
+    "nNaoRecuperavel": 68,
+    "desagiosReais": []
+  }
+}

@@ -82,3 +82,9 @@ A variância que o N-5 existe para medir é a **interpretativa** de um LLM lendo
 2. Registrar amplitude de veredito/score em `medicoes-llm-9.29.json` (novo).
 3. Exigir amplitude 0 **e** acurácia vs gabaritos (anti stable-but-wrong).
 4. Só então ligar o veredito PASS/CONCERNS/FAIL na skill `/acm-validate`.
+
+**EXECUTADO em 2026-07-11 (Story 9.29):** 20 runs LLM (opus, contexto fresco, cegos).
+Baseline v1 = stable-but-wrong no legado (FAIL×4 vs CONCERNS) → checklist ancorado a
+**v1.1** (eixos E4–E8) → veredito amplitude 0 em todos os alvos + acurácia 100%.
+Veredito automatizado **ATIVADO** na skill. Detalhe: `medicoes-llm-9.29.json`;
+alvo fresco congelado: `computation-honduras-fresco.json`.

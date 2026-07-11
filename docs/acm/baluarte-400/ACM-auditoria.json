@@ -1,0 +1,17 @@
+{
+  "caso": "baluarte-400",
+  "computation": "docs/acm/baluarte-400/ACM-computation.json",
+  "checklist": "docs/acm/CHECKLIST-ACM-AUDITOR-v1.md (v1.1)",
+  "auditor": "acm-auditor (opus, contexto independente)",
+  "data": "2026-07-11",
+  "veredito": "PASS",
+  "score": 99,
+  "blocking": [],
+  "atencao": [],
+  "info": [
+    {
+      "codigo": "C_HOMOG",
+      "evidencia": "homogeneizacao.aplicada=false; nenhum comparavel/passaporte possui dataVenda nao-nula (todos dataVendaFonte=inferida); semAjuste=[] -> inerte opt-out"
+    }
+  ]
+}
