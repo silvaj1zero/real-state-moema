@@ -1,0 +1,46 @@
+# QA Gate — Story 9.7 (Config geográfica validada contra ITBI real)
+schema: story-quality-gate-v1
+date: 2026-07-12
+branch: feat/story-9.7-geoconfig
+reviewer: qa (Fable, sessão principal — dev rodou em subagente Sonnet independente)
+storyIds: ["9.7"]
+
+verdict: PASS
+
+# Evidência real (rodada no gate)
+evidence:
+  vitest_acm: "27 files / 299 tests PASS (53.4s)"            # npx vitest run src/lib/acm --no-file-parallelism
+  typecheck: "npm run typecheck EXIT 0"
+  eslint_escopo: "geoConfig.ts + 9.7-geo-crosscheck.mjs EXIT 0, zero warnings (1 unused-var corrigido no gate)"
+  crosscheck_prod: "exit 0 · 3.618 ITBI · 891 no raio 1km · 54 logradouros, 54 cobertos · fora da whitelist: 0"
+  datasets_congelados: "git status docs/acm/*/dataset.json = LIMPO (byte-idênticos)"
+  founder_files: "apify.ts / apify-parametric.ts / scrapers (M do Épico 7) INTOCADOS — verificado no git status"
+  fonte_unica: "RAIO_PADRAO_M re-exportado de methodology.ts (não duplicado); crosscheck IMPORTA geoConfig via tsx (espelho local eliminado)"
+
+checks:
+  code_review: PASS       # geoConfig com fonte rastreável por constante (Art. IV); QA-fix D8 eliminou 2 duplicações nascentes
+  tests: PASS             # suíte 299/299; sem teste dedicado ao geoConfig (módulo só-constantes — teste seria literal==literal; aceito)
+  acceptance_criteria: PASS   # AC1 doc ✓ · AC2 saída real no doc ✓ · AC3 ver nota abaixo · AC4 regressão verde + datasets limpos ✓
+  regressions: PASS       # nenhum arquivo de runtime alterado além do novo geoConfig (ainda sem consumidor em runtime) — zero mudança de comportamento
+  performance: PASS       # N/A — constantes + script read-only
+  security: PASS          # crosscheck read-only com service role de .env.local (não commitado); CONSULTANT_ID já público em 3+ scripts do repo
+  docs: PASS              # File List == diff; Dev Record com D1–D8; CONFIG-GEOGRAFICA.md com seção de validação idempotente
+
+pontos_de_atencao:
+  ac3_consumidores: >-
+    AC3 pede consumo "pelos builders novos e pela CLI". Verificado por grep: a CLI
+    (acm-validate.tsx) NÃO possui constante geográfica hardcoded (opera sobre datasets
+    offline) — não há o que trocar sem inventar comportamento (Art. IV). Consumidor real
+    hoje: 9.7-geo-crosscheck.mjs (via tsx). Builders 113/132 ficam com valores congelados
+    por exigência do próprio AC3/AC4. geoConfig vira binding quando o primeiro builder
+    novo nascer (9.30 é o candidato — a story 9.30 deve importar daqui).
+  achado_d1_notas: >-
+    Campo notas guarda categoria batch "Moema e região" (3.618/3.618), NÃO bairro granular
+    — a premissa da story (parse de notas) era falsa; crosscheck usou cache ViaCEP real.
+    Relevante para a 9.30: cobertura por bairro em PROD depende de bairro_real (9.4 sessão C).
+
+notes:
+  - "9.7-inspect-notas.mjs mantido como diagnóstico reproduzível do achado D1."
+  - "Pendências de migração documentadas (apify.ts/geocoding.ts) ficam para pós-Épico 7 — CONFIG-GEOGRAFICA.md §Pendências."
+
+next_action: "@devops push/PR (branch empilhada em feat/story-9.4-db-side) → merge → Status Done."

@@ -26,7 +26,7 @@
 ## Requisitos de entrega
 
 1. **Backfill** das guias já ingeridas (2023/2024/consolidado 28-01-2026 — fonte: capital.sp.gov.br "Guias de ITBI pagas") + ingestão contínua quando a SF publicar 2026.
-2. **RPC:** `fn_comparaveis_no_raio` (canônica na migration `20260615000004` do repo real-state-moema) passa a retornar os campos novos — atenção ao trap PostgreSQL 42P13: `RETURNS TABLE` só muda com `DROP FUNCTION` + `CREATE` + re-GRANT (precedente nas migrations 20260615000004/20260616000001).
+2. **RPC:** ✅ **FEITO no repo real-state-moema (11-Jul)** — migrations `20260711000001` (colunas `complemento`/`uso_iptu`/`fracao_ideal`/`bairro_real` + `padrao_iptu`→TEXT) e `20260711000002` (RPC 32 colunas, incl. `data_venda := data_referencia`) **aplicadas em PROD**. O engine NÃO precisa mexer em RPC/DDL: só sink mapping + backfill. (Trap 42P13 já tratada.)
 3. **Zero quebra:** campos ADITIVOS e anuláveis; consumidores atuais não mudam de comportamento sem os campos (design opt-in já implementado no app — 9.17/9.23).
 4. **Validação de aceite (no app, pós-deploy):** (a) `computeLaudo` com `propertyType:'casa'` sobre PROD exclui verticais via guia (não heurística); (b) export sheet in-app mostra homogeneização com `ajustados > 0`; (c) regressão dos casos offline inalterada (datasets congelados).
 5. **Referência de implementação:** `app/scripts/acm-andrade-pertence-132/09-lookup-guias.mjs` e `10-backfill-tipologia.mjs` (parse das guias já resolvido offline — portar para o pipeline do engine).

@@ -298,7 +298,8 @@ export interface AcmComparavel {
   testada_m?: number | null
   ano_construcao?: number | null
   ano_referencia?: number | null
-  padrao_iptu?: number | null
+  /** Story 9.4 — coluna virou TEXT (rótulo da guia, ex. "RESIDENCIAL VERTICAL"); era SMALLINT 0-5. */
+  padrao_iptu?: string | number | null
   valor_venal?: number | null
   tipo?: string | null
   sql_cadastral?: string | null
@@ -313,6 +314,8 @@ export interface AcmComparavel {
   complemento?: string | null
   uso_iptu?: string | null
   fracao_ideal?: number | null
+  /** Bairro verificado via CEP (migration 20260711000001) — composição 9.11 / índice C-3. */
+  bairro_real?: string | null
   created_at: string
   updated_at: string
 }
@@ -357,12 +360,19 @@ export interface ComparavelNoRaio {
   latitude?: number | null
   longitude?: number | null
   anuncio_url?: string | null
-  // Story 9.4 ampliação R5 (opt-in na RPC após sink).
+  // Story 9.4 ampliação R5 (RPC migration 20260711000002 — valores NULL até o sink/backfill).
   complemento?: string | null
   uso_iptu?: string | null
   fracao_ideal?: number | null
   padrao_iptu?: string | number | null
   tipo?: string | null
+  // Story 9.4 — campos AC1 restantes + homogeneização/composição (migration 20260711000002).
+  ano_construcao?: number | null
+  testada_m?: number | null
+  valor_venal?: number | null
+  bairro_real?: string | null
+  /** DATE serializado 'YYYY-MM-DD' (= data_referencia). Deflação FipeZap 9.23: derivar competência 'YYYY-MM'. */
+  data_venda?: string | null
 }
 
 // =============================================================================
