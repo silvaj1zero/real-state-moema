@@ -457,6 +457,63 @@ function CenariosDocument({ dataEmissao }: { dataEmissao: string }) {
           <Footer />
         </Page>
       ))}
+
+      {/* ============ ANEXO C — CANAL OFICIAL DA ANISTIA (1 página) ============ */}
+      <Page size="A4" style={s.page}>
+        <Text style={s.h2}>Anexo C — Canal oficial da regularização (Lei 17.202/2019)</Text>
+        <Text style={[s.paragraph, { fontSize: 7.5, color: COLORS.cinzaClaro }]}>
+          Verificado em 13-Jul-2026 na letra da lei (arts. 3º/4º/9º/13) e no canal oficial (Portal de Licenciamento + Meu Imóvel Regular). Detalhamento completo: docs/acm/honduras-629/REGULARIZACAO-CAMINHO-E-PASSIVO-20260713.md §6.
+        </Text>
+
+        <View style={s.fichaBox}>
+          <View style={s.fichaRow}>
+            <Text style={s.fichaLabel}>Onde protocolar (100% digital; acompanhamento no próprio sistema)</Text>
+            <Text style={s.fichaValue}>portaldelicenciamento.prefeitura.sp.gov.br</Text>
+          </View>
+          <View style={s.fichaRow}>
+            <Text style={s.fichaLabel}>Orientação oficial e manuais por modalidade</Text>
+            <Text style={s.fichaValue}>meuimovelregular.prefeitura.sp.gov.br</Text>
+          </View>
+          <View style={s.fichaRow}>
+            <Text style={s.fichaLabel}>Prazo final de protocolo (Lei 18.375/2025)</Text>
+            <Text style={[s.fichaValue, { color: COLORS.vermelho }]}>30/08/2026</Text>
+          </View>
+          <View style={s.fichaRow}>
+            <Text style={s.fichaLabel}>Modalidade provável do caso (residencial ≤ 1.500 m² concluída até 31/07/2014)</Text>
+            <Text style={s.fichaValue}>DECLARATÓRIA</Text>
+          </View>
+          <View style={[s.fichaRow, { borderBottomWidth: 0 }]}>
+            <Text style={s.fichaLabel}>Imóvel em perímetro tombado (art. 4º, I)</Text>
+            <Text style={s.fichaValue}>regularizável COM anuência prévia</Text>
+          </View>
+        </View>
+
+        <Text style={s.h3}>Documentos tipicamente exigidos no protocolo (art. 9º + manuais)</Text>
+        <Bullet>Requerimento eletrônico com declaração de responsabilidade (proprietário + responsável técnico).</Bullet>
+        <Bullet>Matrícula do imóvel — usar certidão ATUALIZADA (a analisada é de 01/2023).</Bullet>
+        <Bullet>Peças gráficas do estado atual (plantas, cortes, quadro de áreas) com RRT/ART — medição REAL pelo responsável técnico (declaração falsa anula o certificado; as medições por satélite deste dossiê são apenas evidência auxiliar).</Bullet>
+        <Bullet>Atestado técnico de higiene, segurança de uso, estabilidade, habitabilidade e salubridade (art. 1º).</Bullet>
+        <Bullet>Prova de anterioridade a 31/07/2014: aerofotos oficiais (ortofotos GeoSampa), IPTU/lançamentos antigos, fotos — Anexo B como apoio.</Bullet>
+        <Bullet>Recolhimentos: preço público de R$ 10,00/m² a regularizar + taxa administrativa + ISS da obra.</Bullet>
+        <Bullet>Anuência patrimonial (CONPRESP/DPH): dossiê próprio — levantamento fotográfico, estudo/justificativa técnica, implantação.</Bullet>
+
+        <Text style={s.h3}>Custos estimados (ordem de grandeza — licenciador confirma)</Text>
+        <Bullet>Preço público: ~295 m² × R$ 10 ≈ R$ 2.950. Outorga onerosa tende a ZERO (CA 1,0 × 1.050 m² tem folga); exceção: garagem computável acima dos limites legais pode gerar contrapartida (fator 1,2 sobre o trecho).</Bullet>
+        <Bullet>ISS da obra + taxas + honorários do RT/licenciador + dossiê de anuência — total provável em dezenas de milhares de reais, contra R$ 4–5,6M de valor destravado.</Bullet>
+
+        <View style={[s.cenarioBox, s.cenarioBoxNo, { marginTop: 8 }]}>
+          <Text style={[s.cenarioTitle, { color: COLORS.vermelho, marginBottom: 3 }]}>Dois alertas da letra da lei (não confiar no FAQ)</Text>
+          <Text style={s.cenarioText}>
+            1) O FAQ oficial sugere que área tombada {'"'}não pode{'"'} — a LEI diz o contrário: o art. 4º, I admite a regularização MEDIANTE anuência prévia do órgão de patrimônio (a exclusão é só da modalidade automática). 2) O art. 3º VEDA a regularização de edificação que desrespeite RESTRIÇÕES CONVENCIONAIS DE LOTEAMENTO — a anistia perdoa o zoneamento, não o contrato do loteamento. Como o lote é de loteamento com restrições ({'"'}Companhia Imóveis e Construções{'"'} na matrícula), obter o teor dessas restrições é o item nº 1 do estudo de viabilidade.
+          </Text>
+        </View>
+
+        <Text style={[s.paragraph, { fontSize: 7, color: COLORS.cinzaClaro, marginTop: 6 }]}>
+          Pós-deferimento: Certificado de Regularização → averbação no 4º RI (INSS por decadência p/ obra &gt;5 anos) → atualização do IPTU com a proteção da jurisprudência TJSP contra cobrança retroativa na anistia.
+        </Text>
+
+        <Footer />
+      </Page>
     </Document>
   )
 }
