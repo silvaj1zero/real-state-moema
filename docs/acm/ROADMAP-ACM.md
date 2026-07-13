@@ -184,7 +184,7 @@ tsc 0 · eslint 0. Restante do épico: 9.4 (cross-repo) e 9.1 (depende da 9.4).
 | **9.27** | C-3 índice de bairro = triangulação de coerência (nunca âncora) | **✅ Done (QA 11-Jul, re-review PASS pós-toggle test)** | Sonnet | — |
 | **9.28** | N-5: variância do gate @acm-auditor (playbook gate-determinism) | **✅ Done (QA 11-Jul, CONCERNS aceito — gate de entrada N=4 LLM na 9.29)** | **Fable** | — |
 | **9.29** | D-3: skill `/acm-validate` + agentes ACM | **✅ Done (QA PASS 7/7 11-Jul, PR #10 merged — gate N=4 LLM aprovado, checklist v1.1, veredito ativo; baluarte-400 ponta a ponta PASS 99)** | Fable | — |
-| 9.4 | Sink ITBI ampliado — **spec portátil pronta**: `SPEC-EXEC-STORY-9.4-CROSS-REPO.md`. Baseline 11-Jul: **100% NULL** nos 3.618 ITBI + colunas `complemento`/`uso_iptu`/`fracao_ideal` AUSENTES (migration executável NESTE repo) | Ready | @data-engineer (app-side Opus) | **repo `acm-imobiliario` NÃO LOCALIZADO** (nem disco nem GitHub do operador) — input founder |
+| 9.4 | Sink ITBI ampliado — **lado-app DONE 11/12-Jul (PR #13)**: migrations em PROD (colunas R5 + `bairro_real` + `padrao_iptu`→TEXT) + RPC 32 cols com `data_venda`. Spec portátil: `SPEC-EXEC-STORY-9.4-CROSS-REPO.md` (engine NÃO precisa de DDL). Resta: sink mapping + backfill (sessão C) | Ready (parcial — AC5 ✓) | @data-engineer (app-side Opus ✓; engine pendente) | **engine LOCALIZADO 12-Jul**: `workspace/businesses/luciana-borba/squads-custom/acm-imobiliario/` (pasta local gitignorada — nunca foi GitHub; busca de 11-Jul só olhou `repos/`) |
 | 9.1 | Régua apto/casa | Ready | Sonnet | 9.4 |
 
 ### 9e. Wave 6 — draftada 11-Jul (execução pós-9.4, exceto 9.7)

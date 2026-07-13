@@ -10,7 +10,7 @@
 - **Épico 8: FECHADO.** 8/10 Done, 8.3 Split (entregue via 8.3a/b), 8.5 Descoped (ADR-EPIC8-001). Nada a executar.
 - **Épico 9: 26/28 Done.** 9.29 fechada hoje (QA PASS 7/7, PRs #10/#11 merged). Restam **9.4** e **9.1** (Ready) + **Wave 6 draftada hoje** (9.7 · 9.5 · 9.30, todas validadas @po).
 - **Baseline 9.4 medido** (`app/scripts/acm-audit/9.4-sink-coverage.mjs`, read-only PROD, 11-Jul): **100% NULL nos 3.618 ITBI em TODOS os campos de metodologia** e as colunas `complemento`/`uso_iptu`/`fracao_ideal` **não existem** na tabela (o script acusa "coluna ausente").
-- **BLOCKER (input founder):** o repo do engine `acm-imobiliario` (`engine/src/sinks/supabase_acm.py`) **não foi localizado** — não está no disco (busca recursiva por `supabase_acm.py`) nem em `gh repo list silvaj1zero`. Sem ele, a 9.4 não fecha (AC1 mapping + backfill) e 9.1/9.5/9.30 ficam bloqueadas.
+- ~~BLOCKER: repo engine não localizado~~ **RESOLVIDO 12-Jul:** o engine **está no disco** — `C:\Users\Zero\Desktop\AIOX-Enterprise MASTER\workspace\businesses\luciana-borba\squads-custom\acm-imobiliario\` (`engine/src/sinks/supabase_acm.py` ✓ · `engine/push_acm_supabase.py` ✓ · última escrita 15-Jun, época do push ITBI). NUNCA foi repo GitHub — é pasta local gitignorada (handoff 15-Jun §55 já registrava o caminho). A busca de 11-Jul falhou de escopo (procurou só em `repos/`). **Sessão C está DESBLOQUEADA.**
 
 ## 2. Plano de execução (1 objetivo = 1 sessão; plano/QA Fable, execução Sonnet/Opus)
 
