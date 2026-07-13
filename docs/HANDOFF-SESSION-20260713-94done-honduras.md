@@ -37,6 +37,8 @@
 
 ## 3. Pendências humanas (founder/Luciana — bloqueiam o mundo real, não o código)
 
+0. **NOVA CONDICIONANTE SUCESSÓRIA (13-Jul, tarde):** Ermantina (cotitular, comunhão universal) **falecida há ~8 anos SEM inventário/partilha averbados** (certidão 01/2023 nada mostra). Herdeiros: Clarisia (solteira, interlocutora) + 2 irmãos casados com filhos; meação 50% do Dennis (status a confirmar). **Sem partilha averbada não há escritura** — inventário entra no caminho crítico; contrato RE/MAX precisa de TODOS os cotitulares/inventariante (Clarisia sozinha não vincula); ITCMD + multa de ~8 anos a dimensionar; quem assina o protocolo da anistia deve ser definido JÁ (prazo 30/08 não espera inventário). Nota completa: `docs/acm/honduras-629/NOTA-TITULARIDADE-FAMILIA-REPRESENTACAO-20260713.md` (+ §2.4 das condicionantes). Rótulo "Proprietária: Clarisia" no laudo v6 → corrigir p/ "Interlocutora (herdeira)" na próxima revisão.
+
 1. **URGENTE (~7 semanas): protocolar anistia Honduras até 30/08/2026** — contratar licenciador (ART/RRT) **com experiência em Jardins/CONPRESP** usando a shortlist + checklist de triagem; **primeiras tarefas do licenciador: (a) teor das restrições convencionais do loteamento (vedação art. 3º) e (b) dossiê de anuência CONPRESP**; evidência de anterioridade = Anexo B + o que o RT levantar. NÃO prometer averbação ao proprietário — deferimento condicionado. Modalidade provável: DECLARATÓRIA via Portal de Licenciamento (Anexo C do PDF tem o passo a passo).
 2. Validar PDF de cenários com a **supervisão Luciana/RE/MAX** (caixa de assinatura na pág. 3) e definir âncora comercial (v4 suspensas).
 3. Certidão de matrícula atualizada + quitação fiduciária + penhora (advogado).

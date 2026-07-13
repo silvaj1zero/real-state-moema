@@ -24,7 +24,8 @@
 1. **R.10 (15/05/2015): alienação fiduciária ao Banco Máxima S/A** — dívida R$ 414.251,71, 118 parcelas de R$ 7.121,93, vencimento final **11/04/2025** (já decorrido). Se quitada, falta **averbar o cancelamento**; se não, venda exige baixa/anuência do credor.
 2. **Av.11 (07/10/2020): penhora de 50% dos direitos de fiduciante** — Execução Fiscal municipal, proc. 1534213572015, dívida R$ 85.149,08 (executados: Dennis D'Araujo Moniz Ramos e João Brasil Vita Sobrinho). Levantar antes/na escritura.
 3. **Certidão com 3,5 anos** — estado atual de (1) e (2) desconhecido → **certidão atualizada é o primeiro passo**.
-4. Titularidade: **Dennis D'Araujo Moniz Ramos** + **Ermantina Viscardi Moniz Ramos** (comunhão universal) — ambos outorgam. Aquisição R.08 (escritura 2006, registrada 2011) por R$ 1.000.000. Incomunicabilidade (Av.07) extinta na prática: usufruto cancelado (Av.09) e imóvel vendido a terceiro.
+4. Titularidade **na certidão 01/2023:** **Dennis D'Araujo Moniz Ramos** + **Ermantina Viscardi Moniz Ramos** (comunhão universal). Aquisição R.08 (escritura 2006, registrada 2011) por R$ 1.000.000. Incomunicabilidade (Av.07) extinta na prática: usufruto cancelado (Av.09).  
+   **Atualização operacional 13-Jul (não averbada nesta certidão):** Ermantina falecida há ~8 anos; interlocutora da captação = **Clarisia Ramos** (filha herdeira, solteira) + **2 irmãos** (casados com filhos). Outorga de venda/intermediação/regularização **não** se resume a “o casal” nem a Clarisia sozinha — ver `NOTA-TITULARIDADE-FAMILIA-REPRESENTACAO-20260713.md` e certidão atualizada.
 
 ## 3. Impacto no ACM (laudo v5)
 
@@ -36,7 +37,8 @@
 ## 4. Next steps
 
 - [ ] **Certidão de matrícula atualizada** (a de 01/2023 venceu; fiduciária venceu 04/2025 — pode já estar quitada sem averbação de baixa).
-- [ ] Confirmar com a proprietária: termo de quitação do Banco Máxima + situação da execução fiscal (penhora Av.11).
+- [ ] Confirmar com a família (Clarisia + demais herdeiros / Dennis se vivo): termo de quitação do Banco Máxima + situação da execução fiscal (penhora Av.11).
+- [ ] Documentar sucessão de Ermantina (óbito, inventário/partilha, procurações) antes do contrato RE/MAX e do protocolo de anistia — ver `NOTA-TITULARIDADE-FAMILIA-REPRESENTACAO-20260713.md`.
 - [ ] Orçar **regularização** da área não averbada (~295 m²): aprovação/anistia municipal + habite-se/CCVO + averbação no 4º RI. Verificar viabilidade urbanística (recuos/TO/CA; restrições de bairro-jardim/tombamento) ANTES de assumir que regulariza.
 - [ ] Decisão Luciana + founder: emitir **laudo v6** com condicionantes (área oficial 441 m² · terreno 1.050 m² · ônus a sanear) ou adendo ao v5.
 - [ ] Risco fiscal a comunicar ao vendedor: IPTU complementar retroativo quando a PMSP atualizar o lançamento.
