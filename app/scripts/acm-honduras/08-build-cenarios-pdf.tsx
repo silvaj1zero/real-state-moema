@@ -259,6 +259,14 @@ function CenariosDocument({ dataEmissao }: { dataEmissao: string }) {
             <Text style={s.fichaLabel}>Terreno oficial (matrícula = IPTU = medição por satélite)</Text>
             <Text style={s.fichaValue}>{V6.areaTerreno} m²</Text>
           </View>
+          <View style={s.fichaRow}>
+            <Text style={s.fichaLabel}>Zona / projeção máxima permitida hoje (ZER-1, TO 0,5 — LPUOS e Lei 18.177/24)</Text>
+            <Text style={s.fichaValue}>525 m² (medido ~736)</Text>
+          </View>
+          <View style={s.fichaRow}>
+            <Text style={s.fichaLabel}>Patrimônio: lote DENTRO do perímetro tombado dos Jardins (CONDEPHAAT/CONPRESP)</Text>
+            <Text style={s.fichaValue}>anuência obrigatória</Text>
+          </View>
           <View style={[s.fichaRow, { borderBottomWidth: 0 }]}>
             <Text style={s.fichaLabel}>Ônus a sanear antes de qualquer escritura</Text>
             <Text style={s.fichaValue}>Alienação fiduciária + penhora 50%</Text>
@@ -297,7 +305,7 @@ function CenariosDocument({ dataEmissao }: { dataEmissao: string }) {
         <View style={[s.insightBox, { borderColor: COLORS.verde, backgroundColor: '#F0FDF4', marginTop: 8 }]}>
           <Text style={s.insightText}>
             <Text style={[s.strong, { color: COLORS.verde }]}>ATUALIZAÇÃO 13-Jul — obras datadas: a anistia se aplica. </Text>
-            A série histórica de satélite (Anexo B, imagem de <Text style={s.strong}>08/09/2013</Text>) mostra a MESMA projeção coberta de hoje (~689 m² em 2013 vs ~685 m² em 2024) — gourmet e garagem coberta <Text style={s.strong}>já existiam antes de 31/07/2014</Text>, o corte da Lei de Regularização 17.202/2019. Consequências: (1) a regularização pode ir pelo trilho da ANISTIA, que aceita edificações mesmo em desacordo com o zoneamento atual — o risco de taxa de ocupação deixa de bloquear; (2) há jurisprudência do TJSP afastando o IPTU retroativo de quem regulariza pela anistia; (3) <Text style={[s.strong, { color: COLORS.vermelho }]}>o protocolo precisa sair até 30/08/2026</Text> (prazo prorrogado pela Lei 18.375/2025).
+            A série histórica de satélite (Anexo B, imagem de <Text style={s.strong}>08/09/2013</Text>) mostra a MESMA projeção coberta de hoje (~689 m² em 2013 vs ~685 m² em 2024) — gourmet e garagem coberta <Text style={s.strong}>já existiam antes de 31/07/2014</Text>, o corte da Lei de Regularização 17.202/2019. Consequências: (1) a regularização pode ir pelo trilho da ANISTIA, que perdoa o zoneamento — a projeção medida (~736 m²) excede em ~40% o limite atual da ZER-1 (525 m²), o que torna a anistia a ÚNICA porta de averbação do excedente (no rito comum ele exigiria demolir/descobrir); (2) como o lote está no perímetro TOMBADO dos Jardins, o deferimento depende de <Text style={s.strong}>anuência CONDEPHAAT/CONPRESP</Text> — o licenciador precisa ter experiência específica no bairro; (3) há jurisprudência do TJSP afastando o IPTU retroativo de quem regulariza pela anistia; (4) <Text style={[s.strong, { color: COLORS.vermelho }]}>o protocolo precisa sair até 30/08/2026</Text> (Lei 18.375/2025).
           </Text>
         </View>
 
@@ -334,7 +342,7 @@ function CenariosDocument({ dataEmissao }: { dataEmissao: string }) {
             <Text style={[s.cenarioAncora, { color: COLORS.verde }]}>{faixaMi(V6.regularizado)}</Text>
           </View>
           <Text style={s.cenarioText}>
-            Captura máxima — envolve o valor pretendido. Obras DATADAS pré-2014 pela série histórica (Anexo B) → elegíveis à Lei 17.202/2019, que regulariza mesmo em desacordo com o zoneamento atual (recuos/taxa de ocupação não bloqueiam) e conta com jurisprudência TJSP afastando o IPTU retroativo. Cada m² regularizado ≈ R$ 19 mil de valor defensável. CONDIÇÃO DURA: protocolo no Portal de Licenciamento até 30/08/2026 (~7 semanas) — contratar licenciador (ART/RRT) IMEDIATAMENTE. Custos: taxas + preços públicos + eventual contrapartida + projeto.
+            Captura máxima — envolve o valor pretendido. Obras DATADAS pré-2014 pela série histórica (Anexo B) → elegíveis à Lei 17.202/2019, que perdoa TO/recuos/CA (é a ÚNICA porta p/ averbar os ~211 m² acima da projeção permitida) e conta com jurisprudência TJSP afastando o IPTU retroativo. Cada m² regularizado ≈ R$ 19 mil de valor defensável. DUAS CONDIÇÕES DURAS: (1) protocolo até 30/08/2026 (~7 semanas) — contratar licenciador (ART/RRT) com experiência em Jardins/CONPRESP IMEDIATAMENTE; (2) deferimento depende de ANUÊNCIA PATRIMONIAL (lote no perímetro tombado dos Jardins — CONDEPHAAT/CONPRESP; o órgão pode negar ou exigir adequações). Custos: taxas + eventual contrapartida (garagem computável) + projeto.
           </Text>
         </View>
 
@@ -401,11 +409,11 @@ function CenariosDocument({ dataEmissao }: { dataEmissao: string }) {
         <Text style={s.h2}>6. Roteiro da conversa com o proprietário</Text>
         <Bullet>{'"'}Sua casa anunciada por 800 m² não para em pé no cartório — o documento diz 441 m², e isso derruba o valor defensável da casa para ~R$ 6–7M.{'"'}</Bullet>
         <Bullet>{'"'}MAS o seu terreno sozinho vale ~R$ 9,6M para quem constrói — esse é o seu piso real, e ninguém deve conversar abaixo disso.{'"'}</Bullet>
-        <Bullet>{'"'}A boa notícia: provamos por imagem de satélite de 2013 que a área extra já existia antes de 2014 — ela cabe na LEI DE ANISTIA, que aceita o imóvel como está e ainda protege do IPTU retroativo. Mas o protocolo tem prazo: 30 de agosto.{'"'}</Bullet>
+        <Bullet>{'"'}A boa notícia: provamos por imagem de satélite de 2013 que a área extra já existia antes de 2014 — ela cabe na LEI DE ANISTIA, que é a única porta para averbar (a projeção está ~40% acima do que a lei atual permite) e ainda protege do IPTU retroativo. Duas condições: o protocolo fecha em 30 de agosto, e o bairro é tombado — o deferimento passa pela anuência do patrimônio.{'"'}</Bullet>
         <Bullet>{'"'}O plano: protocolamos a anistia JÁ (licenciador), saneamos a matrícula em paralelo, anunciamos ancorado no terreno (~R$ 10,5–11M) e, averbada a área, reposicionamos para 12–14M.{'"'}</Bullet>
 
         <Text style={s.h2}>7. Próximos passos (ordem de urgência)</Text>
-        <Bullet>URGENTE (~7 semanas): contratar arquiteto/licenciador e PROTOCOLAR a regularização Lei 17.202/2019 até 30/08/2026 — evidência de anterioridade: série histórica de satélite 08/09/2013 (Anexo B) + o que o licenciador levantar (IPTU antigo, fotos, notas de obra).</Bullet>
+        <Bullet>URGENTE (~7 semanas): contratar arquiteto/licenciador COM EXPERIÊNCIA EM JARDINS/CONPRESP e PROTOCOLAR a regularização Lei 17.202/2019 até 30/08/2026 — evidência de anterioridade: série histórica de satélite 08/09/2013 (Anexo B) + o que o licenciador levantar (IPTU antigo, fotos, notas de obra). Verificar enquadramento na Res. CONPRESP 07/2004 (possível delegação da análise patrimonial).</Bullet>
         <Bullet>Certidão de matrícula atualizada (a analisada é de 01/2023; fiduciária venceu 04/2025 — pode já estar quitada sem baixa averbada).</Bullet>
         <Bullet>Termo de quitação do Banco Máxima + situação da execução fiscal (penhora de 50%).</Bullet>
         <Bullet>Advogado tributário: confirmar tese TJSP (anistia afasta IPTU retroativo) para o caso concreto.</Bullet>
