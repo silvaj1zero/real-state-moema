@@ -72,8 +72,47 @@ Pesquisa web 13-Jul-2026 (fontes ao final). Complementa `CONDICIONANTES-MATRICUL
 4. Se qualquer parte couber na anistia: **protocolar antes de 30/08/2026** (prazo improrrogado até 2ª ordem).
 5. Advogado tributário: estimar passivo IPTU 5 anos e aplicabilidade da tese TJSP (retroativo afastado na anistia).
 
+## 6. Canal oficial da anistia — caminho, modalidade e o que se pede (verificado 13-Jul na lei e no portal)
+
+### 6.1 Onde e como protocolar
+- **Portal de Licenciamento** — `portaldelicenciamento.prefeitura.sp.gov.br` — processo 100% digital (upload de documentos; acompanhamento pela busca do próprio portal). Página oficial de orientação: **Meu Imóvel Regular** (`meuimovelregular.prefeitura.sp.gov.br`), com 3 manuais por modalidade.
+- Prazo de protocolo: **30/08/2026** (Lei 18.375/2025).
+
+### 6.2 Modalidade aplicável ao caso (Lei 17.202/2019 + Dec. 59.164/2019)
+| Modalidade | Critério | Enquadramento Honduras 629 |
+|---|---|---|
+| Automática | R1/R2h baixo/médio padrão isento de IPTU em 2014 | ❌ não é o caso |
+| Declaratória simplificada | residencial ≤ 500 m² | ❌ (área total ~736+ m²) |
+| **Declaratória** | edificação ≤ 1.500 m² concluída até 31/07/2014 | ✅ **provável enquadramento** (residencial unifamiliar) |
+| Comum | > 1.500 m² ou não enquadráveis | fallback |
+
+**Tombamento (art. 4º, I):** edificação "tombada, preservada ou contida em perímetro de área tombada, ou no raio envoltório" **pode ser regularizada MEDIANTE PRÉVIA ANUÊNCIA** do órgão competente (aqui: **CONPRESP/DPH**, e CONDEPHAAT conforme alcance pós-SCEC 37/2021). A anuência é obtida ANTES/junto ao protocolo — o FAQ simplifica dizendo "não pode": a exclusão é só do procedimento automático.
+
+### 6.3 ⚠️ VEDAÇÃO do art. 3º — risco novo identificado na letra da lei
+O art. 3º **veda** a regularização de edificações **"que desrespeitem restrições convencionais de loteamentos"** — a anistia perdoa a LPUOS, mas **NÃO perdoa restrição contratual do loteamento**. O lote 13 q.11 é de loteamento com restrições (matrícula cita "planta da Companhia Imóveis e Construções"; padrão bairros-jardins costuma limitar ocupação/recuos). **Item nº 1 do estudo de viabilidade: obter o teor das restrições convencionais do loteamento** (matrícula-mãe/loteadora/registro) e confrontar com a área extra. Se houver conflito, o licenciador precisa avaliar alcance/exigibilidade — este pode ser o gate mais duro, junto com a anuência.
+
+### 6.4 Documentos tipicamente exigidos (art. 9º + manuais do portal)
+1. Requerimento eletrônico com **declaração de responsabilidade** (proprietário + responsável técnico);
+2. **Matrícula** do imóvel (temos a 116.360; usar certidão ATUALIZADA);
+3. **Peças gráficas** — plantas, cortes e quadro de áreas do estado atual, assinadas por profissional habilitado com **RRT/ART**;
+4. **Atestado técnico** de higiene, segurança de uso, estabilidade, habitabilidade e salubridade (art. 1º);
+5. **Prova de anterioridade a 31/07/2014** — aerofotos oficiais (ortofotos GeoSampa), IPTU/lançamentos antigos, imagens históricas (nossas capturas de 08/09/2013 = evidência auxiliar);
+6. Comprovantes de recolhimento: **preço público de R$ 10,00/m² a regularizar** + taxa administrativa + **ISS da obra** regularizada;
+7. Quando tombado: **anuência patrimonial** (CONPRESP/DPH — dossiê próprio: levantamento fotográfico, EVT/justificativa, implantação).
+
+### 6.5 Custos estimados para o caso (ordem de grandeza — confirmar com licenciador)
+- Preço público: ~295 m² × R$ 10 = **~R$ 2.950**;
+- Outorga onerosa (art. 13): incide só sobre o que exceder o **CA básico 1,0** (1.050 m² — a área total física não excede) → **tende a ZERO**, exceto **garagens computáveis** acima dos limites legais (§5º — a garagem coberta ~121 m² pode gerar contrapartida com fator Fr=1,2 sobre esse trecho);
+- ISS da obra + taxa + honorários do RT/licenciador + custo do dossiê de anuência. Total provável na casa de **dezenas de milhares de reais** — ordens de magnitude abaixo dos R$ 4-5,6M de valor destravado.
+
+### 6.6 Acompanhamento e pós-deferimento
+- Tramitação e exigências ("comunique-se") pelo próprio Portal de Licenciamento;
+- Deferido → **Certificado de Regularização** → averbação da área no 4º RI (com a certidão + INSS por decadência p/ obra >5 anos) → atualização do IPTU (aí com a proteção da tese TJSP contra retroativo);
+- A Prefeitura pode auditar as declarações a qualquer tempo — declaração falsa anula o certificado (por isso o RT tem que medir de verdade, não usar as nossas aproximações de satélite).
+
 ## Fontes
 
+- [Meu Imóvel Regular — FAQ oficial](https://meuimovelregular.prefeitura.sp.gov.br/faq/) · Portal de Licenciamento (`portaldelicenciamento.prefeitura.sp.gov.br`) · [Lei 17.202/2019 — texto integral](https://www.legisweb.com.br/legislacao/?id=383586) (arts. 3º/4º/9º/13 citados no §6)
 - [Prefeitura/SMUL — prorrogação para 30/08/2026](https://prefeitura.sp.gov.br/w/prefeitura-de-s%C3%A3o-paulo-prorroga-prazo-para-regulariza%C3%A7%C3%A3o-de-edifica%C3%A7%C3%B5es-at%C3%A9-30-agosto-de-2026) (Lei 18.375/2025) · [Gestão Urbana — mesma notícia](https://gestaourbana.prefeitura.sp.gov.br/noticias/prefeitura-de-sao-paulo-prorroga-prazo-para-regularizacao-de-edificacoes-ate-30-agosto-de-2026/)
 - [Lei 17.202/2019 — Câmara Municipal](https://www.saopaulo.sp.leg.br/regularizacaoimobiliaria/lei-no-17-202-de-16-de-outubro-de-2019/) · [Decreto 57.776/2017 (regularização COE)](https://www.saopaulo.sp.leg.br/iah/fulltext/decretos/D57776.pdf)
 - [Emissão autodeclaratória eletrônica — Gestão Urbana](https://gestaourbana.prefeitura.sp.gov.br/noticias/prefeitura-regulamenta-emissao-autodeclaratoria-eletronica-para-projetos-de-edificacoes/)
