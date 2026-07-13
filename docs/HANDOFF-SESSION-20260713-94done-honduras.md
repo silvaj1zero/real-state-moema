@@ -1,7 +1,7 @@
 # Handoff — Sessão 13-Jul-2026: Story 9.4 Done (sessão C Wave 6) + dossiê Honduras 629
 
 **De:** sessão Fable 12/13-Jul (sessão C do handoff Wave 6 + caso Honduras) · **Para:** sessões pós-`/clear`
-**Master local = remoto:** `15fc019` (6 pushes nesta sessão, tudo sincronizado).
+**Master local = remoto:** `c41ff74`+ (tudo sincronizado; ~12 pushes na sessão).
 
 ---
 
@@ -22,7 +22,9 @@
   - Zona **ZER-1** nas DUAS leis (LPUOS 16.402/16 e **Lei 18.177/2024**) → **TO 0,5 = projeção máx. 525 m²** no lote de 1.050; medido ~689-736 → **excesso de ~165-210 m² (31-40%)**; CA 1,0 com folga; 441 averbados são conformes. **No rito comum o excedente é INAVERBÁVEL** (TO insanável) → anistia é a ÚNICA porta.
   - **Lote DENTRO do perímetro tombado "JARDINS: AMÉRICA, EUROPA, PAULISTA E PAULISTANO"** (camada `patrimonio_cultural_bairro_ambiental`; CONDEPHAAT Res. SC 02/1986 + SCEC 37/2021; CONPRESP Res. 05/1991 + 07/2004) → **anuência patrimonial obrigatória = gate real do deferimento da anistia** (risco MÉDIO; mitigantes: obra pré-2014 consumada, possível delegação via Res. CONPRESP 07/2004, precedentes no bairro). Restrições convencionais do loteamento (Cia. de Imóveis e Construções, na matrícula) prevalecem se mais restritivas.
   - Cenário C (12-14M) fica **condicionado à anuência**; piso-terreno 9,62M e cenário B independem.
-- **PDF de apresentação DS RE/MAX** (`08-build-cenarios-pdf.tsx`): 9 págs, Anexos A (satélite 2024) + B (histórico 2013), caixa de validação da supervisão, **qualificação patrimonial incluída** (ficha p.1 + cenário C + roteiro). **Versão vigente = nome canônico** `CENARIOS-ESTRATEGIA-Honduras629-REMAX-2026-07-13.pdf` (rev2 removida do tracking em `914bb58`; arquivo local rev2 pode ser apagado ao fechar o leitor).
+- **PDF de apresentação DS RE/MAX** (`08-build-cenarios-pdf.tsx`): **10 págs** — estratégia (3) + Anexo A (satélite 2024) + Anexo B (histórico 2013) + **Anexo C (canal oficial da anistia: portal/modalidade/7 docs/custos + box dos 2 alertas da lei)**; caixa de validação da supervisão; qualificação patrimonial na ficha/cenário C/roteiro. **Versão vigente = nome canônico** `CENARIOS-ESTRATEGIA-Honduras629-REMAX-2026-07-13.pdf` (rev2 fora do tracking; arquivo local rev2 pode ser apagado ao fechar o leitor).
+- **Canal oficial da anistia documentado** (`REGULARIZACAO-CAMINHO-E-PASSIVO-20260713.md` §6): Portal de Licenciamento (100% digital) + Meu Imóvel Regular; modalidade provável **DECLARATÓRIA** (residencial ≤1.500 m²); docs do art. 9º; custos ~R$ 10/m² + ISS + taxas (outorga tende a zero — CA com folga; garagem computável pode gerar contrapartida Fr 1,2). **Dois achados na LETRA da lei:** (a) art. 4º, I — tombado PODE regularizar com anuência prévia (o FAQ oficial engana dizendo "não pode"; a exclusão é só da modalidade automática); (b) **art. 3º VEDA regularização que desrespeite RESTRIÇÕES CONVENCIONAIS DE LOTEAMENTO** — lote é de loteamento com restrições ("Companhia Imóveis e Construções" na matrícula) → **obter o teor das restrições = item nº 1 do estudo de viabilidade** (pode ser o gate mais duro, junto com a anuência CONPRESP).
+- **Shortlist de assessoria** (`FORNECEDORES-REGULARIZACAO-SHORTLIST-20260713.md`): 10 candidatos com evidência pública (eng+jurídico: Sallus; licenciadores: Chá/Bonaldi/Noblle/Concepção/Avante/Vagner Landi; tributário: **Harada**/Karpat/Silva Araújo) + canais institucionais (rede RE/MAX, DPH/SMUL, CAU-SP, associação/loteadora) + checklist de triagem (pergunta-filtro: "como SCEC 37/2021 × Res. CONPRESP 07/2004 se aplicam a este lote?"). SEM atestado de qualidade — exigir processos deferidos (nº SEI verificável).
 
 ## 2. Próximas sessões (1 objetivo = 1 sessão; plano/QA Fable, execução Sonnet/Opus)
 
@@ -35,7 +37,7 @@
 
 ## 3. Pendências humanas (founder/Luciana — bloqueiam o mundo real, não o código)
 
-1. **URGENTE (~7 semanas): protocolar anistia Honduras até 30/08/2026** — contratar licenciador (ART/RRT) **com experiência em Jardins/CONPRESP** (lote em perímetro tombado — anuência patrimonial é o gate; verificar delegação Res. CONPRESP 07/2004); evidência de anterioridade = Anexo B + o que o RT levantar. NÃO prometer averbação ao proprietário — deferimento condicionado.
+1. **URGENTE (~7 semanas): protocolar anistia Honduras até 30/08/2026** — contratar licenciador (ART/RRT) **com experiência em Jardins/CONPRESP** usando a shortlist + checklist de triagem; **primeiras tarefas do licenciador: (a) teor das restrições convencionais do loteamento (vedação art. 3º) e (b) dossiê de anuência CONPRESP**; evidência de anterioridade = Anexo B + o que o RT levantar. NÃO prometer averbação ao proprietário — deferimento condicionado. Modalidade provável: DECLARATÓRIA via Portal de Licenciamento (Anexo C do PDF tem o passo a passo).
 2. Validar PDF de cenários com a **supervisão Luciana/RE/MAX** (caixa de assinatura na pág. 3) e definir âncora comercial (v4 suspensas).
 3. Certidão de matrícula atualizada + quitação fiduciária + penhora (advogado).
 4. Terreno real do **132** (matrícula/IPTU) — condicionante nº1 daquele caso.
@@ -53,4 +55,4 @@
 ## 5. Artefatos da sessão (commits `ccf57b7..15fc019`)
 
 Story 9.4: story Done + `9.4-sink-ac3-verification.md` §4/§5 + `adapter.ts`/tests + `9.4-inapp-smoke.mjs` + engine (fora do git).
-Honduras: `CONDICIONANTES-MATRICULA-116360-*.md` · `LAUDO-ACM-Honduras-v6-*` + `07-build-laudo-v6.tsx` · `CENARIOS-ESTRATEGIA-PROPRIETARIO-*.md` · `REGULARIZACAO-CAMINHO-E-PASSIVO-*.md` · `08-build-cenarios-pdf.tsx` + PDF rev2 + `anexo-satelite/` (11 capturas a1-a6/b1-b5).
+Honduras: `CONDICIONANTES-MATRICULA-116360-*.md` · `LAUDO-ACM-Honduras-v6-*` + `07-build-laudo-v6.tsx` · `CENARIOS-ESTRATEGIA-PROPRIETARIO-*.md` · `REGULARIZACAO-CAMINHO-E-PASSIVO-*.md` (com §2.1/2.2 zona+tombamento e §6 canal oficial) · `FORNECEDORES-REGULARIZACAO-SHORTLIST-*.md` · `08-build-cenarios-pdf.tsx` + PDF canônico 10 págs (Anexos A/B/C) + `anexo-satelite/` (11 capturas a1-a6/b1-b5).
