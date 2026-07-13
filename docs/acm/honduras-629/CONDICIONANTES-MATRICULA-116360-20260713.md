@@ -70,7 +70,7 @@ Polígonos medidos pelo founder sobre imagem de satélite (imagem ~05/2024; **ap
 **Conclusão técnica:** pelo critério municipal, a área gourmet e a garagem coberta observadas na visita são **área construída** para IPTU e exigem licenciamento/averbação — a divergência 441 × físico é real e não é "área que não conta".
 
 **Regularização — qual rito:**
-- **Lei 17.202/2019** (regularização/anistia): só para obras **concluídas até 31/07/2014**; prazo de protocolo vigente até **30/04/2026**. Se a gourmet/garagem são recentes (aparência de obra nova na visita e na série histórica de satélite), **NÃO se enquadram**.
+- **Lei 17.202/2019** (regularização/anistia): só para obras **concluídas até 31/07/2014**; prazo de protocolo **PRORROGADO até 30/08/2026** (Lei 18.375/2025 — ver `REGULARIZACAO-CAMINHO-E-PASSIVO-20260713.md`). Se a gourmet/garagem são recentes (aparência de obra nova na visita), NÃO se enquadram — mas **datar as obras no Google Earth histórico antes de descartar** (qualquer parte pré-2014 pode entrar na janela até 30/08).
 - Obras pós-2014: **rito ordinário do COE** (projeto de regularização/reforma) exigindo conformidade com o zoneamento ATUAL — recuos, taxa de ocupação, coeficiente. O lote está na região dos bairros-jardins (**verificar perímetro de tombamento CONDEPHAAT/CONPRESP e zona ZER** antes de prometer regularização): estruturas sobre recuo (garagem/telheiro frontal é o caso clássico) podem ser **não regularizáveis**.
 - Risco fiscal independente da regularização: a SF pode lançar **IPTU complementar retroativo** da área não declarada quando atualizar o cadastro (aerolevantamento).
 
