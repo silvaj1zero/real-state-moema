@@ -18,7 +18,7 @@
 |---|--------|--------|-------|---------|--------------|
 | A | Config geográfica | **Sonnet** | **9.7** (sem bloqueio) | `@dev *develop-story 9.7` — inventário de constantes geográficas → validação vs ITBI PROD (read-only) → `geoConfig` canônica. Casos congelados intocados. | nenhuma |
 | B | 9.4 lado-app | **Opus** (migração/schema = lógica sensível) | **9.4 parcial** | ✅ **EXECUTADA 11-Jul.** Migrations `20260711000001` (colunas R5 + `bairro_real` + `padrao_iptu`→TEXT) e `20260711000002` (RPC 32 cols incl. `data_venda := data_referencia` — 100% preenchida nas ITBI, homogeneização 9.23 destravada no banco) **aplicadas em PROD via Management API** (token do Supabase CLI no Credential Manager — a `DATABASE_URL` do `.env.local` segue com senha stale). Smoke 193 comparáveis; tsc/eslint/vitest 299 PASS; cobertura re-medida (colunas existem, 100% NULL até sink). Engine (sessão C) NÃO precisa de DDL — só sink+backfill. | nenhuma |
-| C | 9.4 engine | @data-engineer + @devops | **9.4 fechamento** | Copiar `SPEC-EXEC-STORY-9.4-CROSS-REPO.md` como brief no repo do engine; sink mapping + backfill; aceite = `9.4-sink-coverage.mjs` bate metas (≤5% NULL em `area_construida_m2`/`sql_cadastral`) + export in-app com `ajustados > 0`. | **founder localizar o repo `acm-imobiliario`** |
+| C | 9.4 engine | @data-engineer + @devops | **9.4 fechamento** | Engine local: `workspace/businesses/luciana-borba/squads-custom/acm-imobiliario/` (achado 12-Jul). Brief = `SPEC-EXEC-STORY-9.4-CROSS-REPO.md` (§RPC já FEITO — engine sem DDL); sink mapping (`engine/src/sinks/supabase_acm.py` → `montar_registros`) + backfill idempotente; aceite = `9.4-sink-coverage.mjs` bate metas (≤5% NULL em `area_construida_m2`/`sql_cadastral`) + export in-app com `ajustados > 0`. ANTES de mexer: **backup da pasta** (gitignorada, exemplar único). | **nenhuma** (desbloqueada 12-Jul) |
 | D | Régua apto/casa | **Sonnet** | **9.1** | `@dev *develop-story 9.1` (régua provisória autorizada H-3) | 9.4 Done |
 | E | Fase B web | **Opus** | **9.5** | `@dev *develop-story 9.5` — crawler Epic 7 no contrato C-5; cruzamento nunca-âncora; AC5 = gate LGPD verificável | 9.4 Done · ajustes do Épico 7 (§4) |
 | F | Cobertura por bairro | **Sonnet** | **9.30** | `@dev *develop-story 9.30` — mapa de cobertura + aviso crítico `bairro_sem_cobertura` | 9.4 Done · soft 9.7 |
@@ -29,7 +29,7 @@
 
 ## 3. Inputs pendentes do founder (bloqueiam o plano)
 
-1. **Localizar/dar acesso ao repo `acm-imobiliario`** — bloqueia C (e por cascata D/E/F).
+1. ~~Localizar repo `acm-imobiliario`~~ **RESOLVIDO 12-Jul** (pasta local em `squads-custom/` — ver §1). Recomendação: fazer backup da pasta antes da sessão C.
 2. Terreno real do 132 (matrícula/IPTU) — condicionante nº1 do caso, regenera laudo.
 3. Decisão N-3 (fator idade × Ross) — destrava draft do C-2.
 
