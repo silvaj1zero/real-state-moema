@@ -11,7 +11,7 @@
  * Rodar de `app/`:  npx -y tsx scripts/acm-honduras/08-build-cenarios-pdf.tsx
  * Saída: docs/acm/honduras-629/CENARIOS-ESTRATEGIA-Honduras629-REMAX-<data>.pdf
  */
-import { mkdirSync, writeFileSync } from 'node:fs'
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { renderToBuffer } from '@react-pdf/renderer'
@@ -50,6 +50,18 @@ registerBrandFonts({
   interRegular: path.join(fontsDir, 'Inter-Regular.ttf'),
   interMedium: path.join(fontsDir, 'Inter-Medium.ttf'),
 })
+
+// Anexo A — capturas das medições por satélite (operador, Google Earth 13-Jul).
+// Evidência versionada em docs/acm/honduras-629/anexo-satelite/.
+const anexoDir = path.resolve(scriptDir, '..', '..', '..', 'docs', 'acm', 'honduras-629', 'anexo-satelite')
+const ANEXOS: ReadonlyArray<{ file: string; caption: string }> = [
+  { file: 'a1-terreno-1046m2.png', caption: 'A.1 — Terreno: perímetro 143,47 m · área medida 1.046,3 m² (oficial: 1.050 m² — desvio 0,4%, valida a medição)' },
+  { file: 'a2-terreno-vista2.png', caption: 'A.2 — Terreno (segunda vista, mesmo polígono de 1.046,3 m²)' },
+  { file: 'a3-area-coberta-685m2.png', caption: 'A.3 — Área coberta principal (casa + gourmet): ~685 m² de projeção' },
+  { file: 'a4-area-da-casa.png', caption: 'A.4 — Polígono da casa principal (perímetro ~104 m)' },
+  { file: 'a5-garagem-coberta.png', caption: 'A.5 — Garagem coberta (estrutura aparentemente recente)' },
+  { file: 'a6-cobertura-carros-30m2.png', caption: 'A.6 — Cobertura externa de veículos: 30,48 m² (conta como área construída pela projeção — Dec. 58.420/18)' },
+]
 
 // registerBrandFonts roda ACIMA, antes deste StyleSheet.create — que captura
 // FONTS por valor (lição H-2: sem isso o PDF sai em Helvetica sem −/≥/●).
@@ -140,6 +152,17 @@ const s = StyleSheet.create({
     paddingTop: 6,
   },
   footerText: { fontSize: 6.5, color: COLORS.cinzaClaro },
+  // Anexo A — capturas de satélite
+  anexoImg: {
+    width: '100%',
+    height: 188,
+    objectFit: 'contain',
+    borderWidth: 1,
+    borderColor: COLORS.cinzaBorda,
+    borderRadius: 4,
+    backgroundColor: '#0B0F14',
+  },
+  anexoCaption: { fontSize: 7, color: COLORS.cinzaClaro, marginTop: 3, marginBottom: 10 },
 })
 
 function BrandLockup() {
@@ -380,6 +403,34 @@ function CenariosDocument({ dataEmissao }: { dataEmissao: string }) {
 
         <Footer />
       </Page>
+
+      {/* ==================== ANEXO A — SATÉLITE (2 páginas) ==================== */}
+      {[ANEXOS.slice(0, 3), ANEXOS.slice(3)].map((grupo, pg) => (
+        <Page key={pg} size="A4" style={s.page}>
+          <Text style={s.h2}>
+            Anexo A — Medições por satélite (Google Earth, 13-Jul-2026){pg === 1 ? ' — continuação' : ''}
+          </Text>
+          {pg === 0 ? (
+            <Text style={[s.paragraph, { fontSize: 7.5, color: COLORS.cinzaClaro }]}>
+              Medições realizadas pelo operador sobre imagem de satélite (~05/2024). São APROXIMAÇÕES não oficiais:
+              o satélite mede projeção de telhado — beirais inflam a medida e pavimentos superiores não aparecem.
+              Servem como evidência física da divergência com a área averbada (441 m²), nunca como base de valor.
+            </Text>
+          ) : null}
+          {grupo.map((a) => (
+            <View key={a.file} wrap={false}>
+              {/* data URL: em node, src string vira fetch (falha em path local) — lição do mapa */}
+              {/* eslint-disable-next-line jsx-a11y/alt-text */}
+              <Image
+                src={`data:image/png;base64,${readFileSync(path.join(anexoDir, a.file)).toString('base64')}`}
+                style={s.anexoImg}
+              />
+              <Text style={s.anexoCaption}>{a.caption}</Text>
+            </View>
+          ))}
+          <Footer />
+        </Page>
+      ))}
     </Document>
   )
 }
