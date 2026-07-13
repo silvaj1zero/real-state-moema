@@ -6,8 +6,8 @@ Pesquisa web 13-Jul-2026 (fontes ao final). Complementa `CONDICIONANTES-MATRICUL
 
 - A Lei **18.375/2025** prorrogou o prazo de protocolo da **Lei 17.202/2019** (regularização/anistia) de 30/04/2026 para **30/08/2026**.
 - Cobertura inalterada: edificações/acréscimos **concluídos até 31/07/2014**, mesmo em desacordo com COE/LPUOS, desde que atendam higiene/segurança/estabilidade (condicionada a obras quando necessário).
-- **Implicação direta no caso:** a premissa "gourmet/garagem são recentes" precisa virar FATO DATADO. Se qualquer parte da área extra existir em imagem anterior a jul/2014, ela pode entrar na anistia — mas o protocolo teria que sair **até 30/08/2026**.
-- **Ação imediata (custo zero, hoje):** datar as construções no **Google Earth histórico** (timeline de imagens) — o operador já domina a ferramenta. Se ambíguo, aerofotos oficiais do GeoSampa (ortofotos 2004/2010/2014/2017/2020) resolvem.
+- ~~**Implicação direta no caso:** a premissa "gourmet/garagem são recentes" precisa virar FATO DATADO.~~ **DATADO em 13-Jul (mesmo dia):** o operador mediu os mesmos polígonos sobre a imagem histórica de **08/09/2013** do Google Earth (Anexo B do PDF de cenários; capturas em `anexo-satelite/b*.png`): área coberta **~689 m²** (vs ~685 m² em 2024 — mesma pegada), garagem coberta **~121 m²** já presente, terreno idêntico. **As obras são ANTERIORES a 31/07/2014 → trilho da ANISTIA CONFIRMADO.**
+- Consequências em cadeia: (1) a anistia aceita a edificação **mesmo em desacordo com o zoneamento atual** — o red flag de taxa de ocupação (§2 trilho 2) deixa de bloquear; (2) tese TJSP anti-IPTU-retroativo aplicável; (3) **protocolo até 30/08/2026 = ~7 semanas** — contratar licenciador imediatamente. A prova formal de anterioridade (a captura é evidência auxiliar) é montada pelo responsável técnico no protocolo (IPTU antigo, aerofotos oficiais GeoSampa, fotos, notas).
 
 ## 2. Os dois trilhos de regularização
 

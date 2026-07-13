@@ -1,5 +1,7 @@
 # Honduras 629 — Cenários futuros, lente do terreno e estratégia de anúncio (13-Jul-2026)
 
+> **ATUALIZAÇÃO 13-Jul (tarde) — obras DATADAS pré-2014; recomendação migrou de D para C-via-ANISTIA.** Série histórica Google Earth de **08/09/2013** (medida pelo operador; `anexo-satelite/b*.png` + Anexo B do PDF): área coberta ~689 m² e garagem coberta ~121 m² **já existiam** → elegíveis à Lei 17.202/2019 (protocolo até **30/08/2026** — Lei 18.375/2025), que regulariza mesmo em desacordo com o zoneamento (o risco de TO some) e conta com tese TJSP contra o IPTU retroativo. **Plano vigente: protocolar a anistia JÁ (licenciador ART/RRT) + sanear ônus em paralelo + anúncio-ponte ancorado no terreno (D) até a averbação → reposicionar p/ 12–14M.** Cenário C′ vira fallback de indeferimento parcial; B vira fallback de desistência. PDF regenerado (`...-REMAX-2026-07-13-rev2.pdf`, 9 págs, Anexos A+B).
+
 **Base:** laudo v6 (`LAUDO-ACM-Honduras-v6-2026-07-13`) + condicionantes da matrícula (`CONDICIONANTES-MATRICULA-116360-20260713.md`). Todos os números rastreiam o computation v6 (Art. IV).
 
 ## 0. Os três números que estruturam a decisão

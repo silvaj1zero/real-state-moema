@@ -54,13 +54,23 @@ registerBrandFonts({
 // Anexo A — capturas das medições por satélite (operador, Google Earth 13-Jul).
 // Evidência versionada em docs/acm/honduras-629/anexo-satelite/.
 const anexoDir = path.resolve(scriptDir, '..', '..', '..', 'docs', 'acm', 'honduras-629', 'anexo-satelite')
-const ANEXOS: ReadonlyArray<{ file: string; caption: string }> = [
+const ANEXOS_A: ReadonlyArray<{ file: string; caption: string }> = [
   { file: 'a1-terreno-1046m2.png', caption: 'A.1 — Terreno: perímetro 143,47 m · área medida 1.046,3 m² (oficial: 1.050 m² — desvio 0,4%, valida a medição)' },
   { file: 'a2-terreno-vista2.png', caption: 'A.2 — Terreno (segunda vista, mesmo polígono de 1.046,3 m²)' },
   { file: 'a3-area-coberta-685m2.png', caption: 'A.3 — Área coberta principal (casa + gourmet): ~685 m² de projeção' },
   { file: 'a4-area-da-casa.png', caption: 'A.4 — Polígono da casa principal (perímetro ~104 m)' },
-  { file: 'a5-garagem-coberta.png', caption: 'A.5 — Garagem coberta (estrutura aparentemente recente)' },
+  { file: 'a5-garagem-coberta.png', caption: 'A.5 — Garagem coberta' },
   { file: 'a6-cobertura-carros-30m2.png', caption: 'A.6 — Cobertura externa de veículos: 30,48 m² (conta como área construída pela projeção — Dec. 58.420/18)' },
+]
+// Anexo B — série HISTÓRICA (imagem Google Earth de 08/09/2013): a mesma projeção
+// coberta de hoje já existia → obras concluídas ANTES de 31/07/2014 → elegíveis à
+// anistia (Lei 17.202/2019, protocolo até 30/08/2026 — Lei 18.375/2025).
+const ANEXOS_B: ReadonlyArray<{ file: string; caption: string }> = [
+  { file: 'b1-2013-terreno.png', caption: 'B.1 — Imagem de 08/09/2013 — terreno: mesmo polígono (~1.050 m²)' },
+  { file: 'b2-2013-terreno-vista2.png', caption: 'B.2 — Imagem de 08/09/2013 — terreno (segunda vista)' },
+  { file: 'b3-2013-area-coberta.png', caption: 'B.3 — Imagem de 08/09/2013 — área coberta: ~689 m² de projeção JÁ EXISTENTE (vs ~685 m² em 2024 — mesma pegada)' },
+  { file: 'b4-2013-area-coberta-vista2.png', caption: 'B.4 — Imagem de 08/09/2013 — área coberta (segunda vista)' },
+  { file: 'b5-2013-garagem-coberta.png', caption: 'B.5 — Imagem de 08/09/2013 — garagem coberta (~121 m² de projeção) já presente' },
 ]
 
 // registerBrandFonts roda ACIMA, antes deste StyleSheet.create — que captura
@@ -284,6 +294,13 @@ function CenariosDocument({ dataEmissao }: { dataEmissao: string }) {
           </Text>
         </View>
 
+        <View style={[s.insightBox, { borderColor: COLORS.verde, backgroundColor: '#F0FDF4', marginTop: 8 }]}>
+          <Text style={s.insightText}>
+            <Text style={[s.strong, { color: COLORS.verde }]}>ATUALIZAÇÃO 13-Jul — obras datadas: a anistia se aplica. </Text>
+            A série histórica de satélite (Anexo B, imagem de <Text style={s.strong}>08/09/2013</Text>) mostra a MESMA projeção coberta de hoje (~689 m² em 2013 vs ~685 m² em 2024) — gourmet e garagem coberta <Text style={s.strong}>já existiam antes de 31/07/2014</Text>, o corte da Lei de Regularização 17.202/2019. Consequências: (1) a regularização pode ir pelo trilho da ANISTIA, que aceita edificações mesmo em desacordo com o zoneamento atual — o risco de taxa de ocupação deixa de bloquear; (2) há jurisprudência do TJSP afastando o IPTU retroativo de quem regulariza pela anistia; (3) <Text style={[s.strong, { color: COLORS.vermelho }]}>o protocolo precisa sair até 30/08/2026</Text> (prazo prorrogado pela Lei 18.375/2025).
+          </Text>
+        </View>
+
         <Footer />
       </Page>
 
@@ -311,13 +328,13 @@ function CenariosDocument({ dataEmissao }: { dataEmissao: string }) {
           </Text>
         </View>
 
-        <View style={s.cenarioBox}>
+        <View style={[s.cenarioBox, s.cenarioBoxHi]}>
           <View style={s.cenarioHead}>
-            <Text style={s.cenarioTitle}>C — Regularizar a área e vender como CASA</Text>
-            <Text style={s.cenarioAncora}>{faixaMi(V6.regularizado)}</Text>
+            <Text style={s.cenarioTitle}>C — Regularizar VIA ANISTIA e vender como CASA (recomendado)</Text>
+            <Text style={[s.cenarioAncora, { color: COLORS.verde }]}>{faixaMi(V6.regularizado)}</Text>
           </View>
           <Text style={s.cenarioText}>
-            Captura máxima — envolve o valor pretendido. Cada m² regularizado ≈ R$ 19 mil de valor defensável, custo ordens de magnitude menor. Prazo 6–18 meses. Riscos: obras recentes ficam fora da anistia (Lei 17.202/2019 cobre só até 07/2014) → rito ordinário, e recuos/tombamento dos bairros-jardins podem derrubar parte. Exige estudo de viabilidade ANTES de prometer.
+            Captura máxima — envolve o valor pretendido. Obras DATADAS pré-2014 pela série histórica (Anexo B) → elegíveis à Lei 17.202/2019, que regulariza mesmo em desacordo com o zoneamento atual (recuos/taxa de ocupação não bloqueiam) e conta com jurisprudência TJSP afastando o IPTU retroativo. Cada m² regularizado ≈ R$ 19 mil de valor defensável. CONDIÇÃO DURA: protocolo no Portal de Licenciamento até 30/08/2026 (~7 semanas) — contratar licenciador (ART/RRT) IMEDIATAMENTE. Custos: taxas + preços públicos + eventual contrapartida + projeto.
           </Text>
         </View>
 
@@ -327,25 +344,26 @@ function CenariosDocument({ dataEmissao }: { dataEmissao: string }) {
             <Text style={s.cenarioAncora}>entre B e C</Text>
           </View>
           <Text style={s.cenarioText}>
-            Averba o que passar na viabilidade (ex.: gourmet sim, garagem em recuo não). Regra invariante: o valor mínimo do ativo continua sendo o maior entre a lente da casa e o terreno ({mi(V6.terrenoResidual)}).
+            Fallback se a anistia indeferir algum trecho (ex.: item sem prova de anterioridade a 2014). Averba o que passar. Regra invariante: o valor mínimo do ativo continua sendo o maior entre a lente da casa e o terreno ({mi(V6.terrenoResidual)}).
           </Text>
         </View>
 
-        <View style={[s.cenarioBox, s.cenarioBoxHi]}>
+        <View style={s.cenarioBox}>
           <View style={s.cenarioHead}>
-            <Text style={s.cenarioTitle}>D — Híbrido (recomendado)</Text>
-            <Text style={[s.cenarioAncora, { color: COLORS.verde }]}>R$ 10,5–11M já · 12–14M depois</Text>
+            <Text style={s.cenarioTitle}>D — Ponte comercial (em paralelo ao C)</Text>
+            <Text style={s.cenarioAncora}>R$ 10,5–11M já · 12–14M depois</Text>
           </View>
           <Text style={s.cenarioText}>
-            Anunciar JÁ ancorado no terreno (piso {mi(V6.terrenoResidual)} + prêmio da casa aproveitável), com o estudo de viabilidade rodando em paralelo. Se a regularização confirmar, reposicionar o anúncio para casa de ~7xx m² na faixa 12–14M. Não perde tempo de mercado, não trava no risco, nunca expõe número indefensável.
+            Se o proprietário quiser anunciar antes do Certificado de Regularização sair: âncora no terreno (piso {mi(V6.terrenoResidual)} + prêmio da casa aproveitável), reposicionando para casa de ~7xx m² (12–14M) quando a averbação concluir. Nunca expõe número indefensável.
           </Text>
         </View>
 
-        <Text style={s.h2}>4. Árvore de decisão</Text>
-        <Bullet>1. SEMPRE (qualquer cenário): certidão atualizada → quitação/baixa da alienação fiduciária → levantamento da penhora de 50%. Sem isso, nenhuma escritura sai.</Bullet>
-        <Bullet>2. Estudo de viabilidade urbanística (arquiteto, ~30–60 dias): regulariza ≥ ~700 m² com custo/prazo aceitáveis e o proprietário pode esperar → Cenário C (alvo 12–14M). Regularização parcial → C′. Inviável ou pressa → Cenário B (terreno, venda rápida).</Bullet>
-        <Bullet>3. Enquanto o estudo roda → Cenário D: anúncio ancorado no terreno (R$ 10,5–11M).</Bullet>
-        <Bullet>4. Invariantes: nunca conversar abaixo de R$ 9,62M (piso terreno); nunca anunciar área construída acima de 441 m² sem averbação.</Bullet>
+        <Text style={s.h2}>4. Árvore de decisão (atualizada 13-Jul — obras datadas pré-2014)</Text>
+        <Bullet>1. IMEDIATO (~7 semanas p/ o prazo): contratar licenciador (ART/RRT) e PROTOCOLAR a regularização pela Lei 17.202/2019 até 30/08/2026, com a série histórica de satélite (Anexo B) como evidência de anterioridade a 31/07/2014.</Bullet>
+        <Bullet>2. EM PARALELO: certidão atualizada → quitação/baixa da alienação fiduciária → levantamento da penhora de 50%. Sem isso, nenhuma escritura sai em nenhum cenário.</Bullet>
+        <Bullet>3. Anúncio: Cenário D (ponte, R$ 10,5–11M ancorado no terreno) enquanto o Certificado não sai; ao averbar → reposicionar para 12–14M (Cenário C).</Bullet>
+        <Bullet>4. Se a anistia indeferir algum trecho → C′ (parcial); se o proprietário desistir de esperar → B (terreno, R$ 9,62M+).</Bullet>
+        <Bullet>5. Invariantes: nunca conversar abaixo de R$ 9,62M (piso terreno); nunca anunciar área construída acima de 441 m² sem averbação.</Bullet>
 
         <Footer />
       </Page>
@@ -383,14 +401,15 @@ function CenariosDocument({ dataEmissao }: { dataEmissao: string }) {
         <Text style={s.h2}>6. Roteiro da conversa com o proprietário</Text>
         <Bullet>{'"'}Sua casa anunciada por 800 m² não para em pé no cartório — o documento diz 441 m², e isso derruba o valor defensável da casa para ~R$ 6–7M.{'"'}</Bullet>
         <Bullet>{'"'}MAS o seu terreno sozinho vale ~R$ 9,6M para quem constrói — esse é o seu piso real, e ninguém deve conversar abaixo disso.{'"'}</Bullet>
-        <Bullet>{'"'}Os R$ 12M que você quer existem num único caminho: regularizar a área construída. Precisamos de um estudo de viabilidade antes de prometer.{'"'}</Bullet>
-        <Bullet>{'"'}Enquanto isso: anunciamos ancorado no terreno (~R$ 10,5–11M), saneamos a matrícula, e se a regularização passar, reposicionamos para 12–14M.{'"'}</Bullet>
+        <Bullet>{'"'}A boa notícia: provamos por imagem de satélite de 2013 que a área extra já existia antes de 2014 — ela cabe na LEI DE ANISTIA, que aceita o imóvel como está e ainda protege do IPTU retroativo. Mas o protocolo tem prazo: 30 de agosto.{'"'}</Bullet>
+        <Bullet>{'"'}O plano: protocolamos a anistia JÁ (licenciador), saneamos a matrícula em paralelo, anunciamos ancorado no terreno (~R$ 10,5–11M) e, averbada a área, reposicionamos para 12–14M.{'"'}</Bullet>
 
-        <Text style={s.h2}>7. Próximos passos</Text>
+        <Text style={s.h2}>7. Próximos passos (ordem de urgência)</Text>
+        <Bullet>URGENTE (~7 semanas): contratar arquiteto/licenciador e PROTOCOLAR a regularização Lei 17.202/2019 até 30/08/2026 — evidência de anterioridade: série histórica de satélite 08/09/2013 (Anexo B) + o que o licenciador levantar (IPTU antigo, fotos, notas de obra).</Bullet>
         <Bullet>Certidão de matrícula atualizada (a analisada é de 01/2023; fiduciária venceu 04/2025 — pode já estar quitada sem baixa averbada).</Bullet>
         <Bullet>Termo de quitação do Banco Máxima + situação da execução fiscal (penhora de 50%).</Bullet>
-        <Bullet>Estudo de viabilidade de regularização com arquiteto (recuos/TO/CA + tombamento bairros-jardins).</Bullet>
-        <Bullet>Definição da âncora comercial oficial com a supervisão (este material) e reposicionamento do anúncio.</Bullet>
+        <Bullet>Advogado tributário: confirmar tese TJSP (anistia afasta IPTU retroativo) para o caso concreto.</Bullet>
+        <Bullet>Definição da âncora comercial oficial com a supervisão (este material) e posicionamento do anúncio-ponte.</Bullet>
 
         <View style={s.validacaoBox}>
           <Text style={s.validacaoTitle}>Validação — Supervisão RE/MAX Galeria</Text>
@@ -404,20 +423,19 @@ function CenariosDocument({ dataEmissao }: { dataEmissao: string }) {
         <Footer />
       </Page>
 
-      {/* ==================== ANEXO A — SATÉLITE (2 páginas) ==================== */}
-      {[ANEXOS.slice(0, 3), ANEXOS.slice(3)].map((grupo, pg) => (
+      {/* ============ ANEXO A (atual) + ANEXO B (histórico 2013) — 4 páginas ============ */}
+      {[
+        { titulo: 'Anexo A — Medições por satélite (imagem ~05/2024)', grupo: ANEXOS_A.slice(0, 3), intro: 'Medições realizadas pelo operador sobre imagem de satélite atual. São APROXIMAÇÕES não oficiais: o satélite mede projeção de telhado — beirais inflam a medida e pavimentos superiores não aparecem. Servem como evidência física da divergência com a área averbada (441 m²), nunca como base de valor.' },
+        { titulo: 'Anexo A — continuação', grupo: ANEXOS_A.slice(3), intro: null },
+        { titulo: 'Anexo B — Série histórica: imagem de 08/09/2013', grupo: ANEXOS_B.slice(0, 3), intro: 'Mesmos polígonos medidos sobre a imagem HISTÓRICA de 08/09/2013 (Google Earth): a projeção coberta (~689 m²) e a garagem coberta já existiam — evidência de conclusão ANTERIOR a 31/07/2014, o corte da Lei 17.202/2019 (anistia; protocolo até 30/08/2026 — Lei 18.375/2025). Evidência auxiliar: a prova formal de anterioridade é montada pelo responsável técnico no protocolo.' },
+        { titulo: 'Anexo B — continuação', grupo: ANEXOS_B.slice(3), intro: null },
+      ].map((pagina, pg) => (
         <Page key={pg} size="A4" style={s.page}>
-          <Text style={s.h2}>
-            Anexo A — Medições por satélite (Google Earth, 13-Jul-2026){pg === 1 ? ' — continuação' : ''}
-          </Text>
-          {pg === 0 ? (
-            <Text style={[s.paragraph, { fontSize: 7.5, color: COLORS.cinzaClaro }]}>
-              Medições realizadas pelo operador sobre imagem de satélite (~05/2024). São APROXIMAÇÕES não oficiais:
-              o satélite mede projeção de telhado — beirais inflam a medida e pavimentos superiores não aparecem.
-              Servem como evidência física da divergência com a área averbada (441 m²), nunca como base de valor.
-            </Text>
+          <Text style={s.h2}>{pagina.titulo}</Text>
+          {pagina.intro ? (
+            <Text style={[s.paragraph, { fontSize: 7.5, color: COLORS.cinzaClaro }]}>{pagina.intro}</Text>
           ) : null}
-          {grupo.map((a) => (
+          {pagina.grupo.map((a) => (
             <View key={a.file} wrap={false}>
               {/* data URL: em node, src string vira fetch (falha em path local) — lição do mapa */}
               {/* eslint-disable-next-line jsx-a11y/alt-text */}
