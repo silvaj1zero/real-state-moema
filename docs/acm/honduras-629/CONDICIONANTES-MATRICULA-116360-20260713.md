@@ -95,6 +95,8 @@ Polígonos medidos pelo founder sobre imagem de satélite (imagem ~05/2024; **ap
 
 **Para a revisão da ACM (v6, decisão Luciana + founder):** manter dataset congelado; corrigir o TARGET (terreno 1.050; área construída = 441 documental), apresentar a faixa como A→D com as condicionantes explícitas, e registrar a medição de satélite como evidência física NÃO oficial (Art. IV).
 
+> **EXECUTADO 13-Jul (autorizado pelo founder):** `LAUDO-ACM-Honduras-v6-2026-07-13.pdf` + `.computation.json` gerados por `app/scripts/acm-honduras/07-build-laudo-v6.tsx`. Base documental 441/1.050; dataset congelado (mediana homogeneizada 19.061/m² idêntica ao v5 — zero drift); **headline mercado R$ 5.989.387–7.145.136 · fechamento R$ 4.927.560–5.878.412**; âncoras comerciais do v4 (anúncio recomendado/meta) SUSPENSAS — eram função dos 800 m²; definir com a Luciana após decisão sobre a regularização. Considerações/recomendações deste doc embutidas no Sumário (conclusões), Parecer e Sec. 9 do PDF. v5 preservado no diretório.
+
 ## 8. Reprodutibilidade da consulta GeoSampa
 
 ```

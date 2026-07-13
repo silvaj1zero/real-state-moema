@@ -1,0 +1,90 @@
+{
+  "geradoEm": "2026-07-13T06:55:51.826Z",
+  "versao": "v6 — base documental do alvo (matrícula 116.360 + GeoSampa 13-Jul-2026)",
+  "alvoDocumental": {
+    "areaConstruidaAverbada": 441,
+    "areaTerreno": 1050,
+    "fontes": [
+      "Matrícula 116.360, 4º RI-SP (Av.03/1996; certidão 01/02/2023)",
+      "GeoSampa WFS lote_cidadao setor 014 quadra 071 lote 0030 (13-Jul-2026): qt_area_construida=441, qt_area_terreno=1050"
+    ],
+    "projecaoCobertaSateliteM2": 736,
+    "notaSatelite": "Medição do operador (Google Earth, 13-Jul-2026) — NÃO oficial; beirais inflam, 2º pavimento não aparece."
+  },
+  "condicionantes": {
+    "regularizacao": "Obras aparentam pós-31/07/2014 → fora da Lei 17.202/2019; rito ordinário COE + verificar recuos/TO/CA e tombamento bairros-jardins. Estudo de viabilidade ANTES de prometer.",
+    "onus": [
+      "Alienação fiduciária Banco Máxima (R.10/2015, venc. final 11/04/2025) — obter quitação/averbar baixa",
+      "Penhora 50% direitos de fiduciante (Av.11/2020, exec. fiscal municipal R$ 85.149,08) — levantar",
+      "Certidão de matrícula atualizada (a analisada é de 01/2023)"
+    ],
+    "riscoFiscal": "IPTU complementar retroativo sobre área não declarada (aerolevantamento PMSP).",
+    "referencia": "docs/acm/honduras-629/CONDICIONANTES-MATRICULA-116360-20260713.md"
+  },
+  "ancorasComerciais": {
+    "precoAnuncioRecomendado": null,
+    "metaFechamento": null,
+    "nota": "Âncoras do v4 suspensas no v6 — eram função dos 800 m² anunciados. Definir com a Luciana (H-3) após decisão sobre regularização (cenário D)."
+  },
+  "homogeneizacao": {
+    "indice": "FipeZap — São Paulo · venda · residencial (Número-Índice Total)",
+    "dataReferencia": "2026-06",
+    "ajustados": 23,
+    "semAjuste": [],
+    "fatorMin": 1.0049681141129279,
+    "fatorMax": 1.10981785207319
+  },
+  "medianaPrecoM2": 19061.32,
+  "headline": {
+    "mercado": {
+      "min": 5989387,
+      "max": 7145136
+    },
+    "fechamento": {
+      "min": 4927560,
+      "max": 5878412
+    },
+    "referencia": {
+      "cenario": "top5",
+      "n": 5,
+      "medianaPrecoM2": 15978.09,
+      "valorMercado": 5989387,
+      "valorFechamento": 4927560,
+      "precoM2Fechamento": 11174
+    },
+    "teto": {
+      "cenario": "todos",
+      "n": 23,
+      "medianaPrecoM2": 19061.32,
+      "valorMercado": 7145136,
+      "valorFechamento": 5878412,
+      "precoM2Fechamento": 13330
+    }
+  },
+  "faixaSensibilidade": {
+    "mercadoMin": 5989387,
+    "mercadoMax": 7145136,
+    "fechamentoMin": 4927560,
+    "fechamentoMax": 5878412
+  },
+  "composicaoBairros": [
+    {
+      "bairro": "Jardim Paulista",
+      "n": 16,
+      "medianaPrecoM2": 19073.51
+    },
+    {
+      "bairro": "Jardim América",
+      "n": 5,
+      "medianaPrecoM2": 18272.15
+    },
+    {
+      "bairro": "Jardim Europa",
+      "n": 2,
+      "medianaPrecoM2": 21856.38
+    }
+  ],
+  "desagioMedidoPercent": -12.7,
+  "coAncoraTerreno": 9624000,
+  "autoReferenciasExcluidas": []
+}
