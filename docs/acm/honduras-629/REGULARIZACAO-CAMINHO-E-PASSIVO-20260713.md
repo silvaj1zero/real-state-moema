@@ -16,11 +16,35 @@ Pesquisa web 13-Jul-2026 (fontes ao final). Complementa `CONDICIONANTES-MATRICUL
 - Custos: taxas + preços públicos + eventual **contrapartida financeira** (edificações maiores) + obras de adequação quando exigidas. Projeto/responsável técnico com **ART/RRT** nas modalidades não automáticas.
 - **Bônus tributário relevante:** há jurisprudência do **TJSP afastando o IPTU retroativo (lançamento complementar dos 5 anos) quando a área é regularizada pela lei de anistia** — regularizar por este trilho pode blindar o passivo. (Tese a confirmar com advogado tributário para o caso concreto.)
 
+### 2.1 Parâmetros urbanísticos do lote — CONFIRMADOS na fonte (13-Jul, GeoSampa WFS)
+
+| Item | Valor confirmado | Fonte |
+|---|---|---|
+| Zona | **ZER-1** (mantida na LPUOS 16.402/2016 E na nova **Lei 18.177/2024**) | camadas `zoneamento_2016_map1` + `perimetro_zona_lei_18177_24` no ponto do alvo |
+| Taxa de ocupação (TO) | **0,5** → projeção máxima **525 m²** no lote de 1.050 m² | Quadro 3 LPUOS (ZER-1) |
+| Coeficiente (CA) | **1,0** → até 1.050 m² computáveis | Quadro 3 LPUOS |
+| Projeção medida | ~689–736 m² → **excesso de ~165–210 m² (31–40% acima da TO)** | medições satélite (Anexos A/B) |
+| Área averbada atual | 441 m² ≤ 525 → **situação documental é CONFORME** | matrícula/IPTU |
+| Restrições convencionais do loteamento | Prevalecem quando MAIS restritivas que a lei (LPUOS art. 32 §, mantido na 18.177) — a matrícula cita loteamento da "Companhia de Imóveis e Construções" (padrão City: recuos maiores, ocupação menor) | matrícula 116.360 + LPUOS |
+| **Tombamento** | **Lote DENTRO do perímetro tombado "JARDINS: AMÉRICA, EUROPA, PAULISTA E PAULISTANO"** — CONDEPHAAT Res. SC 02/1986 + compl. SCEC 37/2021; CONPRESP Res. 05/1991 + 07/2004 (detalhamento) | camada `patrimonio_cultural_bairro_ambiental` no ponto do alvo |
+
+**Leitura dura:** no rito comum, os ~165–210 m² de projeção acima da TO são **inaverbáveis sem demolir/descobrir** — TO não se compra nem se compensa no licenciamento ordinário. E o tombamento dos bairros-jardins protege exatamente o padrão de ocupação/ajardinamento, então QUALQUER regularização (anistia inclusive) passa por **anuência CONDEPHAAT/CONPRESP** — a Lei 17.202 só dispensa a anuência caso a caso quando há resolução do órgão delegando a análise por parâmetros do tombamento (verificar enquadramento do lote na Res. CONPRESP 07/2004).
+
 ### Trilho 2 — Rito comum (COE Lei 16.642/2017 + Dec. 57.776/2017)
 - Para o que for **pós-2014** (a hipótese-base para gourmet/garagem): **Alvará de Aprovação de projeto de regularização** (ou reforma) via Portal de Licenciamento/SLCe, com projeto + ART/RRT, atendendo a legislação ATUAL — recuos, taxa de ocupação, coeficiente (LPUOS 16.402/2016) e eventual anuência de tombamento (bairros-jardins).
 - Existe a via de **emissão autodeclaratória eletrônica** (aprovação declaratória com auditoria posterior da SMUL) que acelera bastante quando o imóvel se enquadra — o responsável técnico declara conformidade e responde por ela.
 - **Red flag específico do caso:** projeção coberta medida ~715-736 m² sobre lote de 1.050 m² ⇒ ocupação aparente ~0,68-0,70. Se a zona limitar TO a 0,5 (comum em zona exclusivamente residencial dos Jardins), parte da área **não regulariza por este trilho** sem descobrir/demolir. Confirmar zona + TO no GeoSampa é parte do estudo de viabilidade.
 - Ao final: **Certificado de Conclusão/Regularização** → averbação da nova área na matrícula (4º RI, com CND/INSS da obra quando exigível).
+
+### 2.2 Risco de averbação — síntese honesta (13-Jul, pós-verificação de zona e tombamento)
+
+| Caminho | O que averba | Risco |
+|---|---|---|
+| Rito comum (LPUOS/COE atual) | No máx. ~525 m² de projeção (TO 0,5) — o excedente de ~165–210 m² **NÃO averba** sem demolir/descobrir | **ALTO para o excedente** (insanável) + restrições City + anuência patrimonial |
+| **Anistia (Lei 17.202/2019, até 30/08/2026)** | Potencialmente o físico todo — a lei perdoa TO/recuos/CA da LPUOS | **MÉDIO**: o gate real é a **anuência patrimonial** (lote dentro do perímetro tombado dos Jardins; o tombamento protege o padrão de ocupação — o órgão pode negar ou exigir adequações). Mitigantes: obra pré-2014 consumada, Res. CONPRESP 07/2004 pode delegar análise, precedentes de regularização no bairro. Custos: taxas + eventual outorga (garagem coberta acima dos limites da lei vigente até 2014 é computável p/ contrapartida) |
+| Não fazer nada | Nada — e o relógio do IPTU retroativo corre | Descoberta via aerofoto → lançamento de ofício 5 anos, sem os benefícios da anistia |
+
+**Consequência para a comunicação com o proprietário:** NÃO prometer averbação dos ~736 m². A frase correta é: "a anistia é a única porta aberta para averbar a área extra, ela fecha em 30/08, e o deferimento depende da anuência do patrimônio — por isso o licenciador tem que ser experiente em Jardins/CONPRESP". O cenário C (12–14M) fica **condicionado à anuência patrimonial**; o piso-terreno (R$ 9,62M) e o cenário B não dependem de nada disso.
 
 ## 3. Como a Prefeitura cobra o passivo (quando ELA descobre antes)
 
