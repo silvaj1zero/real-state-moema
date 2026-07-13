@@ -17,8 +17,12 @@
 - **Matrícula 116.360 + GeoSampa convergem:** área construída oficial **441 m²** (não 800 do anúncio); terreno **1.050 m²**. Ônus: alienação fiduciária Banco Máxima (venc. 04/2025 — checar quitação/baixa) + penhora 50% (exec. fiscal R$ 85k) + certidão vencida (01/2023).
 - **Laudo v6 emitido** (`07-build-laudo-v6.tsx`): base documental; headline mercado **R$ 5,99–7,15M**; mediana 19.061/m² idêntica ao v5 (zero drift, dataset congelado); âncoras comerciais v4 SUSPENSAS (definir com Luciana).
 - **Lente do terreno = piso real: R$ 9,62M** (residual). Cenários E0/A/B/C/C′/D em `CENARIOS-ESTRATEGIA-PROPRIETARIO-20260713.md`.
-- **Regularização:** anistia Lei 17.202/2019 **prorrogada até 30/08/2026** (Lei 18.375/2025). **Obras DATADAS pré-2014** pela série histórica de satélite 08/09/2013 (Anexo B) → **trilho ANISTIA CONFIRMADO** (zoneamento não bloqueia; TJSP afasta IPTU retroativo). Recomendação vigente: **C-via-anistia** + anúncio-ponte no terreno (D). Doc: `REGULARIZACAO-CAMINHO-E-PASSIVO-20260713.md`.
-- **PDF de apresentação DS RE/MAX** (`08-build-cenarios-pdf.tsx`): 9 págs, Anexos A (satélite 2024) + B (histórico 2013), caixa de validação da supervisão. **Versão atual = `...-REMAX-2026-07-13-rev2.pdf`** (canônico estava aberto no leitor/EBUSY — consolidar: copiar rev2 sobre o canônico e apagar rev2 quando o leitor fechar).
+- **Regularização:** anistia Lei 17.202/2019 **prorrogada até 30/08/2026** (Lei 18.375/2025). **Obras DATADAS pré-2014** pela série histórica de satélite 08/09/2013 (Anexo B) → **trilho ANISTIA CONFIRMADO** (TJSP afasta IPTU retroativo). Recomendação vigente: **C-via-anistia** + anúncio-ponte no terreno (D). Doc: `REGULARIZACAO-CAMINHO-E-PASSIVO-20260713.md`.
+- **Verificação de zona + tombamento (13-Jul, GeoSampa WFS no ponto do alvo — §2.1/§2.2 do doc de regularização):**
+  - Zona **ZER-1** nas DUAS leis (LPUOS 16.402/16 e **Lei 18.177/2024**) → **TO 0,5 = projeção máx. 525 m²** no lote de 1.050; medido ~689-736 → **excesso de ~165-210 m² (31-40%)**; CA 1,0 com folga; 441 averbados são conformes. **No rito comum o excedente é INAVERBÁVEL** (TO insanável) → anistia é a ÚNICA porta.
+  - **Lote DENTRO do perímetro tombado "JARDINS: AMÉRICA, EUROPA, PAULISTA E PAULISTANO"** (camada `patrimonio_cultural_bairro_ambiental`; CONDEPHAAT Res. SC 02/1986 + SCEC 37/2021; CONPRESP Res. 05/1991 + 07/2004) → **anuência patrimonial obrigatória = gate real do deferimento da anistia** (risco MÉDIO; mitigantes: obra pré-2014 consumada, possível delegação via Res. CONPRESP 07/2004, precedentes no bairro). Restrições convencionais do loteamento (Cia. de Imóveis e Construções, na matrícula) prevalecem se mais restritivas.
+  - Cenário C (12-14M) fica **condicionado à anuência**; piso-terreno 9,62M e cenário B independem.
+- **PDF de apresentação DS RE/MAX** (`08-build-cenarios-pdf.tsx`): 9 págs, Anexos A (satélite 2024) + B (histórico 2013), caixa de validação da supervisão, **qualificação patrimonial incluída** (ficha p.1 + cenário C + roteiro). **Versão vigente = nome canônico** `CENARIOS-ESTRATEGIA-Honduras629-REMAX-2026-07-13.pdf` (rev2 removida do tracking em `914bb58`; arquivo local rev2 pode ser apagado ao fechar o leitor).
 
 ## 2. Próximas sessões (1 objetivo = 1 sessão; plano/QA Fable, execução Sonnet/Opus)
 
@@ -31,7 +35,7 @@
 
 ## 3. Pendências humanas (founder/Luciana — bloqueiam o mundo real, não o código)
 
-1. **URGENTE (~7 semanas): protocolar anistia Honduras até 30/08/2026** — contratar licenciador (ART/RRT); evidência de anterioridade = Anexo B + o que o RT levantar.
+1. **URGENTE (~7 semanas): protocolar anistia Honduras até 30/08/2026** — contratar licenciador (ART/RRT) **com experiência em Jardins/CONPRESP** (lote em perímetro tombado — anuência patrimonial é o gate; verificar delegação Res. CONPRESP 07/2004); evidência de anterioridade = Anexo B + o que o RT levantar. NÃO prometer averbação ao proprietário — deferimento condicionado.
 2. Validar PDF de cenários com a **supervisão Luciana/RE/MAX** (caixa de assinatura na pág. 3) e definir âncora comercial (v4 suspensas).
 3. Certidão de matrícula atualizada + quitação fiduciária + penhora (advogado).
 4. Terreno real do **132** (matrícula/IPTU) — condicionante nº1 daquele caso.
@@ -43,6 +47,7 @@
 - Working tree: modificações do **Épico 7** (apify/proxy/scripts SQL/docs workshop) são da revisão paralela do founder — **não commitar/tocar**. Untracked ambientais (`settings.local.json.bak`, JSONs de smoke do 132) — não commitar.
 - Lições react-pdf (para novos entregáveis): `registerBrandFonts()` ANTES do `StyleSheet.create`; imagem local só via **data URL base64** (src path vira fetch e falha silenciosa — detectar pelo tamanho do PDF); tsx roda CJS = **sem top-level await**; arquivo aberto no leitor → fallback `-revN`.
 - **GeoSampa WFS por SQL** (área oficial de qualquer lote): `geoportal:lote_cidadao` com `CQL_FILTER=cd_setor_fiscal='SSS' AND cd_quadra_fiscal='QQQ' AND cd_lote='LLLL'` → `qt_area_construida`/`qt_area_terreno`. Candidata a helper do pipeline ACM.
+- **GeoSampa WFS por PONTO** (zona + tombamento de qualquer alvo, WFS 2.0 + `bbox=lat,lng,lat,lng,urn:ogc:def:crs:EPSG::4326`): zoneamento vigente `geoportal:perimetro_zona_lei_18177_24` (e histórico `zoneamento_2016_map1`); patrimônio `patrimonio_cultural_bairro_ambiental` + `patrimonio_cultural_bem_tombado` + `patrimonio_cultural_area_envoltoria_{CONDEPHAAT,CONPRESP,IPHAN}` + `zona_especial_preservacao_cultural_apc`. Usado no Honduras p/ confirmar ZER-1 e o perímetro tombado dos Jardins — candidata a virar checagem padrão de alvo no `/acm-validate`.
 - Datasets `docs/acm/*/dataset.json` congelados — laudo v6 Honduras provou o protocolo (zero drift).
 
 ## 5. Artefatos da sessão (commits `ccf57b7..15fc019`)
