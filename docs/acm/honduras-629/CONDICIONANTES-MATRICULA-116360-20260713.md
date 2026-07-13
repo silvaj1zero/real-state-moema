@@ -41,7 +41,61 @@
 - [ ] Decisão Luciana + founder: emitir **laudo v6** com condicionantes (área oficial 441 m² · terreno 1.050 m² · ônus a sanear) ou adendo ao v5.
 - [ ] Risco fiscal a comunicar ao vendedor: IPTU complementar retroativo quando a PMSP atualizar o lançamento.
 
-## 5. Reprodutibilidade da consulta GeoSampa
+## 5. Medições por satélite (Google Earth, 13-Jul-2026 — operador)
+
+Polígonos medidos pelo founder sobre imagem de satélite (imagem ~05/2024; **aproximações**, não medição oficial):
+
+| Polígono | Perímetro | Área medida |
+|---|---:|---:|
+| Terreno | 143,47 m | **1.046,3 m²** ✅ valida a fonte (oficial: 1.050 m² — desvio 0,4%) |
+| Área coberta (casa + gourmet) | ~124 m | **~685 m²** |
+| Garagem coberta | ~40 m | ~20 m² |
+| Cobertura de carros (telheiro externo) | 22,9 m | **30,48 m²** |
+| **Total de projeção coberta** | | **~736 m²** |
+
+**Caveats da medição por satélite (honestidade metodológica):**
+- Satélite mede **projeção de telhado**, não área construída: **beirais inflam** (COE permite beiral até 1,50 m como obra menor; num perímetro de ~124 m, beirais podem representar dezenas de m² que NÃO são área construída) e **pavimentos superiores não aparecem** (a parte de 2 pavimentos soma área que o satélite não vê).
+- Logo ~736 m² é a projeção coberta — a área construída pelo critério IPTU pode ser menor (beirais) ou maior (2º pavimento). O intervalo honesto hoje: **entre 441 (oficial) e ~736+2º pav. (físico)**.
+
+## 6. Critério oficial da PMSP para área construída
+
+**IPTU (o que a SF lança) — Lei 10.235/86, reproduzida no Decreto 58.420/2018 art. 56** ("área construída bruta", medição da situação FÁTICA):
+1. Áreas **cobertas**: contornos externos das **paredes ou pilares** → área gourmet coberta e garagem coberta **CONTAM**, mesmo abertas nas laterais;
+2. Áreas **pavimentadas descobertas** (terraços, sacadas, quadras): contornos externos → também entram na área bruta;
+3. **Coberturas** tipo posto de serviço/telheiro: pela **projeção vertical** → a cobertura de carros (30,5 m²) **CONTA**;
+4. **Piscinas**: contornos internos → contam.
+
+**COE (Lei 16.642/2017) — para licenciamento/averbação:** área construída = soma das áreas cobertas de todos os pavimentos. Exceções relevantes: **pergolado com cobertura vazada/permeável NÃO é área construída** (com telhamento fixo, É); **beiral até 1,50 m** é elemento de menor impacto (não computa).
+
+**Conclusão técnica:** pelo critério municipal, a área gourmet e a garagem coberta observadas na visita são **área construída** para IPTU e exigem licenciamento/averbação — a divergência 441 × físico é real e não é "área que não conta".
+
+**Regularização — qual rito:**
+- **Lei 17.202/2019** (regularização/anistia): só para obras **concluídas até 31/07/2014**; prazo de protocolo vigente até **30/04/2026**. Se a gourmet/garagem são recentes (aparência de obra nova na visita e na série histórica de satélite), **NÃO se enquadram**.
+- Obras pós-2014: **rito ordinário do COE** (projeto de regularização/reforma) exigindo conformidade com o zoneamento ATUAL — recuos, taxa de ocupação, coeficiente. O lote está na região dos bairros-jardins (**verificar perímetro de tombamento CONDEPHAAT/CONPRESP e zona ZER** antes de prometer regularização): estruturas sobre recuo (garagem/telheiro frontal é o caso clássico) podem ser **não regularizáveis**.
+- Risco fiscal independente da regularização: a SF pode lançar **IPTU complementar retroativo** da área não declarada quando atualizar o cadastro (aerolevantamento).
+
+## 7. Leitura para revisão da ACM e conversa com o cliente
+
+**Cenários de valor pela lente de construção (mediana homogeneizada 19.061/m², laudo v5):**
+
+| Cenário | Área-base | Valor indicativo | Defensabilidade |
+|---|---:|---:|---|
+| A. Documental HOJE | 441 m² | **~R$ 8,4M** | máxima (matrícula + IPTU) |
+| B. Físico bruto | ~736 m² proj. | ~R$ 14,0M | **zero** enquanto irregular (e 736 superestima por beirais) |
+| C. Anunciado | 800 m² | ~R$ 15,2M | sem suporte em nenhuma fonte |
+| D. Pós-regularização | 441 + o que for regularizável | entre A e B | condicionada a viabilidade urbanística + custo + prazo |
+
+**Argumentos para a conversa com o cliente (vendedor):**
+1. **O anúncio de 800 m² não para em pé documentalmente** — as duas fontes oficiais dizem 441 m². Comprador diligente (ou o banco dele) vai descobrir isso na primeira certidão.
+2. **Financiamento trava no averbado:** avaliação bancária e crédito saem sobre 441 m² — o "excedente" físico só é pagável à vista por comprador que aceite o risco. Isso encolhe o público e alonga a venda.
+3. **O incentivo econômico da regularização é brutal:** cada m² regularizado vira ~R$ 19 mil de valor defensável. Se ~200-295 m² forem regularizáveis, isso destrava **R$ 4-5,6M** a um custo de projeto/taxas/obra ordens de magnitude menor. MAS: só vale se a viabilidade urbanística confirmar (recuos/ZER/tombamento) — contratar arquiteto p/ estudo de viabilidade ANTES de prometer qualquer coisa.
+4. **Riscos de não fazer nada:** IPTU complementar retroativo + multa quando a PMSP atualizar o cadastro; e na venda, renegociação/desconto na mesa quando o comprador descobrir.
+5. **Ônus paralelos:** baixa da alienação fiduciária (venceu 04/2025) e levantamento da penhora de 50% são pré-requisitos de escritura — resolver em paralelo ao estudo de viabilidade.
+6. **Política H-3 (preferir subavaliar):** a ACM revisada deve ancorar no cenário A (441 m²) com o cenário D como upside CONDICIONADO — nunca o contrário.
+
+**Para a revisão da ACM (v6, decisão Luciana + founder):** manter dataset congelado; corrigir o TARGET (terreno 1.050; área construída = 441 documental), apresentar a faixa como A→D com as condicionantes explícitas, e registrar a medição de satélite como evidência física NÃO oficial (Art. IV).
+
+## 8. Reprodutibilidade da consulta GeoSampa
 
 ```
 GET https://wfs.geosampa.prefeitura.sp.gov.br/geoserver/geoportal/ows?service=WFS&version=1.0.0
