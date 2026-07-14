@@ -1,11 +1,11 @@
 # Honduras 629 — Confronto entre auditorias (13-Jul-2026)
 
-**Peças confrontadas:** dossiê original (esta sessão) × **2ª análise** (`FICHA-UNICA-HONDURAS-629-EXPORT-20260713.md`, ressalvas §5) · 3ª análise em andamento pelo operador.
+**Peças confrontadas:** dossiê original × **2ª análise** (`FICHA-UNICA-HONDURAS-629-EXPORT-20260713.md`, ressalvas §5) × **3ª avaliação independente concluída em 14-Jul** (`AUDITORIA-ADVERSARIAL-TERCEIRA-AVALIACAO-20260714.md`).
 **Método:** cada ressalva da 2ª auditoria foi re-verificada CONTRA os arquivos-fonte do dossiê antes de aceitar ou contestar.
 
 ## 1. Onde as duas análises CONVERGEM (núcleo estável)
 
-Áreas oficiais 441/1.050 (matrícula = GeoSampa) · histórico Av.02/Av.03 · ônus R.10/Av.11 com valores e protocolos idênticos · certidão vencida · quadro sucessório provável (50% meação + 16,67%/filho, pendente inventário) · "não basta Clarisia sozinha" · piso terreno R$ 9,62M · prazo anistia 30/08/2026 · anuência CONPRESP + art. 3º como gates · shortlist sem atestado. **Nenhum número-âncora foi contestado por nenhuma das análises.** A ficha ainda AGREGA valor novo: modelos A/B/C de assinatura com rascunho de cláusula e a tabela de dados em branco.
+As duas primeiras análises convergiram em 441/1.050, histórico Av.02/Av.03, ônus, certidão vencida, sucessão provável, prazo 30/08/2026, anuência patrimonial, art. 3º e shortlist ressalvada. A 3ª avaliação confirma esse núcleo documental, mas contesta materialmente 736 m², R$ 11,8–14,0M e o uso de R$ 9,62M como piso.
 
 ## 2. Ressalvas da 2ª auditoria — veredicto item a item (re-verificado na fonte)
 
@@ -22,10 +22,41 @@
 1. **"Dennis: Vivo (confirmado)"** — nossos registros (nota de titularidade §4) tinham o status do Dennis como **A CONFIRMAR**; a informação do founder de 13-Jul não cobria isso. Se a confirmação aconteceu em outra conversa, documentar a fonte na ficha; senão, rebaixar para "a confirmar". Assinatura do meeiro é indispensável — não pode repousar em suposição.
 2. **Garagem 101,64 m²** — a ficha apresenta a leitura como fato; é leitura de captura, tão incerta quanto as nossas. Vale a mesma regra do item 1 acima: só a exportação do projeto/medição do RT fecha o número.
 
-## 4. Estado consolidado para a 3ª análise
+## 4. Estado consolidado antes da 3ª análise (registro histórico)
 
 - **Fechados (2 análises convergem):** base documental, ônus, sucessão, zona/tombamento, prazo, piso terreno, invariante de área anunciada.
 - **Abertos (fila da 3ª análise / correções):** (a) medição da garagem e total de projeção (736×817); (b) contradição laudo v6 × PDF sobre pré/pós-2014 → v6.1 ou errata; (c) reconciliação piso 9,62M × fechamento esperado; (d) padronização do redutor (−17,7% × −12,7%); (e) status do Dennis com fonte.
-- **Sugestão de uso da 3ª análise:** rodar o `PROMPT-AUDITORIA-DOSSIE-20260713.md` como está — os itens (a)-(e) correspondem a C1, F3, E5, B5 e (novo) A-sucessão; se a 3ª análise achar os mesmos, temos convergência tripla e a fila de correção final antes da supervisão.
+- **Execução realizada:** o prompt foi rodado integralmente em 14-Jul-2026. Resultado em `AUDITORIA-ADVERSARIAL-TERCEIRA-AVALIACAO-20260714.md`.
 
-**Nada do que está aberto muda a estratégia** (anistia + anúncio-ponte + saneamento sucessório) — muda números de apresentação e consistência interna. Corrigir (b) é obrigatório antes da supervisão; (a) e (c) antes do cliente.
+Essa conclusão foi superada pela 3ª avaliação: área física, Capex não exposto, residual como piso e certeza sobre anterioridade/IPTU podem alterar números e recomendação, não apenas apresentação.
+
+## 5. Resultado da 3ª avaliação independente (14-Jul-2026)
+
+| Banda | Quantidade |
+|---|---:|
+| CONFIRMADO | 11 |
+| DIVERGÊNCIA MENOR | 3 |
+| DIVERGÊNCIA MATERIAL | 12 |
+| NÃO-VERIFICÁVEL | 2 |
+| **Total** | **28** |
+
+### 5.1 Convergência tripla
+
+441/1.050 · Av.02/Av.03 · R.10/Av.11 · certidão atualizada necessária · ZER-1 · perímetro tombado · prazo 30/08/2026 · anuência/restrições como gates · shortlist sem atestado.
+
+### 5.2 Materiais confirmados ou novos
+
+1. 736 m² não fecha: 816,97 m² se parcelas disjuntas ou 715,33 m² se garagem contida.
+2. Headline 441 contém Capex −15% não exposto.
+3. R$ 9,624M fecha aritmeticamente, mas não está demonstrado como piso.
+4. R$ 11,8–14,0M herda a base física inválida e tratamento diferente da lente 441.
+5. −12,7% vem de apenas dois pares anúncio/venda.
+6. Fechamento R$ 9,2–9,6M viola o piso declarado.
+7. “Provamos”, “anistia se aplica” e “protege do IPTU” excedem a evidência.
+8. Versões divergem: PDF 8 páginas, prompt 10, MD rev2 9, rev2 real 7 e JSON pós-2014.
+
+### 5.3 Veredicto
+
+**REPROVADO — NÃO LEVAR À SUPERVISÃO.**
+
+Relatório integral: `AUDITORIA-ADVERSARIAL-TERCEIRA-AVALIACAO-20260714.md`.
