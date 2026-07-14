@@ -9,6 +9,7 @@
 |---|---|---|
 | **Ermantina Viscardi Moniz Ramos falecida há ~8 anos (~2018)** | founder 13-Jul | a documentar (certidão de óbito) |
 | Titularidade registral: **Dennis D'Araujo Moniz Ramos + Ermantina**, casados em **comunhão universal** (pré-Lei 6.515/77) | matrícula R.08 (2011) | documental |
+| **Dennis D'Araujo Moniz Ramos está vivo** | founder 13-Jul (confirmado) | a documentar só qualificação atual (RG/CPF/endereço) |
 | **Clarisia Ramos = filha herdeira, solteira**; +2 irmãos (1 homem, 1 mulher, **ambos casados, com filhos**) | founder 13-Jul | a documentar (RG/CPF/certidões) |
 | **NENHUMA averbação de inventário/partilha na matrícula até 30/01/2023** | certidão 116.360 | documental — **provável inventário não feito ou não averbado** |
 | Penhora Av.11 (2020) sobre 50% dos direitos de fiduciante "de Dennis e sua mulher Ermantina" | matrícula | se ela já era falecida em 2020, há questão processual (espólio) — p/ o advogado |
@@ -18,8 +19,8 @@
 
 Casamento em **comunhão universal** + falecimento de um cônjuge, com descendentes: pela regra geral (CC art. 1.829, I), o cônjuge sobrevivente **não concorre** na herança dos bens comuns — fica com a **meação (50%)** e os **3 filhos herdam os outros 50%** (~16,67% cada), pendente de inventário e partilha.
 
-**Quadro provável de titularidade de fato (se Dennis vivo):**
-- Dennis: 50% (meação) — ainda gravado pela penhora de 50% dos direitos + fiduciária a baixar;
+**Quadro provável de titularidade de fato (Dennis vivo — confirmado):**
+- **Dennis: 50% (meação)** — ainda gravado pela penhora de 50% dos direitos + fiduciária a baixar; **assinatura indispensável**;
 - Clarisia: ~16,67% (herança, pendente de partilha);
 - Irmão: ~16,67% (idem; casado → cônjuge assina alienação conforme regime);
 - Irmã: ~16,67% (idem; casada → idem).
@@ -46,7 +47,7 @@ Ordem provável do caminho crítico atualizado: **(1) definir representação + 
 - [ ] Certidão de óbito de Ermantina (+ data exata — define ITCMD/multa);
 - [ ] Verificar se EXISTE inventário aberto (judicial ou extrajudicial) e em que fase; se houver, termo de inventariança;
 - [ ] RG/CPF + certidões de estado civil dos 3 herdeiros; certidões de casamento dos 2 casados (regime de bens — define outorga);
-- [ ] Confirmar situação do Dennis (vivo? capaz? onde assina?) — a informação recebida não cobre isso;
+- [ ] Qualificação atual do **Dennis** (vivo — confirmado): RG/CPF/endereço; onde assina; se será inventariante ou meeiro com os 3 filhos;
 - [ ] Procurações existentes (a família concentra representação em alguém?);
 - [ ] Testamento? (certidão negativa de testamento — Censec/RTD — o cartório do inventário exige);
 - [ ] Certidões da execução fiscal (penhora Av.11) — advogado avalia efeito sobre o espólio;

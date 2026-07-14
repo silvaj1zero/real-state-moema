@@ -1,5 +1,7 @@
 # Honduras 629 — Shortlist de assessoria para regularização em perímetro tombado (13-Jul-2026)
 
+> **⚠️ VERSÃO HISTÓRICA — uso operacional migrou para `DOSSIE-CONSOLIDADO-HONDURAS-629-20260714.md`** (a shortlist segue válida; a fila de execução consolidada está lá).
+
 **Contexto:** lote no perímetro tombado dos Jardins (CONDEPHAAT Res. SC 02/1986 + SCEC 37/2021; CONPRESP Res. 05/1991 + 07/2004); anistia Lei 17.202/2019 com protocolo até **30/08/2026**; anuência patrimonial = gate do deferimento; tese TJSP contra IPTU retroativo na anistia.
 
 **Método e limite (Art. IV):** candidatos levantados por pesquisa web em 13-Jul-2026 com evidência PÚBLICA de atuação no tema (páginas/artigos próprios sobre anuência CONPRESP/CONDEPHAAT e anistia). **Isto NÃO é atestado de qualidade** — nenhum foi contratado/testado por nós. Validar credenciais (CAU/CREA), pedir processos deferidos e referências antes de fechar.

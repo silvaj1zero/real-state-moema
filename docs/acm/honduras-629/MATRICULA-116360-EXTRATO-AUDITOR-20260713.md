@@ -55,10 +55,12 @@
 **Titulares na certidão (até 30/01/2023):** Dennis + Ermantina Viscardi Moniz Ramos.
 
 > **Atualização operacional (13-Jul-2026 — informação do operador, não da certidão):**  
-> Ermantina Viscardi Moniz Ramos estaria **falecida há ~8 anos**. **Clarisia Ramos** (solteira) seria **filha herdeira** e interlocutora da captação; há **mais 2 irmãos** (1 homem e 1 mulher, ambos casados com filhos).  
-> Isso explica o `proprietario: 'Clarisia Ramos'` no laudo v6 como **contato/herdeira**, não como titular exclusiva.  
-> **A certidão 01/2023 ainda lista Ermantina** — sucessão pode não estar averbada. Ver nota completa:  
-> `NOTA-TITULARIDADE-FAMILIA-REPRESENTACAO-20260713.md`.
+> Ermantina Viscardi Moniz Ramos falecida há ~8 anos. **Dennis D'Araujo Moniz Ramos está vivo** (confirmado).  
+> **Clarisia Ramos** (solteira) = filha herdeira e interlocutora da captação; +2 irmãos (casados com filhos).  
+> Outorga mínima: **Dennis (meação 50%) + 3 herdeiros** (+ cônjuges dos casados, se couber).  
+> Laudo v6 “Clarisia Ramos” = interlocutora/herdeira, não proprietária exclusiva.  
+> Certidão 01/2023 ainda lista Ermantina — sucessão pode não estar averbada.  
+> Ver: `NOTA-TITULARIDADE-FAMILIA-REPRESENTACAO-20260713.md`.
 
 ---
 

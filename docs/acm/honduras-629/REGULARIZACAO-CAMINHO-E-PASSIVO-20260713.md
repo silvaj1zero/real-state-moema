@@ -1,5 +1,7 @@
 # Honduras 629 — Regularização de área construída: legislação vigente, caminho, passivo e assessoria (13-Jul-2026)
 
+> **⚠️ VERSÃO HISTÓRICA — uso operacional migrou para `DOSSIE-CONSOLIDADO-HONDURAS-629-20260714.md`** (consenso pós-confronto das análises).
+
 Pesquisa web 13-Jul-2026 (fontes ao final). Complementa `CONDICIONANTES-MATRICULA-116360-20260713.md` §6 e o PDF de cenários.
 
 ## 1. ACHADO NOVO — a janela da anistia ainda está ABERTA (e fecha em 48 dias)

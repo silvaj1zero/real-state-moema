@@ -5,7 +5,10 @@
 **Emissão desta ficha:** 13/07/2026  
 **Uso:** copiar / exportar (PDF, e-mail, pasta do cliente, briefing jurídico)  
 **Natureza:** consolidação operacional — **não é parecer jurídico** nem laudo de avaliação.  
-**Confirmar com:** advogado do caso + certidão de matrícula **atualizada (2026)**
+**Confirmar com:** advogado do caso + certidão de matrícula **atualizada (2026)**  
+
+**PDF (marca Grok):** `docs/acm/honduras-629/FICHA-UNICA-HONDURAS-629-EXPORT-20260713.pdf`  
+**Regenerar PDF:** `python docs/acm/honduras-629/_build_ficha_unica_pdf.py`
 
 ---
 
