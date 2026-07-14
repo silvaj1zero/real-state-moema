@@ -47,10 +47,11 @@
 
 ## 5. Área física e regularização
 
-### 5.1 Medições por satélite — 🟡 ABERTO (única divergência numérica entre as análises)
+### 5.1 Medições por satélite — 🟡 divergência RECONCILIADA (14-Jul; confirmação final = RT)
 - **Consenso:** a projeção coberta REAL excede MUITO os 441 averbados e **já existia em 08/09/2013** (série histórica b1-b5 → **pré-31/07/2014 → elegível à anistia**). Terreno validado.
-- **Divergência:** garagem coberta com 3 leituras (≈20 / 101,64 / 121,64 m²) → total de projeção entre **~736 e ~817 m²** (possível sobreposição de polígonos).
-- **Regra até resolver:** usar **"~736 m² (mínimo confirmado; leituras até ~817 — em reaferição)"**; a medição VÁLIDA para protocolo é a do responsável técnico. **Resolução:** operador exporta as áreas exatas por polígono do projeto Google Earth (2024 e 2013) OU aguarda levantamento do RT.
+- **Reconciliação das 3 leituras da garagem (14-Jul, founder + cheque geométrico):** as leituras "≈20 / 101,64 / 121,64" não eram medições conflitantes, e sim **decomposição vs soma**: `101,64 (garagem) + 20,00 (cobertura de carros) = 121,64` — fecha exato. O cheque de perímetro confirma: com perímetro medido de ~40–41 m, área de 20 m² é geometricamente IMPOSSÍVEL e 121,64 m² é implausível para retângulo (máx. ~107); **101,64 m² é a única leitura coerente** (~12,9×7,9 m).
+- **Total de projeção coberta consolidado: ~817 m²** (2024: 685 coberta + 101,64 garagem + 30,48 telheiro; 2013: ~689 + ~121 somado ≈ 811 — mesma pegada). O "~736" das versões anteriores usava a leitura impossível de ~20 m² na garagem — **superado**.
+- **Regra:** para narrativa física usar **"~817 m² (reconciliado; medição válida para protocolo = a do responsável técnico)"**; a área NÃO AVERBADA passa a ~376 m² (817−441) e o excesso sobre a TO a ~292 m² (817−525).
 
 ### 5.2 Trilho de regularização — ✅ ANISTIA (Lei 17.202/2019)
 - Prazo de protocolo **30/08/2026** (Lei 18.375/2025) — ~6 semanas. Modalidade provável: **DECLARATÓRIA** (residencial ≤1.500 m²). Canal: **Portal de Licenciamento** (100% digital) + manuais no Meu Imóvel Regular.
@@ -71,7 +72,7 @@
 |---|---:|---|
 | Casa documental (441 m²) | **R$ 5,99–7,15M** (mercado) | única defensável HOJE como casa |
 | **Terreno (residual)** | **R$ 9,62M** | **piso de ÂNCORA/negociação** (ver nota abaixo) — independe de averbação e de anuência |
-| Casa regularizada (base conservadora 736 m²) | **R$ 11,8–14,0M** (mercado) | só existe com anistia deferida; se a reaferição confirmar ~817 m², faixa sobe (~13,1–15,6M) — upside, não usar antes de confirmar |
+| Casa regularizada | **R$ 11,8–14,0M** (base conservadora 736 m²) · **~13,1–15,6M se o RT confirmar ~817 m²** (leitura reconciliada 14-Jul, §5.1) | só existe com anistia deferida; política H-3: comunicar pela base conservadora até a medição do RT |
 
 Pretendido da família: R$ 12M = 27.211/m² sobre a área oficial — só alcançável no cenário regularizado.
 
