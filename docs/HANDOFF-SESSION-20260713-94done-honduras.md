@@ -1,7 +1,9 @@
-# Handoff — Sessão 13-Jul-2026: Story 9.4 Done (sessão C Wave 6) + dossiê Honduras 629
+# Handoff — Sessão 12-15/Jul-2026: Story 9.4 Done (sessão C Wave 6) + dossiê Honduras 629 (auditado 3×)
 
-**De:** sessão Fable 12/13-Jul (sessão C do handoff Wave 6 + caso Honduras) · **Para:** sessões pós-`/clear`
-**Master local = remoto:** `c41ff74`+ (tudo sincronizado; ~12 pushes na sessão).
+**De:** sessão Fable 12-15/Jul · **Para:** sessões pós-`/clear`
+**Master local = remoto:** `3d05641` (tudo sincronizado).
+
+> **⚡ ESTADO FINAL HONDURAS (15-Jul):** dossiê passou por **3 auditorias adversariais** (Fable → Grok/Ficha Única → 3ª independente via `PROMPT-AUDITORIA-DOSSIE-20260713.md`, veredicto REPROVADO) → **fila de correções §7.1 EXECUTADA**: **laudo v6.1** (`LAUDO-ACM-Honduras-v6.1-2026-07-14`, datação como indício, cadeia de redutores declarada, residual indicativo, sucessão, zero drift) + **PDF de cenários v2** (`CENARIOS-ESTRATEGIA-Honduras629-REMAX-2026-07-14.pdf`, Capex −15% exposto, área 715–817 RT-decide, regularizado na mesma base = 9,72–11,59M área mín. até 13,24M, N=2 no deságio, âncora≠fechamento declarado). **Doc operacional único: `docs/acm/honduras-629/DOSSIE-CONSOLIDADO-HONDURAS-629-20260714.md`** (status FECHADO/ABERTO/BLOQUEANTE). **GATE: re-rodar a auditoria (mesmo prompt, alvos de 14-Jul) até PASS/RESSALVAS ANTES da supervisão.** Condicionante sucessória: Ermantina falecida ~2018 sem inventário averbado; Dennis vivo (confirmado); contrato RE/MAX exige Dennis + 3 herdeiros/inventariante. Relógio: anistia até **30/08/2026**.
 
 ---
 
