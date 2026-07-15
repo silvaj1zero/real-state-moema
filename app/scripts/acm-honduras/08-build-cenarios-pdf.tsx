@@ -27,15 +27,21 @@ import {
 // ---------------------------------------------------------------------------
 // Números do computation v6 (fonte única; ver .computation.json)
 // ---------------------------------------------------------------------------
+// Cadeia de redutores DECLARADA (auditoria 14-Jul, item B2): mediana homogeneizada
+// (ref 15.978 → teto 19.061 R$/m²) × redutor de estado −15% = headline "mercado" do
+// laudo; o fechamento aplica ainda o deságio. Regularizado usa a MESMA base ×0,85.
 const V6 = {
-  construcaoDocumental: { min: 5_989_387, max: 7_145_136 },
-  terrenoResidual: 9_624_000,
-  regularizado: { min: 11_800_000, max: 14_000_000 }, // 736 × (15.978 → 19.061)
+  construcaoDocumental: { min: 5_989_387, max: 7_145_136 }, // 441 × régua × 0,85
+  construcaoDocumentalBruta: { min: 7_046_338, max: 8_406_042 }, // 441 × régua (s/ redutor)
+  terrenoResidual: 9_624_000, // residual INDICATIVO — cenário único, recalibrar (item B4)
+  regularizadoAreaMin: { min: 9_715_000, max: 11_590_000 }, // 715,33 m² × régua × 0,85
+  regularizadoAreaMax: { min: 11_096_000, max: 13_237_000 }, // 816,97 m² × régua × 0,85
   pretendido: 12_000_000,
-  desagioMedidoPct: -12.7,
+  desagioMedidoPct: -12.7, // N=2 pares (−14,96% / −10,47%) — indicativo, não estatística
   areaAverbada: 441,
   areaTerreno: 1050,
-  projecaoFisica: 736,
+  projecaoMin: 715, // 715,33 se garagem contida no polígono da área coberta
+  projecaoMax: 817, // 816,97 se polígonos disjuntos — medição do RT decide
 }
 
 const mi = (v: number) => `R$ ${(v / 1e6).toFixed(2).replace('.', ',')}M`
@@ -248,8 +254,8 @@ function CenariosDocument({ dataEmissao }: { dataEmissao: string }) {
             <Text style={s.fichaValue}>{V6.areaAverbada} m²</Text>
           </View>
           <View style={s.fichaRow}>
-            <Text style={s.fichaLabel}>Área física observada (visita + satélite — projeção coberta, NÃO oficial)</Text>
-            <Text style={s.fichaValue}>~{V6.projecaoFisica} m²</Text>
+            <Text style={s.fichaLabel}>Área física observada (visita + satélite — projeção coberta, NÃO oficial; medição do RT decide)</Text>
+            <Text style={s.fichaValue}>~{V6.projecaoMin}–{V6.projecaoMax} m²</Text>
           </View>
           <View style={s.fichaRow}>
             <Text style={s.fichaLabel}>Área anunciada anteriormente (sem suporte em nenhuma fonte oficial)</Text>
@@ -261,51 +267,58 @@ function CenariosDocument({ dataEmissao }: { dataEmissao: string }) {
           </View>
           <View style={s.fichaRow}>
             <Text style={s.fichaLabel}>Zona / projeção máxima permitida hoje (ZER-1, TO 0,5 — LPUOS e Lei 18.177/24)</Text>
-            <Text style={s.fichaValue}>525 m² (medido ~736)</Text>
+            <Text style={s.fichaValue}>525 m² (medido ~{V6.projecaoMin}–{V6.projecaoMax})</Text>
           </View>
           <View style={s.fichaRow}>
             <Text style={s.fichaLabel}>Patrimônio: lote DENTRO do perímetro tombado dos Jardins (CONDEPHAAT/CONPRESP)</Text>
             <Text style={s.fichaValue}>anuência obrigatória</Text>
           </View>
+          <View style={s.fichaRow}>
+            <Text style={s.fichaLabel}>Titularidade: Dennis + Ermantina (falecida ~2018 — inventário SEM averbação) · interlocutora: Clarisia Ramos (herdeira)</Text>
+            <Text style={s.fichaValue}>sucessão a sanear</Text>
+          </View>
           <View style={[s.fichaRow, { borderBottomWidth: 0 }]}>
             <Text style={s.fichaLabel}>Ônus a sanear antes de qualquer escritura</Text>
-            <Text style={s.fichaValue}>Alienação fiduciária + penhora 50%</Text>
+            <Text style={s.fichaValue}>Fiduciária + penhora 50% + inventário</Text>
           </View>
         </View>
         <Text style={[s.paragraph, { fontSize: 7.5, color: COLORS.cinzaClaro, marginTop: 4 }]}>
           A área gourmet e a garagem coberta contam como área construída pelo critério municipal (Lei 10.235/86 / Dec. 58.420/18), mas não estão averbadas nem lançadas — exigem regularização municipal e cartorária. Certidão analisada: 01/2023 (pedir atualizada).
         </Text>
 
-        <Text style={s.h2}>2. As três lentes de valor</Text>
+        <Text style={s.h2}>2. As três lentes de valor (cadeia de cálculo declarada)</Text>
+        <Text style={[s.paragraph, { fontSize: 7, color: COLORS.cinzaClaro, marginBottom: 2 }]}>
+          Base de todos os valores: mediana homogeneizada ITBI/FipeZap (R$ 15.978–19.061/m²) × redutor de estado −15% (padrão do laudo v6.1). Sem o redutor, a lente documental seria {faixaMi(V6.construcaoDocumentalBruta)}.
+        </Text>
         <View style={s.cardRow}>
           <View style={[s.card, s.cardWarn]}>
             <Text style={s.cardLabel}>Casa documental (441 m²)</Text>
             <Text style={s.cardValue}>{faixaMi(V6.construcaoDocumental)}</Text>
-            <Text style={s.cardNota}>única base defensável hoje como casa</Text>
+            <Text style={s.cardNota}>única base defensável hoje como casa · inclui redutor −15%</Text>
           </View>
           <View style={[s.card, s.cardHi]}>
-            <Text style={s.cardLabel}>Terreno (piso real do ativo)</Text>
+            <Text style={s.cardLabel}>Terreno — residual INDICATIVO</Text>
             <Text style={[s.cardValue, s.cardValueHi]}>{mi(V6.terrenoResidual)}</Text>
-            <Text style={s.cardNota}>residual p/ reconstrução — independe de averbação</Text>
+            <Text style={s.cardNota}>cenário único (recalibrar c/ licenciador) — âncora de referência p/ reconstrução; independe de averbação</Text>
           </View>
           <View style={s.card}>
-            <Text style={s.cardLabel}>Casa regularizada (~736 m²)</Text>
-            <Text style={s.cardValue}>{faixaMi(V6.regularizado)}</Text>
-            <Text style={s.cardNota}>só existe após regularização viável</Text>
+            <Text style={s.cardLabel}>Casa regularizada ({V6.projecaoMin}–{V6.projecaoMax} m², RT decide)</Text>
+            <Text style={s.cardValue}>{faixaMi(V6.regularizadoAreaMin)}</Text>
+            <Text style={s.cardNota}>área mínima, mesma base do laudo; até {mi(V6.regularizadoAreaMax.max)} se o RT confirmar a área máxima · só existe com anistia DEFERIDA</Text>
           </View>
         </View>
 
         <View style={s.insightBox}>
           <Text style={s.insightText}>
             <Text style={s.strong}>A lente do terreno resgata o valor que a matrícula derrubou. </Text>
-            O piso econômico do imóvel não é a casa documental — é o terreno de 1.050 m², porque o comprador que reconstrói paga pelo chão e não depende da averbação. O imóvel se reposiciona de {'"'}casa de 800 m²{'"'} (insustentável em documento) para <Text style={s.strong}>terreno premium nos Jardins com casa aproveitável</Text>. Os {mi(V6.pretendido)} pretendidos ficam entre o piso-terreno e o cenário regularizado: são a tese de regularização precificada — alcançáveis, mas só por um caminho.
+            A referência econômica do imóvel não é só a casa documental — o terreno de 1.050 m² tem residual indicativo de {mi(V6.terrenoResidual)} para quem reconstrói (não depende de averbação; valor de cenário único, a recalibrar com o licenciador). O imóvel se reposiciona de {'"'}casa de 800 m²{'"'} (insustentável em documento) para <Text style={s.strong}>terreno premium nos Jardins com casa aproveitável</Text>. Os {mi(V6.pretendido)} pretendidos ficam entre a âncora-terreno e o topo do cenário regularizado: são a tese de regularização precificada — alcançáveis, mas condicionados (anistia deferida + área confirmada pelo RT).
           </Text>
         </View>
 
         <View style={[s.insightBox, { borderColor: COLORS.verde, backgroundColor: '#F0FDF4', marginTop: 8 }]}>
           <Text style={s.insightText}>
-            <Text style={[s.strong, { color: COLORS.verde }]}>ATUALIZAÇÃO 13-Jul — obras datadas: a anistia se aplica. </Text>
-            A série histórica de satélite (Anexo B, imagem de <Text style={s.strong}>08/09/2013</Text>) mostra a MESMA projeção coberta de hoje (~689 m² em 2013 vs ~685 m² em 2024) — gourmet e garagem coberta <Text style={s.strong}>já existiam antes de 31/07/2014</Text>, o corte da Lei de Regularização 17.202/2019. Consequências: (1) a regularização pode ir pelo trilho da ANISTIA, que perdoa o zoneamento — a projeção medida (~736 m²) excede em ~40% o limite atual da ZER-1 (525 m²), o que torna a anistia a ÚNICA porta de averbação do excedente (no rito comum ele exigiria demolir/descobrir); (2) como o lote está no perímetro TOMBADO dos Jardins, o deferimento depende de <Text style={s.strong}>anuência CONDEPHAAT/CONPRESP</Text> — o licenciador precisa ter experiência específica no bairro; (3) há jurisprudência do TJSP afastando o IPTU retroativo de quem regulariza pela anistia; (4) <Text style={[s.strong, { color: COLORS.vermelho }]}>o protocolo precisa sair até 30/08/2026</Text> (Lei 18.375/2025).
+            <Text style={[s.strong, { color: COLORS.verde }]}>ATUALIZAÇÃO 13-Jul — forte indício de que a anistia se aplica (a confirmar pelo RT). </Text>
+            A série histórica de satélite (Anexo B, imagem de <Text style={s.strong}>08/09/2013</Text>) mostra pegada coberta equivalente à de hoje — <Text style={s.strong}>INDÍCIO VISUAL FORTE de conclusão anterior a 31/07/2014</Text>, o corte da Lei 17.202/2019; a prova formal de anterioridade é montada pelo responsável técnico (aerofotos oficiais, IPTU antigo). Consequências: (1) a regularização tende ao trilho da ANISTIA, que perdoa o zoneamento — a projeção medida ({V6.projecaoMin}–{V6.projecaoMax} m²) excede o limite da ZER-1 (525 m²), tornando a anistia a ÚNICA porta de averbação do excedente (no rito comum exigiria demolir/descobrir); (2) lote no perímetro TOMBADO dos Jardins → deferimento depende de <Text style={s.strong}>anuência CONDEPHAAT/CONPRESP</Text> — licenciador com experiência no bairro; (3) há tese com respaldo no TJSP para afastar o IPTU retroativo de quem regulariza pela anistia — <Text style={s.strong}>a confirmar pelo advogado no caso concreto</Text>; (4) <Text style={[s.strong, { color: COLORS.vermelho }]}>o protocolo precisa sair até 30/08/2026</Text> (prorrogação vigente; instrumento exato — Lei 18.375/2025 / Dec. 65.148/2026 — a confirmar com o licenciador).
           </Text>
         </View>
 
@@ -339,10 +352,10 @@ function CenariosDocument({ dataEmissao }: { dataEmissao: string }) {
         <View style={[s.cenarioBox, s.cenarioBoxHi]}>
           <View style={s.cenarioHead}>
             <Text style={s.cenarioTitle}>C — Regularizar VIA ANISTIA e vender como CASA (recomendado)</Text>
-            <Text style={[s.cenarioAncora, { color: COLORS.verde }]}>{faixaMi(V6.regularizado)}</Text>
+            <Text style={[s.cenarioAncora, { color: COLORS.verde }]}>{faixaMi(V6.regularizadoAreaMin)} — até {mi(V6.regularizadoAreaMax.max)}</Text>
           </View>
           <Text style={s.cenarioText}>
-            Captura máxima — envolve o valor pretendido. Obras DATADAS pré-2014 pela série histórica (Anexo B) → elegíveis à Lei 17.202/2019, que perdoa TO/recuos/CA (é a ÚNICA porta p/ averbar os ~211 m² acima da projeção permitida) e conta com jurisprudência TJSP afastando o IPTU retroativo. Cada m² regularizado ≈ R$ 19 mil de valor defensável. DUAS CONDIÇÕES DURAS: (1) protocolo até 30/08/2026 (~7 semanas) — contratar licenciador (ART/RRT) com experiência em Jardins/CONPRESP IMEDIATAMENTE; (2) deferimento depende de ANUÊNCIA PATRIMONIAL (lote no perímetro tombado dos Jardins — CONDEPHAAT/CONPRESP; o órgão pode negar ou exigir adequações). Custos: taxas + eventual contrapartida (garagem computável) + projeto.
+            Captura máxima (valores na MESMA base do laudo, com redutor −15%; faixa menor = área mínima 715 m², teto se o RT confirmar ~817 m²). Indício visual forte de anterioridade a 2014 (Anexo B; prova formal pelo RT) → potencialmente elegível à Lei 17.202/2019, que perdoa TO/recuos/CA — a ÚNICA porta p/ averbar os ~190–292 m² acima da projeção permitida. Na régua do laudo, cada m² regularizado ≈ R$ 13,6–16,2 mil. TRÊS CONDIÇÕES DURAS: (1) protocolo até 30/08/2026 (~6 semanas) — licenciador (ART/RRT) com experiência Jardins/CONPRESP JÁ; (2) ANUÊNCIA PATRIMONIAL (perímetro tombado — o órgão pode negar/exigir adequações); (3) art. 3º: restrições convencionais do loteamento a levantar. Tese TJSP contra IPTU retroativo: a confirmar pelo advogado. Custos: taxas + eventual contrapartida (garagem computável) + projeto.
           </Text>
         </View>
 
@@ -352,7 +365,7 @@ function CenariosDocument({ dataEmissao }: { dataEmissao: string }) {
             <Text style={s.cenarioAncora}>entre B e C</Text>
           </View>
           <Text style={s.cenarioText}>
-            Fallback se a anistia indeferir algum trecho (ex.: item sem prova de anterioridade a 2014). Averba o que passar. Regra invariante: o valor mínimo do ativo continua sendo o maior entre a lente da casa e o terreno ({mi(V6.terrenoResidual)}).
+            Fallback se a anistia indeferir algum trecho (ex.: item sem prova de anterioridade a 2014). Averba o que passar. Referência: o valor de conversa do ativo segue o maior entre a lente da casa e o residual indicativo do terreno ({mi(V6.terrenoResidual)}).
           </Text>
         </View>
 
@@ -362,16 +375,16 @@ function CenariosDocument({ dataEmissao }: { dataEmissao: string }) {
             <Text style={s.cenarioAncora}>R$ 10,5–11M já · 12–14M depois</Text>
           </View>
           <Text style={s.cenarioText}>
-            Se o proprietário quiser anunciar antes do Certificado de Regularização sair: âncora no terreno (piso {mi(V6.terrenoResidual)} + prêmio da casa aproveitável), reposicionando para casa de ~7xx m² (12–14M) quando a averbação concluir. Nunca expõe número indefensável.
+            Se o proprietário quiser anunciar antes do Certificado de Regularização sair: âncora no terreno (residual indicativo {mi(V6.terrenoResidual)} + prêmio da casa aproveitável), reposicionando para casa regularizada ({faixaMi(V6.regularizadoAreaMin)}, até {mi(V6.regularizadoAreaMax.max)} conforme área do RT) quando a averbação concluir. Nunca expõe número indefensável.
           </Text>
         </View>
 
-        <Text style={s.h2}>4. Árvore de decisão (atualizada 13-Jul — obras datadas pré-2014)</Text>
-        <Bullet>1. IMEDIATO (~7 semanas p/ o prazo): contratar licenciador (ART/RRT) e PROTOCOLAR a regularização pela Lei 17.202/2019 até 30/08/2026, com a série histórica de satélite (Anexo B) como evidência de anterioridade a 31/07/2014.</Bullet>
-        <Bullet>2. EM PARALELO: certidão atualizada → quitação/baixa da alienação fiduciária → levantamento da penhora de 50%. Sem isso, nenhuma escritura sai em nenhum cenário.</Bullet>
-        <Bullet>3. Anúncio: Cenário D (ponte, R$ 10,5–11M ancorado no terreno) enquanto o Certificado não sai; ao averbar → reposicionar para 12–14M (Cenário C).</Bullet>
-        <Bullet>4. Se a anistia indeferir algum trecho → C′ (parcial); se o proprietário desistir de esperar → B (terreno, R$ 9,62M+).</Bullet>
-        <Bullet>5. Invariantes: nunca conversar abaixo de R$ 9,62M (piso terreno); nunca anunciar área construída acima de 441 m² sem averbação.</Bullet>
+        <Text style={s.h2}>4. Árvore de decisão (rev. 14-Jul — pós-auditorias)</Text>
+        <Bullet>1. IMEDIATO (~6 semanas p/ o prazo): contratar licenciador (ART/RRT) com experiência Jardins/CONPRESP → medição REAL do imóvel, teor das restrições do loteamento (art. 3º) e PROTOCOLO da Lei 17.202/2019 até 30/08/2026 (série de satélite do Anexo B = indício de anterioridade; prova formal é do RT).</Bullet>
+        <Bullet>2. EM PARALELO: certidão atualizada → definição da representação (Dennis + 3 herdeiros / inventariante) e ABERTURA DO INVENTÁRIO de Ermantina → quitação/baixa da fiduciária → levantamento da penhora. Sem isso, nenhuma escritura sai em nenhum cenário.</Bullet>
+        <Bullet>3. Anúncio: Cenário D (ponte, R$ 10,5–11M ancorado no terreno) enquanto o Certificado não sai; ao averbar → reposicionar para a faixa do Cenário C conforme a área confirmada.</Bullet>
+        <Bullet>4. Se a anistia indeferir algum trecho → C′ (parcial); se o proprietário desistir de esperar → B (terreno, {mi(V6.terrenoResidual)}+).</Bullet>
+        <Bullet>5. Invariantes: nunca ANUNCIAR nem ancorar negociação abaixo do residual indicativo ({mi(V6.terrenoResidual)}) enquanto a lente terreno não for recalibrada; nunca anunciar área construída acima de 441 m² sem averbação. (Expectativa de FECHAMENTO pós-deságio pode ficar abaixo da âncora — explicar a diferença ao cliente.)</Bullet>
 
         <Footer />
       </Page>
@@ -396,27 +409,29 @@ function CenariosDocument({ dataEmissao }: { dataEmissao: string }) {
           </View>
           <View style={s.tr}>
             <Text style={[s.tdStrong, { width: POS_W.cen }]}>C</Text>
-            <Text style={[s.td, { width: POS_W.man }]}>Casa ~7xx m² em terreno de 1.050 m² (área regularizada)</Text>
+            <Text style={[s.td, { width: POS_W.man }]}>Casa regularizada em terreno de 1.050 m² (área conforme medição do RT)</Text>
             <Text style={[s.td, { width: POS_W.area }]}>nova área averbada</Text>
-            <Text style={[s.td, { width: POS_W.anuncio, textAlign: 'right' }]}>R$ 12,9–14M</Text>
-            <Text style={[s.td, s.green, { width: POS_W.fech, textAlign: 'right' }]}>~R$ 11,3–12,2M</Text>
+            <Text style={[s.td, { width: POS_W.anuncio, textAlign: 'right' }]}>R$ 11,6–13,2M**</Text>
+            <Text style={[s.td, s.green, { width: POS_W.fech, textAlign: 'right' }]}>~R$ 10,1–11,6M</Text>
           </View>
         </View>
         <Text style={[s.paragraph, { fontSize: 7, color: COLORS.cinzaClaro, marginTop: 3 }]}>
-          * Fechamento esperado aplica o deságio medido da amostra ({V6.desagioMedidoPct}% entre pedido e fechado). Valores de anúncio são leitura estratégica das lentes do laudo v6 — a âncora comercial oficial é decisão da consultora com a supervisão (política H-3; âncoras do laudo v4 suspensas no v6).
+          * Fechamento esperado aplica o deságio medido da amostra ({V6.desagioMedidoPct}% entre pedido e fechado) — ATENÇÃO: deriva de apenas N=2 pares anúncio↔venda (−14,96% e −10,47%), indicativo e não estatística. Política adotada: o residual indicativo (R$ 9,62M) é âncora mínima de ANÚNCIO/negociação; a expectativa de fechamento pode ficar abaixo dela.
+          {'\n'}** Anúncio C = topo da faixa de mercado da área correspondente (área mín. 715 m² → teto se RT confirmar ~817 m²), na MESMA base do laudo (redutor −15% declarado). Valores são leitura estratégica — a âncora comercial oficial é decisão da consultora com a supervisão (H-3; âncoras do v4 suspensas).
         </Text>
 
         <Text style={s.h2}>6. Roteiro da conversa com o proprietário</Text>
-        <Bullet>{'"'}Sua casa anunciada por 800 m² não para em pé no cartório — o documento diz 441 m², e isso derruba o valor defensável da casa para ~R$ 6–7M.{'"'}</Bullet>
-        <Bullet>{'"'}MAS o seu terreno sozinho vale ~R$ 9,6M para quem constrói — esse é o seu piso real, e ninguém deve conversar abaixo disso.{'"'}</Bullet>
-        <Bullet>{'"'}A boa notícia: provamos por imagem de satélite de 2013 que a área extra já existia antes de 2014 — ela cabe na LEI DE ANISTIA, que é a única porta para averbar (a projeção está ~40% acima do que a lei atual permite) e ainda protege do IPTU retroativo. Duas condições: o protocolo fecha em 30 de agosto, e o bairro é tombado — o deferimento passa pela anuência do patrimônio.{'"'}</Bullet>
-        <Bullet>{'"'}O plano: protocolamos a anistia JÁ (licenciador), saneamos a matrícula em paralelo, anunciamos ancorado no terreno (~R$ 10,5–11M) e, averbada a área, reposicionamos para 12–14M.{'"'}</Bullet>
+        <Bullet>{'"'}Sua casa anunciada por 800 m² não para em pé no cartório — o documento diz 441 m², e isso derruba o valor defensável da casa para ~R$ 6–7M na régua do laudo.{'"'}</Bullet>
+        <Bullet>{'"'}MAS o seu terreno tem uma referência de ~R$ 9,6M para quem constrói (estimativa de incorporação a refinar com o especialista) — é a nossa âncora mínima de anúncio e negociação.{'"'}</Bullet>
+        <Bullet>{'"'}A boa notícia: imagens de satélite de 2013 indicam FORTEMENTE que a área extra já existia antes de 2014 — ela tende a caber na LEI DE ANISTIA, a única porta para averbar (a projeção está bem acima do que a lei atual permite). Quem confirma é o arquiteto responsável, e há três condições: protocolo até 30 de agosto, anuência do patrimônio (bairro tombado) e as regras do loteamento. Há ainda uma tese no TJSP que pode afastar o IPTU retroativo — nosso advogado confirma.{'"'}</Bullet>
+        <Bullet>{'"'}O plano: contratamos o arquiteto e protocolamos a anistia JÁ; em paralelo, resolvemos o inventário da sua mãe e a baixa do banco (sem isso não há escritura de venda); anunciamos ancorado no terreno (~R$ 10,5–11M) e, averbada a área, reposicionamos para a faixa da casa regularizada.{'"'}</Bullet>
 
         <Text style={s.h2}>7. Próximos passos (ordem de urgência)</Text>
-        <Bullet>URGENTE (~7 semanas): contratar arquiteto/licenciador COM EXPERIÊNCIA EM JARDINS/CONPRESP e PROTOCOLAR a regularização Lei 17.202/2019 até 30/08/2026 — evidência de anterioridade: série histórica de satélite 08/09/2013 (Anexo B) + o que o licenciador levantar (IPTU antigo, fotos, notas de obra). Verificar enquadramento na Res. CONPRESP 07/2004 (possível delegação da análise patrimonial).</Bullet>
+        <Bullet>URGENTE (~6 semanas): contratar arquiteto/licenciador COM EXPERIÊNCIA EM JARDINS/CONPRESP → medição real do imóvel + teor das restrições convencionais do loteamento (art. 3º) + prova formal de anterioridade (aerofotos oficiais, IPTU antigo; Anexo B = indício) + PROTOCOLO da Lei 17.202/2019 até 30/08/2026. Verificar Res. CONPRESP 07/2004 (possível delegação) e o instrumento vigente da prorrogação do prazo.</Bullet>
+        <Bullet>Representação e sucessão: definir quem assina (Dennis + 3 herdeiros / inventariante / procurações) e abrir o inventário de Ermantina — pré-requisito de escritura em qualquer cenário.</Bullet>
         <Bullet>Certidão de matrícula atualizada (a analisada é de 01/2023; fiduciária venceu 04/2025 — pode já estar quitada sem baixa averbada).</Bullet>
         <Bullet>Termo de quitação do Banco Máxima + situação da execução fiscal (penhora de 50%).</Bullet>
-        <Bullet>Advogado tributário: confirmar tese TJSP (anistia afasta IPTU retroativo) para o caso concreto.</Bullet>
+        <Bullet>Advogado tributário: tese TJSP (anistia × IPTU retroativo) + ITCMD/multa do inventário.</Bullet>
         <Bullet>Definição da âncora comercial oficial com a supervisão (este material) e posicionamento do anúncio-ponte.</Bullet>
 
         <View style={s.validacaoBox}>
@@ -424,7 +439,7 @@ function CenariosDocument({ dataEmissao }: { dataEmissao: string }) {
           <Text style={s.validacaoLinha}>Estratégia aprovada (cenário): ______________________________  Âncora de anúncio: ______________________</Text>
           <Text style={s.validacaoLinha}>Assinatura ({CONSULTORA.nome}): ______________________________  Data: ______ / ______ / ________</Text>
           <Text style={[s.paragraph, { fontSize: 7, color: COLORS.cinzaClaro, marginBottom: 0 }]}>
-            Base técnica: LAUDO-ACM-Honduras-v6-2026-07-13 (dataset ITBI congelado, mediana homogeneizada FipeZap) · matrícula 116.360 (4º RI-SP) · cadastro fiscal PMSP/GeoSampa (SQL 014.071.0030-0). Medições por satélite são aproximações não oficiais.
+            Base técnica: LAUDO-ACM-Honduras-v6.1 (dataset ITBI congelado; mediana homogeneizada FipeZap; redutor de estado −15% declarado) · matrícula 116.360 (4º RI-SP) · cadastro fiscal PMSP/GeoSampa (SQL 014.071.0030-0) · dossiê consolidado 14-Jul + 3 auditorias adversariais. Medições por satélite são aproximações não oficiais (faixa 715–817 m²; medição do RT decide).
           </Text>
         </View>
 
@@ -435,7 +450,7 @@ function CenariosDocument({ dataEmissao }: { dataEmissao: string }) {
       {[
         { titulo: 'Anexo A — Medições por satélite (imagem ~05/2024)', grupo: ANEXOS_A.slice(0, 3), intro: 'Medições realizadas pelo operador sobre imagem de satélite atual. São APROXIMAÇÕES não oficiais: o satélite mede projeção de telhado — beirais inflam a medida e pavimentos superiores não aparecem. Servem como evidência física da divergência com a área averbada (441 m²), nunca como base de valor.' },
         { titulo: 'Anexo A — continuação', grupo: ANEXOS_A.slice(3), intro: null },
-        { titulo: 'Anexo B — Série histórica: imagem de 08/09/2013', grupo: ANEXOS_B.slice(0, 3), intro: 'Mesmos polígonos medidos sobre a imagem HISTÓRICA de 08/09/2013 (Google Earth): a projeção coberta (~689 m²) e a garagem coberta já existiam — evidência de conclusão ANTERIOR a 31/07/2014, o corte da Lei 17.202/2019 (anistia; protocolo até 30/08/2026 — Lei 18.375/2025). Evidência auxiliar: a prova formal de anterioridade é montada pelo responsável técnico no protocolo.' },
+        { titulo: 'Anexo B — Série histórica: imagem de 08/09/2013', grupo: ANEXOS_B.slice(0, 3), intro: 'Mesmos polígonos medidos sobre a imagem HISTÓRICA de 08/09/2013 (Google Earth): pegada coberta equivalente à atual — INDÍCIO VISUAL FORTE de conclusão anterior a 31/07/2014, o corte da Lei 17.202/2019 (anistia; protocolo até 30/08/2026). A imagem não prova identidade das estruturas (reconstruções no mesmo footprint são possíveis); a prova formal de anterioridade é montada pelo responsável técnico no protocolo (aerofotos oficiais, IPTU antigo).' },
         { titulo: 'Anexo B — continuação', grupo: ANEXOS_B.slice(3), intro: null },
       ].map((pagina, pg) => (
         <Page key={pg} size="A4" style={s.page}>
@@ -498,7 +513,7 @@ function CenariosDocument({ dataEmissao }: { dataEmissao: string }) {
         <Bullet>Anuência patrimonial (CONPRESP/DPH): dossiê próprio — levantamento fotográfico, estudo/justificativa técnica, implantação.</Bullet>
 
         <Text style={s.h3}>Custos estimados (ordem de grandeza — licenciador confirma)</Text>
-        <Bullet>Preço público: ~295 m² × R$ 10 ≈ R$ 2.950. Outorga onerosa tende a ZERO (CA 1,0 × 1.050 m² tem folga); exceção: garagem computável acima dos limites legais pode gerar contrapartida (fator 1,2 sobre o trecho).</Bullet>
+        <Bullet>Preço público: ~274–376 m² a regularizar (conforme medição do RT) × R$ 10 ≈ R$ 2,7–3,8 mil. Outorga onerosa tende a ZERO (CA 1,0 × 1.050 m² tem folga); exceção: garagem computável acima dos limites legais pode gerar contrapartida (fator 1,2 sobre o trecho).</Bullet>
         <Bullet>ISS da obra + taxas + honorários do RT/licenciador + dossiê de anuência — total provável em dezenas de milhares de reais, contra R$ 4–5,6M de valor destravado.</Bullet>
 
         <View style={[s.cenarioBox, s.cenarioBoxNo, { marginTop: 8 }]}>

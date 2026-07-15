@@ -1,0 +1,98 @@
+{
+  "geradoEm": "2026-07-14T18:17:55.493Z",
+  "versao": "v6.1 — base documental (matrícula 116.360 + GeoSampa) + correções das auditorias de 13-14/Jul (datação pré-2014 como indício, área em faixa, redutor −15% declarado, residual indicativo, sucessão)",
+  "alvoDocumental": {
+    "areaConstruidaAverbada": 441,
+    "areaTerreno": 1050,
+    "fontes": [
+      "Matrícula 116.360, 4º RI-SP (Av.03/1996; certidão 01/02/2023)",
+      "GeoSampa WFS lote_cidadao setor 014 quadra 071 lote 0030 (13-Jul-2026): qt_area_construida=441, qt_area_terreno=1050"
+    ],
+    "projecaoCobertaSateliteM2": {
+      "min": 715,
+      "max": 817
+    },
+    "notaSatelite": "Medições do operador (Google Earth, 13-14/Jul-2026) — NÃO oficiais. Faixa 715–817: 816,97 m² se polígonos disjuntos (685+101,64+30,48) ou 715,33 m² se garagem contida na área coberta — a medição do RT decide. Série histórica 08/09/2013 = indício visual de anterioridade (prova formal pelo RT)."
+  },
+  "metodologiaDeclarada": {
+    "cadeiaRedutores": "mediana homogeneizada FipeZap → redutor de estado −15% (headline mercado) → deságio de fechamento do laudo; deságio medido da amostra −12,7% provém de N=2 pares (indicativo)",
+    "residualTerreno": "R$ 9.624.000 = residual INDICATIVO de cenário único (VGV 34.000/m² × áreaNova 800 − custos; parâmetros jun/26, terreno então 1.000) — âncora de referência, não piso demonstrado; recalibrar com licenciador/RT"
+  },
+  "condicionantes": {
+    "regularizacao": "Indício visual (satélite 08/09/2013) de conclusão ANTERIOR a 31/07/2014 → potencialmente elegível à anistia Lei 17.202/2019 (protocolo até 30/08/2026; modalidade provável declaratória). Gates: anuência CONDEPHAAT/CONPRESP (perímetro tombado Jardins) + art. 3º (restrições convencionais do loteamento — teor a levantar). Prova formal de anterioridade e medição = responsável técnico. NÃO prometer averbação.",
+    "sucessao": "Ermantina (cotitular, comunhão universal) falecida ~2018 SEM inventário/partilha averbados até 01/2023. Escritura exige saneamento sucessório; contrato de intermediação exige Dennis + 3 herdeiros (ou inventariante/procurações). Clarisia Ramos = interlocutora/herdeira.",
+    "onus": [
+      "Alienação fiduciária Banco Máxima (R.10/2015, venc. final 11/04/2025) — obter quitação/averbar baixa",
+      "Penhora 50% direitos de fiduciante (Av.11/2020, exec. fiscal municipal R$ 85.149,08) — levantar",
+      "Certidão de matrícula atualizada (a analisada é de 01/2023)"
+    ],
+    "riscoFiscal": "IPTU complementar retroativo sobre área não declarada (aerolevantamento PMSP). Tese TJSP de afastamento na anistia — a confirmar pelo advogado.",
+    "referencia": "docs/acm/honduras-629/DOSSIE-CONSOLIDADO-HONDURAS-629-20260714.md"
+  },
+  "ancorasComerciais": {
+    "precoAnuncioRecomendado": null,
+    "metaFechamento": null,
+    "nota": "Âncoras do v4 suspensas no v6 — eram função dos 800 m² anunciados. Definir com a Luciana (H-3) após decisão sobre regularização (cenário D)."
+  },
+  "homogeneizacao": {
+    "indice": "FipeZap — São Paulo · venda · residencial (Número-Índice Total)",
+    "dataReferencia": "2026-06",
+    "ajustados": 23,
+    "semAjuste": [],
+    "fatorMin": 1.0049681141129279,
+    "fatorMax": 1.10981785207319
+  },
+  "medianaPrecoM2": 19061.32,
+  "headline": {
+    "mercado": {
+      "min": 5989387,
+      "max": 7145136
+    },
+    "fechamento": {
+      "min": 4927560,
+      "max": 5878412
+    },
+    "referencia": {
+      "cenario": "top5",
+      "n": 5,
+      "medianaPrecoM2": 15978.09,
+      "valorMercado": 5989387,
+      "valorFechamento": 4927560,
+      "precoM2Fechamento": 11174
+    },
+    "teto": {
+      "cenario": "todos",
+      "n": 23,
+      "medianaPrecoM2": 19061.32,
+      "valorMercado": 7145136,
+      "valorFechamento": 5878412,
+      "precoM2Fechamento": 13330
+    }
+  },
+  "faixaSensibilidade": {
+    "mercadoMin": 5989387,
+    "mercadoMax": 7145136,
+    "fechamentoMin": 4927560,
+    "fechamentoMax": 5878412
+  },
+  "composicaoBairros": [
+    {
+      "bairro": "Jardim Paulista",
+      "n": 16,
+      "medianaPrecoM2": 19073.51
+    },
+    {
+      "bairro": "Jardim América",
+      "n": 5,
+      "medianaPrecoM2": 18272.15
+    },
+    {
+      "bairro": "Jardim Europa",
+      "n": 2,
+      "medianaPrecoM2": 21856.38
+    }
+  ],
+  "desagioMedidoPercent": -12.7,
+  "coAncoraTerreno": 9624000,
+  "autoReferenciasExcluidas": []
+}
