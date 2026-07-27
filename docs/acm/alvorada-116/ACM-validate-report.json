@@ -1,0 +1,124 @@
+{
+  "geradoEm": "2026-07-27T22:22:55.246Z",
+  "meta": {
+    "enderecoAlvo": "Rua Alvorada, 116 — apto 52",
+    "bairro": "Vila Olímpia",
+    "areaConstruida": 113,
+    "areaTerreno": null,
+    "propertyType": "apartamento",
+    "tese": "apto"
+  },
+  "resumo": {
+    "totalComparaveis": 759,
+    "medianaPrecoM2": 8302.49,
+    "valorMercado": 797454,
+    "valorFechamento": 797454,
+    "teseComercial": "indefinida",
+    "subprecificacao": null,
+    "nAvisosCriticos": 0,
+    "r5Excluidos": 0
+  },
+  "gates": [
+    {
+      "id": "R5",
+      "ok": true,
+      "severidade": "info",
+      "detalhe": "aplicado · aceitos=759 · excluídos=0 · R5 Tipologia — Uso/padrão IPTU e Complemento da guia oficial (SF/PMSP) por SQL: só mesma tipologia do alvo; sem guia pública = heurística de lote declarada + conferência humana (Fase 1)."
+    },
+    {
+      "id": "sample_size",
+      "ok": true,
+      "severidade": "info",
+      "detalhe": "n=759 · top3=3"
+    },
+    {
+      "id": "avisos_criticos",
+      "ok": true,
+      "severidade": "info",
+      "detalhe": "nenhum"
+    },
+    {
+      "id": "auto_ref_9.8",
+      "ok": true,
+      "severidade": "info",
+      "detalhe": "excluídos=0"
+    },
+    {
+      "id": "tese_comercial",
+      "ok": false,
+      "severidade": "atencao",
+      "detalhe": "indefinida · Tese indefinida"
+    },
+    {
+      "id": "subprecificacao",
+      "ok": true,
+      "severidade": "info",
+      "detalhe": "sem gap relevante / sem preço"
+    }
+  ],
+  "avisos": [
+    {
+      "codigo": "mixed_neighborhood_sample",
+      "severidade": "atencao",
+      "mensagem": "Amostra multi-bairro (Vila Olímpia: 388, Moema: 288, Vila Nova Conceição: 83) sem segmentação."
+    },
+    {
+      "codigo": "target_land_area_unconfirmed",
+      "severidade": "atencao",
+      "mensagem": "Área de terreno do alvo ausente/provisória — a lente de terreno é indicativa."
+    },
+    {
+      "codigo": "temporal_dispersion_high",
+      "severidade": "atencao",
+      "mensagem": "Vendas dispersas em mais de 12 meses sem homogeneização temporal (índice off)."
+    },
+    {
+      "codigo": "liquidity_factors_unvalidated",
+      "severidade": "atencao",
+      "mensagem": "Fatores de liquidez/condição não elicitados — valor de fechamento = valor de mercado (sem ajuste)."
+    },
+    {
+      "codigo": "target_condition_unconfirmed",
+      "severidade": "atencao",
+      "mensagem": "Estado/ficha do imóvel-alvo não confirmado — faixa reportada de forma conservadora (ver Story 9.14)."
+    }
+  ],
+  "r5": {
+    "aplicado": true,
+    "propertyType": "apartamento",
+    "nEntrada": 759,
+    "nAceitos": 759,
+    "nExcluidos": 0,
+    "nHeuristica": 0,
+    "nIndefinido": 0,
+    "regraUmaLinha": "R5 Tipologia — Uso/padrão IPTU e Complemento da guia oficial (SF/PMSP) por SQL: só mesma tipologia do alvo; sem guia pública = heurística de lote declarada + conferência humana (Fase 1)."
+  },
+  "teseComercial": {
+    "tese": "indefinida",
+    "deltaPct": null,
+    "label": "Tese indefinida",
+    "frase": "Sem preço comercial e/ou referência ACM — tese não classificada.",
+    "precoComercial": null,
+    "referencia": 1132012,
+    "fontePreco": "nenhum"
+  },
+  "subprecificacao": {
+    "nivel": null,
+    "deltaPct": null,
+    "acaoRecomendada": null,
+    "narrativa": null,
+    "gaps": {
+      "vsReferencia": null,
+      "vsTop5": null,
+      "vsTerreno": null
+    },
+    "tempoExposicaoDias": null,
+    "nAnuncios": null,
+    "concorrenciaAlta": false
+  },
+  "top3": [
+    "AV DR CARDOSO DE MELO 155",
+    "AV DR CARDOSO DE MELO 95",
+    "AV DR CARDOSO DE MELO 95"
+  ]
+}

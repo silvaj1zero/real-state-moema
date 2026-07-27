@@ -1,0 +1,30 @@
+{
+  "veredito": "PASS",
+  "score": 99,
+  "auditor": "acm-auditor (CHECKLIST-ACM-AUDITOR-v1, C1-C15)",
+  "data": "2026-07-27",
+  "alvo": "docs/acm/alvorada-116/ACM-computation.json",
+  "blocking": [],
+  "atencao": [],
+  "info": [
+    { "codigo": "C_HOMOG", "evidencia": "homogeneizacao.aplicada=false e nenhum campo dataVenda no computation (0 ocorrencias) => inerte opt-out (tie-break 5)" }
+  ],
+  "condicoes": [
+    { "codigo": "C_HOMOG", "banda": "info", "evidencia": "homogeneizacao.aplicada=false; homogeneizacao.semAjuste=[]; nenhuma dataVenda utilizavel (grep dataVenda=0) => info inerte opt-out" },
+    { "codigo": "C_AUTOREF", "banda": "ok", "evidencia": "autoReferenciasExcluidas=[] (array presente, length 0; nenhum rejeitado exigido)" },
+    { "codigo": "C_HEADLINE_FAIXA", "banda": "ok", "evidencia": "headline.mercado.min=797454 <= headline.referencia.valorMercado=1132012 <= headline.mercado.max=1132012; min<max" },
+    { "codigo": "C_TRES_PRECOS", "banda": "ok", "evidencia": "valorMercado=797454; valorFechamento=797454 e faixaFechamento={min:797454,max:797454}; desagioTratado.valorMercadoPorCenario={conservador:677836,provavel:737645,agressivo:797454} (3 chaves)" },
+    { "codigo": "C_PASSAPORTES", "banda": "ok", "evidencia": "passaportes presente; 759 itens com confianca em {A,B,C,rejeitado} (grep=759); length>=totalComparaveis=759" },
+    { "codigo": "C_EVIDENCIA_AB", "banda": "ok", "evidencia": "evidencia.nA=0 + evidencia.nB=759 => 759>=1; medianaPrincipal=8302.49 finita; pool A/B=759>=5" },
+    { "codigo": "C_AVISOS_CANON", "banda": "ok", "evidencia": "avisos[] array de 5 itens; cada item com codigo, severidade in {info,atencao,critico} (todos 'atencao'), mensagem" },
+    { "codigo": "C_R5", "banda": "ok", "evidencia": "r5.aplicado=true (boolean); propertyType='apartamento'; aplicado!=false => sub-clausula TIPOLOGIA_MISTA nao disparada" },
+    { "codigo": "C_TESE", "banda": "ok", "evidencia": "teseComercial.tese='indefinida' presente; precoComercial=null (sem preco comercial informado) => nao dispara atencao" },
+    { "codigo": "C_SUBPREC", "banda": "ok", "evidencia": "teseComercial.tese='indefinida' != 'abaixo' => gatilho nao dispara" },
+    { "codigo": "C_DESAGIO_PRIOR", "banda": "ok", "evidencia": "desagioMedidoPercent=null => ok (tie-break 4)" },
+    { "codigo": "C_GUARD_STREET", "banda": "ok", "evidencia": "aviso same_street_missing_due_normalization ausente (grep=0)" },
+    { "codigo": "C_SAMPLE", "banda": "ok", "evidencia": "top3 derivado headline.referencia.n=5 (nao <3); totalComparaveis=759 (nao <5) => gatilho nao dispara (tie-break 7)" },
+    { "codigo": "C_ROBUSTEZ_OPT", "banda": "ok", "evidencia": "model nao expoe robustezTese no computation (condicao opcional, gatilho nao disparado)" },
+    { "codigo": "C_INDICE_OPT", "banda": "ok", "evidencia": "model nao expoe triangulacaoBairro no computation (opcional); headline/medianaPrecoM2 nao alterados por indice" }
+  ],
+  "observacao": "O computation traz 5 avisos internos do pipeline com severidade 'atencao' (amostra multi-bairro sem segmentacao, dispersao temporal >12m, terreno n/a, liquidez nao elicitada, estado do alvo nao confirmado). O checklist so conta bandas atribuidas pelo auditor via C1-C15; nenhuma resolveu para atencao."
+}
