@@ -26,5 +26,19 @@
     { "codigo": "C_ROBUSTEZ_OPT", "banda": "ok", "evidencia": "model nao expoe robustezTese no computation (condicao opcional, gatilho nao disparado)" },
     { "codigo": "C_INDICE_OPT", "banda": "ok", "evidencia": "model nao expoe triangulacaoBairro no computation (opcional); headline/medianaPrecoM2 nao alterados por indice" }
   ],
-  "observacao": "O computation traz 5 avisos internos do pipeline com severidade 'atencao' (amostra multi-bairro sem segmentacao, dispersao temporal >12m, terreno n/a, liquidez nao elicitada, estado do alvo nao confirmado). O checklist so conta bandas atribuidas pelo auditor via C1-C15; nenhuma resolveu para atencao."
+  "observacao": "O computation traz 5 avisos internos do pipeline com severidade 'atencao' (amostra multi-bairro sem segmentacao, dispersao temporal >12m, terreno n/a, liquidez nao elicitada, estado do alvo nao confirmado). O checklist so conta bandas atribuidas pelo auditor via C1-C15; nenhuma resolveu para atencao.",
+  "revalidacoes": [
+    {
+      "data": "2026-07-27",
+      "motivo": "Cliente informou 2 vagas de garagem apos a emissao inicial.",
+      "evidencia": "git diff -U0 ACM-computation.json: unica mudanca = target.vagas null->2 (metadado declarado; nao entra no computeLaudo). CLI re-rodada com EXIT 0, gates identicos, mediana/faixa inalteradas.",
+      "efeito": "Nenhuma condicao C1-C15 referencia target.vagas — veredito PASS 99 mantido sem re-auditoria completa."
+    },
+    {
+      "data": "2026-07-27",
+      "motivo": "Cliente corrigiu: predio e Edificio MANUELA (Dorothy e a proprietaria); ano 1995, 5o de 10 andares, condominio R$ 1.840, estado declarado (pintura + cascolac recentes), ventilacao cruzada.",
+      "evidencia": "git diff -U0 ACM-computation.json apos re-run: diff identico ao anterior (so target.vagas null->2) — os novos campos sao metadados do dataset que nao entram na projecao do computation. CLI EXIT 0, gates identicos, mediana/faixa inalteradas.",
+      "efeito": "Nenhum campo auditado pelas condicoes C1-C15 mudou — veredito PASS 99 mantido. Correcoes refletidas em dataset.json, README.md e planilha de validacao."
+    }
+  ]
 }

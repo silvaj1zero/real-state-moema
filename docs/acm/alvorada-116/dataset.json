@@ -2,7 +2,8 @@
   "geradoEm": "2026-07-27T22:17:22.292Z",
   "target": {
     "endereco": "Rua Alvorada, 116 — apto 52",
-    "edificio": "Edifício Dorothy",
+    "edificio": "Edifício Manuela",
+    "proprietaria": "Dorothy (referência do cliente)",
     "bairro": "Vila Olímpia",
     "cep": "04550-000",
     "cidade": "São Paulo",
@@ -11,8 +12,11 @@
     "areaTerreno": null,
     "dormitorios": 3,
     "suites": 1,
-    "vagas": null,
-    "anoConstrucao": null,
+    "vagas": 2,
+    "anoConstrucao": 1995,
+    "andar": 5,
+    "totalAndares": 10,
+    "condominioMensal": 1840,
     "unidadesPorAndar": 2,
     "amenidades": [
       "academia",
@@ -23,9 +27,12 @@
       "varanda",
       "área de serviço",
       "dependência + banheiro de empregada",
-      "lavabo"
+      "lavabo",
+      "ventilação cruzada",
+      "boa distribuição de áreas (planta)"
     ],
     "estadoConservacao": null,
+    "estadoDeclarado": "pintado recentemente; cascolac reaplicado no piso de madeira (declarado pelo cliente 27-Jul — NÃO substitui a ficha A–F da visita)",
     "precoPretendido": null,
     "precoPedidoReal": null,
     "geo": {
@@ -577,7 +584,7 @@
   "avisos": [
     "PRIMEIRO caso de alvo VERTICAL (apartamento): R3 (venda única) e R4 (teto R$/m² horizontal) não aplicados — recorte declarado nas regras.",
     "R4 ausente ⇒ o pool inclui todas as classes de apartamento no raio (de compacto a alto padrão novo); dispersão de R$/m² deve ser lida pelos gates/mediana do computeLaudo, não filtrada à mão.",
-    "Vagas de garagem do alvo NÃO informadas pelo cliente (pendência: apurar via matrícula/IPTU; complementos de guia do próprio edifício listados no README).",
+    "Vagas de garagem do alvo = 2, declaradas pelo cliente em 27-Jul-2026 (conferir na matrícula/IPTU; 0 vendas ITBI no próprio edifício para crosscheck).",
     "Área do alvo = 113 m² ÚTIL declarada pelo cliente; guias ITBI usam área construída do IPTU — leve viés conservador possível na comparação (conferir área privativa na matrícula).",
     "Ficha A–F do alvo pendente de visita (H-3): estadoConservacao=null — deságio de estado não aplicável nesta emissão.",
     "precoPretendido não informado — tese comercial fica indefinida até a captação declarar preço.",
