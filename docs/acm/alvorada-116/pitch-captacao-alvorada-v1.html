@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RE/MAX Galeria — Pitch de Captação v1 · Apto 52 Ed. Manuela · Rua Alvorada 116 · Vila Olímpia · Agosto 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_ds-remax-deck.css">
+<style>
+  .corner-logo{ position:absolute; top:16px; right:34px; height:46px; width:auto; z-index:20;
+    background:#fff; border-radius:9px; padding:5px 8px; box-shadow:0 2px 8px rgba(1,42,110,.16); }
+  .dna{ background:var(--gelo); border-left:5px solid var(--vermelho); border-radius:0 10px 10px 0;
+    padding:14px 20px; font-style:italic; font-size:15px; color:var(--cinza-700); line-height:1.4; }
+  .check{ list-style:none; display:flex; flex-direction:column; gap:11px; }
+  .check li{ position:relative; padding-left:30px; font-size:16px; color:var(--cinza-700); line-height:1.35; }
+  .check li::before{ content:"✔"; position:absolute; left:0; top:0; color:var(--ok); font-weight:800; font-size:16px; }
+  .result-bar{ background:var(--azul); color:#fff; border-radius:12px; padding:16px 24px; font-size:18px; }
+  .regua{ display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-top:8px; }
+  .regua .m{ background:var(--azul-700); border-radius:12px; padding:16px 8px; text-align:center; }
+  .regua .m.hl{ background:var(--vermelho); }
+  .regua .m .v{ font-size:22px; font-weight:800; color:#fff; line-height:1; }
+  .regua .m.sm .v{ font-size:17px; }
+  .regua .m .l{ margin-top:8px; font-size:12px; color:#cfe0ff; }
+  .regua .m.hl .l{ color:#ffd9df; }
+</style>
+</head>
+<body>
+
+<!-- ============ S1 — CAPA ============ -->
+<section class="slide cover">
+  <div class="brandbar"></div>
+  <img src="remax-logo.png" class="corner-logo" alt="RE/MAX">
+  <div class="slide__body" style="justify-content:flex-start;padding-top:84px;">
+    <div class="eyebrow">RE/MAX Galeria · Proposta de Representação Exclusiva</div>
+    <h1>Saudações, Dorothy e família.<br>Vamos vender o seu imóvel pelo melhor valor real.</h1>
+    <div class="sub">RE/MAX, <em>Real Estate Maximum</em>: o máximo de serviço ao cliente.</div>
+    <div class="addr">Apto 52 · Ed. Manuela — Rua Alvorada, 116 · Vila Olímpia, São Paulo · Agosto de 2026</div>
+    <div class="who">
+      <div class="nm">Luciana Borba</div>
+      <div class="ln">Consultora Imobiliária · RE/MAX Galeria · (11) 99995-2014</div>
+      <div class="ln creci">CRECI: 045063-J</div>
+      <div class="ln" style="margin-top:8px;">Rodrigo Lima · (11) 96371-0014 · CRECI: 242.934</div>
+      <div class="ln">Alameda dos Jurupis, 452 · Conj. 153 B · Moema</div>
+    </div>
+    <div class="balloon remax-bug" style="font-size:30px;color:#fff;">RE/<b style="color:#ff5a73;">MAX</b><span class="sub" style="color:#9fc0ff;">Galeria · Moema</span></div>
+  </div>
+</section>
+
+<!-- ============ S2 — RE/MAX EM NÚMEROS + DNA ============ -->
+<section class="slide">
+  <div class="brandbar"></div>
+  <img src="remax-logo.png" class="corner-logo" alt="RE/MAX">
+  <div class="slide__body">
+    <div class="kicker">Quem confia a venda à RE/MAX está com a maior rede do mundo</div>
+    <h2 class="title">A força que vai trabalhar pelo seu imóvel</h2>
+    <div class="title-rule" style="margin:14px 0 16px;"></div>
+    <p class="lead" style="font-size:17px;max-width:104ch;">Fundada em 1973, a RE/MAX é a <b>maior rede imobiliária do mundo em volume de vendas</b> — e também a número 1 no Brasil.</p>
+    <div class="dna" style="margin-top:14px;"><b style="color:var(--azul-900);font-style:normal;">Faz parte do DNA da RE/MAX</b> proporcionar ao cliente uma experiência com 100% de ética, comprometimento, excelência e resultado — revolucionando o mercado com método eficaz e inovador.</div>
+    <div class="grid cols-3" style="margin-top:auto;gap:18px;">
+      <div class="stat"><div class="num">115<span class="u">+ países</span></div><div class="lbl">144 mil+ corretores conectados pelo mesmo sistema, há mais de 50 anos</div></div>
+      <div class="stat"><div class="num">600<span class="u">+ lojas</span></div><div class="lbl">No Brasil, em mais de 250 cidades, com 11 mil+ profissionais</div></div>
+      <div class="stat accent"><div class="num">R$ 14,3<span class="u"> bi</span></div><div class="lbl">Em VGV no Brasil em 2025 — número 1 em vendas no país</div></div>
+    </div>
+  </div>
+  <div class="foot"><span class="remax">RE/<b>MAX</b> Galeria</span><span class="pageno">02</span></div>
+</section>
+
+<!-- ============ S3 — CAPACIDADE DE VENDA ============ -->
+<section class="slide">
+  <div class="brandbar"></div>
+  <img src="remax-logo.png" class="corner-logo" alt="RE/MAX">
+  <div class="slide__body">
+    <div class="kicker">Capacidade de venda · rede + método</div>
+    <h2 class="title">Vendemos em menos da metade do tempo</h2>
+    <div class="title-rule"></div>
+    <div class="vs" style="margin-top:14px;">
+      <div class="card bad"><div class="big">490</div><div class="cap">dias — prazo médio do mercado tradicional</div><div class="src">Fonte: Inteligência do grupo OLX (Zap Imóveis)</div></div>
+      <div class="arrow">&rarr;</div>
+      <div class="card good"><div class="big">140</div><div class="cap">dias — prazo médio de vendas da RE/MAX no Brasil</div><div class="src">Fonte: RE/MAX Brasil</div></div>
+    </div>
+    <div class="row" style="margin-top:24px;gap:24px;align-items:center;">
+      <div class="stat accent" style="flex:0 0 300px;padding:24px;">
+        <div class="num" style="font-size:56px;">7<span class="u" style="font-size:24px;"> de 10</span></div>
+        <div class="lbl" style="margin-top:8px;">imóveis vendidos pela RE/MAX têm o <b>comprador originado por outra imobiliária ou corretor parceiro</b>.</div>
+      </div>
+      <p class="lead" style="font-size:18px;">Seu imóvel fica disponível para <b>milhares de corretores</b> — mas com <b>uma só interlocutora</b>: a Luciana. A rede amplia o alcance; a exclusividade garante a consistência. <b>Mais alcance, mesma mensagem.</b></p>
+    </div>
+  </div>
+  <div class="foot"><span class="remax">RE/<b>MAX</b> Galeria</span><span class="pageno">03</span></div>
+</section>
+
+<!-- ============ S4 — PLANO DE COMERCIALIZAÇÃO ============ -->
+<section class="slide">
+  <div class="brandbar"></div>
+  <img src="remax-logo.png" class="corner-logo" alt="RE/MAX">
+  <div class="slide__body">
+    <div class="kicker">Plano de comercialização · como a RE/MAX vende</div>
+    <h2 class="title" style="font-size:30px;">Uma venda boa e rápida nasce de estratégia, planejamento e execução</h2>
+    <div class="title-rule" style="margin:12px 0 14px;"></div>
+    <p class="lead" style="font-size:16px;">Na RE/MAX, cada imóvel recebe um <b>plano de comercialização estruturado</b>:</p>
+    <div class="grid cols-2" style="margin-top:14px;gap:10px 36px;">
+      <ul class="check">
+        <li>Uma só corretora como interlocutora</li>
+        <li>Precificação baseada em análise de mercado</li>
+        <li>Produção de fotos e materiais de alta qualidade</li>
+        <li>Divulgação direcionada nos principais canais</li>
+        <li>Compartilhamento com ampla rede de corretores</li>
+      </ul>
+      <ul class="check">
+        <li>Qualificação de compradores</li>
+        <li>Acompanhamento das visitas</li>
+        <li>Gestão das propostas</li>
+        <li>Condução da negociação</li>
+        <li>Relatórios periódicos de desempenho e feedback (a combinar)</li>
+      </ul>
+    </div>
+    <div class="result-bar" style="margin-top:18px;"><b>O resultado:</b> mais visibilidade, mais visitas qualificadas e negociações mais assertivas.</div>
+  </div>
+  <div class="foot"><span class="remax">RE/<b>MAX</b> Galeria</span><span class="pageno">04</span></div>
+</section>
+
+<!-- ============ S5 — DIVISOR ACM ============ -->
+<section class="slide divider">
+  <div class="brandbar"></div>
+  <img src="remax-logo.png" class="corner-logo" alt="RE/MAX">
+  <div class="slide__body">
+    <div class="step">ACM</div>
+    <h2>O seu imóvel e o valor que o mercado realmente paga</h2>
+    <p class="lead">A Análise Comparativa de Mercado — o método mais eficiente no mundo e no Brasil — apoiada em vendas registradas, não em achismo.</p>
+  </div>
+  <div class="foot"><span class="remax" style="color:#fff;">RE/<b style="color:#ff5a73;">MAX</b> Galeria</span><span class="pageno" style="color:#cfe0ff;">05</span></div>
+</section>
+
+<!-- ============ S6 — SOBRE O IMÓVEL ============ -->
+<section class="slide">
+  <div class="brandbar"></div>
+  <img src="remax-logo.png" class="corner-logo" alt="RE/MAX">
+  <div class="slide__body">
+    <div class="kicker">Sobre o seu imóvel · características confirmadas</div>
+    <h2 class="title" style="font-size:30px;">3 dormitórios com 2 vagas num prédio boutique de só 20 unidades</h2>
+    <div class="title-rule" style="margin:12px 0 18px;"></div>
+    <div class="row" style="gap:30px;flex:1;">
+      <div class="fill" style="display:flex;flex-direction:column;gap:12px;">
+        <p class="lead" style="font-size:16px;line-height:1.5;">No coração da Vila Olímpia, o <b>Ed. Manuela (1994)</b> tem apenas <b>2 apartamentos por andar</b>. O apto 52 fica no <b>5º de 10 andares</b> (meio exato do prédio), de frente para a rua, <b>pronto para morar</b>.</p>
+        <ul class="bullets" style="gap:10px;">
+          <li style="font-size:16px;"><b>3 dormitórios (1 suíte)</b> + lavabo + varanda + dependência completa.</li>
+          <li style="font-size:16px;"><b>Conservação boa:</b> pintado, piso de madeira restaurado, ventilação cruzada e boa distribuição.</li>
+          <li style="font-size:16px;"><b>Lazer completo</b> — academia, sauna e salão de festas — rateado entre poucas famílias.</li>
+        </ul>
+        <div class="sourcebox" style="font-size:12.5px;"><b>Due diligence antes do anúncio:</b> confirmar o carnê de IPTU do próprio apto 52 (a área oficial veio do apto 71, mesmo prédio) e a averbação das 2 vagas na matrícula.</div>
+      </div>
+      <div style="flex:0 0 340px;display:flex;flex-direction:column;gap:12px;">
+        <div class="grid cols-2" style="gap:12px;">
+          <div class="stat accent" style="padding:20px;"><div class="num">113<span class="u"> m²</span></div><div class="lbl">Área útil</div></div>
+          <div class="stat" style="padding:20px;"><div class="num">213<span class="u"> m²</span></div><div class="lbl">Área cadastral (IPTU)</div></div>
+        </div>
+        <div class="grid cols-2" style="gap:12px;">
+          <div class="stat" style="padding:20px;"><div class="num">2</div><div class="lbl">Vagas privativas</div></div>
+          <div class="stat" style="padding:20px;"><div class="num">20</div><div class="lbl">Unidades no prédio (2 por andar)</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span class="remax">RE/<b>MAX</b> Galeria</span><span class="pageno">06</span></div>
+</section>
+
+<!-- ============ S7 — DUAS RÉGUAS ============ -->
+<section class="slide">
+  <div class="brandbar"></div>
+  <img src="remax-logo.png" class="corner-logo" alt="RE/MAX">
+  <div class="slide__body">
+    <div class="kicker">Antes dos números · a distinção mais importante</div>
+    <h2 class="title">Duas réguas de área — uma para calcular, outra para vender</h2>
+    <div class="title-rule"></div>
+    <div class="grid cols-2" style="margin-top:14px;gap:24px;">
+      <div class="stat"><div class="num" style="font-size:34px;">213 m² <span class="u">cadastrais</span></div><div class="lbl" style="font-size:15px;"><b>A régua de CÁLCULO.</b> É a área do IPTU, do ITBI e da matrícula — inclui a privativa, a parte proporcional das áreas comuns e as 2 vagas. É com ela que <b>comparamos venda com venda</b>.</div></div>
+      <div class="stat accent"><div class="num" style="font-size:34px;">113 m² <span class="u" style="color:#cfe0ff;">úteis</span></div><div class="lbl" style="font-size:15px;"><b style="color:#fff;">A régua de VENDA.</b> É o piso interno do apartamento — a área do anúncio, dos portais e da conversa com o comprador. É com ela que <b style="color:#fff;">nos posicionamos contra a concorrência</b>.</div></div>
+    </div>
+    <div class="sourcebox" style="margin-top:18px;font-size:13.5px;"><b>O fator do prédio é 1,88</b> (213 ÷ 113) — alto e <b>favorável</b>: significa muita área comum e garagem por unidade, coerente com lazer completo rateado entre só 20 apartamentos. Na visita, antecipamos ao comprador que "213 m²" da matrícula é a área total — isso evita ruído e transmite domínio.</div>
+    <p style="margin-top:12px;font-size:13px;color:var(--cinza-500);">Misturar as duas réguas é erro de unidade — foi exatamente o que derrubou uma avaliação anterior deste imóvel em 47%. O nosso cálculo é cadastral contra cadastral: a única comparação tecnicamente válida.</p>
+  </div>
+  <div class="foot"><span class="remax">RE/<b>MAX</b> Galeria</span><span class="pageno">07</span></div>
+</section>
+
+<!-- ============ S8 — METODOLOGIA ============ -->
+<section class="slide">
+  <div class="brandbar"></div>
+  <img src="remax-logo.png" class="corner-logo" alt="RE/MAX">
+  <div class="slide__body">
+    <div class="kicker">Metodologia · evidência rastreável, não opinião</div>
+    <h2 class="title">Como chegamos ao valor</h2>
+    <div class="title-rule"></div>
+    <div class="grid cols-3" style="margin-top:8px;">
+      <div class="stat"><div class="num">631</div><div class="lbl"><b>Apartamentos vendidos (ITBI/PMSP)</b> num raio de 1.000 m, filtrados de 4.986 transações reais 2024–2026</div></div>
+      <div class="stat"><div class="num">53</div><div class="lbl"><b>Vendas do perfil exato do alvo</b> — área cadastral 190–240 m² e prédios de 1985–2005 (o Manuela é de 1994)</div></div>
+      <div class="stat accent"><div class="num">IPTU</div><div class="lbl"><b>Carnê do próprio edifício</b> ancora a área oficial (213 m²) e o piso de valor (venal R$ 1,10 mi)</div></div>
+    </div>
+    <p class="lead" style="margin-top:26px;font-size:18px;">Cada comparável é uma <b>transação registrada em cartório</b>, rastreável pelo cadastro municipal (SQL). Preço de anúncio entra só como leitura de concorrência — <b>nunca como verdade de valor</b>.</p>
+    <div class="sourcebox" style="margin-top:14px;font-size:13.5px;"><b>A idade do prédio é o fator que mais separa preço:</b> no mesmo recorte de área, imóveis de todas as épocas têm mediana de R$ 1,95 mi — mas o estoque de 1985–2005 fica em R$ 1,31 mi. Comparar o Ed. Manuela com prédio novo inflaria o valor e travaria a venda.</div>
+  </div>
+  <div class="foot"><span class="remax">RE/<b>MAX</b> Galeria</span><span class="pageno">08</span></div>
+</section>
+
+<!-- ============ S9 — MAPA ============ -->
+<section class="slide">
+  <div class="brandbar"></div>
+  <img src="remax-logo.png" class="corner-logo" alt="RE/MAX">
+  <div class="slide__body">
+    <div class="kicker">Geografia · raio de 1.000 m a partir do imóvel</div>
+    <h2 class="title" style="font-size:30px;">Os comparáveis no entorno imediato</h2>
+    <div class="title-rule" style="margin:10px 0 14px;"></div>
+    <div class="row" style="gap:24px;flex:1;">
+      <div class="fig" style="flex:0 0 620px;"><img src="ACM_alvorada_mapa.png" alt="Mapa dos comparáveis num raio de 1.000 m"></div>
+      <div class="fill" style="display:flex;flex-direction:column;gap:12px;justify-content:center;">
+        <ul class="bullets" style="gap:12px;">
+          <li style="font-size:15px;"><b style="color:#E2231A;">Vermelho:</b> o imóvel-alvo (Rua Alvorada, 116 — apto 52).</li>
+          <li style="font-size:15px;"><b style="color:#1f9d57;">Verde:</b> o comparável interno — AP 51, no próprio Ed. Manuela.</li>
+          <li style="font-size:15px;"><b style="color:#E8A317;">Dourado (1–3):</b> os 3 comparáveis de máxima aderência.</li>
+          <li style="font-size:15px;"><b style="color:#C8651F;">Laranja (4–5):</b> reforço da amostra.</li>
+          <li style="font-size:15px;"><b style="color:#1E5AA8;">Azul:</b> demais vendas do Top 20 no raio.</li>
+        </ul>
+        <div class="sourcebox" style="font-size:13px;">Microrregião de valorização homogênea na Vila Olímpia — 62 vendas reais do recorte, com o comparável de ouro dentro do próprio prédio.</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span class="remax">RE/<b>MAX</b> Galeria</span><span class="pageno">09</span></div>
+</section>
+
+<!-- ============ S10 — AS 3 EVIDÊNCIAS ============ -->
+<section class="slide">
+  <div class="brandbar"></div>
+  <img src="remax-logo.png" class="corner-logo" alt="RE/MAX">
+  <div class="slide__body">
+    <div class="kicker">A construção do número · três evidências independentes</div>
+    <h2 class="title" style="font-size:32px;">Três evidências convergem para a mesma faixa</h2>
+    <div class="title-rule" style="margin:12px 0 14px;"></div>
+    <div class="grid cols-3" style="margin-top:6px;gap:20px;">
+      <div class="stat accent" style="padding:24px;"><div class="num" style="font-size:26px;color:#fff;">1 · O vizinho de andar</div><div class="lbl" style="font-size:14.5px;color:#cfe0ff;">O <b style="color:#fff;">apto 51 — mesmo prédio, mesmo andar, mesma área</b> — foi vendido por <b style="color:#fff;">R$ 1.325.000</b> (set/2023). Corrigido pelo micro-mercado: <b style="color:#fff;">R$ 1,31–1,51 mi</b> hoje. Não existe comparável melhor em uma ACM.</div></div>
+      <div class="stat" style="padding:24px;"><div class="num" style="font-size:26px;">2 · O prédio gêmeo</div><div class="lbl" style="font-size:14.5px;">Vahia de Abreu, 383 — também de 1994, a 390 m — teve <b>10 vendas</b> em 2024–26, entre <b>R$ 1,00 e 1,24 mi</b>. O Manuela vale mais: é boutique, com 2 vagas e lazer.</div></div>
+      <div class="stat" style="padding:24px;"><div class="num" style="font-size:26px;">3 · O mercado da região</div><div class="lbl" style="font-size:14.5px;"><b>53 vendas reais</b> do mesmo porte e da mesma safra no raio de 1.000 m — mediana de <b>R$ 1.312.500</b>, coincidindo com o piso da evidência nº 1.</div></div>
+    </div>
+    <div class="result-bar" style="margin-top:20px;"><b>Convergência:</b> o comparável interno corrigido (R$ 1,31–1,51 mi) e a mediana do perfil da mesma época (R$ 1,31 mi) apontam para a mesma região de valor — <b>alta confiança na faixa</b>.</div>
+  </div>
+  <div class="foot"><span class="remax">RE/<b>MAX</b> Galeria</span><span class="pageno">10</span></div>
+</section>
+
+<!-- ============ S11 — COMPARÁVEL DE OURO (AP 51) ============ -->
+<section class="slide">
+  <div class="brandbar"></div>
+  <img src="remax-logo.png" class="corner-logo" alt="RE/MAX">
+  <div class="slide__body">
+    <div class="kicker">O comparável de ouro · vendas no próprio Ed. Manuela</div>
+    <h2 class="title" style="font-size:30px;">A régua é uma venda no seu prédio, no seu andar</h2>
+    <div class="title-rule" style="margin:12px 0 14px;"></div>
+    <table class="acm" style="font-size:15px;">
+      <thead>
+        <tr><th>Unidade</th><th>Data</th><th>Área cad.</th><th>Valor</th><th>Natureza</th><th>Uso na ACM</th></tr>
+      </thead>
+      <tbody>
+        <tr class="adj"><td>AP 51 — 5º andar</td><td>set/2023</td><td>213 m²</td><td>R$ 1.325.000</td><td>Compra e venda</td><td>COMPARÁVEL DE OURO</td></tr>
+        <tr><td>AP 61</td><td>set/2024</td><td>213 m²</td><td>R$ 800.000</td><td>Compra e venda</td><td>outlier — abaixo do venal</td></tr>
+        <tr><td>AP 102</td><td>mar/2024</td><td>316 m²</td><td>R$ 1.153.774</td><td>Arrematação em leilão</td><td>excluído (não é mercado)</td></tr>
+        <tr><td>AP 12</td><td>dez/2024</td><td>213 m²</td><td>R$ 200.000</td><td>Integralização de capital</td><td>excluído (não é venda)</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:14px;font-size:14.5px;color:var(--cinza-700);line-height:1.4;">O AP 51 é o <b>vizinho de porta do 52, no mesmo 5º andar</b>: mesma área, mesma safra, mesmo condomínio, mesmo lazer. Corrigido pelo índice do micro-mercado, indica <b>R$ 1.308.000 (base 2025) a R$ 1.506.000 (base 2026 parcial)</b> para o alvo hoje — antes dos diferenciais de conservação.</p>
+    <p style="margin-top:8px;font-size:12.5px;color:var(--cinza-500);">Sobre o AP 61 (R$ 800 mil): transação isolada <b>abaixo do próprio valor venal do prédio</b> (R$ 1,10 mi) — padrão de venda atípica. Se um comprador citar, a resposta está pronta: contra ela há uma venda de mercado no mesmo andar a R$ 1,325 mi.</p>
+  </div>
+  <div class="foot"><span class="remax">RE/<b>MAX</b> Galeria</span><span class="pageno">11</span></div>
+</section>
+
+<!-- ============ S12 — TOP 5 ADERÊNCIA ============ -->
+<section class="slide">
+  <div class="brandbar"></div>
+  <img src="remax-logo.png" class="corner-logo" alt="RE/MAX">
+  <div class="slide__body">
+    <div class="kicker">Comparáveis de maior aderência · vendas registradas (ITBI)</div>
+    <h2 class="title" style="font-size:32px;">Os 5 imóveis mais parecidos, já vendidos</h2>
+    <div class="title-rule" style="margin:12px 0 14px;"></div>
+    <table class="acm" style="font-size:15px;">
+      <thead>
+        <tr><th>#</th><th>Endereço (vendido)</th><th>Área cad.</th><th>Ano</th><th>Distância</th><th>Venda</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>R. Prof. Vahia de Abreu, 383</td><td>203 m²</td><td>1994</td><td>390 m</td><td>R$ 1.125.000</td></tr>
+        <tr><td>2</td><td>R. Prof. Vahia de Abreu, 383</td><td>203 m²</td><td>1994</td><td>390 m</td><td>R$ 1.150.000</td></tr>
+        <tr><td>3</td><td>Av. dos Eucaliptos, 113</td><td>214 m²</td><td>1996</td><td>789 m</td><td>R$ 1.300.000</td></tr>
+        <tr><td>4</td><td>Av. dos Eucaliptos, 113</td><td>216 m²</td><td>1996</td><td>789 m</td><td>R$ 2.000.000</td></tr>
+        <tr><td>5</td><td>Av. dos Eucaliptos, 155</td><td>205 m²</td><td>1995</td><td>829 m</td><td>R$ 1.150.000</td></tr>
+        <tr class="avg"><td colspan="5">Mediana dos 20 comparáveis de maior aderência (12 prédios)</td><td>R$ 1.300.000</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:14px;font-size:13px;color:var(--cinza-700);line-height:1.3;"><b style="color:var(--vermelho);">Sinal de amostra estável:</b> o Top 20 e o recorte completo (62 vendas) dão o mesmo número — R$ 1.300.000. O Top 5 fica abaixo por concentrar no prédio gêmeo, de alta rotatividade e patamar inferior ao Manuela.</p>
+    <p style="margin-top:6px;font-size:12px;color:var(--cinza-500);">Fonte: ITBI/PMSP 2024–2026, rastreável por SQL cadastral. Aderência: 40% área · 25% época · 25% distância · 10% recência, com diversidade de prédios.</p>
+  </div>
+  <div class="foot"><span class="remax">RE/<b>MAX</b> Galeria</span><span class="pageno">12</span></div>
+</section>
+
+<!-- ============ S13 — MERCADO FECHA ABAIXO + POSICIONAMENTO ============ -->
+<section class="slide">
+  <div class="brandbar"></div>
+  <img src="remax-logo.png" class="corner-logo" alt="RE/MAX">
+  <div class="slide__body">
+    <div class="kicker">A tese central · por que precificar certo protege o seu valor</div>
+    <h2 class="title" style="font-size:30px;">O mercado fecha 25–30% abaixo do anúncio</h2>
+    <div class="title-rule" style="margin:12px 0 14px;"></div>
+    <p class="lead" style="font-size:15.5px;">Na régua que o comprador usa (R$/m² útil), a faixa sugerida posiciona o seu apartamento <b>no meio exato do mercado ofertado</b> — logo abaixo do concorrente direto da mesma rua:</p>
+    <table class="acm" style="font-size:14px;margin-top:10px;">
+      <thead>
+        <tr><th>Concorrente (ofertas ativas)</th><th>Área útil</th><th>Pedido</th><th>R$/m² útil</th><th>vs. nosso anúncio</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>R. do Rocio</td><td>112 m²</td><td>R$ 2.499.000</td><td>R$ 22.313</td><td>muito acima</td></tr>
+        <tr><td>R. Alvorada</td><td>109 m²</td><td>R$ 2.200.000</td><td>R$ 20.183</td><td>muito acima</td></tr>
+        <tr><td>R. Alvorada</td><td>109 m²</td><td>R$ 1.700.000</td><td>R$ 15.596</td><td>logo acima do nosso teto</td></tr>
+        <tr class="adj"><td>SEU IMÓVEL (sugerido)</td><td>113 m²</td><td>R$ 1,55–1,70 mi</td><td>R$ 13.717–15.044</td><td>—</td></tr>
+        <tr><td>R. Casa do Ator</td><td>115 m²</td><td>R$ 1.280.000</td><td>R$ 11.130</td><td>abaixo</td></tr>
+        <tr><td>R. Alvorada (1 vaga)</td><td>110 m²</td><td>R$ 1.170.000</td><td>R$ 10.636</td><td>abaixo</td></tr>
+      </tbody>
+    </table>
+    <div class="sourcebox" style="margin-top:14px;font-size:13px;">Ofertas do entorno pedem mediana de ~R$ 1,70 mi; os fechamentos reais equivalentes ficam em R$ 1,20–1,65 mi (mediana R$ 1,31 mi) — <b>gap de 25–30%</b>. Anunciar acima do que o mercado paga gera menos visitas, mais prazo e <b>maior perda ao final</b>. Precificar certo desde o início protege o seu patrimônio.</div>
+  </div>
+  <div class="foot"><span class="remax">RE/<b>MAX</b> Galeria</span><span class="pageno">13</span></div>
+</section>
+
+<!-- ============ S14 — RECOMENDAÇÃO (HERO) ============ -->
+<section class="slide price-hero">
+  <div class="brandbar"></div>
+  <img src="remax-logo.png" class="corner-logo" alt="RE/MAX">
+  <div class="slide__body" style="justify-content:flex-start;padding-top:64px;">
+    <div class="kicker" style="color:#9fc0ff;">Sugestão RE/MAX Galeria · recomendação de precificação</div>
+    <div style="display:flex;gap:70px;align-items:flex-end;flex-wrap:wrap;margin-top:6px;">
+      <div>
+        <div class="lbl" style="color:#cfe0ff;font-size:15px;margin-bottom:4px;">Anúncio recomendado</div>
+        <div class="pv" style="font-size:62px;"><span class="c">R$</span>1,55&ndash;1,70<span style="font-size:30px;"> mi</span></div>
+      </div>
+      <div>
+        <div class="lbl" style="color:#cfe0ff;font-size:15px;margin-bottom:4px;">Fechamento esperado</div>
+        <div class="pv" style="font-size:48px;"><span class="c" style="font-size:24px;">R$</span>1,35&ndash;1,50<span style="font-size:24px;"> mi</span></div>
+      </div>
+    </div>
+    <div style="margin-top:22px;font-size:13px;font-weight:700;letter-spacing:.12em;color:#9fc0ff;text-transform:uppercase;">A régua completa de valor (R$ milhões)</div>
+    <div class="regua">
+      <div class="m"><div class="v">R$ 1,70</div><div class="l">Anúncio — teto</div></div>
+      <div class="m"><div class="v">R$ 1,55</div><div class="l">Anúncio — piso</div></div>
+      <div class="m hl sm"><div class="v">R$ 1,35–1,50</div><div class="l">Fechamento esperado</div></div>
+      <div class="m"><div class="v">R$ 1,25</div><div class="l">Piso de negociação</div></div>
+      <div class="m"><div class="v">R$ 1,10</div><div class="l">Venal oficial (IPTU)</div></div>
+    </div>
+    <div class="ps" style="margin-top:20px;">
+      <b style="color:#fff;">A régua é o seu próprio prédio:</b> a venda do AP 51 corrigida (R$ 1,31–1,51 mi) mais os diferenciais do 52 — conservação boa (+3 a +6%) e ventilação cruzada (+2 a +4%). Anunciar a R$ 1,55–1,70 mi posiciona na faixa do concorrente de R$ 1,70 mi da mesma rua, com ~15% de reserva de negociação. <b style="color:#fff;">Não descer abaixo de R$ 1,25 mi</b> — defendido pelo venal oficial e pela venda do vizinho.
+    </div>
+  </div>
+  <div class="foot"><span class="remax" style="color:#fff;">RE/<b style="color:#ff5a73;">MAX</b> Galeria</span><span class="pageno" style="color:#cfe0ff;">14</span></div>
+</section>
+
+<!-- ============ S15 — PRÓXIMOS PASSOS ============ -->
+<section class="slide">
+  <div class="brandbar"></div>
+  <img src="remax-logo.png" class="corner-logo" alt="RE/MAX">
+  <div class="slide__body">
+    <div class="kicker">Estratégia de venda · próximos passos</div>
+    <h2 class="title">Do contrato à venda</h2>
+    <div class="title-rule"></div>
+    <div class="timeline" style="margin-top:4px;">
+      <div class="it"><div class="n">1</div><div class="tx"><b>Assinatura do contrato</b> de representação exclusiva.</div></div>
+      <div class="it"><div class="n">2</div><div class="tx"><b>Análise jurídica</b> da documentação (due diligence) — carnê de IPTU do apto 52 e averbação das 2 vagas na matrícula.</div></div>
+      <div class="it"><div class="n">3</div><div class="tx">Montagem do <b>plano de marketing</b> e produção do material profissional (fotos, filme e tour virtual).</div></div>
+      <div class="it"><div class="n">4</div><div class="tx"><b>Implementação</b> e início dos trabalhos — anúncio entre R$ 1,55 e 1,70 mi, com revisão em ciclos de 45–60 dias.</div></div>
+      <div class="it win"><div class="n">5</div><div class="tx">VENDA — fechamento entre <b>R$ 1,35 e R$ 1,50 milhão</b> (piso R$ 1,25 mi).</div></div>
+    </div>
+  </div>
+  <div class="foot"><span class="remax">RE/<b>MAX</b> Galeria</span><span class="pageno">15</span></div>
+</section>
+
+<!-- ============ S16 — ENCERRAMENTO ============ -->
+<section class="slide cover">
+  <div class="brandbar"></div>
+  <img src="remax-logo.png" class="corner-logo" alt="RE/MAX">
+  <div class="slide__body" style="justify-content:center;">
+    <div class="eyebrow">RE/MAX Galeria · Moema</div>
+    <h1 style="font-size:56px;">Obrigada, Dorothy.</h1>
+    <div class="sub" style="font-size:21px;max-width:60ch;">Se deseja vender seu imóvel com <b style="color:#fff;">gestão profissional focada em resultados</b>, fale comigo.</div>
+    <div style="margin-top:22px;border-left:4px solid var(--vermelho);padding-left:18px;font-style:italic;font-size:16px;color:#cfe0ff;max-width:70ch;line-height:1.4;">RE/MAX Galeria — conectando pessoas aos melhores negócios imobiliários por um modelo de gestão eficiente, transparente e orientado por resultados.</div>
+    <div class="who">
+      <div class="nm">Luciana Borba</div>
+      <div class="ln">Consultora Imobiliária · RE/MAX Galeria · (11) 99995-2014</div>
+      <div class="ln">lucianaborba@remax.com.br</div>
+      <div class="ln creci">CRECI: 045063-J</div>
+    </div>
+    <div class="balloon remax-bug" style="font-size:30px;color:#fff;">RE/<b style="color:#ff5a73;">MAX</b><span class="sub" style="color:#9fc0ff;">Galeria · Moema</span></div>
+  </div>
+</section>
+
+<!-- ============ MODO APRESENTAÇÃO (tela cheia + transições; não afeta o PDF) ============ -->
+<style>
+  .present-btn{ position:fixed; right:28px; bottom:24px; z-index:99;
+    background:var(--vermelho); color:#fff; border:0; border-radius:30px;
+    padding:12px 22px; font:700 15px var(--ff); cursor:pointer; letter-spacing:.02em;
+    box-shadow:0 6px 20px rgba(220,20,49,.35); }
+  .present-btn:hover{ background:var(--vermelho-700); }
+  .present-count{ display:none; }
+  body.present{ overflow:hidden; background:#000; }
+  body.present .present-btn{ display:none; }
+  body.present .present-count{ display:block; position:fixed; right:18px; bottom:14px; z-index:9;
+    color:rgba(255,255,255,.45); font:600 13px var(--ff); }
+  body.present .slide{ position:fixed; top:50%; left:50%; margin:0;
+    transform:translate(-50%,-50%) scale(var(--pscale,1));
+    opacity:0; visibility:hidden; z-index:1; box-shadow:none;
+    transition:opacity .5s ease, visibility .5s; }
+  body.present .slide.active{ opacity:1; visibility:visible; z-index:2; }
+  @media print{ .present-btn,.present-count{ display:none !important; } }
+</style>
+<button class="present-btn" id="presentBtn">▶&nbsp; Apresentar</button>
+<div class="present-count" id="presentCount"></div>
+<script>
+(function(){
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var idx = 0, on = false;
+  var btn = document.getElementById('presentBtn');
+  var count = document.getElementById('presentCount');
+  function fit(){
+    var s = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+    document.documentElement.style.setProperty('--pscale', s);
+  }
+  function show(n){
+    idx = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach(function(sl, k){ sl.classList.toggle('active', k === idx); });
+    count.textContent = (idx + 1) + ' / ' + slides.length;
+  }
+  function enter(){
+    on = true; document.body.classList.add('present'); fit(); show(idx);
+    if (document.documentElement.requestFullscreen)
+      document.documentElement.requestFullscreen().catch(function(){});
+  }
+  function exit(){
+    on = false; document.body.classList.remove('present');
+    slides.forEach(function(sl){ sl.classList.remove('active'); });
+    if (document.fullscreenElement) document.exitFullscreen();
+  }
+  btn.addEventListener('click', function(e){ e.stopPropagation(); enter(); });
+  window.addEventListener('resize', fit);
+  document.addEventListener('fullscreenchange', function(){
+    if (!document.fullscreenElement && on) exit();
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'p' || e.key === 'P'){ on ? exit() : enter(); return; }
+    if (!on) return;
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown' || e.key === 'Enter'){ e.preventDefault(); show(idx + 1); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp'){ e.preventDefault(); show(idx - 1); }
+    else if (e.key === 'Home'){ show(0); }
+    else if (e.key === 'End'){ show(slides.length - 1); }
+    else if (e.key === 'Escape'){ exit(); }
+  });
+  document.addEventListener('click', function(e){
+    if (on && !e.target.closest('a')) show(idx + 1);
+  });
+})();
+</script>
+</body>
+</html>

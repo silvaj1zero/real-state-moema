@@ -1,0 +1,203 @@
+/* =====================================================================
+   RE/MAX Galeria — Design System para Deck de Captação (ACM)
+   Cliente: Luciana Borba | Material: Apresentação Dr. Andrade Pertence, 132
+   Marca: RE/MAX  ·  Azul #003DA5  ·  Vermelho #DC1431
+   Formato: 16:9 (1280×720) — imprime para PDF via Chrome headless
+   ===================================================================== */
+
+:root{
+  --azul:#003DA5;          /* primária RE/MAX */
+  --azul-900:#012a6e;      /* navy profundo p/ fundos */
+  --azul-700:#013a8f;
+  --vermelho:#DC1431;      /* acento RE/MAX */
+  --vermelho-700:#b30f27;
+  --branco:#ffffff;
+  --gelo:#f4f6fb;          /* fundo claro de seção */
+  --cinza-100:#eef1f6;
+  --cinza-300:#cfd6e4;
+  --cinza-500:#7d8aa3;
+  --cinza-700:#3a4258;
+  --tinta:#1a2233;         /* texto principal */
+  --ok:#1f9d57;
+
+  --ff: "Inter","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  --shadow: 0 10px 34px rgba(1,42,110,.14);
+  --radius: 16px;
+}
+
+*{ box-sizing:border-box; margin:0; padding:0; }
+
+html,body{
+  font-family:var(--ff);
+  color:var(--tinta);
+  background:#5b6478;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  -webkit-print-color-adjust:exact;
+  print-color-adjust:exact;
+}
+
+/* ---------- Página / Slide ---------- */
+.slide{
+  position:relative;
+  width:1280px; height:720px;
+  margin:24px auto;
+  background:var(--branco);
+  overflow:hidden;
+  box-shadow:var(--shadow);
+  display:flex; flex-direction:column;
+}
+.slide__body{ flex:1; display:flex; flex-direction:column; padding:64px 72px; }
+
+/* Faixa de marca superior */
+.brandbar{
+  height:8px; width:100%;
+  background:linear-gradient(90deg,var(--azul) 0 70%,var(--vermelho) 70% 100%);
+}
+
+/* Rodapé padrão */
+.foot{
+  position:absolute; bottom:26px; left:72px; right:72px;
+  display:flex; justify-content:space-between; align-items:center;
+  font-size:13px; color:var(--cinza-500); letter-spacing:.02em;
+}
+.foot .remax{ font-weight:800; color:var(--azul); letter-spacing:.04em; }
+.foot .remax b{ color:var(--vermelho); }
+.pageno{ font-variant-numeric:tabular-nums; }
+
+/* Marca RE/MAX (bug tipográfico on-brand) */
+.remax-bug{ font-weight:800; color:var(--azul); letter-spacing:.04em; font-size:22px; }
+.remax-bug b{ color:var(--vermelho); }
+.remax-bug .sub{ display:block; font-size:11px; font-weight:600; color:var(--cinza-500); letter-spacing:.18em; text-transform:uppercase; }
+
+/* ---------- Tipografia ---------- */
+.kicker{ font-size:14px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--vermelho); margin-bottom:14px; }
+h1.title{ font-size:46px; line-height:1.06; font-weight:800; color:var(--azul-900); letter-spacing:-.01em; }
+h2.title{ font-size:38px; line-height:1.1; font-weight:800; color:var(--azul-900); letter-spacing:-.01em; }
+.lead{ font-size:21px; line-height:1.5; color:var(--cinza-700); max-width:62ch; }
+.title-rule{ width:64px; height:5px; background:var(--vermelho); border-radius:3px; margin:18px 0 26px; }
+
+/* ---------- Slide de capa ---------- */
+.cover{ background:radial-gradient(120% 120% at 80% 0%, var(--azul-700) 0%, var(--azul-900) 55%, #001a47 100%); color:#fff; }
+.cover .slide__body{ justify-content:center; }
+.cover .eyebrow{ font-size:15px; letter-spacing:.22em; text-transform:uppercase; color:#9fc0ff; font-weight:700; }
+.cover h1{ font-size:54px; line-height:1.05; font-weight:800; margin:18px 0 10px; max-width:20ch; }
+.cover .sub{ font-size:22px; color:#cfe0ff; max-width:48ch; line-height:1.45; }
+.cover .addr{ margin-top:30px; font-size:18px; color:#eaf1ff; font-weight:600; }
+.cover .who{ position:absolute; right:72px; bottom:84px; text-align:right; }
+.cover .who .nm{ font-size:22px; font-weight:800; }
+.cover .who .ln{ font-size:15px; color:#bcd2ff; line-height:1.6; }
+.cover .who .creci{ color:#9fc0ff; }
+.cover .balloon{ position:absolute; left:72px; bottom:84px; }
+
+/* ---------- Seção divisória ---------- */
+.divider{ background:linear-gradient(120deg,var(--azul-900),var(--azul-700)); color:#fff; }
+.divider .slide__body{ justify-content:center; }
+.divider .step{ font-size:120px; font-weight:800; color:rgba(255,255,255,.12); line-height:1; }
+.divider h2{ font-size:48px; font-weight:800; color:#fff; margin-top:-30px; }
+.divider .lead{ color:#cfe0ff; margin-top:14px; }
+
+/* ---------- Grids utilitários ---------- */
+.grid{ display:grid; gap:24px; }
+.cols-2{ grid-template-columns:1fr 1fr; }
+.cols-3{ grid-template-columns:repeat(3,1fr); }
+.row{ display:flex; gap:24px; }
+.fill{ flex:1; }
+.center-y{ justify-content:center; }
+
+/* ---------- Cartões de estatística ---------- */
+.stat{ background:var(--gelo); border:1px solid var(--cinza-100); border-radius:var(--radius); padding:30px 28px; }
+.stat .num{ font-size:48px; font-weight:800; color:var(--azul); line-height:1; font-variant-numeric:tabular-nums; }
+.stat .num .u{ font-size:24px; color:var(--cinza-500); font-weight:700; }
+.stat .lbl{ margin-top:10px; font-size:16px; color:var(--cinza-700); line-height:1.4; }
+.stat.accent{ background:var(--azul); border-color:var(--azul); }
+.stat.accent .num{ color:#fff; }
+.stat.accent .lbl{ color:#cfe0ff; }
+
+/* lista de bullets premium */
+.bullets{ list-style:none; display:flex; flex-direction:column; gap:16px; margin-top:8px; }
+.bullets li{ position:relative; padding-left:34px; font-size:19px; line-height:1.45; color:var(--cinza-700); }
+.bullets li::before{ content:""; position:absolute; left:0; top:7px; width:14px; height:14px; border-radius:4px;
+  background:var(--vermelho); box-shadow:0 0 0 4px rgba(220,20,49,.15); }
+
+/* ---------- Comparativo (490 vs 140) ---------- */
+.vs{ display:grid; grid-template-columns:1fr auto 1fr; gap:30px; align-items:center; }
+.vs .card{ border-radius:var(--radius); padding:34px; text-align:center; }
+.vs .bad{ background:var(--cinza-100); }
+.vs .good{ background:var(--azul); color:#fff; }
+.vs .big{ font-size:64px; font-weight:800; line-height:1; font-variant-numeric:tabular-nums; }
+.vs .bad .big{ color:var(--cinza-700); }
+.vs .good .big{ color:#fff; }
+.vs .cap{ margin-top:8px; font-size:17px; }
+.vs .src{ margin-top:10px; font-size:12px; color:var(--cinza-500); }
+.vs .good .src{ color:#bcd2ff; }
+.vs .arrow{ font-size:30px; color:var(--vermelho); font-weight:800; }
+
+/* ---------- Cartão de comparável (ACM) ---------- */
+.comp{ border:1px solid var(--cinza-300); border-radius:var(--radius); overflow:hidden; display:flex; flex-direction:column; background:#fff; }
+.comp .ph{ height:150px; background:var(--cinza-100) center/cover no-repeat; position:relative; }
+.comp .tag{ position:absolute; top:12px; left:12px; background:var(--azul); color:#fff; font-size:12px; font-weight:700; padding:5px 11px; border-radius:20px; letter-spacing:.04em; }
+.comp .in{ padding:18px 20px; display:flex; flex-direction:column; gap:8px; flex:1; }
+.comp .addr{ font-size:16px; font-weight:700; color:var(--azul-900); line-height:1.25; }
+.comp .meta{ display:flex; gap:18px; font-size:14px; color:var(--cinza-700); }
+.comp .meta b{ color:var(--tinta); }
+.comp .price{ margin-top:auto; font-size:24px; font-weight:800; color:var(--azul); }
+.comp .note{ font-size:13px; color:var(--cinza-500); }
+
+/* ---------- Tabela ACM ---------- */
+.acm{ width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums; font-size:18px; }
+.acm th{ background:var(--azul-900); color:#fff; font-weight:700; padding:14px 16px; text-align:right; font-size:14px; letter-spacing:.03em; }
+.acm th:first-child, .acm td:first-child{ text-align:left; }
+.acm td{ padding:13px 16px; text-align:right; border-bottom:1px solid var(--cinza-100); }
+.acm tr.avg td{ background:var(--gelo); font-weight:700; }
+.acm tr.adj td{ background:var(--azul); color:#fff; font-weight:800; }
+.acm tr.fator td{ background:#fff; }
+.acm tr.fator td:first-child{ color:var(--vermelho); font-weight:700; }
+.acm tr.fator td.hl{ background:var(--vermelho); color:#fff; font-weight:800; }
+
+/* ---------- Preço sugerido (hero) ---------- */
+.price-hero{ background:linear-gradient(120deg,var(--azul-900),var(--azul-700)); color:#fff; }
+.price-hero .slide__body{ justify-content:center; align-items:flex-start; }
+.price-hero .pv{ font-size:88px; font-weight:800; line-height:1; letter-spacing:-.02em; }
+.price-hero .pv .c{ color:#9fc0ff; font-size:40px; vertical-align:super; margin-right:8px; }
+.price-hero .ps{ margin-top:26px; font-size:18px; color:#cfe0ff; max-width:64ch; line-height:1.5; border-left:4px solid var(--vermelho); padding-left:18px; }
+
+/* ---------- Timeline próximos passos ---------- */
+.timeline{ display:flex; flex-direction:column; gap:0; margin-top:6px; }
+.timeline .it{ display:flex; gap:20px; align-items:flex-start; padding:14px 0; }
+.timeline .n{ flex:0 0 44px; height:44px; border-radius:50%; background:var(--azul); color:#fff; font-weight:800; display:flex; align-items:center; justify-content:center; font-size:18px; }
+.timeline .it.win .n{ background:var(--vermelho); }
+.timeline .tx{ font-size:19px; color:var(--cinza-700); padding-top:9px; }
+.timeline .it.win .tx{ font-weight:800; color:var(--vermelho); font-size:22px; }
+
+/* ---------- Cartão de portal ---------- */
+.portal{ background:var(--gelo); border:1px solid var(--cinza-100); border-radius:var(--radius); padding:30px; display:flex; flex-direction:column; gap:12px; }
+.portal .nm{ font-size:22px; font-weight:800; color:var(--azul); }
+.portal .cnt{ font-size:44px; font-weight:800; color:var(--azul-900); font-variant-numeric:tabular-nums; }
+.portal .rng{ font-size:15px; color:var(--cinza-700); }
+
+/* ---------- Caixa de fonte/citação ---------- */
+.sourcebox{ background:var(--gelo); border-left:4px solid var(--azul); padding:14px 18px; border-radius:0 10px 10px 0; font-size:14px; color:var(--cinza-700); }
+.sourcebox a{ color:var(--azul); word-break:break-all; }
+
+/* marcação de dado a confirmar */
+.todo{ outline:2px dashed var(--vermelho); outline-offset:3px; }
+.flag{ position:absolute; top:18px; right:18px; background:var(--vermelho); color:#fff; font-size:11px; font-weight:700; padding:4px 10px; border-radius:14px; letter-spacing:.03em; z-index:5; }
+
+/* cadeia de processo (chips) */
+.chips{ display:flex; flex-wrap:wrap; gap:10px; margin-top:8px; }
+.chips .chip{ background:var(--gelo); border:1px solid var(--cinza-300); color:var(--azul-900);
+  font-size:14px; font-weight:600; padding:9px 14px; border-radius:24px; }
+.chips .chip.on{ background:var(--azul); color:#fff; border-color:var(--azul); }
+
+/* imagem genérica */
+.fig{ border-radius:var(--radius); overflow:hidden; background:var(--cinza-100); }
+.fig img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+/* ---------- Print ---------- */
+@page{ size:1280px 720px; margin:0; }
+@media print{
+  html,body{ background:#fff; }
+  .slide{ margin:0; box-shadow:none; page-break-after:always; break-after:page; }
+  .slide:last-child{ page-break-after:auto; }
+}
